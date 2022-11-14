@@ -1,0 +1,8 @@
+{
+  "name": "TaiYi",
+  "description": "This is not a game.\r\n\r\ntaiyi.world",
+  "image": "ipfs://QmNdUibRHNqX2byJLtCD3ofn65cfCtvXdQnV87wRjqWf96",
+  "external_link": "https://taiyi.world",
+  "seller_fee_basis_points": 0,
+  "fee_recipient": "0x0000000000000000000000000000000000000000"
+}
