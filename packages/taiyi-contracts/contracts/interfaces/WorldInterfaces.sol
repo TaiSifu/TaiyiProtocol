@@ -32,7 +32,6 @@ interface IActors is IERC721, IWorldModule {
     function nextActor() external view returns (uint256);
     function mintActor() external;
     function changeActorRenderMode(uint256 _actor, uint256 _mode) external;
-    function addModule(address _address) external;
 
     function getActor(uint256 _actor) external view returns (Actor memory);
     function getActorByHolder(address _holder) external view returns (Actor memory);
