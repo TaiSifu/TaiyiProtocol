@@ -1,6 +1,7 @@
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
-import { ethers } from 'hardhat';
+import '@openzeppelin/hardhat-upgrades';
+import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
@@ -17,7 +18,6 @@ import {
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
-    deployShejiTu,
     deployActorAttributes
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -46,6 +46,15 @@ describe('社稷图全局时间线（噎明）测试', () => {
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;
 
+    async function deployShejiTu(deployer?: SignerWithAddress) {
+        console.log(`deploy ShejiTu with oneAgeVSecond=${OneAgeVSecond}`);
+        const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
+        return upgrades.deployProxy(shejiTuFactory, [
+            OneAgeVSecond,
+            worldContractRoute.address
+        ]) as Promise<ShejiTu>;
+    }
+
     before(async () => {
         [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
 
@@ -71,7 +80,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
         let routeByDAO = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
         //deploy all basic modules
         await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-        shejiTu = await deployShejiTu(OneAgeVSecond, routeByDAO, deployer);
+        shejiTu = await deployShejiTu(deployer);
         await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
         actorAttributes = await deployActorAttributes(routeByDAO, deployer);
         await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
@@ -85,24 +94,18 @@ describe('社稷图全局时间线（噎明）测试', () => {
         await ethers.provider.send('evm_revert', [snapshotId]);
     });
 
-    it('噎明角色未创生时访问无效', async () => {
-        await expect(shejiTu.ACTOR_YEMING()).to.be.reverted;
+    it('不允许再次初始化', async () => {
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        const tx = shejiTuByDAO.initialize(
+            OneAgeVSecond,
+            worldContractRoute.address
+        );
+        await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
     });
 
-    it('初始化噎明', async () => {
-        //connect timeline to operator
-        let shejiTuByOperator1 = ShejiTu__factory.connect(shejiTu.address, operator1);
-
-        //any one can init YeMing
-        let nextActor = await actors.nextActor();
-        await shejiTuByOperator1.initYeMing();
-        expect(await shejiTu.ACTOR_YEMING()).to.eq(nextActor);
-
-        const actorYeMin = await actors.getActor(await shejiTu.ACTOR_YEMING());
-        expect(actorYeMin.owner).to.eq(shejiTu.address);
-
-        //can not init again
-        await expect(shejiTu.initYeMing()).to.be.revertedWith('YeMing is alreay initialized');
+    it('噎明', async () => {
+        const actorYeMing = await actors.getActor(await shejiTu.ACTOR_YEMING());
+        expect(actorYeMing.owner).to.eq(shejiTu.address);
     });
 
     it('任意角色出生，未注册到角色URI模块的情况', async () => {

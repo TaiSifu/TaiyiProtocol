@@ -37,12 +37,6 @@ export const deployWorldRandom = async (deployer?: SignerWithAddress): Promise<W
     return (await factory.deploy()).deployed();
 };
 
-export const deployShejiTu = async (oneAgeVSecond: number, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ShejiTu> => {
-    const factory = new ShejiTu__factory(deployer);
-    console.log(`deploy ShejiTu with oneAgeVSecond=${oneAgeVSecond}`);
-    return (await factory.deploy(oneAgeVSecond, route.address)).deployed();
-};
-
 export const deployActorAttributes = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ActorAttributes> => {
     const factory = new ActorAttributes__factory(deployer);
     return (await factory.deploy(route.address)).deployed();

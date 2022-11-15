@@ -1,16 +1,33 @@
 // SPDX-License-Identifier: MIT
+/// @title The Taiyi DAO auction house
+
+/*********************************
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░█████████░░█████████░░░░░ *
+ * ░░░░█████████░░█████████░░░░░ *
+ * ░░░░████████████████████░░░░░ *
+ * ░░░░████████████████████░░░░░ *
+ * ░░░░████████████████████░░░░░ *
+ * ░░░░████████████████████░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ *********************************/
+
 pragma solidity ^0.8.6;
 
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
+import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './interfaces/WorldInterfaces.sol';
 import './libs/Base64.sol';
-import './WorldConfigurable.sol';
+import "./WorldContractRoute.sol";
 import "./world/attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
-contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
+contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /* *******
@@ -18,13 +35,13 @@ contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
      * *******
      */
 
-    uint256 private _ACTOR_YEMING; //timeline administrator authority, 噎鸣
+    uint256 public override ACTOR_YEMING; //timeline administrator authority, 噎鸣
 
     mapping(uint256 => uint256) public override ages; //current ages
     mapping(uint256 => bool) public override characterBorn;
     mapping(uint256 => bool) public override characterBirthday; //have atleast one birthday
 
-    uint256 internal immutable ONE_AGE_VSECOND; //how many seconds in real means 1 age in rarelife
+    uint256 public ONE_AGE_VSECOND; //how many seconds in real means 1 age in rarelife
     mapping(uint256 => uint256) public bornTimeStamps;
 
 
@@ -38,24 +55,238 @@ contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
 
     EnumerableSet.AddressSet private _attributeModules;
 
+    // Address of the World Contract Route
+    address internal _worldRouteContract;
+    WorldContractRoute internal worldRoute;
+
     /* *********
      * Modifiers
      * *********
      */
+
+    modifier onlyApprovedOrOwner(uint _actor) {
+        require(_isActorApprovedOrOwner(_actor), "not approved or owner of actor");
+        _;
+    }
 
     /* ****************
      * Public Functions
      * ****************
      */
 
+    /* ****************
+     * External Functions
+     * ****************
+     */
+
+    /**
+     * @notice Initialize the ShejiTu and base contracts,
+     * populate configuration values and init YeMing.
+     * @dev This function can only be called once.
+     */
+    function initialize(
+        uint256 _oneAgeVSecond,
+        address _worldRouteAddress
+    ) external initializer {
+        __ReentrancyGuard_init();
+
+        ONE_AGE_VSECOND = _oneAgeVSecond;
+        require(_worldRouteAddress != address(0), "cannot set route contract as zero address");
+        _worldRouteContract = _worldRouteAddress;
+        worldRoute = WorldContractRoute(_worldRouteAddress);
+
+        IActors actors = worldRoute.actors();
+        ACTOR_YEMING = actors.nextActor();
+        actors.mintActor();
+
+        _bornCharacter(ACTOR_YEMING);
+    }
+
+    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
+
+    function bornCharacter(uint256 _actor) external
+        onlyApprovedOrOwner(_actor)
+    {
+        return _bornCharacter(_actor);
+    }
+
+    function grow(uint256 _actor) external 
+        onlyApprovedOrOwner(_actor)
+    {
+        require(characterBorn[_actor], "actor have not born");
+        require(characterBirthday[_actor] == false || ages[_actor] < _expectedAge(_actor), "actor grow time have not come");
+        IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
+        require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
+
+        if(characterBirthday[_actor]) {
+            //grow one year
+            ages[_actor] += 1;
+        }
+        else {
+            //need first birthday
+            ages[_actor] = 0;
+            characterBirthday[_actor] = true;
+        }
+
+        //do new year age events
+        _process(_actor, ages[_actor]);
+    }
+
+    function registerAttributeModule(address _attributeModule) external 
+        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
+    {
+        require(_attributeModule != address(0), "input can not be ZERO address!");
+        bool rt = _attributeModules.add(_attributeModule);
+        require(rt == true, "module with same address is exist.");
+    }
+
+    function changeAttributeModule(address _oldAddress, address _newAddress) external
+        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
+    {
+        require(_oldAddress != address(0), "input can not be ZERO address!");
+        _attributeModules.remove(_oldAddress);
+        if(_newAddress != address(0))
+            _attributeModules.add(_newAddress);
+    }
+
+    function addAgeEvent(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
+        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
+    {
+        require(_eventId > 0, "event id must not zero");
+        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
+        _eventIDs[_age].push(_eventId);
+        _eventProbs[_age].push(_eventProb);
+    }
+
+    function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
+        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
+    {
+        require(_eventId > 0, "event id must not zero");
+        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
+        for(uint256 i=0; i<_eventIDs[_age].length; i++) {
+            if(_eventIDs[_age][i] == _eventId) {
+                _eventProbs[_age][i] = _eventProb;
+                return;
+            }
+        }
+        require(false, "can not find _eventId");
+    }
+
+    function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
+        onlyApprovedOrOwner(_actor)
+    {
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+
+        address evtProcessorAddress = evts.eventProcessors(_eventId);
+        require(evtProcessorAddress != address(0), "can not find event processor.");
+
+        uint256 _age = ages[_actor];
+        require(evts.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
+        uint256 branchEvtId = _processActiveEvent(_actor, _age, _eventId, _uintParams, _stringParams, 0);
+
+        //only support two level branchs
+        if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+            branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 1);
+            if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+                branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 2);
+                require(branchEvtId == 0, "only support two level branchs");
+            }
+        }
+    }
+
+    /* **************
+     * View Functions
+     * **************
+     */
+
+    function expectedAge(uint256 _actor) external override view returns (uint256) {
+        return _expectedAge(_actor);
+    }
+
+    function actorEvent(uint256 _actor, uint256 _age) external override view returns (uint256[] memory) {
+        return _actorEvents[_actor][_age];
+    }
+
+    function actorEventCount(uint256 _actor, uint256 _eventId) external override view returns (uint256) {
+        return _actorEventsHistory[_actor][_eventId];
+    }
+
+    function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external override view returns (string memory, uint256 _endY) {
+        return _tokenSVG(_actor, _startY, _lineHeight);
+    }
+
+    function tokenJSON(uint256 _actor) external override view returns (string memory) {
+        return _tokenJSON(_actor);
+    }
+
+    function tokenURI(uint256 _actor) public view returns (string memory) {
+        string[7] memory parts;
+        //start svg
+        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
+        uint256 _endY = 0;
+        (parts[1], _endY) = _tokenSVG(_actor, _endY + 20, 20);
+        //end svg
+        parts[2] = '</svg>';
+        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2]));
+
+        //start json
+        parts[0] = string(abi.encodePacked('{"name": "Actor #', Strings.toString(_actor), '"'));
+        parts[1] = ', "description": "This is not a game"';
+        parts[2] = string(abi.encodePacked(', "data": ', _tokenJSON(_actor)));
+        //end json with svg
+        parts[4] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4]))));
+
+        //final output
+        return string(abi.encodePacked('data:application/json;base64,', json));
+    }
+
+    function tokenURIByAge(uint256 _actor, uint256 _age) public view returns (string memory) {
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+
+        string[7] memory parts;
+        //start svg
+        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
+        //Age:
+        parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE5\xB9\xB4\xE9\xBE\x84\xEF\xBC\x9A', Strings.toString(_age), '</text>'));
+        parts[2] = '';
+        string memory evtJson = '';
+        for(uint256 i=0; i<_actorEvents[_actor][_age].length; i++) {
+            uint256 _eventId = _actorEvents[_actor][_age][i];
+            uint256 y = 20*i;
+            parts[2] = string(abi.encodePacked(parts[2],
+                string(abi.encodePacked('<text x="10" y="', Strings.toString(40+y), '" class="base">', evts.eventInfo(_eventId, _actor), '</text>'))));
+            evtJson = string(abi.encodePacked(evtJson, Strings.toString(_eventId), ','));
+        }
+        //end svg
+        parts[3] = string(abi.encodePacked('</svg>'));
+        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
+
+        //start json
+        parts[0] = string(abi.encodePacked('{"name": "Actor #', Strings.toString(_actor), '"'));
+        parts[1] = ', "description": "This is not a game"';
+        parts[2] = string(abi.encodePacked(', "data": {', '"age": ', Strings.toString(_age)));
+        parts[3] = string(abi.encodePacked(', "events": [', evtJson, ']}'));
+        //end json with svg
+        parts[4] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4]))));
+
+        //final output
+        return string(abi.encodePacked('data:application/json;base64,', json));
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC721Receiver).interfaceId || super.supportsInterface(interfaceId);
+    }
+
     /* *****************
      * Private Functions
      * *****************
      */
-
-    constructor(uint256 _oneAgeVSecond, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
-        ONE_AGE_VSECOND = _oneAgeVSecond;
-    }
 
     function _expectedAge(uint256 _actor) internal view returns (uint256) {
         require(characterBorn[_actor], "have not born!");
@@ -77,8 +308,8 @@ contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
 
     function _runTalentProcessor(uint256 _actor, uint256 _age, address _processorAddress) private {
         //approve talent processor the authority of timeline
-        require(_ACTOR_YEMING > 0, "YeMing is not init");
-        worldRoute.actors().approve(_processorAddress, _ACTOR_YEMING);
+        require(ACTOR_YEMING > 0, "YeMing is not init");
+        worldRoute.actors().approve(_processorAddress, ACTOR_YEMING);
         IActorTalentProcessor(_processorAddress).process(_actor, _age); 
     }
 
@@ -252,6 +483,11 @@ contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
      * *****************
      */
 
+    function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
+        IActors actors = worldRoute.actors();
+        return (actors.getApproved(_actor) == msg.sender || actors.ownerOf(_actor) == msg.sender) || actors.isApprovedForAll(actors.ownerOf(_actor), msg.sender);
+    }
+
     function _bornCharacter(uint256 _actor) internal {
         require(!characterBorn[_actor], "already born!");
         characterBorn[_actor] = true;
@@ -296,205 +532,5 @@ contract ShejiTu is IWorldTimeline, WorldConfigurable, ERC165, IERC721Receiver {
                 json = string(abi.encodePacked(json, ','));
         }
         return string(abi.encodePacked(json, ']}'));
-    }
-
-    /* ****************
-     * External Functions
-     * ****************
-     */
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
-
-    function initYeMing() external {
-        require(_ACTOR_YEMING == 0, "YeMing is alreay initialized");
-        IActors actors = worldRoute.actors();
-        _ACTOR_YEMING = actors.nextActor();
-        actors.mintActor();
-
-        _bornCharacter(_ACTOR_YEMING);
-    }    
-
-    function bornCharacter(uint256 _actor) external
-        onlyApprovedOrOwner(_actor)
-    {
-        return _bornCharacter(_actor);
-    }
-
-    function grow(uint256 _actor) external 
-        onlyApprovedOrOwner(_actor)
-    {
-        require(characterBorn[_actor], "actor have not born");
-        require(characterBirthday[_actor] == false || ages[_actor] < _expectedAge(_actor), "actor grow time have not come");
-        IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
-
-        if(characterBirthday[_actor]) {
-            //grow one year
-            ages[_actor] += 1;
-        }
-        else {
-            //need first birthday
-            ages[_actor] = 0;
-            characterBirthday[_actor] = true;
-        }
-
-        //do new year age events
-        _process(_actor, ages[_actor]);
-    }
-
-    function registerAttributeModule(address _attributeModule) external 
-        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
-    {
-        require(_attributeModule != address(0), "input can not be ZERO address!");
-        bool rt = _attributeModules.add(_attributeModule);
-        require(rt == true, "module with same address is exist.");
-    }
-
-    function changeAttributeModule(address _oldAddress, address _newAddress) external
-        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
-    {
-        require(_oldAddress != address(0), "input can not be ZERO address!");
-        _attributeModules.remove(_oldAddress);
-        if(_newAddress != address(0))
-            _attributeModules.add(_newAddress);
-    }
-
-    function addAgeEvent(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
-    {
-        require(_eventId > 0, "event id must not zero");
-        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
-        _eventIDs[_age].push(_eventId);
-        _eventProbs[_age].push(_eventProb);
-    }
-
-    function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyApprovedOrOwner(WorldConstants.ACTOR_PANGU)
-    {
-        require(_eventId > 0, "event id must not zero");
-        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
-        for(uint256 i=0; i<_eventIDs[_age].length; i++) {
-            if(_eventIDs[_age][i] == _eventId) {
-                _eventProbs[_age][i] = _eventProb;
-                return;
-            }
-        }
-        require(false, "can not find _eventId");
-    }
-
-    function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
-        onlyApprovedOrOwner(_actor)
-    {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-
-        address evtProcessorAddress = evts.eventProcessors(_eventId);
-        require(evtProcessorAddress != address(0), "can not find event processor.");
-
-        uint256 _age = ages[_actor];
-        require(evts.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
-        uint256 branchEvtId = _processActiveEvent(_actor, _age, _eventId, _uintParams, _stringParams, 0);
-
-        //only support two level branchs
-        if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
-            branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 1);
-            if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
-                branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 2);
-                require(branchEvtId == 0, "only support two level branchs");
-            }
-        }
-    }
-
-    /* **************
-     * View Functions
-     * **************
-     */
-
-    function ACTOR_YEMING() external override view returns (uint256) {
-        require(_ACTOR_YEMING > 0, "YeMing is not init");
-        return _ACTOR_YEMING;
-    }
-
-    function expectedAge(uint256 _actor) external override view returns (uint256) {
-        return _expectedAge(_actor);
-    }
-
-    function actorEvent(uint256 _actor, uint256 _age) external override view returns (uint256[] memory) {
-        return _actorEvents[_actor][_age];
-    }
-
-    function actorEventCount(uint256 _actor, uint256 _eventId) external override view returns (uint256) {
-        return _actorEventsHistory[_actor][_eventId];
-    }
-
-    function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external override view returns (string memory, uint256 _endY) {
-        return _tokenSVG(_actor, _startY, _lineHeight);
-    }
-
-    function tokenJSON(uint256 _actor) external override view returns (string memory) {
-        return _tokenJSON(_actor);
-    }
-
-    function tokenURI(uint256 _actor) public view returns (string memory) {
-        string[7] memory parts;
-        //start svg
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
-        uint256 _endY = 0;
-        (parts[1], _endY) = _tokenSVG(_actor, _endY + 20, 20);
-        //end svg
-        parts[2] = '</svg>';
-        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2]));
-
-        //start json
-        parts[0] = string(abi.encodePacked('{"name": "Actor #', Strings.toString(_actor), '"'));
-        parts[1] = ', "description": "This is not a game"';
-        parts[2] = string(abi.encodePacked(', "data": ', _tokenJSON(_actor)));
-        //end json with svg
-        parts[4] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
-        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4]))));
-
-        //final output
-        return string(abi.encodePacked('data:application/json;base64,', json));
-    }
-
-    function tokenURIByAge(uint256 _actor, uint256 _age) public view returns (string memory) {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-
-        string[7] memory parts;
-        //start svg
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
-        //Age:
-        parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE5\xB9\xB4\xE9\xBE\x84\xEF\xBC\x9A', Strings.toString(_age), '</text>'));
-        parts[2] = '';
-        string memory evtJson = '';
-        for(uint256 i=0; i<_actorEvents[_actor][_age].length; i++) {
-            uint256 _eventId = _actorEvents[_actor][_age][i];
-            uint256 y = 20*i;
-            parts[2] = string(abi.encodePacked(parts[2],
-                string(abi.encodePacked('<text x="10" y="', Strings.toString(40+y), '" class="base">', evts.eventInfo(_eventId, _actor), '</text>'))));
-            evtJson = string(abi.encodePacked(evtJson, Strings.toString(_eventId), ','));
-        }
-        //end svg
-        parts[3] = string(abi.encodePacked('</svg>'));
-        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
-
-        //start json
-        parts[0] = string(abi.encodePacked('{"name": "Actor #', Strings.toString(_actor), '"'));
-        parts[1] = ', "description": "This is not a game"';
-        parts[2] = string(abi.encodePacked(', "data": {', '"age": ', Strings.toString(_age)));
-        parts[3] = string(abi.encodePacked(', "events": [', evtJson, ']}'));
-        //end json with svg
-        parts[4] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
-        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4]))));
-
-        //final output
-        return string(abi.encodePacked('data:application/json;base64,', json));
-    }
-
-    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
-
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC721Receiver).interfaceId || super.supportsInterface(interfaceId);
     }
 }
