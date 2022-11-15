@@ -16,7 +16,7 @@
 
 ### 太乙岛
 
-[太乙岛（TaiyiDAO）](packages/taiyidao-contracts)是一个创建虚拟世界的集体组织，它由一群来自加密世界的爱好者经营。
+[太乙岛（TaiyiDAO）](packages/taiyi-contracts)是一个创建虚拟世界的集体组织，它由一群来自加密世界的爱好者经营。
 
 ## 一些简单命令行
 
