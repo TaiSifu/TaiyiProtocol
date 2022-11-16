@@ -117,7 +117,7 @@ describe('角色Token基础测试', () => {
 
         //deploy modules when operator is not PanGu
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
-        .to.be.revertedWith('Only Designer');
+        .to.be.revertedWith('Only PanGu');
     });
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
