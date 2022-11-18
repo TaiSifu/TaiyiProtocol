@@ -47,5 +47,5 @@ export const deployActorAttributes = async (route: WorldContractRoute, deployer?
 
 export const deployAssetCoin = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
     const factory = new Fungible__factory(deployer);
-    return (await factory.deploy("Taiyi Coin", "TYCOIN", await worldConst.WORLD_MODULE_COIN(), route.address)).deployed();
+    return (await factory.deploy("Taiyi Daozi", "DAOZI", await worldConst.WORLD_MODULE_COIN(), route.address)).deployed();
 };
