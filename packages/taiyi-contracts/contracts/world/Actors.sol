@@ -19,7 +19,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
      * *******
      */
     
-    /// @notice The address of the Coin ERC20 token contract.
+    /// @notice The address of the Daoli ERC20 token contract.
     address public immutable coin;
 
     // The Taiyi DAO address (creators org)
@@ -105,7 +105,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
      */
 
     /// @param _mintStart Timestamp for the start of the VRGDA mint.
-    /// @param _coin Address of the Coin ERC20 contract.
+    /// @param _coin Address of the Coin(Daoli) ERC20 contract.
     constructor(
         address _taiyiDAO,
         uint256 _mintStart,

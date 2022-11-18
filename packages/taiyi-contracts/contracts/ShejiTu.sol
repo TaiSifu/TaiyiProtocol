@@ -22,6 +22,7 @@ import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './interfaces/WorldInterfaces.sol';
+import { ISifusToken } from './interfaces/ISifusToken.sol';
 import './libs/Base64.sol';
 import "./WorldContractRoute.sol";
 import "./world/attributes/ActorAttributes.sol";
@@ -34,6 +35,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * Globals
      * *******
      */
+
+    // The Sifus ERC721 token contract
+    ISifusToken public sifus;
 
     uint256 public override ACTOR_YEMING; //timeline administrator authority, 噎鸣
 
@@ -69,6 +73,12 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         _;
     }
 
+    modifier onlyYeMing(uint256 _actor) {
+        require(worldRoute.isYeMing(_actor), "not operated by YeMing");
+        require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
+        _;
+    }
+
     /* ****************
      * Public Functions
      * ****************
@@ -85,10 +95,14 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * @dev This function can only be called once.
      */
     function initialize(
+        ISifusToken _sifus,
         uint256 _oneAgeVSecond,
         address _worldRouteAddress
     ) external initializer {
         __ReentrancyGuard_init();
+        __Ownable_init();
+
+        sifus = _sifus;
 
         ONE_AGE_VSECOND = _oneAgeVSecond;
         require(_worldRouteAddress != address(0), "cannot set route contract as zero address");
@@ -103,6 +117,17 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
+
+    function mintSifu(uint256 _operator, address _to) external
+        onlyYeMing(_operator)
+        returns (uint256)
+    {
+        require(_to != address(0), "mint to ZERO address.");
+        uint256 sifuId = sifus.mint();
+        if(_to != address(this))
+            sifus.transferFrom(address(this), _to, sifuId);
+        return sifuId;
+    }
 
     function bornCharacter(uint256 _actor) external
         onlyApprovedOrOwner(_actor)
