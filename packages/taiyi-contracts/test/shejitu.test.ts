@@ -10,6 +10,7 @@ import {
     Actors, Actors__factory, ShejiTu, ShejiTu__factory, ActorAttributes,
 } from '../typechain';
 import {
+    blockNumber,
     blockTimestamp,
 } from './utils';
 import {
@@ -18,12 +19,12 @@ import {
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
-    deployActorAttributes
+    deployActorAttributes,
+    deployAssetCoin
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 chai.use(asPromised);
-
 chai.use(solidity);
 const { expect } = chai;
 
@@ -65,8 +66,12 @@ describe('社稷图全局时间线（噎明）测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy TaiyiCoin ERC20
+        let assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+
         //Deploy Actors
-        actors = await deployActors(worldContractRoute, deployer);
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
 
         //connect actors to operator
@@ -74,7 +79,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
 
         //PanGu should be mint at first, or you can not register any module
         expect(await actorsByPanGu.nextActor()).to.eq(1);
-        await actorsByPanGu.mintActor();
+        await actorsByPanGu.mintActor(0);
 
         //connect route to operator
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);

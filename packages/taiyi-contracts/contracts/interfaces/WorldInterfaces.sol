@@ -26,12 +26,15 @@ interface IActors is IERC721, IWorldModule {
         uint256 actorId;
     }
 
+    event TaiyiDAOUpdated(address taiyiDAO);
     event ActorMinted(address indexed owner, uint256 indexed actorId, uint256 indexed time);
+    event ActorPurchased(address indexed payer, uint256 indexed actorId, uint256 price);
 
     function actor(uint256 _actor) external view returns (uint256 _mintTime, uint256 _status);
     function nextActor() external view returns (uint256);
-    function mintActor() external;
+    function mintActor(uint256 maxPrice) external returns(uint256 actorId);
     function changeActorRenderMode(uint256 _actor, uint256 _mode) external;
+    function setTaiyiDAO(address _taiyiDAO) external;
 
     function getActor(uint256 _actor) external view returns (Actor memory);
     function getActorByHolder(address _holder) external view returns (Actor memory);
@@ -147,11 +150,11 @@ interface IWorldFungible {
     function approveActor(uint256 _from, uint256 _spender, uint256 _amount) external;
     function transferActor(uint256 _from, uint256 _to, uint256 _amount) external;
     function transferFromActor(uint256 _executor, uint256 _from, uint256 _to, uint256 _amount) external;
-    function withdraw(uint256 _actor, uint256 _amount) external;
+    function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external;
 }
 
 interface ITaiyiWorldFungible is IWorldFungible, IWorldModule {
-    function claim(uint256 _actor, uint256 _amount) external;
+    function claim(uint256 _operator, uint256 _actor, uint256 _amount) external;
 }
 
 interface IWorldZones is IERC721Enumerable, IWorldModule {

@@ -97,7 +97,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
         IActors actors = worldRoute.actors();
         ACTOR_YEMING = actors.nextActor();
-        actors.mintActor();
+        actors.mintActor(0);
 
         _bornCharacter(ACTOR_YEMING);
     }

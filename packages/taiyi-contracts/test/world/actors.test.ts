@@ -1,23 +1,29 @@
 import chai from 'chai';
+import asPromised from 'chai-as-promised';
 import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory,
-    Actors, Actors__factory, 
+    Actors, Actors__factory, Fungible, Fungible__factory, 
 } from '../../typechain';
 import {
     blockTimestamp,
+    blockNumber,
+    increaseTime,
 } from '../utils';
 import {
     deployWorldConstants,
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
+    deployAssetCoin,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import web3 from 'web3';
 
+chai.use(asPromised);
 chai.use(solidity);
 const { expect } = chai;
 
@@ -25,14 +31,17 @@ describe('角色Token基础测试', () => {
 
     let deployer: SignerWithAddress;
     let taisifusDAO: SignerWithAddress;
+    let operator1: SignerWithAddress;
+    let operator2: SignerWithAddress;
     let snapshotId: number;
 
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
+    let assetCoin: Fungible;
 
     before(async () => {
-        [deployer, taisifusDAO] = await ethers.getSigners();
+        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -40,8 +49,12 @@ describe('角色Token基础测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy TaiyiCoin ERC20
+        assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+
         //Deploy Actors
-        actors = await deployActors(worldContractRoute, deployer);
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
     });
 
@@ -72,7 +85,7 @@ describe('角色Token基础测试', () => {
             from: actorsByDAO.address,
             nonce: 1,
         });
-        const receipt = await (await actorsByDAO.mintActor()).wait();
+        const receipt = await (await actorsByDAO.mintActor(0)).wait();
         //console.log(JSON.stringify(receipt.events, null, 2));
         const [, actorMinted] = receipt.events || [];
 
@@ -93,13 +106,18 @@ describe('角色Token基础测试', () => {
     it('无准入铸造新角色', async () => {
         let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
 
-        //PanGu should be mint
+        //PanGu should be mint for free
         expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor();
+        await actorsByDAO.mintActor(0);
 
         expect(await actorsByDAO.nextActor()).to.eq(2);
-        //newone should be mint
-        await actorsByDAO.mintActor();
+        //YeMing should be mint for free
+        await actorsByDAO.mintActor(0);
+
+        expect(await actorsByDAO.nextActor()).to.eq(3);
+        //newone should not be mint for free
+        await expect(actorsByDAO.mintActor(0)).to.be.revertedWith("current actor price exceeded max");
+        await expect(actorsByDAO.mintActor(BigInt(100.0e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
 
     it('非盘古操作员无权注册世界模块', async () => {
@@ -113,11 +131,200 @@ describe('角色Token基础测试', () => {
 
         //PanGu should be mint at first, or you can not register any module
         expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor();
+        await actorsByDAO.mintActor(0);
 
         //deploy modules when operator is not PanGu
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
         .to.be.revertedWith('Only PanGu');
+    });
+
+    it('无准入铸造新角色', async () => {
+        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
+        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
+
+        //PanGu should be mint for free
+        expect(await actorsByDAO.nextActor()).to.eq(1);
+        await actorsByDAO.mintActor(0);
+
+        //YeMing should be mint for free
+        expect(await actorsByOp1.nextActor()).to.eq(2);
+        await actorsByOp1.mintActor(0);
+
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
+        expect(await worldContractRoute.isYeMing(2)).to.eq(true);
+
+        //deal coin
+        let assetCoinByOp1 = Fungible__factory.connect(assetCoin.address, operator1);
+        expect((await assetCoinByOp1.claim(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
+        expect(await assetCoin.balanceOf(operator1.address)).to.eq(0);
+        expect((await assetCoinByOp1.withdraw(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
+        expect(await assetCoin.balanceOf(operator1.address)).to.eq(BigInt(1000e18));
+
+        expect(await actors.nextActor()).to.eq(3);
+        //not approve coin to spend by Actors
+        await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+
+        //newone should be mint
+        await assetCoinByOp1.approve(actors.address, BigInt(1000e18));
+        expect((await actorsByOp1.mintActor(BigInt(100e18))).wait()).to.eventually.fulfilled;
+        let actualPay = await assetCoin.balanceOf(taisifusDAO.address);
+        expect(await assetCoin.balanceOf(operator1.address)).to.eq(BigNumber.from(BigInt(1000e18)).sub(actualPay));
+
+        expect(await actors.ownerOf(3)).to.eq(operator1.address);
+    });
+
+    it('铸造新角色-钱不够情况', async () => {
+        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
+        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
+
+        //PanGu should be mint for free
+        await actorsByDAO.mintActor(0);
+        //YeMing should be mint for free
+        await actorsByOp1.mintActor(0);
+
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
+
+        //deal coin
+        let assetCoinByOp1 = Fungible__factory.connect(assetCoin.address, operator1);
+        await assetCoinByOp1.claim(2, 2, BigInt(1e17));
+        await assetCoinByOp1.withdraw(2, 2, BigInt(1e17));
+        await assetCoinByOp1.approve(actors.address, BigInt(1000e18));
+
+        expect(await actors.nextActor()).to.eq(3);
+        expect(await actors.actorPrice()).to.gt(BigInt(1e17));
+        await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+    });
+
+    it('铸造新角色-最小花费上限情况', async () => {
+        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
+        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
+
+        //PanGu should be mint for free
+        await actorsByDAO.mintActor(0);
+        //YeMing should be mint for free
+        await actorsByOp1.mintActor(0);
+
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
+
+        //deal coin
+        let assetCoinByOp1 = Fungible__factory.connect(assetCoin.address, operator1);
+        await assetCoinByOp1.claim(2, 2, BigInt(100e18));
+        await assetCoinByOp1.withdraw(2, 2, BigInt(100e18));
+        await assetCoinByOp1.approve(actors.address, BigInt(1000e18));
+
+        expect(await actors.nextActor()).to.eq(3);
+        let price = await actors.actorPrice();
+        expect(price).to.gt(BigInt(9e17));
+        await expect(actorsByOp1.mintActor(price.sub(BigInt(9e17)))).to.be.revertedWith("current actor price exceeded max");
+    });
+
+    it('铸造角色花费-标准值精度', async () => {
+        let timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        let tstWad = await actors.getTargetSaleTime(BigInt(1e18));
+        let tstSecond = tstWad.mul(86400).div(BigInt(1e18));
+        let dt = (await actors.mintStart()).add(tstSecond).sub(timestamp);
+        await increaseTime(dt.toNumber());
+        let cost = await actors.actorPrice();
+        let targetPrice = await actors.targetPrice();
+
+        let err = targetPrice.sub(cost).mul(BigInt(1e18)).div(cost);
+        expect(err).to.lt(BigInt(0.0001e18));
+    });
+
+});
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+describe('角色铸造费用VRGDA测试', () => {
+    let deployer: SignerWithAddress;
+    let taisifusDAO: SignerWithAddress;
+    let operator1: SignerWithAddress;
+    let operator2: SignerWithAddress;
+    let snapshotId: number;
+
+    let worldConstants: WorldConstants;
+    let worldContractRoute: WorldContractRoute;
+    let actors: Actors;
+    let assetCoin: Fungible;
+
+    before(async () => {
+        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
+
+        //Deploy Constants
+        worldConstants = await deployWorldConstants(deployer);
+
+        //Deploy WorldContractRoute
+        worldContractRoute = await deployWorldContractRoute(deployer);
+
+        //Deploy TaiyiCoin ERC20
+        assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+
+        //Deploy Actors
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
+        await worldContractRoute.registerActors(actors.address);
+    });
+
+    beforeEach(async () => {
+        snapshotId = await ethers.provider.send('evm_snapshot', []);
+    });
+
+    afterEach(async () => {
+        await ethers.provider.send('evm_revert', [snapshotId]);
+    });
+
+    it('发行曲线', async () => {
+        let maxMintable = await actors.MAX_MINTABLE();
+        let tstWad = await actors.getTargetSaleTime(maxMintable.mul(BigInt(1e18)));
+        let tstSecond = tstWad.mul(86400).div(BigInt(1e18));
+        console.log(`角色可铸造${maxMintable}个，计划在${tstSecond.div(86400*365).toString()}年内发行完毕，约为${tstSecond.div(86400).toString()}天（共${tstSecond.toString()}秒）。`);
+
+        tstWad = await actors.getTargetSaleTime(BigInt(10e18));
+        tstSecond = tstWad.mul(86400).div(BigInt(1e18));
+        console.log(`- 头10个角色计划在${tstSecond.div(86400).toString()}天内发行完毕，约为${tstSecond.toString()}秒。`);
+
+        tstWad = await actors.getTargetSaleTime(BigInt(100e18));
+        tstSecond = tstWad.mul(86400).div(BigInt(1e18));
+        console.log(`- 头100个角色计划在${tstSecond.div(86400).toString()}天内发行完毕，约为${tstSecond.toString()}秒。`);
+
+        tstWad = await actors.getTargetSaleTime(BigInt(1000e18));
+        tstSecond = tstWad.mul(86400).div(BigInt(1e18));
+        console.log(`- 头1000个角色计划在${tstSecond.div(86400).toString()}天内发行完毕，约为${tstSecond.toString()}秒。`);
+    });
+
+    it('价格稳定性', async () => {
+        console.log(`角色指导价为:${web3.utils.fromWei((await actors.targetPrice()).toString())}`);
+        let dt = 10; //seconds
+        let timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        await increaseTime((await actors.mintStart()).add(dt).sub(timestamp).toNumber());
+        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+
+        dt = 60; //seconds
+        timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        await increaseTime((await actors.mintStart()).add(dt).sub(timestamp).toNumber());
+        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+
+        dt = 1; //hours
+        timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        await increaseTime((await actors.mintStart()).add(dt*3600).sub(timestamp).toNumber());
+        console.log(`- 若${dt}小时还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+
+        dt = 1; //days
+        timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        await increaseTime((await actors.mintStart()).add(dt*24*3600).sub(timestamp).toNumber());
+        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+
+        dt = 30; //days
+        timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        await increaseTime((await actors.mintStart()).add(dt*24*3600).sub(timestamp).toNumber());
+        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+    });
+
+    it('发行超量容错', async () => {
+        let maxMintablePlusOne = (await actors.MAX_MINTABLE()).add(1);
+        /// Pricing function should revert when trying to price beyond the last mintable actor.
+        await expect(actors.getTargetSaleTime(maxMintablePlusOne.mul(BigInt(1e18)))).to.be.reverted;
     });
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,8 +350,12 @@ describe('角色URI测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy TaiyiCoin ERC20
+        let assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+
         //Deploy Actors
-        actors = await deployActors(worldContractRoute, deployer);
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
 
         //connect actors to operator
@@ -152,7 +363,7 @@ describe('角色URI测试', () => {
 
         //PanGu should be mint at first, or you can not register any module
         expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor();
+        await actorsByDAO.mintActor(0);
     });
 
     beforeEach(async () => {
@@ -180,7 +391,7 @@ describe('角色URI测试', () => {
             from: actors.address,
             nonce: 1+1,
         });
-        const receipt = await (await actorsByOperator1.mintActor()).wait();
+        const receipt = await (await actorsByOperator1.mintActor(0)).wait();
         const [,actorMinted] = receipt.events || [];
 
         expect(await actors.ownerOf(2)).to.eq(operator1.address);
@@ -202,7 +413,7 @@ describe('角色URI测试', () => {
         let actorsByOperator1 = Actors__factory.connect(actors.address, operator1);
 
         expect(await actors.nextActor()).to.eq(2);
-        const receipt = await (await actorsByOperator1.mintActor()).wait();
+        const receipt = await (await actorsByOperator1.mintActor(0)).wait();
 
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
