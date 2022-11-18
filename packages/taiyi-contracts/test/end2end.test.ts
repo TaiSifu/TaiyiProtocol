@@ -168,17 +168,12 @@ async function deploy() {
 
     // 10. SET ShejiTu owner to TaiyiDAOExecutor
     await shejiTu.transferOwnership(timelock.address);
-
-    // 11.JUST FOR TEST, mint two sifu
-    // PagGu mint first two sifus as YeMing for test
-    await worldContractRoute.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
-    await shejiTu.connect(taiyiDAO).mintSifu(await worldConstants.ACTOR_PANGU(), operator1.address);
 }
 
 describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令牌, 提案，投票，执行）', async () => {
     before(deploy);
 
-    it('初始参数正确性', async () => {
+    it('合约参数正确性', async () => {
         expect(await sifusToken.owner()).to.equal(timelock.address);
         expect(await descriptor.owner()).to.equal(timelock.address);
         expect(await shejiTu.owner()).to.equal(timelock.address);
@@ -191,6 +186,12 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
         expect(await gov.timelock()).to.equal(timelock.address);
 
         expect(await gov.vetoer()).to.equal(taiyiDAO.address);
+    });
+
+    it('社稷图颁发师傅令牌', async () => {
+        // PagGu mint first two sifus as YeMing for test
+        await worldContractRoute.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
+        await shejiTu.connect(taiyiDAO).mintSifu(await worldConstants.ACTOR_PANGU(), operator1.address);
 
         expect(await sifusToken.totalSupply()).to.equal(EthersBN.from('2'));
 
