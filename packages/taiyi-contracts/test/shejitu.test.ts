@@ -10,6 +10,7 @@ import {
     Actors, Actors__factory, ShejiTu, ShejiTu__factory, ActorAttributes,
 } from '../typechain';
 import {
+    blockNumber,
     blockTimestamp,
 } from './utils';
 import {
@@ -18,12 +19,12 @@ import {
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
-    deployActorAttributes
+    deployActorAttributes,
+    deployAssetCoin
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 chai.use(asPromised);
-
 chai.use(solidity);
 const { expect } = chai;
 
@@ -65,8 +66,12 @@ describe('社稷图全局时间线（噎明）测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy TaiyiCoin ERC20
+        let assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+
         //Deploy Actors
-        actors = await deployActors(worldContractRoute, deployer);
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
 
         //connect actors to operator
@@ -74,16 +79,16 @@ describe('社稷图全局时间线（噎明）测试', () => {
 
         //PanGu should be mint at first, or you can not register any module
         expect(await actorsByPanGu.nextActor()).to.eq(1);
-        await actorsByPanGu.mintActor();
+        await actorsByPanGu.mintActor(0);
 
         //connect route to operator
-        let routeByDAO = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
         //deploy all basic modules
-        await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
         shejiTu = await deployShejiTu(deployer);
-        await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-        actorAttributes = await deployActorAttributes(routeByDAO, deployer);
-        await routeByDAO.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+        actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
     });
 
     beforeEach(async () => {
@@ -103,9 +108,30 @@ describe('社稷图全局时间线（噎明）测试', () => {
         await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
     });
 
-    it('噎明', async () => {
+    it('时间线管理者-噎明', async () => {
         const actorYeMing = await actors.getActor(await shejiTu.ACTOR_YEMING());
         expect(actorYeMing.owner).to.eq(shejiTu.address);
+    });
+
+    it('盘古注册噎明', async () => {
+        const actorYeMing = await shejiTu.ACTOR_YEMING();
+        expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
+        await expect(worldContractRoute.setYeMing(actorYeMing, shejiTu.address)).to.be.rejectedWith("Only PanGu");
+
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        expect((await routeByPanGu.setYeMing(actorYeMing, shejiTu.address)).wait()).eventually.fulfilled;
+        expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
+    });
+
+    it('盘古注销噎明', async () => {
+        const actorYeMing = await shejiTu.ACTOR_YEMING();
+        expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        await routeByPanGu.setYeMing(actorYeMing, shejiTu.address);
+        expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
+        //should disable this actor as yeming
+        await routeByPanGu.setYeMing(actorYeMing, "0x0000000000000000000000000000000000000000");
+        expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
     });
 
     it('任意角色出生，未注册到角色URI模块的情况', async () => {

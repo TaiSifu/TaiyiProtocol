@@ -1,20 +1,44 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import {toWadUnsafe, toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 import "../interfaces/WorldInterfaces.sol";
 import "../base/ERC721Enumerable.sol";
 import "../libs/Base64.sol";
 import "../WorldConfigurable.sol";
+import {LogisticVRGDA} from "../external/VRGDAs/LogisticVRGDA.sol";
 //import "hardhat/console.sol";
 
-contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
+contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /* *******
      * Globals
      * *******
      */
+    
+    /// @notice The address of the Coin ERC20 token contract.
+    address public immutable coin;
+
+    // The Taiyi DAO address (creators org)
+    address public taiyiDAO;
+
+    /*//////////////////////////////////////////////////////////////
+                            SUPPLY CONSTANTS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Maximum amount of actors that can be minted via VRGDA.
+    // prettier-ignore
+    uint256 public constant MAX_MINTABLE = 1000000000;
+
+    /*//////////////////////////////////////////////////////////////
+                            VRGDA INPUT STATE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Timestamp for the start of minting.
+    uint256 public immutable mintStart;
 
     /*
      * Each actor has its own contract address deployed
@@ -67,12 +91,41 @@ contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
         _;
     }
 
+    /**
+     * @notice Require that the sender is the Taiyi DAO.
+     */
+    modifier onlyTaiyiDAO() {
+        require(msg.sender == taiyiDAO, 'Sender is not the Taiyi DAO');
+        _;
+    }
+
     /* ****************
      * Public Functions
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) ERC721("Taiyi Actor Manifested", "TAM") {
+    /// @param _mintStart Timestamp for the start of the VRGDA mint.
+    /// @param _coin Address of the Coin ERC20 contract.
+    constructor(
+        address _taiyiDAO,
+        uint256 _mintStart,
+        address _coin,
+        address _worldRouteAddress
+    ) 
+        WorldConfigurable(_worldRouteAddress) 
+        ERC721("Taiyi Actor Manifested", "TAM") 
+        LogisticVRGDA(
+            10.0e18, // Target price.
+            0.31e18, // Price decay percent.
+            // Max actors mintable via VRGDA.
+            toWadUnsafe(MAX_MINTABLE),
+            0.0005867e18 // Time scale.
+        )
+    {
+        require(_taiyiDAO != address(0), "taiyiDao address can not be set zero.");
+        taiyiDAO = _taiyiDAO;
+        mintStart = _mintStart;
+        coin = _coin;
     }
 
     /* *****************
@@ -111,9 +164,30 @@ contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
         _contractURI = _uri;
     }
 
-    function mintActor() external override
+    /// @notice Mint a actor, paying with Taiyi Coin.
+    /// @param maxPrice Maximum price to pay to mint the actor.
+    /// @return actorId The id of the actor that was minted.
+    function mintActor(uint256 maxPrice) external override returns(uint256 actorId)
     {
         //console.log("mint log");
+        if(nextActor > 2) { //PanGu and YeMing are free
+            // No need to check if we're at MAX_MINTABLE,
+            // actorPrice() will revert once we reach it due to its
+            // logistic nature. It will also revert prior to the mint start.
+            uint256 currentPrice = actorPrice();
+
+            // If the current price is above the user's specified max, revert.
+            require(currentPrice <= maxPrice, "current actor price exceeded max");
+
+            // Decrement the sender's coin ERC20 balance by the current price.
+            // transfer them to fund receiver
+            IERC20(coin).transferFrom(msg.sender, taiyiDAO, currentPrice);
+
+            unchecked {
+                emit ActorPurchased(msg.sender, nextActor, currentPrice);
+            }
+        }
+
         _safeMint(address(0), msg.sender, nextActor);
         mintTime[nextActor] = block.timestamp;
         status[nextActor] = 2;
@@ -125,6 +199,7 @@ contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
         _holderActors[address(holder)] = nextActor;
 
         emit ActorMinted(msg.sender, nextActor, mintTime[nextActor]);
+        actorId = nextActor;
         nextActor++;
     }
 
@@ -160,6 +235,16 @@ contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
         require(_isApprovedOrOwner(msg.sender, _actor), "not approved or owner");
         require(_mode==0 || renderModules[_mode] != address(0), "render mode invalid");
         actorRenderModes[_actor] = _mode;
+    }
+
+    /**
+     * @notice Set the Taiyi DAO.
+     * @dev Only callable by the Taiyi DAO when not locked.
+     */
+    function setTaiyiDAO(address _taiyiDAO) external override onlyTaiyiDAO {
+        taiyiDAO = _taiyiDAO;
+ 
+        emit TaiyiDAOUpdated(_taiyiDAO);
     }
 
     /* **************
@@ -266,6 +351,18 @@ contract Actors is IActors, ERC721Enumerable, WorldConfigurable {
         }
 
         return accountActors;
+    }
+
+    /// @notice Actor pricing in terms of coin.
+    /// @dev Will revert if called before minting starts
+    /// or after all actors have been minted via VRGDA.
+    /// @return Current price of a actor in terms of coin.
+    function actorPrice() public view returns (uint256) {
+        // We need checked math here to cause underflow
+        // before minting has begun, preventing mints.
+        uint256 timeSinceStart = block.timestamp - mintStart;
+
+        return getVRGDAPrice(toDaysWadUnsafe(timeSinceStart), nextActor-1);
     }
 
     /* ****************

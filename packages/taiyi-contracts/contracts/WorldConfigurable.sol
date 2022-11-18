@@ -17,9 +17,9 @@ contract WorldConfigurable
         _;
     }
 
-    modifier onlyYeMing() {
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not operated by YeMing");
+    modifier onlyYeMing(uint256 _actor) {
+        require(worldRoute.isYeMing(_actor), "not operated by YeMing");
+        require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
         _;
     }
 
