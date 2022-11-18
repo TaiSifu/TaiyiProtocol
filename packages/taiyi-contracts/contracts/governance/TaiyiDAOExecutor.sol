@@ -59,13 +59,13 @@ contract TaiyiDAOExecutor {
         uint256 eta
     );
 
-    uint256 public constant GRACE_PERIOD = 14 days;
+    uint256 public constant GRACE_PERIOD = 14 days; //执行有效期
     uint256 public constant MINIMUM_DELAY = 2 days;
     uint256 public constant MAXIMUM_DELAY = 30 days;
 
     address public admin;
     address public pendingAdmin;
-    uint256 public delay;
+    uint256 public delay;   //执行延迟
 
     mapping(bytes32 => bool) public queuedTransactions;
 

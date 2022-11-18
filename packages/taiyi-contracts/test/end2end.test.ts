@@ -217,7 +217,7 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
         expect(await ethers.provider.getBalance(timelock.address)).to.equal(10+RESERVE_PRICE);
     });
 
-    it('师傅发起提案，投票，提案进入排队', async () => {
+    it('师傅发起提案，投票，提案进入待执行队列', async () => {
         const description = 'Set sifusToken minter to address(1) and transfer treasury to address(2)';
 
         // Action 1. Execute sifusToken.setMinter(address(1))
