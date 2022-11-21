@@ -49,3 +49,33 @@ export const deployAssetDaoli = async (worldConst: WorldConstants, route: WorldC
     const factory = new Fungible__factory(deployer);
     return (await factory.deploy("Taiyi Daoli", "DAOLI", await worldConst.WORLD_MODULE_COIN(), route.address)).deployed();
 };
+
+export const deployAssetFood = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Food", "TYFOOD", await worldConst.WORLD_MODULE_FOOD(), route.address)).deployed();
+};
+
+export const deployAssetWood = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Wood", "TYWOOD", await worldConst.WORLD_MODULE_WOOD(), route.address)).deployed();
+};
+
+export const deployAssetGold = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Gold", "TYGOLD", await worldConst.WORLD_MODULE_GOLD(), route.address)).deployed();
+};
+
+export const deployAssetFabric = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Fabric", "TYFABRIC", await worldConst.WORLD_MODULE_FABRIC(), route.address)).deployed();
+};
+
+export const deployAssetHerb = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Herb", "TYHERB", await worldConst.WORLD_MODULE_HERB(), route.address)).deployed();
+};
+
+export const deployAssetPrestige = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
+    const factory = new Fungible__factory(deployer);
+    return (await factory.deploy("Taiyi Prestige", "TYPRESTIGE", await worldConst.WORLD_MODULE_PRESTIGE(), route.address)).deployed();
+};

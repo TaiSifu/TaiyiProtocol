@@ -6,9 +6,9 @@ import { solidity } from 'ethereum-waffle';
 import {
     Weth,
     SifusToken, SifusDescriptor, SifusDescriptor__factory,
-    TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory, 
+    TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,
     WorldContractRoute__factory, ShejiTu, ShejiTu__factory, Actors,
-    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes,
+    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes, Fungible,
 } from '../typechain';
 
 import {
@@ -17,9 +17,9 @@ import {
 } from './utils';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { 
-    deployActorAttributes, deployActorAttributesConstants, deployActors, deployAssetDaoli, deployWorldConstants, 
-    deployWorldContractRoute, deployWorldRandom 
+import {
+    deployActorAttributes, deployActorAttributesConstants, deployActors, deployAssetDaoli, deployAssetWood, deployWorldConstants,
+    deployWorldContractRoute, deployWorldRandom
 } from '../utils';
 
 chai.use(solidity);
@@ -42,6 +42,8 @@ let actorAttributesConstants: ActorAttributesConstants;
 let worldContractRoute: WorldContractRoute;
 let actors: Actors;
 let actorAttributes: ActorAttributes;
+let assetDaoli: Fungible;
+let assetWood: Fungible;
 
 // Governance Config
 const TIME_LOCK_DELAY = 172_800; // 2 days
@@ -58,10 +60,8 @@ const callDatas: string[] = [];
 
 let proposalId: EthersBN;
 
-const RESERVE_PRICE = 2;
-
 // ShejiTu Config
-const ONE_AGE_VSECOND : number = 1;
+const ONE_AGE_VSECOND: number = 1;
 
 async function deploy() {
     [deployer, wethDeployer, taiyiDAO, operator1] = await ethers.getSigners();
@@ -81,7 +81,7 @@ async function deploy() {
     //-WorldContractRoute
     worldContractRoute = await deployWorldContractRoute(deployer);
     //-Daoli ERC20
-    let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+    assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
     //-Actors
     const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
     actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
@@ -160,7 +160,7 @@ async function deploy() {
     await shejiTu.transferOwnership(timelock.address);
 }
 
-describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令牌, 提案，投票，执行）', async () => {
+describe('太乙岛提案、投票并执行对太乙世界的设计和合约组装事务', async () => {
     before(deploy);
 
     it('合约参数正确性', async () => {
@@ -176,9 +176,18 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
         expect(await gov.timelock()).to.equal(timelock.address);
 
         expect(await gov.vetoer()).to.equal(taiyiDAO.address);
+
+        expect(await actors.ownerOf(await worldConstants.ACTOR_PANGU())).to.eq(taiyiDAO.address);
+        expect(await actors.ownerOf(await shejiTu.ACTOR_YEMING())).to.eq(shejiTu.address);
+
+        console.log(`提案通过进入队列后，执行合约等待期为${TIME_LOCK_DELAY}秒`);
+        console.log(`提案人持票要求占比${PROPOSAL_THRESHOLD_BPS * 100 / 10000}%`);
+        console.log(`投票法定票数要求占比${QUORUM_VOTES_BPS * 100 / 10000}%`);
+        console.log(`投票期时长为${VOTING_PERIOD}秒`);
+        console.log(`投票前冷静期为${VOTING_DELAY}秒`);
     });
 
-    it('社稷图颁发师傅令牌', async () => {
+    it('社稷图颁发两个师傅令牌，一个给太乙岛，一个给测试者', async () => {
         // PagGu mint first two sifus as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
         await shejiTu.connect(taiyiDAO).mintSifu(await worldConstants.ACTOR_PANGU(), operator1.address);
@@ -189,98 +198,100 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
         expect(await sifusToken.ownerOf(1)).to.equal(operator1.address);
     });
 
-    it('允许太乙岛金库（TaiyiDAOExecutor）接收外部资金', async () => {
-        // test receive()
-        await operator1.sendTransaction({
-            to: timelock.address,
-            value: RESERVE_PRICE,
+    it('移交盘古所有权/操作权到太乙岛', async () => {
+        let actorPanGu = await worldConstants.ACTOR_PANGU();
+
+        await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, timelock.address, actorPanGu);
+        expect(await actors.ownerOf(actorPanGu)).to.eq(timelock.address);
+    });
+
+    it('盘古原持有人不再拥有世界设计权', async () => {
+        await expect(worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).to.be.revertedWith("Only PanGu");
+    });
+
+    describe('“将「道理」合约注册到太乙世界！”', async () => {
+        it('测试者发起一个提案，进入投票期', async () => {
+            const description = '注册「道理」合约到太乙世界合约路由器';
+
+            //Action: routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)
+            targets.push(worldContractRoute.address);
+            values.push('0');
+            signatures.push('registerModule(uint256,address)');
+            callDatas.push(encodeParameters(['uint256', 'address'], [await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address]));
+
+            await gov.connect(operator1).propose(targets, values, signatures, callDatas, description);
+            proposalId = await gov.latestProposalIds(operator1.address);
+
+            // Wait for VOTING_DELAY
+            await advanceBlocks(VOTING_DELAY + 1);
         });
 
-        expect(await ethers.provider.getBalance(timelock.address)).to.equal(RESERVE_PRICE);
+        it('一位师傅投赞成票', async () => {
+            // cast vote for proposal
+            await gov.connect(operator1).castVote(proposalId, 1);
 
-        // test fallback() calls deposit(uint) which is not implemented
-        await operator1.sendTransaction({
-            data: '0xb6b55f250000000000000000000000000000000000000000000000000000000000000001',
-            to: timelock.address,
-            value: 10,
+            await advanceBlocks(VOTING_PERIOD);
         });
 
-        expect(await ethers.provider.getBalance(timelock.address)).to.equal(10+RESERVE_PRICE);
+        it('投票期结束，计票并进入执行队列', async () => {
+            await gov.connect(operator1).queue(proposalId);
+
+            // Queued state
+            expect(await gov.state(proposalId)).to.equal(5);
+        });
+
+        it('“「道理」合约注册到世界”的提案被执行', async () => {
+            const { eta } = await gov.proposals(proposalId);
+            await setNextBlockTimestamp(eta.toNumber(), false);
+            await gov.execute(proposalId);
+
+            // Successfully executed Action
+            expect(await worldContractRoute.modules(await worldConstants.WORLD_MODULE_COIN())).to.eq(assetDaoli.address);
+        });
     });
 
-    it('师傅发起提案，投票，提案进入待执行队列', async () => {
-        const description = 'Set sifusToken minter to address(1) and transfer treasury to address(2)';
+    describe('社区开发一个「木材」资源合约，太乙岛将它注册到太乙世界', async () => {
+        it('任意测试者新部署一个资源合约（木材）', async () => {
+            assetWood = await deployAssetWood(worldConstants, worldContractRoute, deployer);
+        });
 
-        // Action 1. Execute sifusToken.setMinter(address(1))
-        targets.push(sifusToken.address);
-        values.push('0');
-        signatures.push('setMinter(address)');
-        callDatas.push(encodeParameters(['address'], [address(1)]));
+        it('测试者发起一个提案，进入投票期', async () => {
+            const description = '注册「木材」合约到太乙世界合约路由器';
 
-        // Action 2. Execute transfer RESERVE_PRICE to address(2)
-        targets.push(address(2));
-        values.push(String(RESERVE_PRICE));
-        signatures.push('');
-        callDatas.push('0x');
+            //Action: routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_WOOD(), assetWood.address)
+            targets.push(worldContractRoute.address);
+            values.push('0');
+            signatures.push('registerModule(uint256,address)');
+            callDatas.push(encodeParameters(['uint256', 'address'], [await worldConstants.WORLD_MODULE_WOOD(), assetWood.address]));
 
-        await gov.connect(operator1).propose(targets, values, signatures, callDatas, description);
-        proposalId = await gov.latestProposalIds(operator1.address);
+            await gov.connect(operator1).propose(targets, values, signatures, callDatas, description);
+            proposalId = await gov.latestProposalIds(operator1.address);
 
-        // Wait for VOTING_DELAY
-        await advanceBlocks(VOTING_DELAY + 1);
+            // Wait for VOTING_DELAY
+            await advanceBlocks(VOTING_DELAY + 1);
+        });
 
-        // cast vote for proposal
-        await gov.connect(operator1).castVote(proposalId, 1);
+        it('一位师傅投赞成票', async () => {
+            // cast vote for proposal
+            await gov.connect(operator1).castVote(proposalId, 1);
 
-        await advanceBlocks(VOTING_PERIOD);
+            await advanceBlocks(VOTING_PERIOD);
+        });
 
-        await gov.connect(operator1).queue(proposalId);
+        it('投票期结束，计票并进入执行队列', async () => {
+            await gov.connect(operator1).queue(proposalId);
 
-        // Queued state
-        expect(await gov.state(proposalId)).to.equal(5);
-    });
+            // Queued state
+            expect(await gov.state(proposalId)).to.equal(5);
+        });
 
-    it('提案执行正确性', async () => {
-        const { eta } = await gov.proposals(proposalId);
-        await setNextBlockTimestamp(eta.toNumber(), false);
-        await gov.execute(proposalId);
+        it('“「木材」合约注册进世界”的提案被执行', async () => {
+            const { eta } = await gov.proposals(proposalId);
+            await setNextBlockTimestamp(eta.toNumber(), false);
+            await gov.execute(proposalId);
 
-        // Successfully executed Action 1
-        expect(await sifusToken.minter()).to.equal(address(1));
-
-        // Successfully executed Action 2
-        expect(await ethers.provider.getBalance(address(2))).to.equal(RESERVE_PRICE);
-        expect(await ethers.provider.getBalance(timelock.address)).to.equal(10);
-    });
-
-    it('太乙岛不允许直接接收资金', async () => {
-        let error1;
-
-        // TaiyiDAO does not accept value without calldata
-        try {
-            await operator1.sendTransaction({
-                to: gov.address,
-                value: 10,
-            });
-        } catch (e) {
-            error1 = e;
-        }
-
-        expect(error1);
-
-        let error2;
-
-        // TaiyiDAO does not accept value with calldata
-        try {
-            await operator1.sendTransaction({
-                data: '0xb6b55f250000000000000000000000000000000000000000000000000000000000000001',
-                to: gov.address,
-                value: 10,
-            });
-        } catch (e) {
-            error2 = e;
-        }
-
-        expect(error2);
+            // Successfully executed Action
+            expect(await worldContractRoute.modules(await worldConstants.WORLD_MODULE_WOOD())).to.eq(assetWood.address);
+        });
     });
 });
