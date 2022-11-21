@@ -7,11 +7,13 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, ActorAttributesConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Actors__factory, ShejiTu, ShejiTu__factory, ActorAttributes,
+    Actors, Actors__factory, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken, SifusDescriptor__factory,
 } from '../typechain';
 import {
     blockNumber,
     blockTimestamp,
+    deploySifusToken,
+    populateDescriptor,
 } from './utils';
 import {
     deployWorldConstants,
@@ -20,7 +22,7 @@ import {
     deployActors,
     deployWorldRandom,
     deployActorAttributes,
-    deployAssetCoin
+    deployAssetDaoli
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -33,17 +35,18 @@ const OneAgeVSecond : number = 1;
 describe('社稷图全局时间线（噎明）测试', () => {
 
     let deployer: SignerWithAddress;
-    let taisifusDAO: SignerWithAddress;
+    let taiyiDAO: SignerWithAddress;
     let operator1: SignerWithAddress;
     let operator2: SignerWithAddress;
     let snapshotId: number;
+
+    let sifusToken: SifusToken;
 
     let worldConstants: WorldConstants;
     let actorAttributesConstants: ActorAttributesConstants;
 
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let actorsByPanGu: Actors;
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;
 
@@ -51,13 +54,19 @@ describe('社稷图全局时间线（噎明）测试', () => {
         console.log(`deploy ShejiTu with oneAgeVSecond=${OneAgeVSecond}`);
         const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
         return upgrades.deployProxy(shejiTuFactory, [
+            sifusToken.address,
             OneAgeVSecond,
             worldContractRoute.address
         ]) as Promise<ShejiTu>;
     }
 
     before(async () => {
-        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
+        [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
+
+        //Deploy SifusToken
+        sifusToken = await deploySifusToken(deployer, taiyiDAO.address, deployer.address);
+        const descriptor = await sifusToken.descriptor();
+        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -66,23 +75,20 @@ describe('社稷图全局时间线（噎明）测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
-        //Deploy TaiyiCoin ERC20
-        let assetCoin = await deployAssetCoin(worldConstants, worldContractRoute, deployer);
+        //Deploy Taiyi Daoli ERC20
+        let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
         //Deploy Actors
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        actors = await deployActors(taisifusDAO.address, timestamp, assetCoin.address, worldContractRoute, deployer);
+        actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
 
-        //connect actors to operator
-        actorsByPanGu = Actors__factory.connect(actors.address, taisifusDAO);
-
         //PanGu should be mint at first, or you can not register any module
-        expect(await actorsByPanGu.nextActor()).to.eq(1);
-        await actorsByPanGu.mintActor(0);
+        expect(await actors.nextActor()).to.eq(1);
+        await actors.connect(taiyiDAO).mintActor(0);
 
         //connect route to operator
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
         shejiTu = await deployShejiTu(deployer);
@@ -100,8 +106,9 @@ describe('社稷图全局时间线（噎明）测试', () => {
     });
 
     it('不允许再次初始化', async () => {
-        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const tx = shejiTuByDAO.initialize(
+            sifusToken.address,
             OneAgeVSecond,
             worldContractRoute.address
         );
@@ -118,7 +125,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
         await expect(worldContractRoute.setYeMing(actorYeMing, shejiTu.address)).to.be.rejectedWith("Only PanGu");
 
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         expect((await routeByPanGu.setYeMing(actorYeMing, shejiTu.address)).wait()).eventually.fulfilled;
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
     });
@@ -126,7 +133,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
     it('盘古注销噎明', async () => {
         const actorYeMing = await shejiTu.ACTOR_YEMING();
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         await routeByPanGu.setYeMing(actorYeMing, shejiTu.address);
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
         //should disable this actor as yeming
@@ -135,7 +142,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
     });
 
     it('任意角色出生，未注册到角色URI模块的情况', async () => {
-        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const receipt = await (await shejiTuByDAO.bornCharacter(await worldConstants.ACTOR_PANGU())).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
@@ -150,9 +157,9 @@ describe('社稷图全局时间线（噎明）测试', () => {
     it('任意角色出生，注册到角色URI模块的情况', async () => {
 
         //register timeline to be one part of Actor URI
-        expect((await actorsByPanGu.registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
+        expect((await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
 
-        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const receipt = await (await shejiTuByDAO.bornCharacter(await worldConstants.ACTOR_PANGU())).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
@@ -168,7 +175,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
     it('角色生长，未注册角色基础属性情况', async () => {
         let actorPanGu = await worldConstants.ACTOR_PANGU();
 
-        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const receipt = await (await shejiTuByDAO.bornCharacter(actorPanGu)).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
@@ -178,7 +185,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
     it('角色生长，注册角色基础属性但未初始化情况', async () => {
         let actorPanGu = await worldConstants.ACTOR_PANGU();
 
-        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taisifusDAO);
+        let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const receipt = await (await shejiTuByDAO.bornCharacter(actorPanGu)).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
