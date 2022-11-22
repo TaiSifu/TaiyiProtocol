@@ -225,10 +225,10 @@ interface IWorldItems is IERC721Enumerable, IWorldModule {
 
     function item(uint256 _itemId) external view returns (SItem memory);
 
-    function mint(uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) external returns (uint256);
-    function modify(uint256 _itemId, uint256 _wear) external;
-    function burn(uint256 _itemId) external;
-    function withdrawItem(uint256 _itemId) external;
+    function mint(uint256 _operator, uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) external returns (uint256);
+    function modify(uint256 _operator, uint256 _itemId, uint256 _wear) external;
+    function burn(uint256 _operator, uint256 _itemId) external;
+    function withdrawItem(uint256 _operator, uint256 _itemId) external;
 }
 
 interface IActorPrelifes is IWorldModule {

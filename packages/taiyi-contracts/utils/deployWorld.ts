@@ -5,6 +5,7 @@ import {
     ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,    
     Fungible, Fungible__factory, ShejiTu, ShejiTu__factory, SifusToken,
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
+    WorldItems, WorldItems__factory,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 
@@ -91,5 +92,10 @@ export const deployActorNames = async (route: WorldContractRoute, deployer?: Sig
 
 export const deployActorSocialIdentity = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ActorSocialIdentity> => {
     const factory = new ActorSocialIdentity__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
+export const deployWorldItems = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<WorldItems> => {
+    const factory = new WorldItems__factory(deployer);
     return (await factory.deploy(route.address)).deployed();
 };

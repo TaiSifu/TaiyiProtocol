@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Fungible, ActorSocialIdentity,
+    Actors, Fungible, WorldItems,
 } from '../../typechain';
 import {
     blockNumber,
@@ -18,7 +18,7 @@ import {
     deployActors,
     deployWorldRandom,
     deployAssetDaoli,
-    deployActorSocialIdentity,
+    deployWorldItems,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -28,7 +28,7 @@ const { expect } = chai;
 
 const OneAgeVSecond : number = 1;
 
-describe('角色社会身份测试', () => {
+describe('道具通证测试', () => {
 
     let deployer: SignerWithAddress;
     let taiyiDAO: SignerWithAddress;
@@ -40,7 +40,7 @@ describe('角色社会身份测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let assetDaoli: Fungible;
-    let actorSIDs: ActorSocialIdentity;
+    let worldItems: WorldItems;
 
     let newActorByOp1 = async ():Promise<BigNumber> => {
         //deal coin
@@ -77,8 +77,8 @@ describe('角色社会身份测试', () => {
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-        actorSIDs = await deployActorSocialIdentity(worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIDS(), actorSIDs.address);
+        worldItems = await deployWorldItems(worldContractRoute, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ITEMS(), worldItems.address);
 
         //second actor test for YeMing, should be mint for free
         expect(await actors.nextActor()).to.eq(2);
@@ -95,21 +95,21 @@ describe('角色社会身份测试', () => {
     });
 
     it('合约符号（Symbol）', async () => {
-        expect(await actorSIDs.symbol()).to.eq('TYSID');
+        expect(await worldItems.symbol()).to.eq('TYITEM');
     });
 
     it('合约名称', async () => {
-        expect(await actorSIDs.name()).to.eq('Taiyi Social Identity');
+        expect(await worldItems.name()).to.eq('Taiyi Items');
     });
 
-    it(`非盘古无权设计新身份`, async ()=>{
+    it(`非盘古无权设计新道具类型`, async ()=>{
         //should not
-        await expect(actorSIDs.setSIDName(10010, "乞丐")).to.be.revertedWith("only PanGu");;
+        await expect(worldItems.setTypeName(20, "《木工房》")).to.be.revertedWith("only PanGu");;
     });
 
-    it(`盘古设计新身份`, async ()=>{
-        expect((await actorSIDs.connect(taiyiDAO).setSIDName(10010, "乞丐")).wait()).eventually.fulfilled;
-        expect(await actorSIDs.names(10010)).to.eq("乞丐");
+    it(`盘古设计新道具类型`, async ()=>{
+        expect((await worldItems.connect(taiyiDAO).setTypeName(20, "《木工房》")).wait()).eventually.fulfilled;
+        expect(await worldItems.typeNames(20)).to.eq("《木工房》");
     });
 
 });
