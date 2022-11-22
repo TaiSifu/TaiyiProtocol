@@ -1,19 +1,9 @@
 import { ethers, upgrades  } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
-    ActorAttributes,
-    ActorAttributesConstants,
-    ActorAttributesConstants__factory,
-    ActorAttributes__factory,
-    ActorNames,
-    ActorNames__factory,
-    Actors,
-    Actors__factory,
-    Fungible,
-    Fungible__factory,
-    ShejiTu,
-    ShejiTu__factory,
-    SifusToken,
+    ActorAttributes, ActorAttributes__factory, ActorAttributesConstants, ActorAttributesConstants__factory,
+    ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,    
+    Fungible, Fungible__factory, ShejiTu, ShejiTu__factory, SifusToken,
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
@@ -96,5 +86,10 @@ export const deployAssetPrestige = async (worldConst: WorldConstants, route: Wor
 
 export const deployActorNames = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ActorNames> => {
     const factory = new ActorNames__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
+export const deployActorSocialIdentity = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ActorSocialIdentity> => {
+    const factory = new ActorSocialIdentity__factory(deployer);
     return (await factory.deploy(route.address)).deployed();
 };

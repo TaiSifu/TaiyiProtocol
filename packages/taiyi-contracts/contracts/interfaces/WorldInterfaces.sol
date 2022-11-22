@@ -180,7 +180,7 @@ interface IActorSocialIdentity is IERC721Enumerable, IWorldModule {
 
     function nextSID() external view returns (uint256);
     function names(uint256 _nameid) external view returns (string memory);
-    function claim(uint256 _nameid, uint256 _actor) external returns (uint256 _sid);
+    function claim(uint256 _operator, uint256 _nameid, uint256 _actor) external returns (uint256 _sid);
     function sidName(uint256 _sid) external view returns (uint256 _nameid, string memory _name);
     function haveName(uint256 _actor, uint256 _nameid) external view returns (bool);
 }

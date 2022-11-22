@@ -86,11 +86,6 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
         _;
     }
 
-    modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
-        _;
-    }
-
     /**
      * @notice Require that the sender is the Taiyi DAO.
      */
