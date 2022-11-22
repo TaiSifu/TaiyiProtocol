@@ -6,11 +6,11 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Actors__factory, ActorNames, ActorNames__factory, ShejiTu, SifusToken, SifusDescriptor__factory, ActorAttributes, Fungible,
+    Actors, ActorNames, ActorNames__factory, Fungible,
 } from '../../typechain';
 import {
     blockNumber,
-    blockTimestamp, deploySifusToken, populateDescriptor,
+    blockTimestamp,
 } from '../utils';
 import {
     deployWorldConstants,
@@ -18,9 +18,7 @@ import {
     deployActors,
     deployWorldRandom,
     deployActorNames,
-    deployActorAttributes,
     deployAssetDaoli,
-    deployShejiTu
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -185,7 +183,7 @@ describe('角色姓名测试', () => {
     });
 
     it("提取姓名NFT", async ()=>{
-        //second actor for YeMing, should be mint for free
+        //second actor test for YeMing, should be mint for free
         expect(await actors.nextActor()).to.eq(2);
         await actors.connect(operator1).mintActor(0);
         await worldContractRoute.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test

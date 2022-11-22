@@ -17,6 +17,11 @@ contract WorldConfigurable
         _;
     }
 
+    modifier onlyPanGu() {
+        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
+        _;
+    }
+
     modifier onlyYeMing(uint256 _actor) {
         require(worldRoute.isYeMing(_actor), "not operated by YeMing");
         require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
