@@ -8,6 +8,8 @@
 
 [太乙师傅令牌（SifusToken）](./contracts/SifusToken.sol)是太乙岛管理者的凭证，这些凭证的拥有者称作“太乙传人”。在太乙世界中，当某位角色完成特殊成就后，社稷图中的相关事件会铸造太乙师傅令牌并赋予该角色，其拥有者可以获得该令牌并成为太乙传人。
 
+[赏善罚恶令（TaiyiDAOExecutor）](./contracts/governance/TaiyiDAOExecutor.sol)是一种简单的由太乙师傅共同参加的投票执行系统，可以链上执行几乎一切太乙岛提案。
+
 ## 智能合约
 
 ### 太乙岛和山河社稷图
