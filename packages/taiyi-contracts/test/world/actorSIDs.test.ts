@@ -42,14 +42,16 @@ describe('角色社会身份测试', () => {
     let assetDaoli: Fungible;
     let actorSIDs: ActorSocialIdentity;
 
+    let actor: BigNumber;
+
     let newActorByOp1 = async ():Promise<BigNumber> => {
         //deal coin
         await assetDaoli.connect(operator1).claim(2, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).withdraw(2, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).approve(actors.address, BigInt(1000e18));
-        let actor = await actors.nextActor();
+        let _actor = await actors.nextActor();
         await actors.connect(operator1).mintActor(BigInt(100e18));
-        return actor;
+        return _actor;
     }
 
     before(async () => {
@@ -86,14 +88,6 @@ describe('角色社会身份测试', () => {
         await worldContractRoute.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test
     });
 
-    beforeEach(async () => {
-        snapshotId = await ethers.provider.send('evm_snapshot', []);
-    });
-
-    afterEach(async () => {
-        await ethers.provider.send('evm_revert', [snapshotId]);
-    });
-
     it('合约符号（Symbol）', async () => {
         expect(await actorSIDs.symbol()).to.eq('TYSID');
     });
@@ -102,14 +96,32 @@ describe('角色社会身份测试', () => {
         expect(await actorSIDs.name()).to.eq('Taiyi Social Identity');
     });
 
-    it(`非盘古无权设计新身份`, async ()=>{
-        //should not
-        await expect(actorSIDs.setSIDName(10010, "乞丐")).to.be.revertedWith("only PanGu");;
-    });
+    describe('社会身份设计测试', () => {
 
-    it(`盘古设计新身份`, async ()=>{
-        expect((await actorSIDs.connect(taiyiDAO).setSIDName(10010, "乞丐")).wait()).eventually.fulfilled;
-        expect(await actorSIDs.names(10010)).to.eq("乞丐");
-    });
+        it(`非盘古无权设计新身份`, async ()=>{
+            //should not
+            await expect(actorSIDs.setSIDName(10010, "乞丐")).to.be.revertedWith("only PanGu");;
+        });
 
+        it(`盘古设计新身份`, async ()=>{
+            expect((await actorSIDs.connect(taiyiDAO).setSIDName(10010, "乞丐")).wait()).eventually.fulfilled;
+            expect(await actorSIDs.names(10010)).to.eq("乞丐");
+        });
+    });        
+
+    describe('社会身份颁发测试', () => {
+
+        it(`非噎明无权赋予角色新身份`, async ()=>{
+            actor = await newActorByOp1();
+
+            await expect(actorSIDs.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 10010, actor)).to.be.revertedWith("not operated by YeMing");
+        });
+
+        it(`噎明赋予角色新身份`, async ()=>{
+            let newSID = await actorSIDs.nextSID();
+            expect((await actorSIDs.connect(operator1).claim(2, 10010, actor)).wait()).eventually.fulfilled;
+
+            expect(await actorSIDs.ownerOf(newSID)).to.eq((await actors.getActor(actor)).account);
+        });
+    });        
 });

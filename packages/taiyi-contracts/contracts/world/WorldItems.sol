@@ -125,18 +125,15 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
         itemWears[_itemId] = _wear;
 
         uint256 shape = itemShapes[_itemId];
-        uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_itemId)).actorId;
-        emit ItemChanged(actor, _itemId, typeId, typeNames[typeId], _wear, shape, shapeNames[shape]);
+        emit ItemChanged(_itemId, typeId, typeNames[typeId], _wear, shape, shapeNames[shape]);
     }
 
     function burn(uint256 _operator, uint256 _itemId) external override
         onlyYeMing(_operator)
     {
-        uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_itemId)).actorId;
-
         _burn(_itemId);
 
-        emit ItemDestroyed(actor, _itemId, itemTypes[_itemId], typeNames[itemTypes[_itemId]]);
+        emit ItemDestroyed(_itemId, itemTypes[_itemId], typeNames[itemTypes[_itemId]]);
     }
 
     function withdrawItem(uint256 _operator, uint256 _itemId) external override
@@ -144,10 +141,10 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     {
         address itemOwner = ownerOf(_itemId);
         IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
-        require(_isActorApprovedOrOwner(actor.actorId), "You are not the owner of actor.");
+        require(_isActorApprovedOrOwner(actor.actorId), "not approved or the owner of actor.");
 
         //transfer item token from current holder to actor owner
-        transferFrom(itemOwner, actor.owner, _itemId);
+        _transfer(itemOwner, actor.owner, _itemId);
     }
 
     /* *****************
