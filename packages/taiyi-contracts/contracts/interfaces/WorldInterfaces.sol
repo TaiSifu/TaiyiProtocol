@@ -70,7 +70,7 @@ interface IActorNames is IERC721Enumerable, IWorldModule {
 
     function claim(string memory _firstName, string memory _lastName, uint256 _actor) external returns (uint256 _nameId);
     function assignName(uint256 _nameId, uint256 _actor) external;
-    function withdrawName(uint256 _actor) external;
+    function withdrawName(uint256 _operator, uint256 _actor) external;
 }
 
 interface IActorAttributes is IWorldModule {

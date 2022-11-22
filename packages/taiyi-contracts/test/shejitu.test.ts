@@ -22,7 +22,8 @@ import {
     deployActors,
     deployWorldRandom,
     deployActorAttributes,
-    deployAssetDaoli
+    deployAssetDaoli,
+    deployShejiTu
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -49,16 +50,6 @@ describe('社稷图全局时间线（噎明）测试', () => {
     let actors: Actors;
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;
-
-    async function deployShejiTu(deployer?: SignerWithAddress) {
-        console.log(`deploy ShejiTu with oneAgeVSecond=${OneAgeVSecond}`);
-        const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
-        return upgrades.deployProxy(shejiTuFactory, [
-            sifusToken.address,
-            OneAgeVSecond,
-            worldContractRoute.address
-        ]) as Promise<ShejiTu>;
-    }
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
@@ -91,7 +82,7 @@ describe('社稷图全局时间线（噎明）测试', () => {
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-        shejiTu = await deployShejiTu(deployer);
+        shejiTu = await deployShejiTu(OneAgeVSecond, sifusToken, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)

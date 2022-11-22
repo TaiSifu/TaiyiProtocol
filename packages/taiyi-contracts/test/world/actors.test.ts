@@ -27,7 +27,7 @@ chai.use(asPromised);
 chai.use(solidity);
 const { expect } = chai;
 
-describe('角色Token基础测试', () => {
+describe('太乙角色基础测试', () => {
 
     let deployer: SignerWithAddress;
     let taisifusDAO: SignerWithAddress;
@@ -64,6 +64,14 @@ describe('角色Token基础测试', () => {
 
     afterEach(async () => {
         await ethers.provider.send('evm_revert', [snapshotId]);
+    });
+
+    it('角色合约符号（Symbol）', async () => {
+        expect(await actors.symbol()).to.eq('TYACTOR');
+    });
+
+    it('角色合约名称', async () => {
+        expect(await actors.name()).to.eq('Taiyi Actor Manifested');
     });
 
     it('访问不存在的角色', async () => {

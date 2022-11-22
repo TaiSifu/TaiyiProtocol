@@ -1,15 +1,19 @@
+import { ethers, upgrades  } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     ActorAttributes,
     ActorAttributesConstants,
     ActorAttributesConstants__factory,
     ActorAttributes__factory,
+    ActorNames,
+    ActorNames__factory,
     Actors,
     Actors__factory,
     Fungible,
     Fungible__factory,
     ShejiTu,
     ShejiTu__factory,
+    SifusToken,
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
@@ -34,6 +38,16 @@ route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Actors> => {
     const factory = new Actors__factory(deployer);
     return (await factory.deploy(taiyiDAO, mintStart, coinContract, route.address)).deployed();
 };
+
+export const deployShejiTu = async (oneAgeVSecond: number, sifusToken: SifusToken, route: WorldContractRoute, deployer?: SignerWithAddress) => {
+    console.log(`deploy ShejiTu with oneAgeVSecond=${oneAgeVSecond}`);
+    const shejiTuFactory = new ShejiTu__factory(deployer);
+    return upgrades.deployProxy(shejiTuFactory, [
+        sifusToken.address,
+        oneAgeVSecond,
+        route.address
+    ]) as Promise<ShejiTu>;
+}
 
 export const deployWorldRandom = async (deployer?: SignerWithAddress): Promise<WorldRandom> => {
     const factory = new WorldRandom__factory(deployer);
@@ -78,4 +92,9 @@ export const deployAssetHerb = async (worldConst: WorldConstants, route: WorldCo
 export const deployAssetPrestige = async (worldConst: WorldConstants, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Fungible> => {
     const factory = new Fungible__factory(deployer);
     return (await factory.deploy("Taiyi Prestige", "TYPRESTIGE", await worldConst.WORLD_MODULE_PRESTIGE(), route.address)).deployed();
+};
+
+export const deployActorNames = async (route: WorldContractRoute, deployer?: SignerWithAddress): Promise<ActorNames> => {
+    const factory = new ActorNames__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
 };
