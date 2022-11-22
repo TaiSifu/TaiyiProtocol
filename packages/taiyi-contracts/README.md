@@ -8,7 +8,11 @@
 
 [太乙师傅令牌（SifusToken）](./contracts/SifusToken.sol)是太乙岛管理者的凭证，这些凭证的拥有者称作“太乙传人”。在太乙世界中，当某位角色完成特殊成就后，社稷图中的相关事件会铸造太乙师傅令牌并赋予该角色，其拥有者可以获得该令牌并成为太乙传人。
 
+[赏善罚恶令（TaiyiDAOExecutor）](./contracts/governance/TaiyiDAOExecutor.sol)是一种简单的由太乙师傅共同参加的投票执行系统，可以链上执行几乎一切太乙岛提案。
+
 ## 智能合约
+
+### 太乙岛和山河社稷图
 
 | 合约| 描述| 地址|
 | ------------------------------------- | -------------------------------------- |-------------------------------------- |
@@ -16,11 +20,18 @@
 | [SifusSeeder](./contracts/SifusSeeder.sol)                      | 这个合约被用来在师傅令牌的铸造过程中决定其显示属性。这个合约在未来是能够被替换的，因此可以升级属性的生成算法。当然，太乙DAO也可以锁定这个合约来避免未来更新。当前，师傅的属性由伪随机算法生成：`keccak256(abi.encodePacked(blockhash(block.number - 1), sifuId))`。因此，师傅属性的生成不是一个完全的随机过程，这些属性是能够根据预期区块中的铸造事件而被预测出来的。| [0x????](https://etherscan.io/address/0x????) |
 | [SifusDescriptor](./contracts/SifusDescriptor.sol)              | 这个合约负责存储和渲染师傅令牌形象。令牌的'部件'以如下格式被存储进对应的字节数组中：`调色板序号，边界数据[顶(Y)，右(X)，底(Y)，左(X)]（共4字节），[像素数量（1字节），像素颜色序号（1字节）][]`。当SifusToken的接口`tokenURI`被调用时，师傅部件的数据从合约中读取出来并被转换为一系列的SVG矩形描述，以便在链上构造SVG图像。生成好的整个SVG图像，再被转为base64编码。最后，通证的URI是一个base64编码过的URI数据，它由JSON上下文直接构成，并包含了上述SVG图像。| [0x????](https://etherscan.io/address/0x????) |
 | [ShejiTu](./contracts/ShejiTu.sol)          | “山河社稷图（全局时间线）”这个合约运行着一个处理基础事件的全局时间线。角色（Actor）在该时间线中进行出生、成长等基础事务。另外社稷图也负责太乙世界的资源生产，通过构建一套稳定的资源系统为其他时间线提供经济动力。社稷图中资源事件中获得的部分资金（例如金、木材、药材、石料等等）被自动百分之百地存入太乙DAO的金库，这个金库由太乙传人们（太乙师傅令牌的拥有者）共同管理。| [0x????](https://etherscan.io/address/0x????) |
-| [Actors](./contracts/world/Actors.sol)                        | 这是“太乙角色”的ERC721通证合约。该合约不能被升级或替换。除了标准ERC721通证的功能外，“角色”是人们进入虚拟世界的唯一身份入口，任何人都可以从该合约铸造角色。世界通过一些特殊的角色来执行特殊操作，其中有些是由其他合约在部署时自己铸造并操作的。比如“噎明（YeMing）”通常就是由时间线级合约（例如山河社稷图）自主铸造。又比如第一个铸造的角色就是“盘古（PanGu）”，通过该角色才有权行使诸如注册世界模块、注册噎明身份等等。太乙角色的铸造是无准入的自由铸造，需要支付一定的铸造费用（道理），铸造的价格采用[VRGDA](https://www.paradigm.xyz/2022/08/vrgda)发行模型调节。太乙角色计划100年内发行10亿位。| [0x????](https://etherscan.io/address/0x????) |
-| [Daoli](./contracts/world/assets/Fungible.sol)                | 这是太乙世界的ERC20通证合约，用于货币，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [TaiyiDAOExecutor](./contracts/governance/TaiyiDAOExecutor.sol) | 这个合约衍生自Compound项目的`Timelock`，它为太乙DAO运作一个带时间锁定的金库系统，同时它也是太乙岛提案的实际执行者。这个合约由太乙岛治理合约（`TaiyiDAOProxy`）控制。| [0x????](https://etherscan.io/address/0x????) |
+| [TaiyiDAOExecutor](./contracts/governance/TaiyiDAOExecutor.sol) | 这个合约衍生自Compound项目的`Timelock`，它为太乙DAO运作一个带时间锁定的金库系统，同时它也是太乙岛提案的实际执行者，所以又称为“赏善罚恶令”。这个合约由太乙岛治理合约（`TaiyiDAOProxy`）控制。| [0x????](https://etherscan.io/address/0x????) |
 | [TaiyiDAOProxy](./contracts/governance/TaiyiDAOProxy.sol)       | 这个合约衍生自Compound项目的`GovernorBravoDelegator`，它被用于治理提案的创建、投票和执行工作。| [0x????](https://etherscan.io/address/0x????) |
 | [TaiyiDAOLogicV1](./contracts/governance/TaiyiDAOLogicV1.sol)   | 这个合约衍生自Compound项目的`GovernorBravoDelegate`，它被用于`TaiyiDAOProxy`合约的逻辑层实现。| [0x????](https://etherscan.io/address/0x????) |
+
+### 太乙世界
+
+| 合约| 描述| 地址|
+| ------------------------------------- | -------------------------------------- |-------------------------------------- |
+| [Actors](./contracts/world/Actors.sol)                        | 这是“太乙角色”的ERC721通证合约。该合约不能被升级或替换。除了标准ERC721通证的功能外，“角色”是人们进入虚拟世界的唯一身份入口，任何人都可以从该合约铸造角色。世界通过一些特殊的角色来执行特殊操作，其中有些是由其他合约在部署时自己铸造并操作的。比如“噎明（YeMing）”通常就是由时间线级合约（例如山河社稷图）自主铸造。该合约第一个铸造的角色就是“盘古（PanGu）”，通过该角色才有权行使诸如注册世界模块、注册噎明身份等构建和设计世界的事务。当太乙岛开始正常运作后，盘古的所有权会被转移给太乙岛合约，由太乙岛去中心化地实施盘古设计世界的工作。太乙角色的铸造是无准入的自由铸造，需要支付一定的铸造费用（道理），铸造的价格采用[VRGDA](https://www.paradigm.xyz/2022/08/vrgda)发行模型调节。太乙角色计划100年内发行10亿位。| [0x????](https://etherscan.io/address/0x????) |
+| [Daoli](./contracts/world/assets/Fungible.sol)                | 这是太乙世界的ERC20通证合约，用于货币，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorNames](./contracts/world/ActorNames.sol)                | 这是太乙世界的ERC721通证合约，用于角色名称姓名的赋予。该合约不能被升级或替换。这些名称在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
+
 
 ## 开发
 

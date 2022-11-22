@@ -113,7 +113,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
         address _worldRouteAddress
     ) 
         WorldConfigurable(_worldRouteAddress) 
-        ERC721("Taiyi Actor Manifested", "TAM") 
+        ERC721("Taiyi Actor Manifested", "TYACTOR") 
         LogisticVRGDA(
             10.0e18, // Target price.
             0.31e18, // Price decay percent.
