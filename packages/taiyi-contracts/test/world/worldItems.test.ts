@@ -134,13 +134,7 @@ describe('世界道具测试', () => {
             await expect(worldItems.connect(taiyiDAO).mint(1, 20, 100, 18, actor)).to.be.revertedWith("invalid shape");
         });
 
-        it(`噎明铸造新道具给未出生角色`, async ()=>{
-            await expect(worldItems.connect(taiyiDAO).mint(1, 20, 100, 7, actor)).to.be.revertedWith("character have not born in timeline");
-        });
-
         it(`噎明铸造新道具给角色`, async ()=>{
-            await shejiTu.connect(operator1).bornCharacter(actor);
-
             newItem = await worldItems.nextItemId();
             expect((await worldItems.connect(taiyiDAO).mint(1, 20, 100, 7, actor)).wait()).eventually.fulfilled;
 
@@ -162,16 +156,16 @@ describe('世界道具测试', () => {
         });
 
         it("非噎明无权从角色提取道具", async ()=>{
-            await expect(worldItems.connect(operator1).withdrawItem(actor, newItem)).to.be.revertedWith('not operated by YeMing');
+            await expect(worldItems.connect(operator1).withdraw(actor, newItem)).to.be.revertedWith('not operated by YeMing');
         });
     
         it("噎明从角色提取道具（取消托管）-道具所有者未授权角色", async ()=>{
-            await expect(worldItems.connect(taiyiDAO).withdrawItem(await worldConstants.ACTOR_PANGU(), newItem)).to.be.revertedWith('not approved or the owner of actor.');
+            await expect(worldItems.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), newItem)).to.be.revertedWith('not approved or the owner of actor.');
         });
 
         it("噎明从角色提取道具（取消托管）-道具所有者授权角色", async ()=>{
             await actors.connect(operator1).approve(taiyiDAO.address, actor);
-            expect((await worldItems.connect(taiyiDAO).withdrawItem(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
+            expect((await worldItems.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
             expect(await worldItems.ownerOf(newItem)).to.eq(operator1.address);
         });
 
@@ -180,7 +174,7 @@ describe('世界道具测试', () => {
             expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(actor)).account);
 
             //withdraw again
-            expect((await worldItems.connect(taiyiDAO).withdrawItem(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
+            expect((await worldItems.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
         });
 
         it(`非噎明无权销毁道具`, async ()=>{

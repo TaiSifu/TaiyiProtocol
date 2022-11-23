@@ -51,8 +51,8 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     {
         require(_shape <= 8, "invalid shape");
         //require(keccak256(abi.encodePacked(typeNames[typeId])) == keccak256(abi.encodePacked("")), "typeId invalid");
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        require(timeline.characterBorn(_actor), 'character have not born in timeline');
+        //IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
+        //require(timeline.characterBorn(_actor), 'character have not born in timeline');
 
         uint256 itemId = nextItemId;
         _mint(address(0), worldRoute.actors().getActor(_actor).account, itemId);
@@ -140,7 +140,7 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
         emit ItemDestroyed(_itemId, itemTypes[_itemId], typeNames[itemTypes[_itemId]]);
     }
 
-    function withdrawItem(uint256 _operator, uint256 _itemId) external override
+    function withdraw(uint256 _operator, uint256 _itemId) external override
         onlyYeMing(_operator)
     {
         address itemOwner = ownerOf(_itemId);

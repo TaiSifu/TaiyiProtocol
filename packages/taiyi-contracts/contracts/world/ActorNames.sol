@@ -78,7 +78,7 @@ contract ActorNames is IActorNames, WorldConfigurable, ERC721Enumerable
 
     // @dev Unlink a name from a actor while transferring it from actor holder.
     //      Use assign_name to reassign the name.
-    function withdrawName(uint256 _operator, uint256 _actor) public override
+    function withdraw(uint256 _operator, uint256 _actor) public override
         onlyYeMing(_operator)
     {
         require(_isActorApprovedOrOwner(_actor), "not approved or owner of actor.");

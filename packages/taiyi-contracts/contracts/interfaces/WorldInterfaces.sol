@@ -70,7 +70,7 @@ interface IActorNames is IERC721Enumerable, IWorldModule {
 
     function claim(string memory _firstName, string memory _lastName, uint256 _actor) external returns (uint256 _nameId);
     function assignName(uint256 _nameId, uint256 _actor) external;
-    function withdrawName(uint256 _operator, uint256 _actor) external;
+    function withdraw(uint256 _operator, uint256 _actor) external;
 }
 
 interface IActorAttributes is IWorldModule {
@@ -166,8 +166,8 @@ interface IWorldZones is IERC721Enumerable, IWorldModule {
     function nextZone() external view returns (uint256);
     function names(uint256 _zoneId) external view returns (string memory);
 
-    function claim(string memory _name, uint256 _actor) external returns (uint256 _zoneId);
-    function withdrawZone(uint256 _zoneId) external;
+    function claim(uint256 _operator, string memory _name, uint256 _actor) external returns (uint256 _zoneId);
+    function withdraw(uint256 _operator, uint256 _zoneId) external;
 }
 
 interface IActorBornPlaces is IWorldModule {
@@ -230,7 +230,7 @@ interface IWorldItems is IERC721Enumerable, IWorldModule {
     function mint(uint256 _operator, uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) external returns (uint256);
     function modify(uint256 _operator, uint256 _itemId, uint256 _wear) external;
     function burn(uint256 _operator, uint256 _itemId) external;
-    function withdrawItem(uint256 _operator, uint256 _itemId) external;
+    function withdraw(uint256 _operator, uint256 _itemId) external;
 }
 
 interface IActorPrelifes is IWorldModule {
