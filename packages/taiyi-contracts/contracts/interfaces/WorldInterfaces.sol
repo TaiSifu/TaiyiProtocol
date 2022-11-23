@@ -137,7 +137,7 @@ interface IWorldEventProcessor {
     function setDefaultBranch(uint256 _enentId) external;
 }
 
-interface IWorldFungible {
+interface IWorldFungible is IWorldModule {
     event FungibleTransfer(uint256 indexed from, uint256 indexed to, uint256 amount);
     event FungibleApproval(uint256 indexed from, uint256 indexed to, uint256 amount);
 
@@ -147,11 +147,8 @@ interface IWorldFungible {
     function approveActor(uint256 _from, uint256 _spender, uint256 _amount) external;
     function transferActor(uint256 _from, uint256 _to, uint256 _amount) external;
     function transferFromActor(uint256 _executor, uint256 _from, uint256 _to, uint256 _amount) external;
-    function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external;
-}
-
-interface ITaiyiWorldFungible is IWorldFungible, IWorldModule {
     function claim(uint256 _operator, uint256 _actor, uint256 _amount) external;
+    function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external;
 }
 
 interface IWorldZones is IERC721Enumerable, IWorldModule {

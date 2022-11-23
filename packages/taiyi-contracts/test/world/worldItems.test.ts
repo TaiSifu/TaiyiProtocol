@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Fungible, WorldItems, SifusToken, SifusDescriptor__factory,
+    Actors, WorldFungible, WorldItems, SifusToken, SifusDescriptor__factory,
 } from '../../typechain';
 import {
     blockNumber,
@@ -40,7 +40,7 @@ describe('世界道具测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
     let worldItems: WorldItems;
 
     let actor: BigNumber;

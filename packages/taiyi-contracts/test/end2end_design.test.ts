@@ -8,7 +8,7 @@ import {
     SifusToken, SifusDescriptor, SifusDescriptor__factory,
     TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,
     WorldContractRoute__factory, ShejiTu, ShejiTu__factory, Actors,
-    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes, Fungible,
+    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes, WorldFungible,
 } from '../typechain';
 
 import {
@@ -42,8 +42,8 @@ let actorAttributesConstants: ActorAttributesConstants;
 let worldContractRoute: WorldContractRoute;
 let actors: Actors;
 let actorAttributes: ActorAttributes;
-let assetDaoli: Fungible;
-let assetWood: Fungible;
+let assetDaoli: WorldFungible;
+let assetWood: WorldFungible;
 
 // Governance Config
 const TIME_LOCK_DELAY = 172_800; // 2 days

@@ -4,11 +4,11 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {toWadUnsafe, toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
-import "../interfaces/WorldInterfaces.sol";
-import "../base/ERC721Enumerable.sol";
-import "../libs/Base64.sol";
-import "../WorldConfigurable.sol";
-import {LogisticVRGDA} from "../external/VRGDAs/LogisticVRGDA.sol";
+import "./interfaces/WorldInterfaces.sol";
+import "./base/ERC721Enumerable.sol";
+import "./libs/Base64.sol";
+import "./WorldConfigurable.sol";
+import {LogisticVRGDA} from "./external/VRGDAs/LogisticVRGDA.sol";
 //import "hardhat/console.sol";
 
 contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {

@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ActorNames, ActorNames__factory, Fungible,
+    Actors, ActorNames, ActorNames__factory, WorldFungible,
 } from '../../typechain';
 import {
     blockNumber,
@@ -40,7 +40,7 @@ describe('角色姓名测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let actorNames: ActorNames;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();

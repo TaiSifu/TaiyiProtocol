@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Fungible, ActorSocialIdentity,
+    Actors, WorldFungible, ActorSocialIdentity,
 } from '../../typechain';
 import {
     blockNumber,
@@ -39,7 +39,7 @@ describe('角色社会身份测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
     let actorSIDs: ActorSocialIdentity;
 
     let actor: BigNumber;

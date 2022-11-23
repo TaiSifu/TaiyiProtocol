@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "./assets/NontransferableNonfungible.sol";
 import "../interfaces/WorldInterfaces.sol";
 import "../libs/Base64.sol";
+import "../base/ERC721Enumerable.sol";
+import "../WorldConfigurable.sol";
 
-contract ActorSocialIdentity is IActorSocialIdentity, NontransferableNonfungible {
+contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldConfigurable {
 
     /* *******
      * Globals
@@ -27,7 +28,7 @@ contract ActorSocialIdentity is IActorSocialIdentity, NontransferableNonfungible
      * ****************
      */
 
-    constructor(address _worldRouteAddress) NontransferableNonfungible("Taiyi Social Identity", "TYSID", _worldRouteAddress) {
+    constructor(address _worldRouteAddress) ERC721("Taiyi Social Identity", "TYSID") WorldConfigurable(_worldRouteAddress) {
     }     
 
     // @dev Claim a sid for a actor. actor must hold the required gold.
@@ -106,6 +107,11 @@ contract ActorSocialIdentity is IActorSocialIdentity, NontransferableNonfungible
      * Internal Functions
      * *****************
      */
+
+    //Nontransferable
+    function _transfer(address /*_from*/, address /*_to*/, uint256 /*_tokenId*/) internal override virtual {
+        require(false, "can not transfer SBT.");
+    }
 
     function _sidName(uint256 _sid) internal view returns (string memory) {
         uint256 _nameId = _sidNameIds[_sid];
