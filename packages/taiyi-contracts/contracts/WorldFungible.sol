@@ -92,6 +92,6 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
     }
 
     function tokenJSON(uint256 /*_actor*/) public virtual override view returns (string memory) {
-        return "";
+        return "{}";
     }
 }

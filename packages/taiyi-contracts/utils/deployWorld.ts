@@ -5,7 +5,7 @@ import {
     ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,    
     WorldFungible, WorldFungible__factory, ShejiTu, ShejiTu__factory, SifusToken,
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
-    WorldItems, WorldItems__factory, WorldZones, WorldZones__factory,
+    WorldItems, WorldItems__factory, WorldZones, WorldZones__factory, WorldEvents, WorldEvents__factory,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 
@@ -30,12 +30,10 @@ route: WorldContractRoute, deployer?: SignerWithAddress): Promise<Actors> => {
     return (await factory.deploy(taiyiDAO, mintStart, coinContract, route.address)).deployed();
 };
 
-export const deployShejiTu = async (oneAgeVSecond: number, sifusToken: SifusToken, route: WorldContractRoute, deployer?: SignerWithAddress) => {
-    console.log(`deploy ShejiTu with oneAgeVSecond=${oneAgeVSecond}`);
+export const deployShejiTu = async (sifusToken: SifusToken, route: WorldContractRoute, deployer?: SignerWithAddress) => {
     const shejiTuFactory = new ShejiTu__factory(deployer);
     return upgrades.deployProxy(shejiTuFactory, [
         sifusToken.address,
-        oneAgeVSecond,
         route.address
     ]) as Promise<ShejiTu>;
 }
@@ -105,3 +103,8 @@ export const deployWorldZones = async (route: WorldContractRoute, deployer?: Sig
     return (await factory.deploy(route.address)).deployed();
 };
 
+export const deployWorldEvents = async (oneAgeVSecond: number, route: WorldContractRoute, deployer?: SignerWithAddress): Promise<WorldEvents> => {
+    console.log(`deploy WorldEvents with oneAgeVSecond=${oneAgeVSecond}`);
+    const factory = new WorldEvents__factory(deployer);
+    return (await factory.deploy(oneAgeVSecond, route.address)).deployed();
+};

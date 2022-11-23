@@ -143,7 +143,7 @@ describe('太乙角色基础测试', () => {
 
         //deploy modules when operator is not PanGu
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
-        .to.be.revertedWith('Only PanGu');
+        .to.be.revertedWith('only PanGu');
     });
 
     it('无准入铸造新角色', async () => {

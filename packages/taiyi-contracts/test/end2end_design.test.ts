@@ -60,9 +60,6 @@ const callDatas: string[] = [];
 
 let proposalId: EthersBN;
 
-// ShejiTu Config
-const ONE_AGE_VSECOND: number = 1;
-
 async function deploy() {
     [deployer, wethDeployer, taiyiDAO, operator1] = await ethers.getSigners();
 
@@ -97,13 +94,11 @@ async function deploy() {
     actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
     //-ShejiTu
-    console.log(`deploy ShejiTu with oneAgeVSecond=${ONE_AGE_VSECOND}`);
     //the second actor minted should be YeMing for ShejiTu its self
     expect(await actors.connect(taiyiDAO).nextActor()).to.eq(2);
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
         sifusToken.address,
-        ONE_AGE_VSECOND,
         worldContractRoute.address
     ]);
     // 2b. CAST proxy as ShejiTu
@@ -206,7 +201,7 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
     });
 
     it('盘古原持有人不再拥有世界设计权', async () => {
-        await expect(worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).to.be.revertedWith("Only PanGu");
+        await expect(worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).to.be.revertedWith("only PanGu");
     });
 
     describe('“将「道理」合约注册到太乙世界！”', async () => {

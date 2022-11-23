@@ -15,7 +15,7 @@ contract WorldRandom is IWorldRandom {
     }
 
     function tokenJSON(uint256 /*_actor*/) external virtual override view returns (string memory) {
-        return "";
+        return "{}";
     }
 
     function d100(uint _actor) external view returns (uint) {

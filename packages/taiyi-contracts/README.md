@@ -34,6 +34,7 @@
 | [ActorSocialIdentity](./contracts/world/ActorSocialIdentity.sol)                | 这是太乙世界的ERC721通证合约，用于角色的身份。该合约不能被升级或替换。太乙世界通过社会事件会赋予角色各种不同的身份，例如“太乙百子”、“商人”或者“乞丐”等等，这些身份是太乙世界中社会赋予的，不能私下创建、自由转移或者销毁，因此该合约按照[Soulbound Tokens(SBTs)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4105763)思想设计| [0x????](https://etherscan.io/address/0x????) |
 | [WorldItems](./contracts/world/WorldItems.sol)                | 这是太乙世界的ERC721通证合约，常用于表示太乙世界中的非同质化对象（NonfungibleItem），用于表示诸如物品、书籍、道具等事物。该合约不能被升级或替换。这些道具在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
 | [WorldZones](./contracts/world/WorldZones.sol)                | 这是太乙世界的ERC721通证合约，用于表示太乙世界中的区域对象（Nonfungible），表示诸如地区、地理地点、子世界、太虚幻境等拓扑域。比如某个世界建设的150多个省市级区域，某角色建设的从村级单位到木工房等工作单位。该合约不能被升级或替换。这些区域在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldEvents](./contracts/WorldEvents.sol)                | 这是太乙世界的事件集合，除了用于事件处理器的定义，也用于记录角色身上发生的事件历史。| [0x????](https://etherscan.io/address/0x????) |
 
 
 ## 开发

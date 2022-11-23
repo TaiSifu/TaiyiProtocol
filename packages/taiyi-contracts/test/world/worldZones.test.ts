@@ -83,6 +83,7 @@ describe('世界区域测试', () => {
         //PanGu should be mint at first, or you can not register any module
         actorPanGu = await worldConstants.ACTOR_PANGU();
         expect(actorPanGu).to.eq(1);
+        expect(await actors.nextActor()).to.eq(actorPanGu);
         await actors.connect(taiyiDAO).mintActor(0);
 
         //connect route to operator

@@ -279,7 +279,7 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
     }
 
     function tokenJSON(uint256 /*_actor*/) external virtual override view returns (string memory) {
-        return "";
+        return "{}";
     }
 
     /**

@@ -48,11 +48,8 @@ interface IWorldTimeline is IWorldModule {
     event ActiveEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
 
     function ACTOR_YEMING() external view returns (uint256);
-    function ages(uint256 _actor) external view returns (uint256); //current age
-    function expectedAge(uint256 _actor) external view returns (uint256); //age should be
-    function actorEvent(uint256 _actor, uint256 _age) external view returns (uint256[] memory);
-    function actorEventCount(uint256 _actor, uint256 _eventId) external view returns (uint256);
 
+    function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
 }
 
@@ -117,12 +114,27 @@ interface IActorTalentProcessor {
 }
 
 interface IWorldEvents is IWorldModule {
+
+    event Born(uint256 indexed actor);
+
+    function ages(uint256 _actor) external view returns (uint256); //current age
+    function actorBorn(uint256 _actor) external view returns (bool);
+    function actorBirthday(uint256 _actor) external view returns (bool);
+    function expectedAge(uint256 _actor) external view returns (uint256); //age should be
+    function actorEvent(uint256 _actor, uint256 _age) external view returns (uint256[] memory);
+    function actorEventCount(uint256 _actor, uint256 _eventId) external view returns (uint256);
+
     function eventInfo(uint256 _id, uint256 _actor) external view returns (string memory);
     function eventAttributeModifiers(uint256 _id, uint256 _actor) external view returns (int256[] memory);
     function eventProcessors(uint256 _id) external view returns(address);
     function setEventProcessor(uint256 _id, address _address) external;
     function canOccurred(uint256 _actor, uint256 _id, uint256 _age) external view returns (bool);
     function checkBranch(uint256 _actor, uint256 _id, uint256 _age) external view returns (uint256);
+
+    function bornActor(uint256 _operator, uint256 _actor) external;
+    function grow(uint256 _operator, uint256 _actor) external;
+    function changeAge(uint256 _operator, uint256 _actor, uint256 _age) external;
+    function addActorEvent(uint256 _operator, uint256 _actor, uint256 _age, uint256 _eventId) external;
 }
 
 interface IWorldEventProcessor {
@@ -130,8 +142,8 @@ interface IWorldEventProcessor {
     function eventAttributeModifiers(uint256 _actor) external view returns (int[] memory);
     function trigrams(uint256 _actor) external view returns (uint256[] memory);
     function checkOccurrence(uint256 _actor, uint256 _age) external view returns (bool);
-    function process(uint256 _actor, uint256 _age) external;
-    function activeTrigger(uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
+    function process(uint256 _operator, uint256 _actor, uint256 _age) external;
+    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
 
     function checkBranch(uint256 _actor, uint256 _age) external view returns (uint256);
     function setDefaultBranch(uint256 _enentId) external;

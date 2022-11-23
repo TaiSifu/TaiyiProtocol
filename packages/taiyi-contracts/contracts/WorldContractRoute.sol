@@ -34,7 +34,7 @@ contract WorldContractRoute
     }
 
     modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "Only PanGu");
+        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
         _;
     }
 
