@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, Fungible, ShejiTu, SifusToken, SifusDescriptor__factory, WorldZones,
+    Actors, Fungible, SifusToken, SifusDescriptor__factory, WorldZones,
 } from '../../typechain';
 import {
     blockNumber,
@@ -20,7 +20,6 @@ import {
     deployActors,
     deployWorldRandom,
     deployAssetDaoli,
-    deployShejiTu,
     deployWorldZones,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -28,8 +27,6 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 chai.use(asPromised);
 chai.use(solidity);
 const { expect } = chai;
-
-const OneAgeVSecond : number = 1;
 
 describe('世界区域测试', () => {
 
@@ -43,7 +40,6 @@ describe('世界区域测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let shejiTu: ShejiTu;
     let assetDaoli: Fungible;
     let worldZones: WorldZones;
 
@@ -53,8 +49,8 @@ describe('世界区域测试', () => {
 
     let newActor = async (toWho: SignerWithAddress):Promise<BigNumber> => {
         //deal coin
-        await assetDaoli.connect(taiyiDAO).claim(1, 1, BigInt(1000e18));
-        await assetDaoli.connect(taiyiDAO).withdraw(1, 1, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).withdraw(actorPanGu, actorPanGu, BigInt(1000e18));
         await assetDaoli.connect(taiyiDAO).approve(actors.address, BigInt(1000e18));
         let _actor = await actors.nextActor();
         await actors.connect(taiyiDAO).mintActor(BigInt(100e18));
@@ -93,16 +89,14 @@ describe('世界区域测试', () => {
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-        shejiTu = await deployShejiTu(OneAgeVSecond, sifusToken, worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
         worldZones = await deployWorldZones(worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
 
         //set PanGu as YeMing for test
         await routeByPanGu.setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
-        //third actor for test
+        //second actor for test
         actor = await newActor(operator1);
-        expect(actor).to.eq(3);
+        expect(actor).to.eq(2);
     });
 
     it('合约符号（Symbol）', async () => {
