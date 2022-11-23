@@ -187,7 +187,13 @@ describe('世界道具测试', () => {
             await expect(worldItems.connect(operator1).burn(actor, newItem)).to.be.revertedWith("not operated by YeMing");
         });
 
-        it(`噎明销毁道具`, async ()=>{
+        it(`噎明销毁道具-道具未托管`, async ()=>{
+            await expect(worldItems.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newItem)).to.be.revertedWith("actor holder is not exist");
+        });
+
+        it(`噎明销毁道具-道具托管`, async ()=>{
+            await worldItems.connect(operator1).transferFrom(operator1.address, (await actors.getActor(actor)).account, newItem);
+            
             expect((await worldItems.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
             await expect(worldItems.ownerOf(newItem)).to.be.revertedWith("ERC721: owner query for nonexistent token");            
         });

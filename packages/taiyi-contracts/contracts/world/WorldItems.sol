@@ -131,6 +131,10 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     function burn(uint256 _operator, uint256 _itemId) external override
         onlyYeMing(_operator)
     {
+        address itemOwner = ownerOf(_itemId);
+        IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
+        require(_isActorApprovedOrOwner(actor.actorId), "not approved or the owner of actor.");
+
         _burn(_itemId);
 
         emit ItemDestroyed(_itemId, itemTypes[_itemId], typeNames[itemTypes[_itemId]]);

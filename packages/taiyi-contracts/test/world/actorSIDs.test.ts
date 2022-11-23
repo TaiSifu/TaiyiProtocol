@@ -43,6 +43,7 @@ describe('角色社会身份测试', () => {
     let actorSIDs: ActorSocialIdentity;
 
     let actor: BigNumber;
+    let newSID: BigNumber;
 
     let newActorByOp1 = async ():Promise<BigNumber> => {
         //deal coin
@@ -118,10 +119,26 @@ describe('角色社会身份测试', () => {
         });
 
         it(`噎明赋予角色新身份`, async ()=>{
-            let newSID = await actorSIDs.nextSID();
-            expect((await actorSIDs.connect(operator1).claim(2, 10010, actor)).wait()).eventually.fulfilled;
+            newSID = await actorSIDs.nextSID();
+            //claim to PanGu just for test, PanGu is not act as YeMing
+            expect((await actorSIDs.connect(operator1).claim(2, 10010, await worldConstants.ACTOR_PANGU())).wait()).eventually.fulfilled;
 
-            expect(await actorSIDs.ownerOf(newSID)).to.eq((await actors.getActor(actor)).account);
+            expect(await actorSIDs.ownerOf(newSID)).to.eq((await actors.getActor(await worldConstants.ACTOR_PANGU())).account);
+        });
+
+        it(`非噎明无权销毁身份`, async ()=>{
+            await expect(actorSIDs.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newSID)).to.be.revertedWith("not operated by YeMing");
+        });
+
+        it(`噎明销毁身份-角色所有者未授权`, async ()=>{
+            await expect(actorSIDs.connect(operator1).burn(2, newSID)).to.be.revertedWith("not approved or the owner of actor.");
+        });
+
+        it(`噎明销毁身份-角色所有者已经授权`, async ()=>{
+            //approve PanGu to op1
+            await actors.connect(taiyiDAO).approve(operator1.address, await worldConstants.ACTOR_PANGU());
+            expect((await actorSIDs.connect(operator1).burn(2, newSID)).wait()).eventually.fulfilled;
+            await expect(actorSIDs.ownerOf(newSID)).to.be.revertedWith("ERC721: owner query for nonexistent token");            
         });
     });        
 });

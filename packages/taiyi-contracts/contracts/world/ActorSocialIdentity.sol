@@ -47,6 +47,19 @@ contract ActorSocialIdentity is IActorSocialIdentity, NontransferableNonfungible
         emit SIDClaimed(_actor, _sid, names[_nameId]);
     }
 
+    function burn(uint256 _operator, uint256 _sid) external override
+        onlyYeMing(_operator)
+    {
+        address itemOwner = ownerOf(_sid);
+        IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
+        require(_isActorApprovedOrOwner(actor.actorId), "not approved or the owner of actor.");
+
+        uint256 _nameId = _sidNameIds[_sid]; 
+        _burn(_sid);
+
+        emit SIDDestroyed(actor.actorId, _sid, names[_nameId]);
+    }
+
     function setSIDName(uint256 _nameId, string memory _newName) public
         onlyPanGu
     {
