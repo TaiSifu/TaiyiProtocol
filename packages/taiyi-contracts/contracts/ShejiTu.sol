@@ -31,6 +31,8 @@ import "./world/attributes/ActorAttributes.sol";
 contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    event Born(address indexed creator, uint256 indexed actor);
+
     /* *******
      * Globals
      * *******
@@ -42,8 +44,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     uint256 public override ACTOR_YEMING; //timeline administrator authority, 噎鸣
 
     mapping(uint256 => uint256) public override ages; //current ages
-    mapping(uint256 => bool) public override characterBorn;
-    mapping(uint256 => bool) public override characterBirthday; //have atleast one birthday
+    mapping(uint256 => bool) public characterBorn;
+    mapping(uint256 => bool) public characterBirthday; //have atleast one birthday
 
     uint256 public ONE_AGE_VSECOND; //how many seconds in real means 1 age in rarelife
     mapping(uint256 => uint256) public bornTimeStamps;

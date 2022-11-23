@@ -43,7 +43,6 @@ interface IActors is IERC721, IWorldModule {
 
 interface IWorldTimeline is IWorldModule {
 
-    event Born(address indexed creator, uint256 indexed actor);
     event AgeEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event BranchEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event ActiveEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
@@ -51,8 +50,6 @@ interface IWorldTimeline is IWorldModule {
     function ACTOR_YEMING() external view returns (uint256);
     function ages(uint256 _actor) external view returns (uint256); //current age
     function expectedAge(uint256 _actor) external view returns (uint256); //age should be
-    function characterBorn(uint256 _actor) external view returns (bool);
-    function characterBirthday(uint256 _actor) external view returns (bool);
     function actorEvent(uint256 _actor, uint256 _age) external view returns (uint256[] memory);
     function actorEventCount(uint256 _actor, uint256 _eventId) external view returns (uint256);
 
