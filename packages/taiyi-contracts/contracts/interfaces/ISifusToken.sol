@@ -27,8 +27,6 @@ interface ISifusToken is IERC721, IWorldModule {
     event SifuCreated(address indexed owner, uint256 indexed sifu, ISifusSeeder.Seed seed);
     event SifuBurned(uint256 indexed sifu);
     event TaiyiDAOUpdated(address taiyiDAO);
-    event MinterUpdated(address minter);
-    event MinterLocked();
     event DescriptorUpdated(ISifusDescriptor descriptor);
     event DescriptorLocked();
     event SeederUpdated(ISifusSeeder seeder);
@@ -36,11 +34,9 @@ interface ISifusToken is IERC721, IWorldModule {
 
     function nextSifu() external view returns (uint256);
 
-    function mint() external returns (uint256);
-    function burn(uint256 _sifu) external;
+    function mint(uint256 _operator) external returns (uint256);
+    function burn(uint256 _operator, uint256 _sifu) external;
     function setTaiyiDAO(address _taiyiDAO) external;
-    function setMinter(address _minter) external;
-    function lockMinter() external;
 
     function setDescriptor(ISifusDescriptor descriptor) external;
     function lockDescriptor() external;

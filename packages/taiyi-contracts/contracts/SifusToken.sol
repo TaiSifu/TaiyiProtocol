@@ -38,8 +38,6 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
 
     // The Taiyi DAO address (creators org)
     address public taiyiDAO;
-    // An address who has permissions to mint Sifus
-    address public minter;
 
     // The Sifus token URI descriptor
     ISifusDescriptor public descriptor;
@@ -105,14 +103,6 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
         _;
     }
 
-    /**
-     * @notice Require that the sender is the minter.
-     */
-    modifier onlyMinter() {
-        require(msg.sender == minter, 'Sender is not the minter');
-        _;
-    }
-
     modifier onlyValidAddress(address _address) {
         require(_address != address(0), "cannot set as zero address");
         _;
@@ -125,14 +115,12 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
 
     constructor(
         address _taiyiDAO,
-        address _minter,
         ISifusDescriptor _descriptor,
         ISifusSeeder _seeder,
         address _worldRouteAddress
         //IProxyRegistry _proxyRegistry
     ) ERC721('Taiyi Sifus', 'SIFU') WorldConfigurable(_worldRouteAddress) {
         taiyiDAO = _taiyiDAO;
-        minter = _minter;
         descriptor = _descriptor;
         seeder = _seeder;
         //proxyRegistry = _proxyRegistry;
@@ -153,42 +141,23 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
         _contractURIHash = newContractURIHash;
     }
 
-    /** 
-     * @notice Override isApprovedForAll to whitelist special accounts to enable special purpose.
-     */
-    function isApprovedForAll(address owner, address operator) public view override(IERC721, ERC721) returns (bool) {
-        // Whitelist OpenSea proxy contract for easy trading.
-        // if (proxyRegistry.proxies(owner) == operator) {
-        //     return true;
-        // }
-
-        // Whitelist Minter for some soul recover purpose. ref: Weyl, Eric Glen and Ohlhaver, Puja and Buterin,
-        // Vitalik, Decentralized Society: Finding Web3's Soul (May 10, 2022). 4.3 Not Losing Your Soul
-        // Available at SSRN: https://ssrn.com/abstract=4105763
-        if (minter == operator) {
-            return true;
-        }
-
-        return super.isApprovedForAll(owner, operator);
-    }
-
     /**
-     * @notice Mint a Sifu to the minter, along with a possible taisifus reward
-     * Sifu. Taisifus reward Sifus are minted every 10 Sifus, starting at 0,
-     * until 183 taisifu Sifus have been minted (5 years w/ 24 hour auctions).
+     * @notice Mint a Sifu to the sender, along with a possible taiyidao reward
+     * Sifu. Taiyidao reward Sifus are minted every 10 Sifus, starting at 0,
+     * until 183 taiyidao Sifus have been minted (5 years w/ 24 hour auctions).
      * @dev Call _mintTo with the to address(es).
      */
-    function mint() public override onlyMinter returns (uint256) {
+    function mint(uint256 _operator) public override onlyYeMing(_operator) returns (uint256) {
         if (nextSifu <= 1820 && nextSifu % 10 == 0) {
             _mintTo(taiyiDAO, nextSifu++);
         }
-        return _mintTo(minter, nextSifu++);
+        return _mintTo(_msgSender(), nextSifu++);
     }
 
     /**
      * @notice Burn a sifu.
      */
-    function burn(uint256 _sifu) public override onlyMinter {
+    function burn(uint256 _operator, uint256 _sifu) public override onlyYeMing(_operator) {
         _burn(_sifu);
         emit SifuBurned(_sifu);
     }
@@ -206,26 +175,6 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
         taiyiDAO = _taiyiDAO;
 
         emit TaiyiDAOUpdated(_taiyiDAO);
-    }
-
-    /**
-     * @notice Set the token minter.
-     * @dev Only callable by the owner when not locked.
-     */
-    function setMinter(address _minter) external override onlyOwner whenMinterNotLocked {
-        minter = _minter;
-
-        emit MinterUpdated(_minter);
-    }
-
-    /**
-     * @notice Lock the minter.
-     * @dev This cannot be reversed and is only callable by the owner when not locked.
-     */
-    function lockMinter() external override onlyOwner whenMinterNotLocked {
-        isMinterLocked = true;
-
-        emit MinterLocked();
     }
 
     /**
@@ -279,7 +228,7 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
     }
 
     function tokenJSON(uint256 /*_actor*/) external virtual override view returns (string memory) {
-        return "";
+        return "{}";
     }
 
     /**

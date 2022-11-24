@@ -20,7 +20,11 @@ import {
     mineBlock,
     chainId,
     address,
+    blockTimestamp,
+    blockNumber,
 } from '../utils';
+import { BigNumber } from 'ethers';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -34,6 +38,8 @@ describe('太乙师傅令牌管理测试', () => {
     let account1: SignerWithAddress;
     let account2: SignerWithAddress;
     let deployer: SignerWithAddress;
+
+    let actorPanGu: BigNumber;
 
     const ONE = 1;
     const TWO = 2;
@@ -63,11 +69,25 @@ describe('太乙师傅令牌管理测试', () => {
         account2 = signers.account2;
         deployer = signers.deployer;
 
-        token = await deploySifusToken(deployer);
+        //Deploy Actors and world basic
+        let worldConstants = await deployWorldConstants(deployer);
+        let worldContractRoute = await deployWorldContractRoute(deployer);
+        let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
-        await populateDescriptor(
-            SifusDescriptorFactory.connect(await token.descriptor(), signers.deployer),
-        );
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        let actors = await deployActors(deployer.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        await worldContractRoute.registerActors(actors.address);
+
+        //PanGu should be mint at first, or you can not register any module
+        actorPanGu = await worldConstants.ACTOR_PANGU();
+        expect(actorPanGu).to.eq(1);
+        expect(await actors.nextActor()).to.eq(actorPanGu);
+        await actors.mintActor(0);
+        await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
+        token = await deploySifusToken(worldContractRoute.address, deployer);
+
+        await populateDescriptor(SifusDescriptorFactory.connect(await token.descriptor(), signers.deployer));
 
         domain = Domain('Taiyi Sifus', token.address, await chainId());
 
@@ -141,7 +161,7 @@ describe('太乙师傅令牌管理测试', () => {
         });
 
         it('代理人（被委托方）采样点数据', async () => {
-            await setTotalSupply(token, 3);
+            await setTotalSupply(actorPanGu, token, 3);
 
             // Give account0.address tokens
             await tokenCallFromDeployer.transferFrom(deployer.address, account0.address, 0);
@@ -178,7 +198,7 @@ describe('太乙师傅令牌管理测试', () => {
         });
 
         it('同一区块内不会触发多个采样点', async () => {
-            await setTotalSupply(token, 4);
+            await setTotalSupply(actorPanGu, token, 4);
 
             // Give account0.address tokens
             await tokenCallFromDeployer.transferFrom(deployer.address, account0.address, 0);
@@ -243,7 +263,7 @@ describe('太乙师傅令牌管理测试', () => {
         });
 
         it('最后采样点之后总是返回最后采样点数据', async () => {
-            await setTotalSupply(token, 1);
+            await setTotalSupply(actorPanGu, token, 1);
             const t1 = await (await tokenCallFromDeployer.delegate(account1.address)).wait();
             await mineBlock();
             await mineBlock();
@@ -254,7 +274,7 @@ describe('太乙师傅令牌管理测试', () => {
 
         it('首个采样点之前一定是0票', async () => {
             await mineBlock();
-            await setTotalSupply(token, 1);
+            await setTotalSupply(actorPanGu, token, 1);
             const t1 = await (await tokenCallFromDeployer.delegate(account1.address)).wait();
             await mineBlock();
             await mineBlock();
@@ -264,7 +284,7 @@ describe('太乙师傅令牌管理测试', () => {
         });
 
         it('最适采样点持票数', async () => {
-            await setTotalSupply(token, 3);
+            await setTotalSupply(actorPanGu, token, 3);
             const t1 = await (await tokenCallFromDeployer.delegate(account1.address)).wait();
             await mineBlock();
             await mineBlock();
@@ -302,7 +322,7 @@ describe('太乙师傅令牌管理测试', () => {
         });
 
         it('委托给0地址情况，清除代理，票归还给委托方', async () => {
-            await setTotalSupply(token, 1);
+            await setTotalSupply(actorPanGu, token, 1);
 
             // Delegate from Deployer -> Account1
             await (await tokenCallFromDeployer.delegate(account1.address)).wait();

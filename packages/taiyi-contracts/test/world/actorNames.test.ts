@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ActorNames, ActorNames__factory, Fungible,
+    Actors, ActorNames, ActorNames__factory, WorldFungible,
 } from '../../typechain';
 import {
     blockNumber,
@@ -40,7 +40,7 @@ describe('角色姓名测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let actorNames: ActorNames;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
@@ -203,10 +203,10 @@ describe('角色姓名测试', () => {
         await actorNames.connect(operator1).claim(firstName, lastName, actor);
 
         //can not withdrawn by anyone except YeMing
-        await expect(actorNames.connect(taiyiDAO).withdrawName(await worldConstants.ACTOR_PANGU(), actor)).to.be.revertedWith('not operated by YeMing');
+        await expect(actorNames.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), actor)).to.be.revertedWith('only YeMing');
 
         //should be withdrawn by YeMing
-        expect((await actorNames.connect(operator1).withdrawName(2, actor)).wait()).eventually.fulfilled;
+        expect((await actorNames.connect(operator1).withdraw(2, actor)).wait()).eventually.fulfilled;
         expect(await actorNames.ownerOf(nameId)).to.eq(operator1.address);
     });
 });

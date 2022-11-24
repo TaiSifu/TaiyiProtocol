@@ -9,6 +9,7 @@ import ImageData from '../files/image-data.json';
 import { Block } from '@ethersproject/abstract-provider';
 import { chunkArray } from '../utils';
 import { deployWorldContractRoute } from '../utils/deployWorld';
+import { BigNumberish } from 'ethers';
 
 export type TestSigners = {
   deployer: SignerWithAddress;
@@ -50,12 +51,11 @@ export const deploySifusSeeder = async (deployer?: SignerWithAddress): Promise<S
 };
 
 export const deploySifusToken = async (
+  worldRouteAddress: string,
   deployer?: SignerWithAddress,
   taiyiDAO?: string,
-  minter?: string,
   descriptor?: string,
   seeder?: string,
-  worldRoute?: string,
   //proxyRegistryAddress?: string,
 ): Promise<SifusToken> => {
   const signer = deployer || (await getSigners()).deployer;
@@ -63,10 +63,9 @@ export const deploySifusToken = async (
 
   return factory.deploy(
     taiyiDAO || signer.address,
-    minter || signer.address,
     descriptor || (await deploySifusDescriptor(signer)).address,
     seeder || (await deploySifusSeeder(signer)).address,
-    worldRoute || (await deployWorldContractRoute(signer)).address,
+    worldRouteAddress,
     //proxyRegistryAddress || address(0)
   );
 };
@@ -100,36 +99,37 @@ export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Prom
  * @param amount The number of Sifus to mint
  */
 export const MintSifus = (
+  operator: BigNumberish,
   token: SifusToken,
   burnTaisifusTokens = true,
 ): ((amount: number) => Promise<void>) => {
   return async (amount: number): Promise<void> => {
     for (let i = 0; i < amount; i++) {
-      await token.mint();
+      await token.mint(operator);
     }
     if (!burnTaisifusTokens) return;
 
-    await setTotalSupply(token, amount);
+    await setTotalSupply(operator, token, amount);
   };
 };
 
 /**
- * Mints or burns tokens to target a total supply. Due to Taisifus' rewards tokens may be burned and tokenIds will not be sequential
+ * Mints or burns tokens to target a total supply. Due to Taiyidao's rewards tokens may be burned and tokenIds will not be sequential
  */
-export const setTotalSupply = async (token: SifusToken, newTotalSupply: number): Promise<void> => {
+export const setTotalSupply = async (operator: BigNumberish, token: SifusToken, newTotalSupply: number): Promise<void> => {
   const totalSupply = (await token.totalSupply()).toNumber();
 
   if (totalSupply < newTotalSupply) {
     for (let i = 0; i < newTotalSupply - totalSupply; i++) {
-      await token.mint();
+      await token.mint(operator);
     }
-    // If Taisifus' reward tokens were minted totalSupply will be more than expected, so run setTotalSupply again to burn extra tokens
-    await setTotalSupply(token, newTotalSupply);
+    // If Taiyidao's reward tokens were minted totalSupply will be more than expected, so run setTotalSupply again to burn extra tokens
+    await setTotalSupply(operator, token, newTotalSupply);
   }
 
   if (totalSupply > newTotalSupply) {
     for (let i = newTotalSupply; i < totalSupply; i++) {
-      await token.burn(i);
+      await token.burn(operator, i);
     }
   }
 };

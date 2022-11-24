@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../../interfaces/WorldInterfaces.sol";
-import "../../base/ERC20.sol";
-import "../../WorldConfigurable.sol";
+import "./interfaces/WorldInterfaces.sol";
+import "./base/ERC20.sol";
+import "./WorldConfigurable.sol";
 
-contract Fungible is ITaiyiWorldFungible, ERC20, WorldConfigurable {
+contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
 
     uint256 public override moduleID;
 
@@ -92,6 +92,6 @@ contract Fungible is ITaiyiWorldFungible, ERC20, WorldConfigurable {
     }
 
     function tokenJSON(uint256 /*_actor*/) public virtual override view returns (string memory) {
-        return "";
+        return "{}";
     }
 }

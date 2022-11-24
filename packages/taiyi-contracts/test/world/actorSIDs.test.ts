@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ActorNames, ActorNames__factory, Fungible, ActorSocialIdentity,
+    Actors, WorldFungible, ActorSocialIdentity,
 } from '../../typechain';
 import {
     blockNumber,
@@ -17,7 +17,6 @@ import {
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
-    deployActorNames,
     deployAssetDaoli,
     deployActorSocialIdentity,
 } from '../../utils';
@@ -40,17 +39,20 @@ describe('角色社会身份测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
     let actorSIDs: ActorSocialIdentity;
+
+    let actor: BigNumber;
+    let newSID: BigNumber;
 
     let newActorByOp1 = async ():Promise<BigNumber> => {
         //deal coin
         await assetDaoli.connect(operator1).claim(2, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).withdraw(2, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).approve(actors.address, BigInt(1000e18));
-        let actor = await actors.nextActor();
+        let _actor = await actors.nextActor();
         await actors.connect(operator1).mintActor(BigInt(100e18));
-        return actor;
+        return _actor;
     }
 
     before(async () => {
@@ -87,14 +89,6 @@ describe('角色社会身份测试', () => {
         await worldContractRoute.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test
     });
 
-    beforeEach(async () => {
-        snapshotId = await ethers.provider.send('evm_snapshot', []);
-    });
-
-    afterEach(async () => {
-        await ethers.provider.send('evm_revert', [snapshotId]);
-    });
-
     it('合约符号（Symbol）', async () => {
         expect(await actorSIDs.symbol()).to.eq('TYSID');
     });
@@ -103,14 +97,48 @@ describe('角色社会身份测试', () => {
         expect(await actorSIDs.name()).to.eq('Taiyi Social Identity');
     });
 
-    it(`非盘古无权设计新身份`, async ()=>{
-        //should not
-        await expect(actorSIDs.setSIDName(10010, "乞丐")).to.be.revertedWith("only PanGu");;
-    });
+    describe('社会身份设计测试', () => {
 
-    it(`盘古设计新身份`, async ()=>{
-        expect((await actorSIDs.connect(taiyiDAO).setSIDName(10010, "乞丐")).wait()).eventually.fulfilled;
-        expect(await actorSIDs.names(10010)).to.eq("乞丐");
-    });
+        it(`非盘古无权设计新身份`, async ()=>{
+            //should not
+            await expect(actorSIDs.setSIDName(10010, "乞丐")).to.be.revertedWith("only PanGu");;
+        });
 
+        it(`盘古设计新身份`, async ()=>{
+            expect((await actorSIDs.connect(taiyiDAO).setSIDName(10010, "乞丐")).wait()).eventually.fulfilled;
+            expect(await actorSIDs.names(10010)).to.eq("乞丐");
+        });
+    });        
+
+    describe('社会身份颁发测试', () => {
+
+        it(`非噎明无权赋予角色新身份`, async ()=>{
+            actor = await newActorByOp1();
+
+            await expect(actorSIDs.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 10010, actor)).to.be.revertedWith("only YeMing");
+        });
+
+        it(`噎明赋予角色新身份`, async ()=>{
+            newSID = await actorSIDs.nextSID();
+            //claim to PanGu just for test, PanGu is not act as YeMing
+            expect((await actorSIDs.connect(operator1).claim(2, 10010, await worldConstants.ACTOR_PANGU())).wait()).eventually.fulfilled;
+
+            expect(await actorSIDs.ownerOf(newSID)).to.eq((await actors.getActor(await worldConstants.ACTOR_PANGU())).account);
+        });
+
+        it(`非噎明无权销毁身份`, async ()=>{
+            await expect(actorSIDs.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newSID)).to.be.revertedWith("only YeMing");
+        });
+
+        it(`噎明销毁身份-角色所有者未授权`, async ()=>{
+            await expect(actorSIDs.connect(operator1).burn(2, newSID)).to.be.revertedWith("not approved or the owner of actor.");
+        });
+
+        it(`噎明销毁身份-角色所有者已经授权`, async ()=>{
+            //approve PanGu to op1
+            await actors.connect(taiyiDAO).approve(operator1.address, await worldConstants.ACTOR_PANGU());
+            expect((await actorSIDs.connect(operator1).burn(2, newSID)).wait()).eventually.fulfilled;
+            await expect(actorSIDs.ownerOf(newSID)).to.be.revertedWith("ERC721: owner query for nonexistent token");            
+        });
+    });        
 });

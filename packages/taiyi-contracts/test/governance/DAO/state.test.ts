@@ -4,7 +4,7 @@ import hardhat from 'hardhat';
 
 const { ethers } = hardhat;
 
-import { BigNumber as EthersBN } from 'ethers';
+import { BigNumber, BigNumber as EthersBN } from 'ethers';
 
 import {
     deploySifusToken,
@@ -12,6 +12,8 @@ import {
     TestSigners,
     setTotalSupply,
     populateDescriptor,
+    blockTimestamp,
+    blockNumber,
 } from '../../utils';
 
 import {
@@ -33,6 +35,7 @@ import {
     TaiyiDaoImmutable,
     TaiyiDaoImmutable__factory,
 } from '../../../typechain';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -65,6 +68,7 @@ let callDatas: string[];
 let proposalId: EthersBN;
 
 let snapshotId: number;
+let actorPanGu: BigNumber;
 
 async function expectState(proposalId: number | EthersBN, expectedState: string) {
     const actualState = states[await gov.state(proposalId)];
@@ -78,7 +82,7 @@ async function makeProposal(
     transferTo: SignerWithAddress = proposer,
     proposalThresholdBPS = 1,
 ) {
-    await setTotalSupply(token, mintAmount);
+    await setTotalSupply(actorPanGu, token, mintAmount);
 
     delay = 4 * 24 * 60 * 60;
 
@@ -119,7 +123,23 @@ describe('太乙岛提案状态测试', () => {
         account0 = signers.account0;
         account1 = signers.account1;
 
-        token = await deploySifusToken(signers.deployer);
+        //Deploy Actors and world basic
+        let worldConstants = await deployWorldConstants(deployer);
+        let worldContractRoute = await deployWorldContractRoute(deployer);
+        let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        let actors = await deployActors(deployer.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        await worldContractRoute.registerActors(actors.address);
+
+        //PanGu should be mint at first, or you can not register any module
+        actorPanGu = await worldConstants.ACTOR_PANGU();
+        expect(actorPanGu).to.eq(1);
+        expect(await actors.nextActor()).to.eq(actorPanGu);
+        await actors.mintActor(0);
+        await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
+        token = await deploySifusToken(worldContractRoute.address, signers.deployer);
 
         await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), signers.deployer));
     });

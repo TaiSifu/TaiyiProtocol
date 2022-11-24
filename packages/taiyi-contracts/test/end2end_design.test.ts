@@ -8,7 +8,7 @@ import {
     SifusToken, SifusDescriptor, SifusDescriptor__factory,
     TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,
     WorldContractRoute__factory, ShejiTu, ShejiTu__factory, Actors,
-    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes, Fungible,
+    WorldConstants, WorldContractRoute, ActorAttributesConstants, ActorAttributes, WorldFungible,
 } from '../typechain';
 
 import {
@@ -42,8 +42,11 @@ let actorAttributesConstants: ActorAttributesConstants;
 let worldContractRoute: WorldContractRoute;
 let actors: Actors;
 let actorAttributes: ActorAttributes;
-let assetDaoli: Fungible;
-let assetWood: Fungible;
+let assetDaoli: WorldFungible;
+let assetWood: WorldFungible;
+
+
+let actorPanGu: BigNumber;
 
 // Governance Config
 const TIME_LOCK_DELAY = 172_800; // 2 days
@@ -60,21 +63,13 @@ const callDatas: string[] = [];
 
 let proposalId: EthersBN;
 
-// ShejiTu Config
-const ONE_AGE_VSECOND: number = 1;
-
 async function deploy() {
     [deployer, wethDeployer, taiyiDAO, operator1] = await ethers.getSigners();
 
     // Deployed by another account to simulate real network
     weth = await deployWeth(wethDeployer);
 
-    // 1. DEPLOY Sifus token
-    sifusToken = await deploySifusToken(deployer, taiyiDAO.address,
-        deployer.address, // do not know minter/shejitu yet
-    );
-
-    // 2a. DEPLOY ShejiTu with world basic
+    // 1. DEPLOY Actors with world basic
     //-World Constants
     worldConstants = await deployWorldConstants(deployer);
     actorAttributesConstants = await deployActorAttributesConstants(deployer);
@@ -87,34 +82,33 @@ async function deploy() {
     actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
     await worldContractRoute.registerActors(actors.address);
     //PanGu should be mint at first, or you can not register any module
-    expect(await actors.connect(taiyiDAO).nextActor()).to.eq(1);
-    expect(await worldConstants.ACTOR_PANGU()).to.eq(1);
+    actorPanGu = await worldConstants.ACTOR_PANGU();
+    expect(actorPanGu).to.eq(1);
+    expect(await actors.nextActor()).to.eq(actorPanGu);
     await actors.connect(taiyiDAO).mintActor(0);
-    //connect route to operator
-    let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
-    //deploy world basic modules
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-    actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
+    //-World basic modules
+    await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+    actorAttributes = await deployActorAttributes(worldContractRoute, deployer);
+    await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
+
+    // 2. DEPLOY Sifus token
+    sifusToken = await deploySifusToken(worldContractRoute.address, deployer, taiyiDAO.address);
+
+    // 3a. DEPLOY ShejiTu
     //-ShejiTu
-    console.log(`deploy ShejiTu with oneAgeVSecond=${ONE_AGE_VSECOND}`);
     //the second actor minted should be YeMing for ShejiTu its self
     expect(await actors.connect(taiyiDAO).nextActor()).to.eq(2);
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
         sifusToken.address,
-        ONE_AGE_VSECOND,
         worldContractRoute.address
     ]);
-    // 2b. CAST proxy as ShejiTu
+    // 3b. CAST proxy as ShejiTu
     shejiTu = ShejiTu__factory.connect(shejiTuProxy.address, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-    expect(await shejiTu.ACTOR_YEMING()).to.eq(2);
+    await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     //- register yeming for shejitu
-    await routeByPanGu.setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
-
-    // 3. SET MINTER
-    await sifusToken.setMinter(shejiTu.address);
+    expect(await shejiTu.ACTOR_YEMING()).to.eq(2);
+    await worldContractRoute.connect(taiyiDAO).setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
 
     // 4. POPULATE body parts
     descriptor = SifusDescriptor__factory.connect(await sifusToken.descriptor(), deployer);
@@ -160,7 +154,19 @@ async function deploy() {
     await shejiTu.transferOwnership(timelock.address);
 }
 
+let newActor = async (toWho: SignerWithAddress):Promise<BigNumber> => {
+    //deal coin
+    await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(1000e18));
+    await assetDaoli.connect(taiyiDAO).withdraw(actorPanGu, actorPanGu, BigInt(1000e18));
+    await assetDaoli.connect(taiyiDAO).approve(actors.address, BigInt(1000e18));
+    let _actor = await actors.nextActor();
+    await actors.connect(taiyiDAO).mintActor(BigInt(100e18));
+    await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
+    return _actor;
+}
+
 describe('太乙岛提案、投票并执行对太乙世界的设计和合约组装事务', async () => {
+
     before(deploy);
 
     it('合约参数正确性', async () => {
@@ -168,7 +174,6 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
         expect(await descriptor.owner()).to.equal(timelock.address);
         expect(await shejiTu.owner()).to.equal(timelock.address);
 
-        expect(await sifusToken.minter()).to.equal(shejiTu.address);
         expect(await sifusToken.taiyiDAO()).to.equal(taiyiDAO.address);
 
         expect(await gov.admin()).to.equal(timelock.address);
@@ -176,6 +181,8 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
         expect(await gov.timelock()).to.equal(timelock.address);
 
         expect(await gov.vetoer()).to.equal(taiyiDAO.address);
+
+        expect(await worldContractRoute.isYeMing(await shejiTu.ACTOR_YEMING())).to.eq(true);
 
         expect(await actors.ownerOf(await worldConstants.ACTOR_PANGU())).to.eq(taiyiDAO.address);
         expect(await actors.ownerOf(await shejiTu.ACTOR_YEMING())).to.eq(shejiTu.address);
@@ -187,10 +194,14 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
         console.log(`投票前冷静期为${VOTING_DELAY}秒`);
     });
 
-    it('社稷图颁发两个师傅令牌，一个给太乙岛，一个给测试者', async () => {
-        // PagGu mint first two sifus as YeMing for test
+    it('社稷图颁发师傅令牌（需要事件，待实现）', async () => {
+        //PagGu mint first two sifus as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
-        await shejiTu.connect(taiyiDAO).mintSifu(await worldConstants.ACTOR_PANGU(), operator1.address);
+
+        let actorByOp1 = await newActor(operator1);
+        await worldContractRoute.connect(taiyiDAO).setYeMing(actorByOp1, operator1.address);
+
+        const receipt = await (await sifusToken.connect(operator1).mint(actorByOp1)).wait();
 
         expect(await sifusToken.totalSupply()).to.equal(EthersBN.from('2'));
 
@@ -199,14 +210,12 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
     });
 
     it('移交盘古所有权/操作权到太乙岛', async () => {
-        let actorPanGu = await worldConstants.ACTOR_PANGU();
-
         await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, timelock.address, actorPanGu);
         expect(await actors.ownerOf(actorPanGu)).to.eq(timelock.address);
     });
 
     it('盘古原持有人不再拥有世界设计权', async () => {
-        await expect(worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).to.be.revertedWith("Only PanGu");
+        await expect(worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).to.be.revertedWith("only PanGu");
     });
 
     describe('“将「道理」合约注册到太乙世界！”', async () => {

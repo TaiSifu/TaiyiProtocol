@@ -6,20 +6,20 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory,
-    Actors, Actors__factory, Fungible, Fungible__factory, 
-} from '../../typechain';
+    Actors, Actors__factory, WorldFungible, WorldFungible__factory, 
+} from '../typechain';
 import {
     blockTimestamp,
     blockNumber,
     increaseTime,
-} from '../utils';
+} from './utils';
 import {
     deployWorldConstants,
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
     deployAssetDaoli,
-} from '../../utils';
+} from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import web3 from 'web3';
 
@@ -38,7 +38,7 @@ describe('太乙角色基础测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
 
     before(async () => {
         [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
@@ -143,7 +143,7 @@ describe('太乙角色基础测试', () => {
 
         //deploy modules when operator is not PanGu
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
-        .to.be.revertedWith('Only PanGu');
+        .to.be.revertedWith('only PanGu');
     });
 
     it('无准入铸造新角色', async () => {
@@ -163,7 +163,7 @@ describe('太乙角色基础测试', () => {
         expect(await worldContractRoute.isYeMing(2)).to.eq(true);
 
         //deal coin
-        let assetDaoliByOp1 = Fungible__factory.connect(assetDaoli.address, operator1);
+        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
         expect((await assetDaoliByOp1.claim(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(0);
         expect((await assetDaoliByOp1.withdraw(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
@@ -195,7 +195,7 @@ describe('太乙角色基础测试', () => {
         await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
 
         //deal coin
-        let assetDaoliByOp1 = Fungible__factory.connect(assetDaoli.address, operator1);
+        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
         await assetDaoliByOp1.claim(2, 2, BigInt(1e17));
         await assetDaoliByOp1.withdraw(2, 2, BigInt(1e17));
         await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
@@ -218,7 +218,7 @@ describe('太乙角色基础测试', () => {
         await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
 
         //deal coin
-        let assetDaoliByOp1 = Fungible__factory.connect(assetDaoli.address, operator1);
+        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
         await assetDaoliByOp1.claim(2, 2, BigInt(100e18));
         await assetDaoliByOp1.withdraw(2, 2, BigInt(100e18));
         await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
@@ -254,7 +254,7 @@ describe('角色铸造费用VRGDA测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: Fungible;
+    let assetDaoli: WorldFungible;
 
     before(async () => {
         [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
