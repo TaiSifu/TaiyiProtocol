@@ -203,7 +203,7 @@ describe('角色姓名测试', () => {
         await actorNames.connect(operator1).claim(firstName, lastName, actor);
 
         //can not withdrawn by anyone except YeMing
-        await expect(actorNames.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), actor)).to.be.revertedWith('not operated by YeMing');
+        await expect(actorNames.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), actor)).to.be.revertedWith('only YeMing');
 
         //should be withdrawn by YeMing
         expect((await actorNames.connect(operator1).withdraw(2, actor)).wait()).eventually.fulfilled;

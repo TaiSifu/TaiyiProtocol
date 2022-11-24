@@ -54,13 +54,10 @@ describe('社稷图全局时间线测试', () => {
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;
 
+    let actorPanGu: BigNumber;
+
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
-
-        //Deploy SifusToken
-        sifusToken = await deploySifusToken(deployer, taiyiDAO.address, deployer.address);
-        const descriptor = await sifusToken.descriptor();
-        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -78,8 +75,15 @@ describe('社稷图全局时间线测试', () => {
         await worldContractRoute.registerActors(actors.address);
 
         //PanGu should be mint at first, or you can not register any module
-        expect(await actors.nextActor()).to.eq(1);
+        actorPanGu = await worldConstants.ACTOR_PANGU();
+        expect(actorPanGu).to.eq(1);
+        expect(await actors.nextActor()).to.eq(actorPanGu);
         await actors.connect(taiyiDAO).mintActor(0);
+
+        //Deploy SifusToken
+        sifusToken = await deploySifusToken(worldContractRoute.address, deployer, taiyiDAO.address, deployer.address);
+        const descriptor = await sifusToken.descriptor();
+        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
         //connect route to operator
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);

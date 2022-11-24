@@ -71,11 +71,6 @@ describe('世界事件集测试', () => {
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
-        //Deploy SifusToken
-        sifusToken = await deploySifusToken(deployer, taiyiDAO.address, deployer.address);
-        const descriptor = await sifusToken.descriptor();
-        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
-
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
         actorAttributesConstants = await deployActorAttributesConstants(deployer);
@@ -96,6 +91,11 @@ describe('世界事件集测试', () => {
         expect(actorPanGu).to.eq(1);
         expect(await actors.nextActor()).to.eq(actorPanGu);
         await actors.connect(taiyiDAO).mintActor(0);
+
+        //Deploy SifusToken
+        sifusToken = await deploySifusToken(worldContractRoute.address, deployer, taiyiDAO.address, deployer.address);
+        const descriptor = await sifusToken.descriptor();
+        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
         //connect route to operator
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);

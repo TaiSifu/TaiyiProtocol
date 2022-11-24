@@ -67,7 +67,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     modifier onlyYeMing(uint256 _actor) {
-        require(worldRoute.isYeMing(_actor), "not operated by YeMing");
+        require(worldRoute.isYeMing(_actor), "only YeMing");
         require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
         _;
     }
@@ -106,17 +106,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
-
-    function mintSifu(uint256 _operator, address _to) external
-        onlyYeMing(_operator)
-        returns (uint256)
-    {
-        require(_to != address(0), "mint to ZERO address.");
-        uint256 sifuId = sifus.mint();
-        if(_to != address(this))
-            sifus.transferFrom(address(this), _to, sifuId);
-        return sifuId;
-    }
 
     function bornActor(uint256 _actor) external
         onlyApprovedOrOwner(_actor)

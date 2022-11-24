@@ -4,7 +4,7 @@ import hardhat from 'hardhat';
 
 const { ethers } = hardhat;
 
-import { BigNumber as EthersBN } from 'ethers';
+import { BigNumber, BigNumber as EthersBN } from 'ethers';
 
 import {
     deploySifusToken,
@@ -12,6 +12,8 @@ import {
     TestSigners,
     setTotalSupply,
     populateDescriptor,
+    blockTimestamp,
+    blockNumber,
 } from '../../utils';
 
 import {
@@ -32,6 +34,7 @@ import {
     TaiyiDaoExecutor,
     TaiyiDaoExecutor__factory,
 } from '../../../typechain';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -62,18 +65,23 @@ async function reset(): Promise<void> {
     // nonce 0: Deploy TaiyiDAOExecutor
     // nonce 1: Deploy TaiyiDAOLogicV1
     // nonce 2: Deploy multiPartRLEToSVGLibraryFactory
-    // nonce 3: Deploy SifusDescriptor
-    // nonce 4: Deploy SifusSeeder
-    // nonce 5: Deploy World Contract Route
-    // nonce 6: Deploy SifusToken
-    // nonce 7: Deploy TaiyiDAOProxy
-    // nonce 8+: populate Descriptor
+    // nonce 3: Deploy World Constants
+    // nonce 4: Deploy World Contract Route
+    // nonce 5: Deploy Taiyi Daoli ERC20
+    // nonce 6: Deploy Actors
+    // nonce 7: Register Actors to world route
+    // nonce 8: Mint PanGu
+    // nonce 9: Deploy SifusDescriptor
+    // nonce 10: Deploy SifusSeeder
+    // nonce 11: Deploy SifusToken
+    // nonce 12: Deploy TaiyiDAOProxy
+    // nonce 13+: populate Descriptor
 
     vetoer = deployer;
 
     const govDelegatorAddress = ethers.utils.getContractAddress({
         from: deployer.address,
-        nonce: (await deployer.getTransactionCount()) + 7,
+        nonce: (await deployer.getTransactionCount()) + 12,
     });
 
     // Deploy TaiyiDAOExecutor with pre-computed Delegator address
@@ -83,8 +91,29 @@ async function reset(): Promise<void> {
     // Deploy Delegate
     const { address: govDelegateAddress } = await new TaiyiDaoLogicV1__factory(deployer).deploy();
 
+    // Deploy World Constants
+    let worldConstants = await deployWorldConstants(deployer);
+
+    // Deploy WorldContractRoute
+    let worldContractRoute = await deployWorldContractRoute(deployer);
+
+    //Deploy Taiyi Daoli ERC20
+    let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+
+    //Deploy Actors
+    const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+    let actors = await deployActors(deployer.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+    //Register Actors to world route
+    await worldContractRoute.registerActors(actors.address);
+
+    //PanGu should be mint at first, or you can not register any module
+    actorPanGu = await worldConstants.ACTOR_PANGU();
+    expect(actorPanGu).to.eq(1);
+    expect(await actors.nextActor()).to.eq(actorPanGu);
+    await actors.connect(deployer).mintActor(0);
+
     // Deploy Sifus token
-    token = await deploySifusToken(deployer);
+    token = await deploySifusToken(worldContractRoute.address, deployer);
 
     // Deploy Delegator
     await new TaiyiDaoProxy__factory(deployer).deploy(
@@ -104,12 +133,15 @@ async function reset(): Promise<void> {
 
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), deployer));
 
+    //set PanGu as YeMing for test
+    await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
     snapshotId = await ethers.provider.send('evm_snapshot', []);
 }
 
 async function propose(proposer: SignerWithAddress, mint = true) {
     if (mint) {
-        await setTotalSupply(token, 1);
+        await setTotalSupply(actorPanGu, token, 1);
         if (proposer.address !== deployer.address) {
             await token.transferFrom(deployer.address, proposer.address, 0);
         }
@@ -146,6 +178,7 @@ let values: string[];
 let signatures: string[];
 let callDatas: string[];
 let proposalId: EthersBN;
+let actorPanGu: BigNumber;
 
 describe('太乙岛否决权测试', () => {
     before(async () => {
@@ -233,7 +266,7 @@ describe('太乙岛否决权测试', () => {
             await expectState(proposalId, 'Vetoed');
         });
         it('已被否决（Defeated）', async () => {
-            await setTotalSupply(token, 3);
+            await setTotalSupply(actorPanGu, token, 3);
             await token.transferFrom(deployer.address, account0.address, 0);
             await token.transferFrom(deployer.address, account1.address, 1);
             await token.transferFrom(deployer.address, account1.address, 2);
@@ -251,7 +284,7 @@ describe('太乙岛否决权测试', () => {
             await expectState(proposalId, 'Vetoed');
         });
         it('已通过（Succeeded）', async () => {
-            await setTotalSupply(token, 3);
+            await setTotalSupply(actorPanGu, token, 3);
             await token.transferFrom(deployer.address, account0.address, 0);
             await token.transferFrom(deployer.address, account1.address, 1);
             await token.transferFrom(deployer.address, account1.address, 2);

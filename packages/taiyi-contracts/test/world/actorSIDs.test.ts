@@ -115,7 +115,7 @@ describe('角色社会身份测试', () => {
         it(`非噎明无权赋予角色新身份`, async ()=>{
             actor = await newActorByOp1();
 
-            await expect(actorSIDs.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 10010, actor)).to.be.revertedWith("not operated by YeMing");
+            await expect(actorSIDs.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 10010, actor)).to.be.revertedWith("only YeMing");
         });
 
         it(`噎明赋予角色新身份`, async ()=>{
@@ -127,7 +127,7 @@ describe('角色社会身份测试', () => {
         });
 
         it(`非噎明无权销毁身份`, async ()=>{
-            await expect(actorSIDs.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newSID)).to.be.revertedWith("not operated by YeMing");
+            await expect(actorSIDs.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newSID)).to.be.revertedWith("only YeMing");
         });
 
         it(`噎明销毁身份-角色所有者未授权`, async ()=>{

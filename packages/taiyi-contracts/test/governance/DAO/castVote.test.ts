@@ -4,7 +4,7 @@ import hardhat from 'hardhat';
 
 const { ethers } = hardhat;
 
-import { BigNumber as EthersBN } from 'ethers';
+import { BigNumber, BigNumber as EthersBN } from 'ethers';
 
 import {
     deploySifusToken,
@@ -12,6 +12,8 @@ import {
     TestSigners,
     setTotalSupply,
     populateDescriptor,
+    blockTimestamp,
+    blockNumber,
 } from '../../utils';
 
 import { mineBlock, address, encodeParameters } from '../../utils';
@@ -22,7 +24,12 @@ import {
     SifusDescriptor__factory,
     TaiyiDaoLogicV1Harness,
     TaiyiDaoLogicV1Harness__factory,
+    WorldConstants,
+    WorldContractRoute,
+    Actors,
+    WorldFungible,
 } from '../../../typechain';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -58,6 +65,13 @@ let account1: SignerWithAddress;
 let account2: SignerWithAddress;
 let signers: TestSigners;
 
+let worldConstants: WorldConstants;
+let worldContractRoute: WorldContractRoute;
+let actors: Actors;
+let assetDaoli: WorldFungible;
+
+let actorPanGu: BigNumber;
+
 let gov: TaiyiDaoLogicV1Harness;
 let targets: string[];
 let values: string[];
@@ -72,10 +86,26 @@ async function reset() {
         return;
     }
 
-    token = await deploySifusToken(signers.deployer);
+    //Deploy Actors and world basic
+    worldConstants = await deployWorldConstants(deployer);
+    worldContractRoute = await deployWorldContractRoute(deployer);
+    assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+
+    const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+    actors = await deployActors(deployer.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+    await worldContractRoute.registerActors(actors.address);
+
+    //PanGu should be mint at first, or you can not register any module
+    actorPanGu = await worldConstants.ACTOR_PANGU();
+    expect(actorPanGu).to.eq(1);
+    expect(await actors.nextActor()).to.eq(actorPanGu);
+    await actors.mintActor(0);
+    await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
+    token = await deploySifusToken(worldContractRoute.address, signers.deployer);
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), signers.deployer));
 
-    await setTotalSupply(token, 10);
+    await setTotalSupply(actorPanGu, token, 10);
 
     gov = await deployGovernor(deployer, token.address);
     snapshotId = await ethers.provider.send('evm_snapshot', []);

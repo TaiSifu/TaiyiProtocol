@@ -3,9 +3,10 @@ import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
-import { SifusDescriptor__factory, SifusToken } from '../typechain';
-import { deploySifusToken, populateDescriptor, blockTimestamp } from './utils';
+import { Actors, SifusDescriptor__factory, SifusToken, WorldConstants, WorldContractRoute, WorldFungible } from '../typechain';
+import { deploySifusToken, populateDescriptor, blockTimestamp, blockNumber } from './utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -16,12 +17,54 @@ describe('太乙师傅令牌测试', () => {
     let taiyiDAO: SignerWithAddress;
     let snapshotId: number;
 
+    let worldConstants: WorldConstants;
+    let worldContractRoute: WorldContractRoute;
+    let actors: Actors;
+    let assetDaoli: WorldFungible;
+
+    let actorPanGu: BigNumber;
+
+    let newActor = async (toWho: SignerWithAddress):Promise<BigNumber> => {
+        //deal coin
+        await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).withdraw(actorPanGu, actorPanGu, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).approve(actors.address, BigInt(1000e18));
+        let _actor = await actors.nextActor();
+        await actors.connect(taiyiDAO).mintActor(BigInt(100e18));
+        await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
+        return _actor;
+    }
+
     before(async () => {
         [deployer, taiyiDAO] = await ethers.getSigners();
-        sifusToken = await deploySifusToken(deployer, taiyiDAO.address, deployer.address);
 
+        //Deploy Constants
+        worldConstants = await deployWorldConstants(deployer);
+
+        //Deploy WorldContractRoute
+        worldContractRoute = await deployWorldContractRoute(deployer);
+
+        //Deploy Taiyi Daoli ERC20
+        assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+
+        //Deploy Actors
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        await worldContractRoute.registerActors(actors.address);
+
+        //PanGu should be mint at first, or you can not register any module
+        actorPanGu = await worldConstants.ACTOR_PANGU();
+        expect(actorPanGu).to.eq(1);
+        expect(await actors.nextActor()).to.eq(actorPanGu);
+        await actors.connect(taiyiDAO).mintActor(0);
+
+        //Deploy SifusToken and its descriptor
+        sifusToken = await deploySifusToken(worldContractRoute.address, deployer, taiyiDAO.address);
         const descriptor = await sifusToken.descriptor();
         await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
+
+        //set PanGu as YeMing for test
+        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address);
     });
 
     beforeEach(async () => {
@@ -32,8 +75,11 @@ describe('太乙师傅令牌测试', () => {
         await ethers.provider.send('evm_revert', [snapshotId]);
     });
 
-    it('铸造者铸造师傅令牌同时自动奖励部分令牌给太乙岛', async () => {
-        const receipt = await (await sifusToken.mint()).wait();
+    it('噎明铸造师傅令牌同时自动奖励部分令牌给太乙岛', async () => {
+        let actorByDeployer = await newActor(deployer);
+        await worldContractRoute.connect(taiyiDAO).setYeMing(actorByDeployer, deployer.address);
+
+        const receipt = await (await sifusToken.connect(deployer).mint(actorByDeployer)).wait();
 
         const [, , , taisifusSifuCreated, , , , ownersSifuCreated] = receipt.events || [];
 
@@ -58,21 +104,21 @@ describe('太乙师傅令牌测试', () => {
         });
     });
 
-    it('师傅令牌合约符号（Symbol）', async () => {
+    it('合约符号（Symbol）', async () => {
         expect(await sifusToken.symbol()).to.eq('SIFU');
     });
 
-    it('师傅令牌合约名称', async () => {
+    it('合约名称', async () => {
         expect(await sifusToken.name()).to.eq('Taiyi Sifus');
     });
 
-    it('铸造者铸造师傅令牌', async () => {
-        await (await sifusToken.mint()).wait();
+    it('噎明铸造师傅令牌', async () => {
+        await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
 
-        const receipt = await (await sifusToken.mint()).wait();
+        const receipt = await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
         const sifuCreated = receipt.events?.[3];
 
-        expect(await sifusToken.ownerOf(2)).to.eq(deployer.address);
+        expect(await sifusToken.ownerOf(2)).to.eq(taiyiDAO.address);
         expect(sifuCreated?.event).to.eq('SifuCreated');
         expect(sifuCreated?.args?.sifu).to.eq(2);
         expect(sifuCreated?.args?.seed.length).to.equal(5);
@@ -86,12 +132,14 @@ describe('太乙师傅令牌测试', () => {
     it('铸造师傅令牌时产生两个Transfer事件日志', async () => {
         const [, , creator, minter] = await ethers.getSigners();
 
-        await (await sifusToken.mint()).wait();
+        await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
 
-        await (await sifusToken.setMinter(minter.address)).wait();
         await (await sifusToken.transferOwnership(creator.address)).wait();
 
-        const tx = sifusToken.connect(minter).mint();
+        let actorByMinter = await newActor(minter);
+        await worldContractRoute.connect(taiyiDAO).setYeMing(actorByMinter, minter.address);
+
+        const tx = sifusToken.connect(minter).mint(actorByMinter);
 
         await expect(tx)
             .to.emit(sifusToken, 'Transfer')
@@ -99,22 +147,23 @@ describe('太乙师傅令牌测试', () => {
         await expect(tx).to.emit(sifusToken, 'Transfer').withArgs(creator.address, minter.address, 2);
     });
 
-    it('铸造者可以销毁一个师傅令牌', async () => {
-        await (await sifusToken.mint()).wait();
+    it('噎明可以销毁一个师傅令牌', async () => {
+        await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
 
-        const tx = sifusToken.burn(0);
+        const tx = sifusToken.connect(taiyiDAO).burn(actorPanGu, 0);
         await expect(tx).to.emit(sifusToken, 'SifuBurned').withArgs(0);
     });
 
-    it('非铸造者无权铸造', async () => {
+    it('非噎明无权铸造', async () => {
+        let actorByDao = await newActor(taiyiDAO);
         const account0AsSifuErc721Account = sifusToken.connect(taiyiDAO);
-        await expect(account0AsSifuErc721Account.mint()).to.be.reverted;
+        await expect(account0AsSifuErc721Account.mint(actorByDao)).to.be.reverted;
     });
 
     it('师傅令牌tokenURI', async () => {
-        await (await sifusToken.mint()).wait();
+        await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
 
-        const receipt = await (await sifusToken.mint()).wait();
+        const receipt = await (await sifusToken.connect(taiyiDAO).mint(actorPanGu)).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
         const sifuCreated = receipt.events?.[3];
 

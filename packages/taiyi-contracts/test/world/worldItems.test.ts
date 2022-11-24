@@ -61,11 +61,6 @@ describe('世界道具测试', () => {
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
-        //Deploy SifusToken
-        sifusToken = await deploySifusToken(deployer, taiyiDAO.address, deployer.address);
-        const descriptor = await sifusToken.descriptor();
-        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
-
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
 
@@ -85,6 +80,11 @@ describe('世界道具测试', () => {
         expect(actorPanGu).to.eq(1);
         expect(await actors.nextActor()).to.eq(actorPanGu);
         await actors.connect(taiyiDAO).mintActor(0);
+
+        //Deploy SifusToken
+        sifusToken = await deploySifusToken(worldContractRoute.address, deployer, taiyiDAO.address, deployer.address);
+        const descriptor = await sifusToken.descriptor();
+        await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
         //connect route to operator
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
@@ -124,7 +124,7 @@ describe('世界道具测试', () => {
     describe('道具常规测试', () => {
 
         it(`非噎明无权铸造新道具`, async ()=>{
-            await expect(worldItems.connect(operator1).mint(actor, 20, 100, 7, actor)).to.be.revertedWith("not operated by YeMing");
+            await expect(worldItems.connect(operator1).mint(actor, 20, 100, 7, actor)).to.be.revertedWith("only YeMing");
         });
 
         it(`噎明铸造新道具参数错误`, async ()=>{
@@ -144,7 +144,7 @@ describe('世界道具测试', () => {
         });
 
         it(`非噎明无权修改道具属性`, async ()=>{
-            await expect(worldItems.connect(operator1).modify(actor, newItem, 10)).to.be.revertedWith("not operated by YeMing");
+            await expect(worldItems.connect(operator1).modify(actor, newItem, 10)).to.be.revertedWith("only YeMing");
         });
 
         it(`噎明修改道具耐久属性`, async ()=>{
@@ -153,7 +153,7 @@ describe('世界道具测试', () => {
         });
 
         it("非噎明无权从角色提取道具", async ()=>{
-            await expect(worldItems.connect(operator1).withdraw(actor, newItem)).to.be.revertedWith('not operated by YeMing');
+            await expect(worldItems.connect(operator1).withdraw(actor, newItem)).to.be.revertedWith('only YeMing');
         });
     
         it("噎明从角色提取道具（取消托管）-道具所有者未授权角色", async ()=>{
@@ -175,7 +175,7 @@ describe('世界道具测试', () => {
         });
 
         it(`非噎明无权销毁道具`, async ()=>{
-            await expect(worldItems.connect(operator1).burn(actor, newItem)).to.be.revertedWith("not operated by YeMing");
+            await expect(worldItems.connect(operator1).burn(actor, newItem)).to.be.revertedWith("only YeMing");
         });
 
         it(`噎明销毁道具-道具未托管`, async ()=>{

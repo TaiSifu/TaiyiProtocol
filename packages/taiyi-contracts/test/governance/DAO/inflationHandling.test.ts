@@ -4,7 +4,7 @@ import hardhat from 'hardhat';
 
 const { ethers } = hardhat;
 
-import { BigNumber as EthersBN } from 'ethers';
+import { BigNumber, BigNumber as EthersBN } from 'ethers';
 
 import {
     deploySifusToken,
@@ -12,6 +12,8 @@ import {
     TestSigners,
     setTotalSupply,
     populateDescriptor,
+    blockTimestamp,
+    blockNumber,
 } from '../../utils';
 
 import { mineBlock, address, encodeParameters, advanceBlocks } from '../../utils';
@@ -25,6 +27,7 @@ import {
     TaiyiDaoLogicV1__factory,
     TaiyiDaoExecutor__factory,
 } from '../../../typechain';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -33,16 +36,21 @@ async function reset(): Promise<void> {
     // nonce 0: Deploy TaiyiDAOExecutor
     // nonce 1: Deploy TaiyiDAOLogicV1
     // nonce 2: Deploy multiPartRLEToSVGLibraryFactory
-    // nonce 3: Deploy SifusDescriptor
-    // nonce 4: Deploy SifusSeeder
-    // nonce 5: Deploy World Contract Route
-    // nonce 6: Deploy SifusToken
-    // nonce 7: Deploy TaiyiDAOProxy
-    // nonce 8+: populate Descriptor
+    // nonce 3: Deploy World Constants
+    // nonce 4: Deploy World Contract Route
+    // nonce 5: Deploy Taiyi Daoli ERC20
+    // nonce 6: Deploy Actors
+    // nonce 7: Register Actors to world route
+    // nonce 8: Mint PanGu
+    // nonce 9: Deploy SifusDescriptor
+    // nonce 10: Deploy SifusSeeder
+    // nonce 11: Deploy SifusToken
+    // nonce 12: Deploy TaiyiDAOProxy
+    // nonce 13+: populate Descriptor
 
     const govDelegatorAddress = ethers.utils.getContractAddress({
         from: deployer.address,
-        nonce: (await deployer.getTransactionCount()) + 7,
+        nonce: (await deployer.getTransactionCount()) + 12,
     });
 
     // Deploy TaiyiDAOExecutor with pre-computed Delegator address
@@ -53,8 +61,30 @@ async function reset(): Promise<void> {
 
     // Deploy Delegate
     const { address: govDelegateAddress } = await new TaiyiDaoLogicV1__factory(deployer).deploy();
+
+    // Deploy World Constants
+    let worldConstants = await deployWorldConstants(deployer);
+
+    // Deploy WorldContractRoute
+    let worldContractRoute = await deployWorldContractRoute(deployer);
+
+    //Deploy Taiyi Daoli ERC20
+    let assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
+
+    //Deploy Actors
+    const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+    let actors = await deployActors(deployer.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+    //Register Actors to world route
+    await worldContractRoute.registerActors(actors.address);
+
+    //PanGu should be mint at first, or you can not register any module
+    actorPanGu = await worldConstants.ACTOR_PANGU();
+    expect(actorPanGu).to.eq(1);
+    expect(await actors.nextActor()).to.eq(actorPanGu);
+    await actors.connect(deployer).mintActor(0);
+
     // Deploy Sifus token
-    token = await deploySifusToken(deployer);
+    token = await deploySifusToken(worldContractRoute.address, deployer);
 
     // Deploy Delegator
     await new TaiyiDaoProxy__factory(deployer).deploy(
@@ -73,6 +103,9 @@ async function reset(): Promise<void> {
     gov = TaiyiDaoLogicV1__factory.connect(govDelegatorAddress, deployer);
 
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), deployer));
+
+    //set PanGu as YeMing for test
+    await worldContractRoute.setYeMing(actorPanGu, deployer.address);
 }
 
 async function propose(proposer: SignerWithAddress) {
@@ -104,6 +137,8 @@ let signatures: string[];
 let callDatas: string[];
 let proposalId: EthersBN;
 
+let actorPanGu: BigNumber;
+
 describe('太乙岛师傅令牌增发情况测试', () => {
     before(async () => {
         signers = await getSigners();
@@ -127,7 +162,7 @@ describe('太乙岛师傅令牌增发情况测试', () => {
 
     it('根据师傅令牌总数，法定投票要求和提案人持票要求', async () => {
         // Total Supply = 40
-        await setTotalSupply(token, 40);
+        await setTotalSupply(actorPanGu, token, 40);
 
         await mineBlock();
 
@@ -174,7 +209,7 @@ describe('太乙岛师傅令牌增发情况测试', () => {
 
     it('师傅令牌总数变化后，法定投票要求和提案人持票要求对应变化', async () => {
         // Total Supply = 80
-        await setTotalSupply(token, 80);
+        await setTotalSupply(actorPanGu, token, 80);
 
         // 6.78% of 80 = 5.424, floored to 5
         expect(await gov.proposalThreshold()).to.equal(5);
