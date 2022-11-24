@@ -6,15 +6,13 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorAttributesConstants {
+library ActorMoodAttributesConstants {
 
-    uint256 public constant _BASE = 0;
-    uint256 public constant AGE = 0; // 年龄
-    uint256 public constant HLH = 1; // 健康，生命
+    uint256 public constant _BASE = 20; // ID起始值
+    uint256 public constant XIQ = 20; // 心情
 
 }
-
-contract ActorAttributes is IActorAttributes, WorldConfigurable {
+contract ActorMoodAttributes is IActorAttributes, WorldConfigurable {
 
     /* *******
      * Globals
@@ -22,8 +20,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
      */
 
     string[] public override attributeLabels = [
-        "\xE5\xB9\xB4\xE9\xBE\x84", //年龄
-        "\xE5\x81\xA5\xE5\xBA\xB7" //健康
+        "\xE5\xBF\x83\xE6\x83\x85" //心情
     ];
 
     mapping(uint256 => mapping(uint256 => uint256)) public override attributesScores; //attributeId => (actor => score)
@@ -72,20 +69,20 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
     function _tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
         if(characterPointsInitiated[_actor]) {
-            //基础属性：
-            string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\x9F\xBA\xE7\xA1\x80\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
+            //情绪属性：
+            string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE6\x83\x85\xE7\xBB\xAA\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
-            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorAttributesConstants.HLH], "=", Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '</text>'));
+            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorMoodAttributesConstants.XIQ - ActorMoodAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorMoodAttributesConstants.XIQ][_actor]), '</text>'));
             return (string(abi.encodePacked(svg0, svg1)), _endY);
         }
         else
-            //基础属性未初始化。
-            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\x9F\xBA\xE7\xA1\x80\xE5\xB1\x9E\xE6\x80\xA7\xE6\x9C\xAA\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96\xE3\x80\x82', '</text>')), _endY);
+            //心情未初始化。
+            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\xBF\x83\xE6\x83\x85\xE6\x9C\xAA\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96\xE3\x80\x82', '</text>')), _endY);
     }
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"HLH": ', Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '}'));
+        json = string(abi.encodePacked('{"XIQ": ', Strings.toString(attributesScores[ActorMoodAttributesConstants.XIQ][_actor]), '}'));
         return json;
     }
 
@@ -94,7 +91,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_ATTRIBUTES; }
+    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_MOOD_ATTRIBUTES; }
 
     function pointActor(uint256 _actor) external 
         onlyApprovedOrOwner(_actor)
@@ -103,16 +100,18 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         require(talents.actorTalentsInitiated(_actor), "talents have not initiated");
         require(!characterPointsInitiated[_actor], "already init points");
 
-        uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_ATTRIBUTES);
-        attributesScores[ActorAttributesConstants.HLH][_actor] = 100;
+        //IWorldRandom rand = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
+        uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_MOOD_ATTRIBUTES);
+        attributesScores[ActorMoodAttributesConstants.XIQ][_actor] = 100;
         if(_maxPointBuy > 0)
-            attributesScores[ActorAttributesConstants.HLH][_actor] = _maxPointBuy;
+            attributesScores[ActorMoodAttributesConstants.XIQ][_actor] = _maxPointBuy;
 
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
-        atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+        atts[0] = ActorMoodAttributesConstants.XIQ;
+        atts[1] = attributesScores[ActorMoodAttributesConstants.XIQ][_actor];
+
         emit Created(msg.sender, _actor, atts);
     }
 
@@ -121,12 +120,12 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
     {
         IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
         require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not approved or owner of timeline");
-        require(_attributes.length % 2 == 0, "attributes is invalid.");        
+        require(_attributes.length % 2 == 0, "max_point_buyattributes is invalid.");        
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorAttributesConstants.HLH) {
-                attributesScores[ActorAttributesConstants.HLH][_actor] = _attributes[i+1];
+            if(_attributes[i] == ActorMoodAttributesConstants.XIQ) {
+                attributesScores[ActorMoodAttributesConstants.XIQ][_actor] = _attributes[i+1];
                 updated = true;
                 break;
             }
@@ -134,8 +133,9 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
         if(updated) {
             uint256[] memory atts = new uint256[](2);
-            atts[0] = ActorAttributesConstants.HLH;
-            atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+            atts[0] = ActorMoodAttributesConstants.XIQ;
+            atts[1] = attributesScores[ActorMoodAttributesConstants.XIQ][_actor];
+
             emit Updated(msg.sender, _actor, atts);
         }
     }
@@ -147,19 +147,19 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
     function applyModified(uint256 _actor, int[] memory _modifiers) external view override returns (uint256[] memory, bool) {
         require(_modifiers.length % 2 == 0, "modifiers is invalid.");        
-
         bool attributesModified = false;
-        uint256 hlh = attributesScores[ActorAttributesConstants.HLH][_actor];
+        uint256 xiq = attributesScores[ActorMoodAttributesConstants.XIQ][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorAttributesConstants.HLH)) {
-                hlh = _attributeModify(hlh, _modifiers[i+1]);
+            if(_modifiers[i] == int(ActorMoodAttributesConstants.XIQ)) {
+                xiq = _attributeModify(xiq, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
-        atts[1] = hlh;
+        atts[0] = ActorMoodAttributesConstants.XIQ;
+        atts[1] = xiq;
+
         return (atts, attributesModified);
     }
 
@@ -175,8 +175,8 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         string[7] memory parts;
         //start svg
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
-        uint256 endY = 0;
-        (parts[1], endY) = _tokenSVG(_actor, endY + 20, 20);
+        uint256 _endY = 0;
+        (parts[1], _endY) = _tokenSVG(_actor, _endY + 20, 20);
         //end svg
         parts[2] = '</svg>';
         string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2]));

@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../base/ERC721Enumerable.sol";
 import "../interfaces/WorldInterfaces.sol";
-import "../WorldConfigurable.sol";
+import "./WorldConfigurable.sol";
 import "../libs/Base64.sol";
 
 contract ActorNames is IActorNames, WorldConfigurable, ERC721Enumerable 

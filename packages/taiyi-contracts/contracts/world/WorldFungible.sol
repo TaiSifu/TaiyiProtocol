@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "./interfaces/WorldInterfaces.sol";
-import "./base/ERC20.sol";
+import "../interfaces/WorldInterfaces.sol";
+import "../base/ERC20.sol";
 import "./WorldConfigurable.sol";
 
 contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {

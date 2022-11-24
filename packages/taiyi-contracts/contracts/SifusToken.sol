@@ -26,7 +26,7 @@ import './interfaces/ISifusToken.sol';
 //import { IProxyRegistry } from './external/opensea/IProxyRegistry.sol';
 import './libs/Base64.sol';
 import './libs/Strings.sol';
-import './WorldConfigurable.sol';
+import './world/WorldConfigurable.sol';
 //import "hardhat/console.sol";
 
 contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {

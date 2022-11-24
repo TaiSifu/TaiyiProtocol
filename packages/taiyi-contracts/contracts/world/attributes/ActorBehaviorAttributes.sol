@@ -6,27 +6,28 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorAttributesConstants {
+library ActorBehaviorAttributesConstants {
 
-    uint256 public constant _BASE = 0;
-    uint256 public constant AGE = 0; // 年龄
-    uint256 public constant HLH = 1; // 健康，生命
+    uint256 public constant _BASE = 40;
+    uint256 public constant ACT = 40; // 行动力
 
 }
 
-contract ActorAttributes is IActorAttributes, WorldConfigurable {
+contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable {
 
     /* *******
      * Globals
      * *******
      */
 
+    uint256 public immutable ACT_RECOVER_TIME_DAY; //行动力恢复周期（秒）
+
     string[] public override attributeLabels = [
-        "\xE5\xB9\xB4\xE9\xBE\x84", //年龄
-        "\xE5\x81\xA5\xE5\xBA\xB7" //健康
+        "\xE8\xA1\x8C\xE5\x8A\xA8\xE5\x8A\x9B" //行动力
     ];
 
     mapping(uint256 => mapping(uint256 => uint256)) public override attributesScores; //attributeId => (actor => score)
+    mapping(uint256 => uint256) public lastActRecoverTimeStamps; //上次行动力恢复时间戳 (actor => time)
     mapping(uint256 => bool) public override characterPointsInitiated;
 
     /* *********
@@ -44,7 +45,31 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(uint256 _actRecoverTimeDay, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+        ACT_RECOVER_TIME_DAY = _actRecoverTimeDay;
+    }
+
+    function canRecoverAct(uint256 _actor) virtual public override view returns (bool) {
+        if(lastActRecoverTimeStamps[_actor] == 0)
+            return true;
+
+        uint256 _dt = block.timestamp - lastActRecoverTimeStamps[_actor];        
+        return _dt >=ACT_RECOVER_TIME_DAY;
+    }
+
+    function getActorMaxRecoverAct(uint256 _actor) public view returns (uint256) {
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        uint256 _age = evts.ages(_actor);
+        if(_age <= 4)
+            return 10;
+        else if(_age <= 14)
+            return 20;
+        else if(_age <= 49)
+            return 30;
+        else if(_age <= 89)
+            return 20;
+        else
+            return 10;
     }
 
     /* *****************
@@ -72,20 +97,20 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
     function _tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
         if(characterPointsInitiated[_actor]) {
-            //基础属性：
-            string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\x9F\xBA\xE7\xA1\x80\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
+            //行动属性：
+            string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE8\xA1\x8C\xE5\x8A\xA8\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
-            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorAttributesConstants.HLH], "=", Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '</text>'));
+            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorBehaviorAttributesConstants.ACT - ActorBehaviorAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorBehaviorAttributesConstants.ACT][_actor]), '</text>'));
             return (string(abi.encodePacked(svg0, svg1)), _endY);
         }
         else
-            //基础属性未初始化。
-            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\x9F\xBA\xE7\xA1\x80\xE5\xB1\x9E\xE6\x80\xA7\xE6\x9C\xAA\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96\xE3\x80\x82', '</text>')), _endY);
+            //行动属性未初始化。
+            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE8\xA1\x8C\xE5\x8A\xA8\xE5\xB1\x9E\xE6\x80\xA7\xE6\x9C\xAA\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96\xE3\x80\x82', '</text>')), _endY);
     }
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"HLH": ', Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '}'));
+        json = string(abi.encodePacked('{"ACT": ', Strings.toString(attributesScores[ActorBehaviorAttributesConstants.ACT][_actor]), '}'));
         return json;
     }
 
@@ -94,7 +119,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_ATTRIBUTES; }
+    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES; }
 
     function pointActor(uint256 _actor) external 
         onlyApprovedOrOwner(_actor)
@@ -103,16 +128,12 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         require(talents.actorTalentsInitiated(_actor), "talents have not initiated");
         require(!characterPointsInitiated[_actor], "already init points");
 
-        uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_ATTRIBUTES);
-        attributesScores[ActorAttributesConstants.HLH][_actor] = 100;
-        if(_maxPointBuy > 0)
-            attributesScores[ActorAttributesConstants.HLH][_actor] = _maxPointBuy;
-
+        attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = 0;
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
-        atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+        atts[0] = ActorBehaviorAttributesConstants.ACT;
+        atts[1] = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
         emit Created(msg.sender, _actor, atts);
     }
 
@@ -125,8 +146,8 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorAttributesConstants.HLH) {
-                attributesScores[ActorAttributesConstants.HLH][_actor] = _attributes[i+1];
+            if(_attributes[i] == ActorBehaviorAttributesConstants.ACT) {
+                attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = _attributes[i+1];
                 updated = true;
                 break;
             }
@@ -134,9 +155,33 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
         if(updated) {
             uint256[] memory atts = new uint256[](2);
-            atts[0] = ActorAttributesConstants.HLH;
-            atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+            atts[0] = ActorBehaviorAttributesConstants.ACT;
+            atts[1] = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
             emit Updated(msg.sender, _actor, atts);
+        }
+    }
+
+    function recoverAct(uint256 _actor) override external 
+        onlyPointsInitiated(_actor)
+    {
+        //IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
+        //require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not approved or owner of timeline");
+
+        if(lastActRecoverTimeStamps[_actor] == 0) {
+            lastActRecoverTimeStamps[_actor] = (block.timestamp / ACT_RECOVER_TIME_DAY) * ACT_RECOVER_TIME_DAY;
+            
+            uint256 act = getActorMaxRecoverAct(_actor);
+            attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = act;
+            emit ActRecovered(_actor, act);            
+        }
+
+        uint256 _dt = block.timestamp - lastActRecoverTimeStamps[_actor];
+        if(_dt >= ACT_RECOVER_TIME_DAY) {
+            lastActRecoverTimeStamps[_actor] = (block.timestamp / ACT_RECOVER_TIME_DAY) * ACT_RECOVER_TIME_DAY;
+
+            uint256 act = getActorMaxRecoverAct(_actor);
+            attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = act;
+            emit ActRecovered(_actor, act);
         }
     }
 
@@ -149,17 +194,17 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         require(_modifiers.length % 2 == 0, "modifiers is invalid.");        
 
         bool attributesModified = false;
-        uint256 hlh = attributesScores[ActorAttributesConstants.HLH][_actor];
+        uint256 act = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorAttributesConstants.HLH)) {
-                hlh = _attributeModify(hlh, _modifiers[i+1]);
+            if(_modifiers[i] == int(ActorBehaviorAttributesConstants.ACT)) {
+                act = _attributeModify(act, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
-        atts[1] = hlh;
+        atts[0] = ActorBehaviorAttributesConstants.ACT;
+        atts[1] = act;
         return (atts, attributesModified);
     }
 

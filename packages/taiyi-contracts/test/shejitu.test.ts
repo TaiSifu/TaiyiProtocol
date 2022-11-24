@@ -157,7 +157,7 @@ describe('社稷图全局时间线测试', () => {
             const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
             let uri = await actors.tokenURI(await worldConstants.ACTOR_PANGU());
-            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('ascii');
+            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
             let uriObj = JSON.parse(uriDecode);
             //console.log(JSON.stringify(uriObj, null, 2));
             expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
@@ -174,7 +174,7 @@ describe('社稷图全局时间线测试', () => {
             const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
             let uri = await actors.tokenURI(await worldConstants.ACTOR_PANGU());
-            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('ascii');
+            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
             let uriObj = JSON.parse(uriDecode);
             //console.log(JSON.stringify(uriObj, null, 2));
             expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);

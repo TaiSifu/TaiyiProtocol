@@ -7,7 +7,7 @@ import {toWadUnsafe, toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol"
 import "./interfaces/WorldInterfaces.sol";
 import "./base/ERC721Enumerable.sol";
 import "./libs/Base64.sol";
-import "./WorldConfigurable.sol";
+import "./world/WorldConfigurable.sol";
 import {LogisticVRGDA} from "./external/VRGDAs/LogisticVRGDA.sol";
 //import "hardhat/console.sol";
 
@@ -165,7 +165,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
     function mintActor(uint256 maxPrice) external override returns(uint256 actorId)
     {
         //console.log("mint log");
-        if(nextActor > 2) { //PanGu and YeMing are free
+        if(nextActor > 3) { //PanGu, YeMing and GuanGong are free
             // No need to check if we're at MAX_MINTABLE,
             // actorPrice() will revert once we reach it due to its
             // logistic nature. It will also revert prior to the mint start.

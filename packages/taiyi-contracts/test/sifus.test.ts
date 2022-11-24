@@ -170,7 +170,7 @@ describe('太乙师傅令牌测试', () => {
         expect(sifuCreated?.args?.sifu).to.eq(2);
 
         let uri = await sifusToken.tokenURI(2);
-        let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('ascii');
+        let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
         let uriObj = JSON.parse(uriDecode);
         expect(uriObj.name).to.eq("Taiyi Sifu 2");
         expect(uriObj.description).to.eq("Taiyi Sifu 2 is a member of the Taiyi DAO.");

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "./interfaces/WorldInterfaces.sol";
-import "./libs/WorldConstants.sol";
+import "../interfaces/WorldInterfaces.sol";
+import "../libs/WorldConstants.sol";
 
 contract WorldContractRoute 
 {

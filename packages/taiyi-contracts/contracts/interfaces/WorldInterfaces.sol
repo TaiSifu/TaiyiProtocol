@@ -100,7 +100,7 @@ interface IActorTalents is IWorldModule {
     function talentProcessors(uint256 _id) external view returns(address);
     function talentExclusivity(uint256 _id) external view returns (uint256[] memory);
 
-    function setActorTalent(uint256 _actor, uint256 _tid) external;
+    function setActorTalent(uint256 _operator, uint256 _actor, uint256 _tid) external;
     function actorAttributePointBuy(uint256 _actor, uint256 _attributeModuleId) external view returns (uint256);
     function actorTalents(uint256 _actor) external view returns (uint256[] memory);
     function actorTalentsInitiated(uint256 _actor) external view returns (bool);
@@ -110,7 +110,7 @@ interface IActorTalents is IWorldModule {
 
 interface IActorTalentProcessor {
     function checkOccurrence(uint256 _actor, uint256 _age) external view returns (bool);
-    function process(uint256 _actor, uint256 _age) external;
+    function process(uint256 _operator, uint256 _actor, uint256 _age) external;
 }
 
 interface IWorldEvents is IWorldModule {
@@ -178,7 +178,7 @@ interface IWorldZones is IERC721Enumerable, IWorldModule {
 
 interface IActorBornPlaces is IWorldModule {
     function bornPlaces(uint256 _actor) external view returns (uint256);
-    function bornActor(uint256 _actor, uint256 _zoneId) external;
+    function bornActor(uint256 _operator, uint256 _actor, uint256 _zoneId) external;
 }
 
 interface IActorSocialIdentity is IERC721Enumerable, IWorldModule {
@@ -201,7 +201,7 @@ interface IActorRelationship is IWorldModule {
     function setRelationProcessor(uint256 _rsid, address _processorAddress) external;
     function relationProcessors(uint256 _id) external view returns(address);
 
-    function setActorRelation(uint256 _actor, uint256 _target, uint256 _rsid) external;
+    function setActorRelation(uint256 _operator, uint256 _actor, uint256 _target, uint256 _rsid) external;
     function actorRelations(uint256 _actor, uint256 _target) external view returns (uint256);
     function actorRelationPeople(uint256 _actor, uint256 _rsid) external view returns (uint256[] memory);
 }
@@ -246,7 +246,7 @@ interface IActorPrelifes is IWorldModule {
     function preLifes(uint256 _actor) external view returns (uint256);
     function postLifes(uint256 _actor) external view returns (uint256);
 
-    function setPrelife(uint256 _actor, uint256 _prelife) external;
+    function setPrelife(uint256 _operator, uint256 _actor, uint256 _prelife) external;
 }
 
 interface IWorldSeasons is IWorldModule {
@@ -254,7 +254,7 @@ interface IWorldSeasons is IWorldModule {
     function seasonLabels(uint256 _seasonId) external view returns (string memory);
     function actorBornSeasons(uint256 _actor) external view returns (uint256); // =0 means not born
 
-    function bornActor(uint256 _actor, uint256 _seasonId) external;
+    function bornActor(uint256 _operator, uint256 _actor, uint256 _seasonId) external;
 }
 
 interface IWorldZoneBaseResources is IWorldModule {
@@ -264,8 +264,8 @@ interface IWorldZoneBaseResources is IWorldModule {
 
     function ACTOR_GUANGONG() external view returns (uint256);
 
-    function growAssets(uint256 _zoneId) external;
-    function collectAssets(uint256 _actor, uint256 _zoneId) external;
+    function growAssets(uint256 _operator, uint256 _zoneId) external;
+    function collectAssets(uint256 _operator, uint256 _actor, uint256 _zoneId) external;
 }
 
 interface IActorLocations is IWorldModule {
@@ -278,9 +278,9 @@ interface IActorLocations is IWorldModule {
     function isActorLocked(uint256 _actor) external view returns (bool);
     function isActorUnlocked(uint256 _actor) external view returns (bool);
 
-    function setActorLocation(uint256 _actor, uint256 _A, uint256 _B) external;
-    function lockActor(uint256 _actor, uint256 _freeTime) external;
-    function unlockActor(uint256 _actor) external;
+    function setActorLocation(uint256 _operator, uint256 _actor, uint256 _A, uint256 _B) external;
+    function lockActor(uint256 _operator, uint256 _actor, uint256 _freeTime) external;
+    function unlockActor(uint256 _operator, uint256 _actor) external;
     function finishActorTravel(uint256 _actor) external;
 }
 
@@ -288,7 +288,7 @@ interface IWorldVillages is IWorldModule {
     function isZoneVillage(uint256 _zoneId) external view returns (bool);
     function villageCreators(uint256 _zoneId) external view returns (uint256);
 
-    function createVillage(uint256 _actor, uint256 _zoneId) external;
+    function createVillage(uint256 _operator, uint256 _actor, uint256 _zoneId) external;
 }
 
 //building is an item
@@ -298,7 +298,7 @@ interface IWorldBuildings is IWorldModule {
     function buildingTypes(uint256 _zoneId) external view returns (uint256);
     function isZoneBuilding(uint256 _zoneId) external view returns (bool);
 
-    function createBuilding(uint256 _actor, uint256 _typeId, uint256 _zoneId) external;
+    function createBuilding(uint256 _operator, uint256 _actor, uint256 _typeId, uint256 _zoneId) external;
 }
 
 interface ITrigramsRender is IWorldModule {
@@ -308,6 +308,6 @@ interface ITrigrams is IWorldModule {
     
     event TrigramsOut(uint256 indexed actor, uint256 indexed trigram);
 
-    function addActorTrigrams(uint256 _actor, uint256[] memory _trigramsData) external;
+    function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
 }
