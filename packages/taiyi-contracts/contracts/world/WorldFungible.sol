@@ -67,6 +67,7 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
 
     function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external override
         onlyYeMing(_operator)
+        onlyApprovedOrOwner(_actor)
     {
         address _actorOwner = worldRoute.actors().getActor(_actor).owner;
         address _actorHolder = worldRoute.actors().getActor(_actor).account;

@@ -352,7 +352,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
     /// @dev Will revert if called before minting starts
     /// or after all actors have been minted via VRGDA.
     /// @return Current price of a actor in terms of coin.
-    function actorPrice() public view returns (uint256) {
+    function actorPrice() public override view returns (uint256) {
         // We need checked math here to cause underflow
         // before minting has begun, preventing mints.
         uint256 timeSinceStart = block.timestamp - mintStart;

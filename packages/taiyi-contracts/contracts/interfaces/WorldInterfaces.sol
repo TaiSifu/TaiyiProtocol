@@ -36,6 +36,7 @@ interface IActors is IERC721, IWorldModule {
     function changeActorRenderMode(uint256 _actor, uint256 _mode) external;
     function setTaiyiDAO(address _taiyiDAO) external;
 
+    function actorPrice() external view returns (uint256);
     function getActor(uint256 _actor) external view returns (Actor memory);
     function getActorByHolder(address _holder) external view returns (Actor memory);
     function getActorsByOwner(address _owner) external view returns (Actor[] memory);
