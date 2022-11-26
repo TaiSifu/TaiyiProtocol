@@ -313,6 +313,7 @@ export const deployTaiyiWorld = async (oneAgeVSecond : number, actRecoverTimeDay
     if(verbose) console.log("Deploy SifusToken...");
     let sifusToken = await deploySifusToken(worldContractRoute.address, deployer, operatorDAO.address, (await deploySifusDescriptor(deployer)).address);
     await populateDescriptor(SifusDescriptor__factory.connect(await sifusToken.descriptor(), deployer));
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIFUS(), sifusToken.address);
 
     if(verbose) console.log("Deploy ActorNames...");
     let actorNames = await deployActorNames(routeByPanGu, deployer);
