@@ -19,7 +19,8 @@ import {
     WorldEventProcessor60004__factory,
     WorldEventProcessor10012__factory,
     WorldEventProcessor10002__factory,
-    WorldEventProcessor10009__factory, 
+    WorldEventProcessor10009__factory,
+    WorldEventProcessor10014__factory, 
 } from '../../typechain';
 import {
     blockNumber,
@@ -417,6 +418,168 @@ describe('角色出生序列事件测试', () => {
                 expect(await actorRelationship.actorRelations(girl, testActor)).to.eq(5);
                 expect((await actorRelationship.actorRelationPeople(girl, 5)).length).to.eq(1);
                 expect((await actorRelationship.actorRelationPeople(girl, 5))[0]).to.eq(testActor);
+            }
+        });
+
+        it('角色URI', async () => {
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+    });    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    describe('10014出生事件测试-男孩情况', () => {
+        let evt10014 : any;
+        before(reset);
+        it('部署出生序列事件', async () => {
+            let eventsByPanGu = worldEvents.connect(taiyiDAO);
+            const evt10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(10001, evt10001.address);
+            const evt60002 = await (await (new WorldEventProcessor60002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60002, evt60002.address);
+            const evt60003 = await (await (new WorldEventProcessor60003__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60003, evt60003.address);
+            const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            evt10014 = await (await (new WorldEventProcessor10014__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(10014, evt10014.address);
+        });
+
+        it('配置时间线', async () => {
+            let shejituByPanGu = shejiTu.connect(taiyiDAO);
+            await shejituByPanGu.addAgeEvent(0, 10001, 1);
+        });
+
+        it('创建角色在社稷图出生', async () => {
+            testActor = await newActor(operator1);
+            await actors.connect(operator1).approve(shejiTu.address, testActor);
+            await shejiTu.connect(operator1).bornActor(testActor);
+
+            await talents.connect(operator1).talentActor(testActor);
+            await baseAttributes.connect(operator1).pointActor(testActor);
+            await charmAttributes.connect(operator1).pointActor(testActor);
+            await coreAttributes.connect(operator1).pointActor(testActor);
+            await moodAttributes.connect(operator1).pointActor(testActor);
+            await behaviorAttributes.connect(operator1).pointActor(testActor);
+            //grow brithday
+            await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
+        });
+
+        it('男孩不会发生10014事件', async () => {
+            expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(false);
+        });
+    });    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    describe('10014出生事件测试-女孩情况', () => {
+        let evt10009 : any;
+        let evt10014 : any;
+        let should10009 : any;
+        let girl: any;
+        before(reset);
+        it('部署出生序列事件', async () => {
+            let eventsByPanGu = worldEvents.connect(taiyiDAO);
+            const evt10002 = await (await (new WorldEventProcessor10002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(10002, evt10002.address);
+            evt10009 = await (await (new WorldEventProcessor10009__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(10009, evt10009.address);
+            const evt60002 = await (await (new WorldEventProcessor60002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60002, evt60002.address);
+            const evt60003 = await (await (new WorldEventProcessor60003__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60003, evt60003.address);
+            const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            evt10014 = await (await (new WorldEventProcessor10014__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(10014, evt10014.address);
+
+            //register actors uri modules
+            await actors.connect(taiyiDAO).registerURIPartModule(names.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
+        });
+
+        it('配置10014操作角色', async () => {
+            let newOne = await newActor(deployer);
+            await actors.connect(deployer).approve(evt10014.address, newOne);
+            await evt10014.initOperator(newOne);
+            expect(await evt10014.eventOperator()).to.eq(newOne);
+            expect(await actors.ownerOf(newOne)).to.eq(evt10014.address);
+        });
+
+        it('配置时间线', async () => {
+            let shejituByPanGu = shejiTu.connect(taiyiDAO);
+            await shejituByPanGu.addAgeEvent(0, 10002, 1);
+            await shejituByPanGu.addAgeEvent(1, 10009, 1);
+            await shejituByPanGu.addAgeEvent(2, 10014, 1);
+        });
+
+        it('创建角色在社稷图出生', async () => {
+            testActor = await newActor(operator1);
+            await actors.connect(operator1).approve(shejiTu.address, testActor);
+            await shejiTu.connect(operator1).bornActor(testActor);
+
+            await talents.connect(operator1).talentActor(testActor);
+            await baseAttributes.connect(operator1).pointActor(testActor);
+            await charmAttributes.connect(operator1).pointActor(testActor);
+            await coreAttributes.connect(operator1).pointActor(testActor);
+            await moodAttributes.connect(operator1).pointActor(testActor);
+            await behaviorAttributes.connect(operator1).pointActor(testActor);
+            //grow brithday
+            await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
+        });
+
+        it('前置事件：10009', async () => {
+            should10009 = await evt10009.checkOccurrence(testActor, 0);
+            await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 }); //age 1
+            if(should10009) {
+                console.log("前置事件10009已经发生");
+                expect(await worldEvents.actorEventCount(testActor, 10009)).to.eq(1);
+            }
+            else
+                console.log("前置事件10009没有发生");
+        });
+
+        it('10014容错性检查', async () => {
+            //should not claim
+            expect(await actors.balanceOf(operator1.address)).to.eq(1);
+            await expect(evt10014.connect(operator1).claimActor(testActor)).to.be.revertedWith('no actors need to claim.');
+            if(should10009 == false)
+                expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(false);
+        });
+
+        it('10014时间线资金检查', async () => {
+            if(should10009) {
+                //no daoli
+                expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(false);
+                //transfer daoli to yeming
+                await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.ACTOR_YEMING())).account, BigInt(500e18));
+                expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(true);
+            }
+        });
+
+        it('10014事件', async () => {
+            girl = await actors.nextActor();
+            await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 }); //age 2
+            if(should10009) {
+                console.log("事件10014已经发生");
+                expect(await actors.ownerOf(girl)).to.eq(evt10014.address);
+                expect(await worldEvents.actorEventCount(testActor, 10014)).to.eq(1);
+            }
+        });
+
+        it('提取10014事件的新人', async () => {
+            if(should10009) {
+                expect((await evt10014.connect(operator1).claimActor(testActor)).wait()).eventually.fulfilled;
+                expect(await actors.ownerOf(girl)).to.eq(operator1.address);
+                expect(await actors.balanceOf(operator1.address)).to.eq(2);
+            }
+        });
+
+        it('10014事件新人关系检查', async () => {
+            if(should10009) {
+                expect(await actorRelationship.actorRelations(testActor, girl)).to.eq(3);
+                expect(await actorRelationship.actorRelations(girl, testActor)).to.eq(3);
+                expect((await actorRelationship.actorRelationPeople(girl, 3)).length).to.eq(1);
+                expect((await actorRelationship.actorRelationPeople(girl, 3))[0]).to.eq(testActor);
             }
         });
 
