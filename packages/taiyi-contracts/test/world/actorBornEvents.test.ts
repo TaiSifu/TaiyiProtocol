@@ -78,13 +78,19 @@ describe('角色出生序列事件测试', () => {
     let actorPanGu: BigNumber;
     let testActor: BigNumber;
     
-    let newActor = async (toWho: SignerWithAddress):Promise<BigNumber> => {
+    let newActor = async (toWho: SignerWithAddress, randomName?:boolean):Promise<BigNumber> => {
         //deal coin
         await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(1000e18));
         await assetDaoli.connect(taiyiDAO).withdraw(actorPanGu, actorPanGu, BigInt(1000e18));
         await assetDaoli.connect(taiyiDAO).approve(actors.address, BigInt(1000e18));
         let _actor = await actors.nextActor();
         await actors.connect(taiyiDAO).mintActor(BigInt(100e18));
+
+        if(randomName) {
+            let firstName = `小拼${Math.round(Math.random()*100)}`;
+            await names.connect(taiyiDAO).claim(firstName, "李", _actor);    
+        }
+
         if(toWho.address != taiyiDAO.address)
             await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
         return _actor;
@@ -351,7 +357,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('创建角色在社稷图出生', async () => {
-            testActor = await newActor(operator1);
+            testActor = await newActor(operator1, true);
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
@@ -513,7 +519,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('创建角色在社稷图出生', async () => {
-            testActor = await newActor(operator1);
+            testActor = await newActor(operator1, true);
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
