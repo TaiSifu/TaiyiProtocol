@@ -341,14 +341,19 @@ export const deployTaiyiWorld = async (oneAgeVSecond : number, actRecoverTimeDay
     if(verbose) console.log("Deploy Actor Attributes...");
     let actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address);
+    await shejiTu.connect(operatorDAO).registerAttributeModule(actorAttributes.address);
     let actorCharmAttributes = await deployActorCharmAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES(), actorCharmAttributes.address);
+    await shejiTu.connect(operatorDAO).registerAttributeModule(actorCharmAttributes.address);
     let actorCoreAttributes = await deployActorCoreAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_CORE_ATTRIBUTES(), actorCoreAttributes.address);
+    await shejiTu.connect(operatorDAO).registerAttributeModule(actorCoreAttributes.address);
     let actorMoodAttributes = await deployActorMoodAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES(), actorMoodAttributes.address);
+    await shejiTu.connect(operatorDAO).registerAttributeModule(actorMoodAttributes.address);
     let actorBehaviorAttributes = await deployActorBehaviorAttributes(actRecoverTimeDay, routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES(), actorBehaviorAttributes.address);
+    await shejiTu.connect(operatorDAO).registerAttributeModule(actorBehaviorAttributes.address);
 
     //deploy assets
     if(verbose) console.log("Deploy Assets...");
