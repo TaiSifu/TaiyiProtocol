@@ -117,13 +117,15 @@ describe('太乙角色基础测试', () => {
         //PanGu should be mint for free
         expect(await actorsByDAO.nextActor()).to.eq(1);
         await actorsByDAO.mintActor(0);
-
-        expect(await actorsByDAO.nextActor()).to.eq(2);
         //YeMing should be mint for free
+        expect(await actorsByDAO.nextActor()).to.eq(2);
+        await actorsByDAO.mintActor(0);
+        //GuanGong should be mint for free
+        expect(await actorsByDAO.nextActor()).to.eq(3);
         await actorsByDAO.mintActor(0);
 
-        expect(await actorsByDAO.nextActor()).to.eq(3);
         //newone should not be mint for free
+        expect(await actorsByDAO.nextActor()).to.eq(4);
         await expect(actorsByDAO.mintActor(0)).to.be.revertedWith("current actor price exceeded max");
         await expect(actorsByDAO.mintActor(BigInt(100.0e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
@@ -153,10 +155,12 @@ describe('太乙角色基础测试', () => {
         //PanGu should be mint for free
         expect(await actorsByDAO.nextActor()).to.eq(1);
         await actorsByDAO.mintActor(0);
-
         //YeMing should be mint for free
         expect(await actorsByOp1.nextActor()).to.eq(2);
         await actorsByOp1.mintActor(0);
+        //GuanGong should be mint for free
+        expect(await actorsByDAO.nextActor()).to.eq(3);
+        await actorsByDAO.mintActor(0);
 
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
         await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
@@ -169,8 +173,8 @@ describe('太乙角色基础测试', () => {
         expect((await assetDaoliByOp1.withdraw(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigInt(1000e18));
 
-        expect(await actors.nextActor()).to.eq(3);
         //not approve coin to spend by Actors
+        expect(await actors.nextActor()).to.eq(4);
         await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
 
         //newone should be mint
@@ -179,7 +183,7 @@ describe('太乙角色基础测试', () => {
         let actualPay = await assetDaoli.balanceOf(taisifusDAO.address);
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigNumber.from(BigInt(1000e18)).sub(actualPay));
 
-        expect(await actors.ownerOf(3)).to.eq(operator1.address);
+        expect(await actors.ownerOf(4)).to.eq(operator1.address);
     });
 
     it('铸造新角色-道理不够情况', async () => {
@@ -189,6 +193,8 @@ describe('太乙角色基础测试', () => {
         //PanGu should be mint for free
         await actorsByDAO.mintActor(0);
         //YeMing should be mint for free
+        await actorsByOp1.mintActor(0);
+        //GuanGong should be mint for free
         await actorsByOp1.mintActor(0);
 
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
@@ -200,7 +206,7 @@ describe('太乙角色基础测试', () => {
         await assetDaoliByOp1.withdraw(2, 2, BigInt(1e17));
         await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
 
-        expect(await actors.nextActor()).to.eq(3);
+        expect(await actors.nextActor()).to.eq(4);
         expect(await actors.actorPrice()).to.gt(BigInt(1e17));
         await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
@@ -213,6 +219,8 @@ describe('太乙角色基础测试', () => {
         await actorsByDAO.mintActor(0);
         //YeMing should be mint for free
         await actorsByOp1.mintActor(0);
+        //GuanGong should be mint for free
+        await actorsByOp1.mintActor(0);
 
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
         await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
@@ -223,7 +231,7 @@ describe('太乙角色基础测试', () => {
         await assetDaoliByOp1.withdraw(2, 2, BigInt(100e18));
         await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
 
-        expect(await actors.nextActor()).to.eq(3);
+        expect(await actors.nextActor()).to.eq(4);
         let price = await actors.actorPrice();
         expect(price).to.gt(BigInt(9e17));
         await expect(actorsByOp1.mintActor(price.sub(BigInt(9e17)))).to.be.revertedWith("current actor price exceeded max");
@@ -426,7 +434,7 @@ describe('角色URI测试', () => {
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
         let uri = await actors.tokenURI(2);
-        let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('ascii');
+        let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
         let uriObj = JSON.parse(uriDecode);
         //console.log(JSON.stringify(uriObj, null, 2));
         expect(uriObj.name).to.eq("Taiyi Actor #2");
@@ -434,7 +442,7 @@ describe('角色URI测试', () => {
         expect(uriObj.data.base.mintTime).to.eq(timestamp);
         expect(uriObj.data.base.status).to.eq(2);
 
-        // const svgDecode = Buffer.from(uriObj.image.substring(26), 'base64').toString('ascii');
+        // const svgDecode = Buffer.from(uriObj.image.substring(26), 'base64').toString('utf-8');
         // console.log(svgDecode);
     });
 });

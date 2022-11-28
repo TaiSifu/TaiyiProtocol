@@ -2,12 +2,10 @@
 pragma solidity ^0.8.6;
 
 import "./WorldContractRoute.sol";
+import "../base/Ownable.sol";
 
-contract WorldConfigurable 
+contract WorldConfigurable is Ownable
 {
-    // Deployment Address
-    address internal _owner;    
-
     // Address of the World Contract Route
     address internal _worldRouteContract;
     WorldContractRoute internal worldRoute;
@@ -29,7 +27,6 @@ contract WorldConfigurable
     }
 
     constructor(address worldRouteAddress) {
-        _owner = msg.sender;
         require(worldRouteAddress != address(0), "cannot set contract as zero address");
         _worldRouteContract = worldRouteAddress;
         worldRoute = WorldContractRoute(worldRouteAddress);

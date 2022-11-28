@@ -2,9 +2,9 @@
 pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "./interfaces/WorldInterfaces.sol";
-import "./WorldConfigurable.sol";
-import "./libs/Base64.sol";
+import "../../interfaces/WorldInterfaces.sol";
+import "../WorldConfigurable.sol";
+import "../../libs/Base64.sol";
 
 contract WorldEvents is IWorldEvents, WorldConfigurable {
 

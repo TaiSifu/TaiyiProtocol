@@ -28,13 +28,38 @@
 | 合约| 描述| 地址|
 | ------------------------------------- | -------------------------------------- |-------------------------------------- |
 | [ShejiTu](./contracts/ShejiTu.sol)          | “山河社稷图（全局时间线）”这个合约运行着一个处理基础事件的全局时间线。`角色（Actor）`在该时间线中进行出生、成长等基础事务。另外社稷图也负责太乙世界的部分资源生产，通过构建一套稳定的资源系统为其他时间线提供经济动力。社稷图中资源事件中获得的部分资金（例如金、木材、药材、石料等等）被自动百分之百地存入太乙DAO的金库，这个金库由`太乙传人们`（太乙师傅令牌的拥有者）共同管理。| [0x????](https://etherscan.io/address/0x????) |
+
+### 世界基本通证
+| 合约| 描述| 地址|
+| ------------------------------------- | -------------------------------------- |-------------------------------------- |
 | [Actors](./contracts/Actors.sol)                        | 这是“太乙角色”的ERC721通证合约。该合约不能被升级或替换。除了标准ERC721通证的功能外，`角色`是人们进入虚拟世界的唯一身份入口，任何人都可以从该合约铸造角色。世界通过一些特殊的角色来执行特殊操作，其中有些是由其他合约在部署时自己铸造并操作的。比如“噎明（YeMing）”通常就是由时间线级合约（例如山河社稷图）自主铸造。该合约第一个铸造的角色就是“盘古（PanGu）”，通过该角色才有权行使诸如注册世界模块、注册噎明身份等构建和设计世界的事务。当太乙岛开始正常运作后，盘古的所有权会被转移给太乙岛合约，由太乙岛去中心化地实施盘古设计世界的工作。太乙角色的铸造是无准入的自由铸造，需要支付一定的铸造费用（`道理`），铸造的价格采用[VRGDA](https://www.paradigm.xyz/2022/08/vrgda)发行模型调节。太乙角色计划100年内发行10亿位。| [0x????](https://etherscan.io/address/0x????) |
-| [Daoli](./contracts/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于货币，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
 | [ActorNames](./contracts/world/ActorNames.sol)                | 这是太乙世界的ERC721通证合约，用于角色名称姓名的赋予。该合约不能被升级或替换。这些名称在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
 | [ActorSocialIdentity](./contracts/world/ActorSocialIdentity.sol)                | 这是太乙世界的ERC721通证合约，用于角色的身份。该合约不能被升级或替换。太乙世界通过社会事件会赋予角色各种不同的身份，例如“太乙百子”、“商人”或者“乞丐”等等，这些身份是太乙世界中社会赋予的，不能私下创建、自由转移或者销毁，因此该合约按照[Soulbound Tokens(SBTs)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4105763)思想设计| [0x????](https://etherscan.io/address/0x????) |
 | [WorldItems](./contracts/world/WorldItems.sol)                | 这是太乙世界的ERC721通证合约，常用于表示太乙世界中的非同质化对象（NonfungibleItem），用于表示诸如物品、书籍、道具等事物。该合约不能被升级或替换。这些道具在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
 | [WorldZones](./contracts/world/WorldZones.sol)                | 这是太乙世界的ERC721通证合约，用于表示太乙世界中的区域对象（Nonfungible），表示诸如地区、地理地点、子世界、太虚幻境等拓扑域。比如某个世界建设的150多个省市级区域，某角色建设的从村级单位到木工房等工作单位。该合约不能被升级或替换。这些区域在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
-| [WorldEvents](./contracts/WorldEvents.sol)                | 这是太乙世界的事件集合，除了用于事件处理器的定义，也用于记录角色身上发生的事件历史。| [0x????](https://etherscan.io/address/0x????) |
+| [Daoli](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于货币，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [金石](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`金石`资源。该合约不能被升级或替换。该合约不能被升级或替换。`金石`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [食材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`食材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`食材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [木材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`木材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`木材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [织物](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`织物`资源。该合约不能被升级或替换。该合约不能被升级或替换。`织物`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [药材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`药材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`药材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [威望](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`威望`资源。该合约不能被升级或替换。该合约不能被升级或替换。`威望`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+
+### 基本数据集
+| 合约| 描述| 地址|
+| ------------------------------------- | -------------------------------------- |-------------------------------------- |
+| [WorldEvents](./contracts/world/dataset/WorldEvents.sol) | 这是太乙世界的事件集合，除了用于事件处理器的定义，也用于记录角色身上发生的事件历史。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorBornPlaces](./contracts/world/dataset/ActorBornPlaces.sol) | 这是太乙世界角色的出身地点集合，用于记录角色出身在那个`区域`(Zone)。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorLocations](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色当前的位置数据，用于记录角色当前在那个`区域`(Zone)。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorPrelifes](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色的前世记录数据，用于记录角色的前世是哪一个角色。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorRelationship](./contracts/world/dataset/ActorRelationship.sol) | 这是太乙世界角色和角色之间关系的数据，用于记录角色和另外一个角色是什么关系。| [0x????](https://etherscan.io/address/0x????) |
+| [ActorTalents](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色的天赋数据，用于记录角色拥有的天赋点。| [0x????](https://etherscan.io/address/0x????) |
+| [Trigrams](./contracts/world/dataset/Trigrams.sol) | 这是太乙世界角色个人拥有的特殊符文记录，这个符文和角色在太乙世界中的事件历史有关，可以在角色的URI中被表现出来。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldBuildings](./contracts/world/dataset/WorldBuildings.sol) | 这是太乙世界建筑物数据，除了建筑物定义，也用于记录世界中的建筑物实体。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldEvents](./contracts/world/dataset/WorldEvents.sol) | 这是太乙世界的事件集合，除了用于事件处理器的定义，也用于记录角色身上发生的事件历史。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldSeasons](./contracts/world/dataset/WorldSeasons.sol) | 这是太乙世界角色的出身时节集合，除了用于二十四节气的定义，也用于记录角色出身在哪个时节。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldVillages](./contracts/world/dataset/WorldVillages.sol) | 这是太乙世界的村落（太乙村）集合，记录了角色们自己创建的一些村落。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldZoneBaseResources](./contracts/world/dataset/WorldZoneBaseResources.sol) | 这是太乙世界的区域中基础资源生长的记录数据，用于记录一个区域的基础资源的生成和可采集量。| [0x????](https://etherscan.io/address/0x????) |
 
 
 ## 开发

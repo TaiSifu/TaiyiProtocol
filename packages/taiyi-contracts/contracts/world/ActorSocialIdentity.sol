@@ -4,7 +4,7 @@ pragma solidity ^0.8.6;
 import "../interfaces/WorldInterfaces.sol";
 import "../libs/Base64.sol";
 import "../base/ERC721Enumerable.sol";
-import "../WorldConfigurable.sol";
+import "./WorldConfigurable.sol";
 
 contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldConfigurable {
 

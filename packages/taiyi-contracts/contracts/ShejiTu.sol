@@ -24,7 +24,7 @@ import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/O
 import './interfaces/WorldInterfaces.sol';
 import { ISifusToken } from './interfaces/ISifusToken.sol';
 import './libs/Base64.sol';
-import "./WorldContractRoute.sol";
+import "./world/WorldContractRoute.sol";
 import "./world/attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
@@ -230,7 +230,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         //approve talent processor the authority of timeline
         require(ACTOR_YEMING > 0, "YeMing is not init");
         worldRoute.actors().approve(_processorAddress, ACTOR_YEMING);
-        IActorTalentProcessor(_processorAddress).process(_actor, _age); 
+        IActorTalentProcessor(_processorAddress).process(ACTOR_YEMING, _actor, _age); 
     }
 
     function _applyAttributeModifiers(uint256 _actor, uint256 _age, int[] memory _attrModifier) private {
@@ -280,7 +280,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         evtProcessor.process(ACTOR_YEMING, _actor, _age); 
         worldRoute.actors().setApprovalForAll(_processorAddress, false);
 
-        ITrigrams(worldRoute.modules(WorldConstants.WORLD_MODULE_TRIGRAMS)).addActorTrigrams(_actor, evtProcessor.trigrams(_actor));
+        ITrigrams(worldRoute.modules(WorldConstants.WORLD_MODULE_TRIGRAMS)).addActorTrigrams(ACTOR_YEMING, _actor, evtProcessor.trigrams(_actor));
     }
 
     function _processEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256 _depth) private returns (uint256 _branchEvtId) {

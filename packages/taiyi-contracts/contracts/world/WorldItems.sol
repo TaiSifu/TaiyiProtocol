@@ -3,7 +3,7 @@ pragma solidity ^0.8.6;
 
 import "../base/ERC721Enumerable.sol";
 import "../interfaces/WorldInterfaces.sol";
-import "../WorldConfigurable.sol";
+import "./WorldConfigurable.sol";
 import "../libs/Base64.sol";
 
 contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {

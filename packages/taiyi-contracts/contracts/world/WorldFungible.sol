@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "./interfaces/WorldInterfaces.sol";
-import "./base/ERC20.sol";
+import "../interfaces/WorldInterfaces.sol";
+import "../base/ERC20.sol";
 import "./WorldConfigurable.sol";
 
 contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
@@ -67,6 +67,7 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
 
     function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external override
         onlyYeMing(_operator)
+        onlyApprovedOrOwner(_actor)
     {
         address _actorOwner = worldRoute.actors().getActor(_actor).owner;
         address _actorHolder = worldRoute.actors().getActor(_actor).account;
