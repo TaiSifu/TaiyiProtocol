@@ -26,6 +26,9 @@
 
 如果您对帮助太乙项目感兴趣，那我们很高兴你能加入进来。为了减少不必要的重复劳动，在您提供任何帮助之前，请先在[https://discord.gg/D2WPaCWF](https://discord.gg/D2WPaCWF)的`#developers`频道交流一下，这样您可以了解到已经有哪些现有的技术能为您所用。
 
+## 博客
+有一些思路和想法随时都记录在博客上，地址是[https://mirror.xyz/taiyidao.eth](https://mirror.xyz/taiyidao.eth)。
+
 ## 子项目
 
 ### 太乙资源
