@@ -12,7 +12,7 @@ import {
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
     SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributesConstants__factory, 
     ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, ActorCharmAttributesConstants, ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory, WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, WorldEventProcessor60507__factory,
+    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, ActorCharmAttributesConstants, ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory, WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, WorldEventProcessor60507__factory, WorldEventProcessor60511__factory, WorldEventProcessor60512__factory,
 } from '../../typechain';
 import {
     blockNumber,
@@ -401,7 +401,7 @@ describe('主动事件角色行为测试', () => {
         });
     });
 
-    describe('申领商会初级资格 ', () => {
+    describe('申领商会初级资格', () => {
         let evt60507:any;
         before(reset);
 
@@ -452,4 +452,208 @@ describe('主动事件角色行为测试', () => {
         });
     });
 
+    describe('申领创世建筑天书', () => {
+        let evt60511:any;
+        before(reset);
+
+        it(`部署建筑天书事件`, async ()=>{
+            evt60511 = await (await (new WorldEventProcessor60511__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60511, evt60511.address);
+        });
+
+        it(`设置建筑天书`, async ()=>{
+            await worldItems.connect(taiyiDAO).setTypeName(20, "《木工房》");
+        });
+
+        it(`成长到有效年龄`, async ()=>{
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 2
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 3
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 4
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 5
+        });
+
+        it(`恢复体力`, async ()=>{
+            await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
+            await behaviorAttributes.recoverAct(testActor);
+            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+        });
+
+        it(`体力和威望检查`, async ()=>{
+            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(5e18));
+            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
+        });
+
+        it(`未授权威望消耗不能申领天书`, async ()=>{
+            await expect(shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).to.be.revertedWith("transfer amount exceeds allowance");
+        });
+
+        it(`申领建筑天书`, async ()=>{
+            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+
+            let newItem = await worldItems.nextItemId();
+            expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+
+            expect(await worldItems.balanceOf(operator1.address)).to.eq(0); //not in operator but account
+            expect(await worldItems.balanceOf((await actors.getActor(testActor)).account)).to.eq(1);
+            expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(testActor)).account);
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+    });
+
+    describe('修建基础建筑', () => {
+        let evt70000:any;
+        let evt60505:any;
+        let evt60506:any;
+        let evt60509:any;
+        let evt60511:any;
+        let evt60512:any;
+        let newZone: any;
+        let newVillage: any;
+        let newItem: any;
+        let newBuildingZone: any;
+        before(reset);
+
+        it(`部署建筑相关事件`, async ()=>{
+            evt70000 = await (await (new WorldEventProcessor70000__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(70000, evt70000.address);
+            evt60505 = await (await (new WorldEventProcessor60505__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60505, evt60505.address);
+            evt60506 = await (await (new WorldEventProcessor60506__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60506, evt60506.address);
+            evt60509 = await (await (new WorldEventProcessor60509__factory(deployer)).deploy(BaseTravelTime, worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60509, evt60509.address);
+            evt60511 = await (await (new WorldEventProcessor60511__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60511, evt60511.address);
+            evt60512 = await (await (new WorldEventProcessor60512__factory(deployer)).deploy(BaseBuildTime, worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60512, evt60512.address);
+        });
+
+        it(`设置建筑相关物品`, async ()=>{
+            await worldItems.connect(taiyiDAO).setTypeName(20, "《木工房》");
+            //设置建筑类型
+            await worldBuildings.connect(taiyiDAO).setTypeName(1, "木工房"); //20-19
+        });
+
+        it(`创建测试区域`, async ()=>{
+            expect(await evt70000.checkOccurrence(actorPanGu, 0)).to.eq(true);
+            newZone = await zones.nextZone();
+            await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+            await shejiTu.connect(taiyiDAO).activeTrigger(70000, actorPanGu, [0], ["北京"]);
+        });
+
+        it(`成长到有效年龄`, async ()=>{
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 2
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 3
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 4
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 5
+        });
+
+        it(`采集一些资源`, async ()=>{
+            while(
+                (await golds.balanceOfActor(testActor)).lt(BigInt(95e18)) ||
+                (await woods.balanceOfActor(testActor)).lt(BigInt(350e18)) ||
+                (await fabrics.balanceOfActor(testActor)).lt(BigInt(350e18)))
+            {
+                console.log("make assets...");
+                await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
+                await behaviorAttributes.recoverAct(testActor);
+                await shejiTu.activeTrigger(60505, testActor, [newZone], []);
+            }
+        });
+
+        it(`恢复体力`, async ()=>{
+            await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
+            await behaviorAttributes.recoverAct(testActor);
+            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+        });
+
+        it(`创建一个村庄-太乙村`, async ()=>{
+            newVillage = await zones.nextZone();
+            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await shejiTu.activeTrigger(60506, testActor, [], ["太乙村"]);
+            expect(await zones.names(newVillage)).to.eq("太乙村");
+            expect(await zones.ownerOf(newVillage)).to.eq((await actors.getActor(testActor)).account);
+        })
+
+        it(`恢复体力`, async ()=>{
+            await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
+            await behaviorAttributes.recoverAct(testActor);
+            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+        });
+
+        it(`移动到太乙村`, async ()=>{
+            let currentLc = await actorLocations.actorLocations(testActor);
+            let lA = currentLc[1];
+            await shejiTu.activeTrigger(60509, testActor, [lA, newVillage], []);
+            await ethers.provider.send('evm_increaseTime', [BaseTravelTime]);
+            expect((await actorLocations.finishActorTravel(testActor)).wait()).eventually.fulfilled;
+            expect(await actorLocations.isActorLocked(testActor)).to.eq(false);
+            currentLc = await actorLocations.actorLocations(testActor);
+            expect(currentLc[0]).to.eq(newVillage);
+            expect(currentLc[1]).to.eq(newVillage);
+        })
+
+        it(`申领建筑天书`, async ()=>{
+            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(5e18));
+            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
+            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+
+            newItem = await worldItems.nextItemId();
+            expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+
+            expect(await worldItems.balanceOf(operator1.address)).to.eq(0); //not in operator but account
+            expect(await worldItems.balanceOf((await actors.getActor(testActor)).account)).to.eq(1);
+            expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(testActor)).account);
+        });
+
+        it(`恢复体力`, async ()=>{
+            await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
+            await behaviorAttributes.recoverAct(testActor);
+            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+        });
+
+        it(`条件检查`, async ()=>{
+            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(150e18));
+            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
+        });
+
+        it(`未授权资源消耗不能修建建筑`, async ()=>{
+            await expect(shejiTu.activeTrigger(60512, testActor, [newItem], [])).to.be.revertedWith("transfer amount exceeds allowance");
+
+            let actorYeMing = await shejiTu.ACTOR_YEMING();
+            await golds.approveActor(testActor, actorYeMing, BigInt(1000e18));
+            await woods.approveActor(testActor, actorYeMing, BigInt(1000e18));
+            await fabrics.approveActor(testActor, actorYeMing, BigInt(1000e18));
+        });
+
+        it(`修建木工房`, async ()=>{
+            newBuildingZone = await zones.nextZone();
+            expect((await shejiTu.activeTrigger(60512, testActor, [newItem], [])).wait()).eventually.fulfilled;
+
+            await expect(worldItems.ownerOf(newItem)).to.be.revertedWith("ERC721: owner query for nonexistent token");
+            let currentLc = await actorLocations.actorLocations(testActor);
+            expect(currentLc[0]).to.eq(newBuildingZone);
+            expect(await zones.ownerOf(newBuildingZone)).to.eq((await actors.getActor(testActor)).account);
+            expect(await worldBuildings.buildingTypes(newBuildingZone)).to.eq(1);
+            expect(await actorLocations.isActorLocked(testActor)).to.eq(true);
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`角色位置确认`, async ()=>{
+            expect(await actorLocations.isActorLocked(testActor)).to.eq(true);
+            let currentLc = await actorLocations.actorLocations(testActor);
+            expect(currentLc[0]).to.eq(newBuildingZone);
+        });
+
+        it(`新建筑确认`, async ()=>{
+            expect(await zones.ownerOf(newBuildingZone)).to.eq((await actors.getActor(testActor)).account);
+            expect(await worldBuildings.buildingTypes(newBuildingZone)).to.eq(1);
+        });
+    });
 });

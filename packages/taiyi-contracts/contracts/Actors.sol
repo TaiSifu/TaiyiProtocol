@@ -316,6 +316,10 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
         });
     }
 
+    function isHolderExist(address _holder) public override view returns (bool) {
+        return (_holderActors[_holder] > 0);
+    }
+
     function getActorByHolder(address _holder) public override view returns (Actor memory) {        
         require(_holder != address(0), "actor query holder is invalid");
         uint256 actorId = _holderActors[_holder];
