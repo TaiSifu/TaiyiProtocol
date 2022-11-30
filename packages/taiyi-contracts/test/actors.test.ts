@@ -95,7 +95,7 @@ describe('太乙角色基础测试', () => {
         });
         const receipt = await (await actorsByDAO.mintActor(0)).wait();
         //console.log(JSON.stringify(receipt.events, null, 2));
-        const [, actorMinted] = receipt.events || [];
+        const [, , actorMinted] = receipt.events || [];
 
         expect(await actorsByDAO.ownerOf(1)).to.eq(taisifusDAO.address);
         expect(actorMinted?.event).to.eq('ActorMinted');
@@ -408,7 +408,7 @@ describe('角色URI测试', () => {
             nonce: 1+1,
         });
         const receipt = await (await actorsByOperator1.mintActor(0)).wait();
-        const [,actorMinted] = receipt.events || [];
+        const [, , actorMinted] = receipt.events || [];
 
         expect(await actors.ownerOf(2)).to.eq(operator1.address);
         expect(actorMinted?.event).to.eq('ActorMinted');
