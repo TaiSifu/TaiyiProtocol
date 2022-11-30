@@ -119,6 +119,8 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     function modify(uint256 _operator, uint256 _itemId, uint256 _wear) external override 
         onlyYeMing(_operator)
     {
+        require(worldRoute.actors().isHolderExist(ownerOf(_itemId)), "item is not in custody");
+
         uint256 typeId = itemTypes[_itemId];
         require(itemTypes[_itemId] > 0, "item not exist");
 
@@ -129,11 +131,16 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     }
 
     function burn(uint256 _operator, uint256 _itemId) external override
-        onlyYeMing(_operator)
     {
-        address itemOwner = ownerOf(_itemId);
-        IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
-        require(_isActorApprovedOrOwner(actor.actorId), "not approved or the owner of actor.");
+        if(worldRoute.actors().isHolderExist(ownerOf(_itemId))) {
+            //yeming can burn if in custody
+            require(worldRoute.isYeMing(_operator), "only YeMing");
+            require(_isActorApprovedOrOwner(_operator), "not YeMing's operator");
+        }
+        else {
+            //owner can burn if not in custody
+            require(_isApprovedOrOwner(_msgSender(), _itemId), "not approved or owner");
+        }
 
         _burn(_itemId);
 

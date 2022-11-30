@@ -40,6 +40,7 @@ interface IActors is IERC721, IWorldModule {
     function getActor(uint256 _actor) external view returns (Actor memory);
     function getActorByHolder(address _holder) external view returns (Actor memory);
     function getActorsByOwner(address _owner) external view returns (Actor[] memory);
+    function isHolderExist(address _holder) external view returns (bool);
 }
 
 interface IWorldTimeline is IWorldModule {

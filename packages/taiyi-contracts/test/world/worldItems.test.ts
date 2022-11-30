@@ -169,17 +169,16 @@ describe('世界道具测试', () => {
         it("托管道具到角色", async ()=>{
             expect((await worldItems.connect(operator1).transferFrom(operator1.address, (await actors.getActor(actor)).account, newItem)).wait()).eventually.fulfilled;
             expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(actor)).account);
-
-            //withdraw again
-            expect((await worldItems.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
         });
 
-        it(`非噎明无权销毁道具`, async ()=>{
+        it(`非噎明无权销毁托管道具`, async ()=>{
             await expect(worldItems.connect(operator1).burn(actor, newItem)).to.be.revertedWith("only YeMing");
         });
 
-        it(`噎明销毁道具-道具未托管`, async ()=>{
-            await expect(worldItems.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newItem)).to.be.revertedWith("actor holder is not exist");
+        it(`噎明不能销毁未托管道具`, async ()=>{
+            expect((await worldItems.connect(taiyiDAO).withdraw(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
+
+            await expect(worldItems.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newItem)).to.be.revertedWith("not approved or owner");
         });
 
         it(`噎明销毁道具-道具托管`, async ()=>{
