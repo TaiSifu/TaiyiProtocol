@@ -64,24 +64,23 @@ async function reset(): Promise<void> {
 
     // nonce 0: Deploy TaiyiDAOExecutor
     // nonce 1: Deploy TaiyiDAOLogicV1
-    // nonce 2: Deploy multiPartRLEToSVGLibraryFactory
-    // nonce 3: Deploy World Constants
-    // nonce 4: Deploy World Contract Route
-    // nonce 5: Deploy Taiyi Daoli ERC20
-    // nonce 6: Deploy Actors
-    // nonce 7: Register Actors to world route
-    // nonce 8: Mint PanGu
-    // nonce 9: Deploy SifusDescriptor
-    // nonce 10: Deploy SifusSeeder
-    // nonce 11: Deploy SifusToken
-    // nonce 12: Deploy TaiyiDAOProxy
-    // nonce 13+: populate Descriptor
+    // nonce 2: Deploy World Constants
+    // nonce 3: Deploy World Contract Route
+    // nonce 4: Deploy Taiyi Daoli ERC20
+    // nonce 5: Deploy Actors
+    // nonce 6: Register Actors to world route
+    // nonce 7: Mint PanGu
+    // nonce 8: Deploy SifusDescriptor
+    // nonce 9: Deploy SifusSeeder
+    // nonce 10: Deploy SifusToken
+    // nonce 11: Deploy TaiyiDAOProxy
+    // nonce 12+: populate Descriptor
 
     vetoer = deployer;
 
     const govDelegatorAddress = ethers.utils.getContractAddress({
         from: deployer.address,
-        nonce: (await deployer.getTransactionCount()) + 12,
+        nonce: (await deployer.getTransactionCount()) + 11,
     });
 
     // Deploy TaiyiDAOExecutor with pre-computed Delegator address

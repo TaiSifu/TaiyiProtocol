@@ -1,3 +1,5 @@
+//npx hardhat node
+//yarn test ./test/end2end_design.test.ts --network hard
 import chai from 'chai';
 import { ethers, upgrades } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN } from 'ethers';
@@ -28,7 +30,7 @@ const { expect } = chai;
 let sifusToken: SifusToken;
 let shejiTu: ShejiTu;
 let descriptor: SifusDescriptor;
-let weth: Weth;
+//let weth: Weth;
 let gov: TaiyiDaoLogicV1;
 let timelock: TaiyiDaoExecutor;
 
@@ -67,7 +69,7 @@ async function deploy() {
     [deployer, wethDeployer, taiyiDAO, operator1] = await ethers.getSigners();
 
     // Deployed by another account to simulate real network
-    weth = await deployWeth(wethDeployer);
+    //weth = await deployWeth(wethDeployer);
 
     // 1. DEPLOY Actors with world basic
     //-World Constants

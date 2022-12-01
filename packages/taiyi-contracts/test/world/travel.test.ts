@@ -138,7 +138,8 @@ describe('基本移动测试', () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
         //Deploy world
-        let worldDeployed = await deployTaiyiWorld(OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale, deployer, taiyiDAO, 
+        const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
+        let worldDeployed = await deployTaiyiWorld(timestamp, OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale, deployer, taiyiDAO, 
             {
                 noSIDNames : true,
                 noTalents : true,

@@ -1,3 +1,5 @@
+//npx hardhat node
+//yarn test ./test/sifus.test.ts --network hard
 import chai from 'chai';
 import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
