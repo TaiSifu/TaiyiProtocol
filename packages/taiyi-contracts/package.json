@@ -17,12 +17,11 @@
     "task:accounts": "npx hardhat accounts",
     "task:advance-blocks": "npx hardhat advance-blocks",
     "task:deploy": "npx hardhat deploy",
-    "task:deploy-world-local": "npx hardhat deploy-world-local",
-    "task:mint-book": "npx hardhat mint-book",
     "task:populate-descriptor": "npx hardhat populate-descriptor",
     "task:run-local": "npx hardhat run-local",
     "task:grow-actor": "npx hardhat grow-actor",
     "task:new-actor": "npx hardhat new-actor",
+    "task:pangu-daoli": "npx hardhat pangu-daoli",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"

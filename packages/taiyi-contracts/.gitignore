@@ -19,3 +19,5 @@ abi/contracts/base
 abi/contracts/external
 abi/contracts/proxies
 abi/contracts/test
+
+addresses/hard.json
