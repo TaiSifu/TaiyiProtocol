@@ -54,11 +54,9 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor {
         //IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
         //require(bytes(zones.names(zoneId)).length > 0, "zone is not exist");
 
-        //approve zone res module the authority of timeline
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        uint256 ACTOR_YEMING = timeline.ACTOR_YEMING();
+        //approve zone res module the authority of timeline operator
         address zoneResAddress = worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_BASE_RESOURCES);
-        worldRoute.actors().approve(zoneResAddress, ACTOR_YEMING);
+        worldRoute.actors().approve(zoneResAddress, _operator);
 
         IWorldZoneBaseResources zoneRes = IWorldZoneBaseResources(zoneResAddress);
         zoneRes.growAssets(_operator, zoneId); //trigger grow asset
