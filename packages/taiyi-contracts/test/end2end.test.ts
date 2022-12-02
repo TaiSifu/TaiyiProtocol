@@ -1,3 +1,5 @@
+//npx hardhat node
+//yarn test ./test/end2end.test.ts --network hard
 import chai from 'chai';
 import { ethers, upgrades } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN } from 'ethers';

@@ -119,15 +119,17 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     function modify(uint256 _operator, uint256 _itemId, uint256 _wear) external override 
         onlyYeMing(_operator)
     {
-        require(worldRoute.actors().isHolderExist(ownerOf(_itemId)), "item is not in custody");
+        address itemOwner = ownerOf(_itemId);
+        require(worldRoute.actors().isHolderExist(itemOwner), "item is not in custody");
 
         uint256 typeId = itemTypes[_itemId];
         require(itemTypes[_itemId] > 0, "item not exist");
 
         itemWears[_itemId] = _wear;
 
+        IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
         uint256 shape = itemShapes[_itemId];
-        emit ItemChanged(_itemId, typeId, typeNames[typeId], _wear, shape, shapeNames[shape]);
+        emit ItemChanged(actor.actorId, _itemId, typeId, typeNames[typeId], _wear, shape, shapeNames[shape]);
     }
 
     function burn(uint256 _operator, uint256 _itemId) external override

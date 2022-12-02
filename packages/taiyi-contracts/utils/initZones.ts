@@ -30,7 +30,7 @@ export async function initZones(worldConst: WorldConstants, timelineAddress: str
             names.push(z.name);
         }
         if(names.length > 0) {
-            let tx = await timeline.activeTrigger(70000, ACTOR_PANGU, [], names);
+            let tx = await timeline.activeTrigger(70000, ACTOR_PANGU, [0], names);
             //await tx.wait();
         }
     }

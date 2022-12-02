@@ -1,3 +1,5 @@
+//npx hardhat node
+//yarn test ./test/worldEvents.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import '@openzeppelin/hardhat-upgrades';
@@ -108,7 +110,7 @@ describe('世界事件集测试', () => {
         worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
 
-        shejiTu = await deployShejiTu(sifusToken, worldContractRoute, deployer);
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu(sifusToken, worldContractRoute, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
         await routeByPanGu.setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
 

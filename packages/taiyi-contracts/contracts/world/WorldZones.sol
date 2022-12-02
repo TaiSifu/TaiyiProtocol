@@ -29,7 +29,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
     constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) ERC721("Taiyi Zone", "TYZONE") {
     }     
 
-    // @dev Claim a zone for a actor. actor must hold the required gold.
+    // @dev Claim a zone for a actor.
     function claim(uint256 _operator, string memory _name, uint256 _actor) public override 
         onlyYeMing(_operator)
         returns (uint256 _zoneId)

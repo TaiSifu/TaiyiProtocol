@@ -223,7 +223,7 @@ struct SItem
 
 interface IWorldItems is IERC721Enumerable, IWorldModule {
     event ItemCreated(uint256 indexed actor, uint256 indexed item, uint256 indexed typeId, string typeName, uint256 wear, uint256 shape, string shapeName);
-    event ItemChanged(uint256 indexed item, uint256 indexed typeId, string typeName, uint256 wear, uint256 shape, string shapeName);
+    event ItemChanged(uint256 indexed actor, uint256 indexed item, uint256 indexed typeId, string typeName, uint256 wear, uint256 shape, string shapeName);
     event ItemDestroyed(uint256 indexed item, uint256 indexed typeId, string typeName);
 
     function nextItemId() external view returns (uint256);

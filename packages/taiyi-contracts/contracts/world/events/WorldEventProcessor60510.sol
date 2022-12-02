@@ -92,11 +92,9 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
         items.mint(_operator, typeId, 100, 0, _actor);
 
         //消耗资源
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        uint256 ACTOR_YEMING = timeline.ACTOR_YEMING();
         IWorldFungible gold = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_GOLD));
-        gold.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 1e18);
+        gold.transferFromActor(_operator, _actor, _operator, 1e18);
         IWorldFungible wood = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_WOOD));
-        wood.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 10e18);
+        wood.transferFromActor(_operator, _actor, _operator, 10e18);
     }
 }

@@ -2,8 +2,8 @@ import '@nomiclabs/hardhat-ethers';
 import { ethers, network } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
-  SifusToken, SifusToken__factory, SifusDescriptor, SifusDescriptor__factory, SifusSeeder, SifusSeeder__factory,
-  Weth, Weth__factory,
+    SifusToken, SifusToken__factory, SifusDescriptor, SifusDescriptor__factory, SifusSeeder, SifusSeeder__factory,
+    Weth, Weth__factory,
 } from '../typechain';
 import ImageData from '../files/image-data.json';
 import { Block } from '@ethersproject/abstract-provider';
@@ -12,85 +12,79 @@ import { deployWorldContractRoute } from '../utils/deployWorld';
 import { BigNumberish } from 'ethers';
 
 export type TestSigners = {
-  deployer: SignerWithAddress;
-  account0: SignerWithAddress;
-  account1: SignerWithAddress;
-  account2: SignerWithAddress;
+    deployer: SignerWithAddress;
+    account0: SignerWithAddress;
+    account1: SignerWithAddress;
+    account2: SignerWithAddress;
 };
 
 export const getSigners = async (): Promise<TestSigners> => {
-  const [deployer, account0, account1, account2] = await ethers.getSigners();
-  return {
-    deployer,
-    account0,
-    account1,
-    account2,
-  };
+    const [deployer, account0, account1, account2] = await ethers.getSigners();
+    return {
+        deployer,
+        account0,
+        account1,
+        account2,
+    };
 };
 
 export const deploySifusDescriptor = async (
-  deployer?: SignerWithAddress,
+    deployer?: SignerWithAddress,
 ): Promise<SifusDescriptor> => {
-  const signer = deployer || (await getSigners()).deployer;
-  const multiPartRLEToSVGLibraryFactory = await ethers.getContractFactory('MultiPartRLEToSVG', signer);
-  const multiPartRLEToSVGLibrary = await multiPartRLEToSVGLibraryFactory.deploy();
-  const sifusDescriptorFactory = new SifusDescriptor__factory(
-    // {
-    //   __$e1d8844a0810dc0e87a665b1f2b5fa7c69$__: multiPartRLEToSVGLibrary.address,
-    // },
-    signer,
-  );
+    const signer = deployer || (await getSigners()).deployer;
+    // const multiPartRLEToSVGLibraryFactory = await ethers.getContractFactory('MultiPartRLEToSVG', signer);
+    // const multiPartRLEToSVGLibrary = await multiPartRLEToSVGLibraryFactory.deploy();
+    const sifusDescriptorFactory = new SifusDescriptor__factory(signer);
 
-  return sifusDescriptorFactory.deploy();
+    return sifusDescriptorFactory.deploy();
 };
 
 export const deploySifusSeeder = async (deployer?: SignerWithAddress): Promise<SifusSeeder> => {
-  const factory = new SifusSeeder__factory(deployer || (await getSigners()).deployer);
-
-  return factory.deploy();
+    const factory = new SifusSeeder__factory(deployer || (await getSigners()).deployer);
+    return factory.deploy();
 };
 
 export const deploySifusToken = async (
-  worldRouteAddress: string,
-  deployer?: SignerWithAddress,
-  taiyiDAO?: string,
-  descriptor?: string,
-  seeder?: string,
-  //proxyRegistryAddress?: string,
+    worldRouteAddress: string,
+    deployer?: SignerWithAddress,
+    taiyiDAO?: string,
+    descriptor?: string,
+    seeder?: string,
+    //proxyRegistryAddress?: string,
 ): Promise<SifusToken> => {
-  const signer = deployer || (await getSigners()).deployer;
-  const factory = new SifusToken__factory(signer);
+    const signer = deployer || (await getSigners()).deployer;
+    const factory = new SifusToken__factory(signer);
 
-  return factory.deploy(
-    taiyiDAO || signer.address,
-    descriptor || (await deploySifusDescriptor(signer)).address,
-    seeder || (await deploySifusSeeder(signer)).address,
-    worldRouteAddress,
-    //proxyRegistryAddress || address(0)
-  );
+    return factory.deploy(
+        taiyiDAO || signer.address,
+        descriptor || (await deploySifusDescriptor(signer)).address,
+        seeder || (await deploySifusSeeder(signer)).address,
+        worldRouteAddress,
+        //proxyRegistryAddress || address(0)
+    );
 };
 
 export const deployWeth = async (deployer?: SignerWithAddress): Promise<Weth> => {
-  const factory = new Weth__factory(deployer || (await await getSigners()).deployer);
+    const factory = new Weth__factory(deployer || (await await getSigners()).deployer);
 
-  return factory.deploy();
+    return factory.deploy();
 };
 
 export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Promise<void> => {
-  const { bgcolors, palette, images } = ImageData;
-  const { bodies, accessories, heads, glasses } = images;
+    const { bgcolors, palette, images } = ImageData;
+    const { bodies, accessories, heads, glasses } = images;
 
-  // Split up head and accessory population due to high gas usage
-  await Promise.all([
-    sifusDescriptor.addManyBackgrounds(bgcolors),
-    sifusDescriptor.addManyColorsToPalette(0, palette),
-    sifusDescriptor.addManyPart1s(bodies.map(({ data }) => data)),
-    chunkArray(accessories, 10).map(chunk =>
-      sifusDescriptor.addManyPart2s(chunk.map(({ data }) => data)),
-    ),
-    chunkArray(heads, 10).map(chunk => sifusDescriptor.addManyPart3s(chunk.map(({ data }) => data))),
-    sifusDescriptor.addManyPart4s(glasses.map(({ data }) => data)),
-  ]);
+    // Split up head and accessory population due to high gas usage
+    await Promise.all([
+        sifusDescriptor.addManyBackgrounds(bgcolors),
+        sifusDescriptor.addManyColorsToPalette(0, palette),
+        sifusDescriptor.addManyPart1s(bodies.map(({ data }) => data)),
+        chunkArray(accessories, 10).map(chunk =>
+            sifusDescriptor.addManyPart2s(chunk.map(({ data }) => data)),
+        ),
+        chunkArray(heads, 10).map(chunk => sifusDescriptor.addManyPart3s(chunk.map(({ data }) => data))),
+        sifusDescriptor.addManyPart4s(glasses.map(({ data }) => data)),
+    ]);
 };
 
 /**
@@ -99,113 +93,113 @@ export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Prom
  * @param amount The number of Sifus to mint
  */
 export const MintSifus = (
-  operator: BigNumberish,
-  token: SifusToken,
-  burnTaisifusTokens = true,
+    operator: BigNumberish,
+    token: SifusToken,
+    burnTaisifusTokens = true,
 ): ((amount: number) => Promise<void>) => {
-  return async (amount: number): Promise<void> => {
-    for (let i = 0; i < amount; i++) {
-      await token.mint(operator);
-    }
-    if (!burnTaisifusTokens) return;
+    return async (amount: number): Promise<void> => {
+        for (let i = 0; i < amount; i++) {
+            await token.mint(operator);
+        }
+        if (!burnTaisifusTokens) return;
 
-    await setTotalSupply(operator, token, amount);
-  };
+        await setTotalSupply(operator, token, amount);
+    };
 };
 
 /**
  * Mints or burns tokens to target a total supply. Due to Taiyidao's rewards tokens may be burned and tokenIds will not be sequential
  */
 export const setTotalSupply = async (operator: BigNumberish, token: SifusToken, newTotalSupply: number): Promise<void> => {
-  const totalSupply = (await token.totalSupply()).toNumber();
+    const totalSupply = (await token.totalSupply()).toNumber();
 
-  if (totalSupply < newTotalSupply) {
-    for (let i = 0; i < newTotalSupply - totalSupply; i++) {
-      await token.mint(operator);
+    if (totalSupply < newTotalSupply) {
+        for (let i = 0; i < newTotalSupply - totalSupply; i++) {
+            await token.mint(operator);
+        }
+        // If Taiyidao's reward tokens were minted totalSupply will be more than expected, so run setTotalSupply again to burn extra tokens
+        await setTotalSupply(operator, token, newTotalSupply);
     }
-    // If Taiyidao's reward tokens were minted totalSupply will be more than expected, so run setTotalSupply again to burn extra tokens
-    await setTotalSupply(operator, token, newTotalSupply);
-  }
 
-  if (totalSupply > newTotalSupply) {
-    for (let i = newTotalSupply; i < totalSupply; i++) {
-      await token.burn(operator, i);
+    if (totalSupply > newTotalSupply) {
+        for (let i = newTotalSupply; i < totalSupply; i++) {
+            await token.burn(operator, i);
+        }
     }
-  }
 };
 
 // The following adapted from `https://github.com/compound-finance/compound-protocol/blob/master/tests/Utils/Ethereum.js`
 
 const rpc = <T = unknown>({
-  method,
-  params,
+    method,
+    params,
 }: {
-  method: string;
-  params?: unknown[];
+    method: string;
+    params?: unknown[];
 }): Promise<T> => {
-  return network.provider.send(method, params);
+    return network.provider.send(method, params);
 };
 
 export const encodeParameters = (types: string[], values: unknown[]): string => {
-  const abi = new ethers.utils.AbiCoder();
-  return abi.encode(types, values);
+    const abi = new ethers.utils.AbiCoder();
+    return abi.encode(types, values);
 };
 
 export const blockByNumber = async (n: number | string): Promise<Block> => {
-  return rpc({ method: 'eth_getBlockByNumber', params: [n, false] });
+    return rpc({ method: 'eth_getBlockByNumber', params: [n, false] });
 };
 
 export const increaseTime = async (seconds: number): Promise<unknown> => {
-  await rpc({ method: 'evm_increaseTime', params: [seconds] });
-  return rpc({ method: 'evm_mine' });
+    await rpc({ method: 'evm_increaseTime', params: [seconds] });
+    return rpc({ method: 'evm_mine' });
 };
 
 export const freezeTime = async (seconds: number): Promise<unknown> => {
-  await rpc({ method: 'evm_increaseTime', params: [-1 * seconds] });
-  return rpc({ method: 'evm_mine' });
+    await rpc({ method: 'evm_increaseTime', params: [-1 * seconds] });
+    return rpc({ method: 'evm_mine' });
 };
 
 export const advanceBlocks = async (blocks: number): Promise<void> => {
-  for (let i = 0; i < blocks; i++) {
-    await mineBlock();
-  }
+    for (let i = 0; i < blocks; i++) {
+        await mineBlock();
+    }
 };
 
 export const blockNumber = async (parse = true): Promise<number> => {
-  const result = await rpc<number>({ method: 'eth_blockNumber' });
-  return parse ? parseInt(result.toString()) : result;
+    const result = await rpc<number>({ method: 'eth_blockNumber' });
+    return parse ? parseInt(result.toString()) : result;
 };
 
 export const blockTimestamp = async (
-  n: number | string,
-  parse = true,
+    n: number | string,
+    parse = true,
 ): Promise<number | string> => {
-  const block = await blockByNumber(n);
-  return parse ? parseInt(block.timestamp.toString()) : block.timestamp;
+    const block = await blockByNumber(n);
+    return parse ? parseInt(block.timestamp.toString()) : block.timestamp;
 };
 
 export const setNextBlockTimestamp = async (n: number, mine = true): Promise<void> => {
-  await rpc({ method: 'evm_setNextBlockTimestamp', params: [n] });
-  if (mine) await mineBlock();
+    await rpc({ method: 'evm_setNextBlockTimestamp', params: [n] });
+    if (mine) await mineBlock();
 };
 
 export const minerStop = async (): Promise<void> => {
-  await network.provider.send('evm_setAutomine', [false]);
-  await network.provider.send('evm_setIntervalMining', [0]);
+    await network.provider.send('evm_setAutomine', [false]);
+    await network.provider.send('evm_setIntervalMining', [0]);
 };
 
 export const minerStart = async (): Promise<void> => {
-  await network.provider.send('evm_setAutomine', [true]);
+    await network.provider.send('evm_setAutomine', [true]);
 };
 
 export const mineBlock = async (): Promise<void> => {
-  await network.provider.send('evm_mine');
+    await network.provider.send('evm_mine');
 };
 
 export const chainId = async (): Promise<number> => {
-  return parseInt(await network.provider.send('eth_chainId'), 16);
+    return parseInt(await network.provider.send('eth_chainId'), 16);
 };
 
 export const address = (n: number): string => {
-  return `0x${n.toString(16).padStart(40, '0')}`;
+    return `0x${n.toString(16).padStart(40, '0')}`;
 };

@@ -29,11 +29,8 @@ contract WorldEventProcessor70000 is DefaultWorldEventProcessor {
         require(_actor == WorldConstants.ACTOR_PANGU, "actor must be PanGu");
         require(_stringParams.length > 0, "params is invalid");
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        uint256 ACTOR_YEMING = timeline.ACTOR_YEMING();        
-
         for(uint256 i=0; i<_stringParams.length; i++) {
-            zones.claim(_operator, _stringParams[i], ACTOR_YEMING);
+            zones.claim(_operator, _stringParams[i], _operator);
         }
     }
 }

@@ -11,3 +11,4 @@ export * from './initRelationship';
 export * from './initItemTypes';
 export * from './initBuildingTypes';
 export * from './initZones';
+export * from './addressConfig';

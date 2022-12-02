@@ -1,3 +1,5 @@
+//npx hardhat node
+//yarn test ./test/actors.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import { ethers } from 'hardhat';
