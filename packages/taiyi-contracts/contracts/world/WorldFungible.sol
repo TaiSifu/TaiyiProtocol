@@ -65,7 +65,7 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
         }
     }
 
-    function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external override
+    function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) public virtual override
         onlyYeMing(_operator)
         onlyApprovedOrOwner(_actor)
     {
