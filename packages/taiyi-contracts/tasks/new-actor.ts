@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:grow-actor --network hard
+//yarn task:new-actor --network hard
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import { 

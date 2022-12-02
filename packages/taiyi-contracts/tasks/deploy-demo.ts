@@ -23,7 +23,7 @@ type ContractName =
     | 'TaiyiDAOLogicV1'
     | 'TaiyiDAOProxy';
 
-task('deploy', '部署全套太乙合约')
+task('deploy-demo', '部署全套太乙合约开发用例')
     .addOptionalParam('actorMintStartTime', '角色发行起始时间 (block timestamp)', '', types.string) // Default: immediately
     .addOptionalParam('oneAgeVSecond', '生长1岁的间隔期 (seconds)', 60 * 60 * 24, types.int) // Default: 1 day
     .addOptionalParam('actRecoverTimeDay', '行动力恢复期 (seconds)', 60 * 60 * 24, types.int) // Default: 1 day
@@ -69,18 +69,7 @@ task('deploy', '部署全套太乙合约')
             args.zoneResourceGrowQuantityScale,
             deployer,
             taisifu || deployer, 
-            { 
-                noSIDNames : true,
-                noTalents : true,
-                noTalentProcessors : true,
-                noRelations : true,
-                noItemTypes : true,
-                noBuildingTypes : true,
-                noEventProcessors : true,
-                noTimelineEvents : true,
-                noZones : true,
-                noCastShejitu : true 
-            },
+            { noCastShejitu : true },
             true);
         let worldContracts = worldDeployed.worldContracts;
         let eventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;

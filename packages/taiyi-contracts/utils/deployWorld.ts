@@ -14,7 +14,7 @@ import {
     ActorLocations__factory, WorldVillages, WorldVillages__factory, WorldBuildings, WorldBuildings__factory, ActorRelationship, 
     ActorRelationship__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, Trigrams, Trigrams__factory, 
     TrigramsRender, TrigramsRender__factory, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, 
-    SifusDescriptor, SifusSeeder, SifusSeeder__factory,
+    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible,
 } from '../typechain';
 import { BigNumber, BigNumberish, Contract as EthersContract } from 'ethers';
 import { initSIDNames } from './initSocialIdentity';
@@ -142,8 +142,8 @@ export const deployAssetHerb = async (worldConst: WorldConstants, route: WorldCo
     return (await factory.deploy("Taiyi Herb", "TYHERB", await worldConst.WORLD_MODULE_HERB(), route.address)).deployed();
 };
 
-export const deployAssetPrestige = async (worldConst: WorldConstants, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldFungible> => {
-    const factory = new WorldFungible__factory(deployer);
+export const deployAssetPrestige = async (worldConst: WorldConstants, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldNontransferableFungible> => {
+    const factory = new WorldNontransferableFungible__factory(deployer);
     return (await factory.deploy("Taiyi Prestige", "TYPRESTIGE", await worldConst.WORLD_MODULE_PRESTIGE(), route.address)).deployed();
 };
 

@@ -66,6 +66,12 @@
       {
         "indexed": true,
         "internalType": "uint256",
+        "name": "actor",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "item",
         "type": "uint256"
       },
