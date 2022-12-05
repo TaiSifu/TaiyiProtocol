@@ -36,7 +36,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * *******
      */
 
-    uint256 public override ACTOR_YEMING; //timeline administrator authority, 噎鸣
+    uint256 public override operator; //timeline administrator authority, 噎鸣
 
     //map age to event pool ids
     mapping(uint256 => uint256[]) private _eventIDs; //age to id list
@@ -95,7 +95,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         worldRoute = WorldContractRoute(_worldRouteAddress);
 
         IActors actors = worldRoute.actors();
-        ACTOR_YEMING = actors.nextActor();
+        operator = actors.nextActor();
         actors.mintActor(0);
     }
 
@@ -114,7 +114,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
 
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-        evts.grow(ACTOR_YEMING, _actor);
+        evts.grow(operator, _actor);
 
         //do new year age events
         _process(_actor, evts.ages(_actor));
@@ -222,9 +222,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _runTalentProcessor(uint256 _actor, uint256 _age, address _processorAddress) private {
         //approve talent processor the authority of timeline
-        require(ACTOR_YEMING > 0, "YeMing is not init");
-        worldRoute.actors().approve(_processorAddress, ACTOR_YEMING);
-        IActorTalentProcessor(_processorAddress).process(ACTOR_YEMING, _actor, _age); 
+        require(operator > 0, "YeMing is not init");
+        worldRoute.actors().approve(_processorAddress, operator);
+        IActorTalentProcessor(_processorAddress).process(operator, _actor, _age); 
     }
 
     function _applyAttributeModifiers(uint256 _actor, uint256 _age, int[] memory _attrModifier) private {
@@ -241,7 +241,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         for(uint256 m=0; m<_attrModifier.length; m+=2) {
             if(_attrModifier[m] == int(ActorAttributesConstants.AGE)) {
-                evts.changeAge(ACTOR_YEMING, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
+                evts.changeAge(operator, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
                 break;
             }
         }
@@ -268,19 +268,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _runEventProcessor(uint256 _actor, uint256 _age, address _processorAddress) private {
         //approve event processor the authority of timeline
-        //worldRoute.actors().approve(_processorAddress, ACTOR_YEMING);
+        //worldRoute.actors().approve(_processorAddress, operator);
         IWorldEventProcessor evtProcessor = IWorldEventProcessor(_processorAddress);
         worldRoute.actors().setApprovalForAll(_processorAddress, true);
-        evtProcessor.process(ACTOR_YEMING, _actor, _age); 
+        evtProcessor.process(operator, _actor, _age); 
         worldRoute.actors().setApprovalForAll(_processorAddress, false);
 
-        ITrigrams(worldRoute.modules(WorldConstants.WORLD_MODULE_TRIGRAMS)).addActorTrigrams(ACTOR_YEMING, _actor, evtProcessor.trigrams(_actor));
+        ITrigrams(worldRoute.modules(WorldConstants.WORLD_MODULE_TRIGRAMS)).addActorTrigrams(operator, _actor, evtProcessor.trigrams(_actor));
     }
 
     function _processEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256 _depth) private returns (uint256 _branchEvtId) {
 
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-        evts.addActorEvent(ACTOR_YEMING, _actor, _age, _eventId);
+        evts.addActorEvent(operator, _actor, _age, _eventId);
 
         int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
         _applyAttributeModifiers(_actor, _age, _attrModifier);
@@ -362,16 +362,16 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _runActiveEventProcessor(uint256 _actor, uint256 /*_age*/, address _processorAddress, uint256[] memory _uintParams, string[] memory _stringParams) private {
         //approve event processor the authority of timeline(YeMing)
-        //worldRoute.actors().approve(_processorAddress, ACTOR_YEMING);
+        //worldRoute.actors().approve(_processorAddress, operator);
         worldRoute.actors().setApprovalForAll(_processorAddress, true);
-        IWorldEventProcessor(_processorAddress).activeTrigger(ACTOR_YEMING, _actor, _uintParams, _stringParams);
+        IWorldEventProcessor(_processorAddress).activeTrigger(operator, _actor, _uintParams, _stringParams);
         worldRoute.actors().setApprovalForAll(_processorAddress, false);
     }
 
     function _processActiveEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256[] memory _uintParams, string[] memory _stringParams, uint256 _depth) private returns (uint256 _branchEvtId)
     {
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-        evts.addActorEvent(ACTOR_YEMING, _actor, _age, _eventId);
+        evts.addActorEvent(operator, _actor, _age, _eventId);
 
         int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
         _applyAttributeModifiers(_actor, _age, _attrModifier);
@@ -402,6 +402,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _bornActor(uint256 _actor) internal {
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-        evts.bornActor(ACTOR_YEMING, _actor);
+        evts.bornActor(operator, _actor);
     }
 }

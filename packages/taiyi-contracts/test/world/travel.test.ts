@@ -264,7 +264,7 @@ describe('基本移动测试', () => {
 
         it(`用户创建区域1`, async ()=>{
             zone2 = await zones.nextZone();
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
             await shejiTu.activeTrigger(60506, testActor, [], ["区域2"]);
             expect(await zones.names(zone2)).to.eq("区域2");
             expect(await zones.ownerOf(zone2)).to.eq((await actors.getActor(testActor)).account);

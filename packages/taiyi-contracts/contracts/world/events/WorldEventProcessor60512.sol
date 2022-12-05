@@ -64,23 +64,23 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
     }
 
     function _consume_assets(uint256 _actor) internal {
-        uint256 ACTOR_YEMING = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).ACTOR_YEMING();
+        uint256 operator = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).operator();
 
         //金95,木350,织120
         IWorldFungible gold = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_GOLD));
         require(gold.balanceOfActor(_actor) >= 95e18, "gold is low");            
-        gold.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 95e18);
+        gold.transferFromActor(operator, _actor, operator, 95e18);
         IWorldFungible wood = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_WOOD));
         require(wood.balanceOfActor(_actor) >= 350e18, "wood is low");            
-        wood.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 350e18);
+        wood.transferFromActor(operator, _actor, operator, 350e18);
         IWorldFungible fabric = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_FABRIC));
         require(fabric.balanceOfActor(_actor) >= 120e18, "fabric is low");            
-        fabric.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 120e18);
+        fabric.transferFromActor(operator, _actor, operator, 120e18);
 
         //消耗威望
         IWorldFungible prestige = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_PRESTIGE));
         require(prestige.balanceOfActor(_actor) >= 150e18, "prestige is low");            
-        prestige.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 150e18);
+        prestige.transferFromActor(operator, _actor, operator, 150e18);
     }
 
     function _consume_items(uint256 _operator, uint256 _actor, uint256 _itemId) internal returns (uint256 buildingType) {
@@ -92,7 +92,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
         require(itemType >= 20 && itemType <= 25, "item is not right for building");
         buildingType = itemType - 19; //1 to 6
 
-        //uint256 ACTOR_YEMING = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).ACTOR_YEMING();
+        //uint256 operator = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).operator();
         items.modify(_operator, _itemId, 0);
         items.burn(_operator, _itemId);
     }

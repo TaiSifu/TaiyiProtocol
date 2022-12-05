@@ -120,7 +120,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         onlyPointsInitiated(_actor)
     {
         IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not approved or owner of timeline");
+        require(_isActorApprovedOrOwner(timeline.operator()), "not approved or owner of timeline");
         require(_attributes.length % 2 == 0, "attributes is invalid.");        
 
         bool updated = false;

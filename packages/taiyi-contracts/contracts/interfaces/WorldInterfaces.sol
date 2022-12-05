@@ -49,7 +49,7 @@ interface IWorldTimeline is IWorldModule {
     event BranchEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event ActiveEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
 
-    function ACTOR_YEMING() external view returns (uint256);
+    function operator() external view returns (uint256);
 
     function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;

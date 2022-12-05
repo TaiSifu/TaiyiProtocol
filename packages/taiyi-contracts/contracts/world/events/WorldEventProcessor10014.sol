@@ -83,7 +83,7 @@ contract WorldEventProcessor10014 is DefaultWorldEventProcessor, ERC721Holder {
         }
 
         //验证角色所在时间线“道理”够不够
-        uint256 YeMing = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).ACTOR_YEMING();
+        uint256 YeMing = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).operator();
         IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
         if(daoli.balanceOfActor(YeMing) < worldRoute.actors().actorPrice())
             return false;
@@ -101,7 +101,7 @@ contract WorldEventProcessor10014 is DefaultWorldEventProcessor, ERC721Holder {
     {
         require(eventOperator > 0, "event operator not initialized");
         //时间线为该事件准备资金
-        uint256 YeMing = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).ACTOR_YEMING();
+        uint256 YeMing = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).operator();
         require(_operator == YeMing, "not at actor's timeline");
         IActors actors = worldRoute.actors();
         uint256 actorPrice = actors.actorPrice();

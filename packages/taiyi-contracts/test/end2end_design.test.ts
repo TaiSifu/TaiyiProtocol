@@ -108,8 +108,8 @@ async function deploy() {
     shejiTu = ShejiTu__factory.connect(shejiTuProxy.address, deployer);
     await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     //- register yeming for shejitu
-    expect(await shejiTu.ACTOR_YEMING()).to.eq(2);
-    await worldContractRoute.connect(taiyiDAO).setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
+    expect(await shejiTu.operator()).to.eq(2);
+    await worldContractRoute.connect(taiyiDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
     // 4. POPULATE body parts
     descriptor = SifusDescriptor__factory.connect(await sifusToken.descriptor(), deployer);
@@ -183,10 +183,10 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
 
         expect(await gov.vetoer()).to.equal(taiyiDAO.address);
 
-        expect(await worldContractRoute.isYeMing(await shejiTu.ACTOR_YEMING())).to.eq(true);
+        expect(await worldContractRoute.isYeMing(await shejiTu.operator())).to.eq(true);
 
         expect(await actors.ownerOf(await worldConstants.ACTOR_PANGU())).to.eq(taiyiDAO.address);
-        expect(await actors.ownerOf(await shejiTu.ACTOR_YEMING())).to.eq(shejiTu.address);
+        expect(await actors.ownerOf(await shejiTu.operator())).to.eq(shejiTu.address);
 
         console.log(`提案通过进入队列后，执行合约等待期为${TIME_LOCK_DELAY}秒`);
         console.log(`提案人持票要求占比${PROPOSAL_THRESHOLD_BPS * 100 / 10000}%`);

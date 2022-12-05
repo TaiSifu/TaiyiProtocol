@@ -109,8 +109,8 @@ async function deploy() {
     shejiTu = ShejiTu__factory.connect(shejiTuProxy.address, deployer);
     await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     //- register yeming for shejitu
-    expect(await shejiTu.ACTOR_YEMING()).to.eq(2);
-    await worldContractRoute.connect(taiyiDAO).setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
+    expect(await shejiTu.operator()).to.eq(2);
+    await worldContractRoute.connect(taiyiDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
     // 4. POPULATE body parts
     descriptor = SifusDescriptor__factory.connect(await sifusToken.descriptor(), deployer);
@@ -184,7 +184,7 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
 
         expect(await gov.vetoer()).to.equal(taiyiDAO.address);
 
-        expect(await worldContractRoute.isYeMing(await shejiTu.ACTOR_YEMING())).to.eq(true);
+        expect(await worldContractRoute.isYeMing(await shejiTu.operator())).to.eq(true);
     });
 
     it('社稷图颁发师傅令牌（需要事件，待实现）', async () => {

@@ -62,7 +62,7 @@ contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
         IWorldVillages(worldRoute.modules(WorldConstants.WORLD_MODULE_VILLAGES)).createVillage(_operator, _actor, newZoneId);
 
         //消耗威望
-        uint256 ACTOR_YEMING = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).ACTOR_YEMING();
-        IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_PRESTIGE)).transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 150e18);
+        uint256 operator = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE)).operator();
+        IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_PRESTIGE)).transferFromActor(operator, _actor, operator, 150e18);
     }
 }

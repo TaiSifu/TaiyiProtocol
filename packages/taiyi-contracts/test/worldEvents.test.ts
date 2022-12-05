@@ -112,7 +112,7 @@ describe('世界事件集测试', () => {
 
         shejiTu = ShejiTu__factory.connect((await deployShejiTu(worldContractRoute, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-        await routeByPanGu.setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
+        await routeByPanGu.setYeMing(await shejiTu.operator(), shejiTu.address);
 
         //set PanGu as YeMing for test
         await routeByPanGu.setYeMing(actorPanGu, taiyiDAO.address); //fake address for test

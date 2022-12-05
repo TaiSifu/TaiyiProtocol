@@ -402,7 +402,7 @@ describe('角色出生序列事件测试', () => {
                 //no daoli
                 expect(await evt10012.checkOccurrence(testActor, 0)).to.eq(false);
                 //transfer daoli to yeming
-                await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.ACTOR_YEMING())).account, BigInt(500e18));
+                await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.operator())).account, BigInt(500e18));
                 expect(await evt10012.checkOccurrence(testActor, 0)).to.eq(true);
             }
         });
@@ -564,7 +564,7 @@ describe('角色出生序列事件测试', () => {
                 //no daoli
                 expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(false);
                 //transfer daoli to yeming
-                await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.ACTOR_YEMING())).account, BigInt(500e18));
+                await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.operator())).account, BigInt(500e18));
                 expect(await evt10014.checkOccurrence(testActor, 0)).to.eq(true);
             }
         });
@@ -676,7 +676,7 @@ describe('角色出生序列事件测试', () => {
             //no daoli
             expect(await evt60508.checkOccurrence(testActor, 0)).to.eq(false);
             //transfer daoli to yeming
-            await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.ACTOR_YEMING())).account, BigInt(500e18));
+            await assetDaoli.connect(taiyiDAO).transfer((await actors.getActor(await shejiTu.operator())).account, BigInt(500e18));
             expect(await evt60508.checkOccurrence(testActor, 0)).to.eq(true);
         });
 

@@ -141,7 +141,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
         onlyPointsInitiated(_actor)
     {
         IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not approved or owner of timeline");
+        require(_isActorApprovedOrOwner(timeline.operator()), "not approved or owner of timeline");
         require(_attributes.length % 2 == 0, "attributes is invalid.");        
 
         bool updated = false;
@@ -165,7 +165,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
         onlyPointsInitiated(_actor)
     {
         //IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        //require(_isActorApprovedOrOwner(timeline.ACTOR_YEMING()), "not approved or owner of timeline");
+        //require(_isActorApprovedOrOwner(timeline.operator()), "not approved or owner of timeline");
 
         if(lastActRecoverTimeStamps[_actor] == 0) {
             lastActRecoverTimeStamps[_actor] = (block.timestamp / ACT_RECOVER_TIME_DAY) * ACT_RECOVER_TIME_DAY;

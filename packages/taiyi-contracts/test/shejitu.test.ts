@@ -111,12 +111,12 @@ describe('社稷图全局时间线测试', () => {
     });
 
     it('时间线管理者-噎明', async () => {
-        const actorYeMing = await actors.getActor(await shejiTu.ACTOR_YEMING());
+        const actorYeMing = await actors.getActor(await shejiTu.operator());
         expect(actorYeMing.owner).to.eq(shejiTu.address);
     });
 
     it('盘古注册噎明', async () => {
-        const actorYeMing = await shejiTu.ACTOR_YEMING();
+        const actorYeMing = await shejiTu.operator();
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
         await expect(worldContractRoute.setYeMing(actorYeMing, shejiTu.address)).to.be.rejectedWith("only PanGu");
 
@@ -136,7 +136,7 @@ describe('社稷图全局时间线测试', () => {
         });
 
         it('盘古注销噎明', async () => {
-            const actorYeMing = await shejiTu.ACTOR_YEMING();
+            const actorYeMing = await shejiTu.operator();
             expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
             //should disable this actor as yeming
             await worldContractRoute.connect(taiyiDAO).setYeMing(actorYeMing, "0x0000000000000000000000000000000000000000");

@@ -379,9 +379,9 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     if(verbose) console.log("Deploy Shejitu...");
     let shejiTuPkg = await deployShejiTu(worldContractRoute, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
-    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.ACTOR_YEMING()}.`);
+    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-    await routeByPanGu.setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
+    await routeByPanGu.setYeMing(await shejiTu.operator(), shejiTu.address);
 
     //deploy actor attributes
     if(verbose) console.log("Deploy Actor Attributes...");
