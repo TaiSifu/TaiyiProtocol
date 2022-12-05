@@ -98,14 +98,13 @@ describe('社稷图全局时间线测试', () => {
         worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu(sifusToken, worldContractRoute, deployer))[0].address, deployer);
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu(worldContractRoute, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     });
 
     it('不允许再次初始化', async () => {
         let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const tx = shejiTuByDAO.initialize(
-            sifusToken.address,
             worldContractRoute.address
         );
         await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');

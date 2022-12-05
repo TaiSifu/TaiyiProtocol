@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-/// @title The Taiyi DAO auction house
+/// @title The Taiyi ShejiTu
 
 /*********************************
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
@@ -35,9 +35,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * Globals
      * *******
      */
-
-    // The Sifus ERC721 token contract
-    ISifusToken public sifus;
 
     uint256 public override ACTOR_YEMING; //timeline administrator authority, 噎鸣
 
@@ -88,13 +85,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * @dev This function can only be called once.
      */
     function initialize(
-        ISifusToken _sifus,
         address _worldRouteAddress
     ) external initializer {
         __ReentrancyGuard_init();
         __Ownable_init();
-
-        sifus = _sifus;
 
         require(_worldRouteAddress != address(0), "cannot set route contract as zero address");
         _worldRouteContract = _worldRouteAddress;

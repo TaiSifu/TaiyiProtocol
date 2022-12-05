@@ -68,7 +68,7 @@ route: WorldContractRoute, deployer: SignerWithAddress): Promise<Actors> => {
     return (await factory.deploy(taiyiDAO, mintStart, coinContract, route.address)).deployed();
 };
 
-export const deployShejiTu = async (sifusToken: SifusToken, route: WorldContractRoute, deployer: SignerWithAddress) => {
+export const deployShejiTu = async (route: WorldContractRoute, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
     let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
@@ -76,7 +76,6 @@ export const deployShejiTu = async (sifusToken: SifusToken, route: WorldContract
         shejituImpl.address,
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
-            sifusToken.address,
             route.address]));
     return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl];
 }
@@ -378,7 +377,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
 
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu(sifusToken, worldContractRoute, deployer);
+    let shejiTuPkg = await deployShejiTu(worldContractRoute, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
     if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.ACTOR_YEMING()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);

@@ -102,7 +102,6 @@ async function deploy() {
     expect(await actors.connect(taiyiDAO).nextActor()).to.eq(2);
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
-        sifusToken.address,
         worldContractRoute.address
     ]);
     // 3b. CAST proxy as ShejiTu
