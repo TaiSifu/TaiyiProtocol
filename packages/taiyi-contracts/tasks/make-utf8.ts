@@ -74,7 +74,7 @@ task('make-utf8', 'make utf')
             }
         }
         
-        if(1) {
+        if(0) {
             let labels = [
                 "信息",
                 "质量",
@@ -202,8 +202,8 @@ task('make-utf8', 'make utf')
         }
         
         
-        if(0) {
-            console.log(String2UTF8X("你自己还做了一些事情。"));
+        if(1) {
+            console.log(String2UTF8X("你四处飘荡。"));
         }
 
     });

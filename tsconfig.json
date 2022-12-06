@@ -1,5 +1,6 @@
 {
     "references": [
         { "path": "packages/taiyi-contracts" },
+        { "path": "packages/taiyi-xumi-contracts" },
     ]
 }
