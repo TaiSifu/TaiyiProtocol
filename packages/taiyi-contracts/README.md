@@ -38,12 +38,12 @@
 | [WorldItems](./contracts/world/WorldItems.sol)                | 这是太乙世界的ERC721通证合约，常用于表示太乙世界中的非同质化对象（NonfungibleItem），用于表示诸如物品、书籍、道具等事物。该合约不能被升级或替换。这些道具在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
 | [WorldZones](./contracts/world/WorldZones.sol)                | 这是太乙世界的ERC721通证合约，用于表示太乙世界中的区域对象（Nonfungible），表示诸如地区、地理地点、子世界、太虚幻境等拓扑域。比如某个世界建设的150多个省市级区域，某角色建设的从村级单位到木工房等工作单位。该合约不能被升级或替换。这些区域在太乙世界中被使用时，采用[隐式托管(Implicit Custody)](https://github.com/sunflower-land/contracts#off-chain-syncrhonisation)的方式参与世界逻辑。| [0x????](https://etherscan.io/address/0x????) |
 | [Daoli](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于货币，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [金石](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`金石`资源。该合约不能被升级或替换。该合约不能被升级或替换。`金石`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [食材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`食材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`食材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [木材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`木材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`木材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [织物](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`织物`资源。该合约不能被升级或替换。该合约不能被升级或替换。`织物`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [药材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`药材`资源。该合约不能被升级或替换。该合约不能被升级或替换。`药材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
-| [威望](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`威望`资源。该合约不能被升级或替换。该合约不能被升级或替换。`威望`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [金石](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`金石`资源。该合约不能被升级或替换。`金石`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [食材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`食材`资源。该合约不能被升级或替换。`食材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [木材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`木材`资源。该合约不能被升级或替换。`木材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [织物](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`织物`资源。该合约不能被升级或替换。`织物`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [药材](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`药材`资源。该合约不能被升级或替换。`药材`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
+| [威望](./contracts/world/WorldFungible.sol)                | 这是太乙世界的ERC20通证合约，用于`威望`资源。该合约不能被升级或替换。`威望`在太乙世界中可以由特定的事件发行。| [0x????](https://etherscan.io/address/0x????) |
 
 ### 基本数据集
 | 合约| 描述| 地址|
