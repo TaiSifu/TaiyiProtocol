@@ -115,11 +115,10 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
         emit Created(msg.sender, _actor, atts);
     }
 
-    function setAttributes(uint256 _actor, uint256[] memory _attributes) external override
+    function setAttributes(uint256 _operator, uint256 _actor, uint256[] memory _attributes) external override
+        onlyYeMing(_operator)
         onlyPointsInitiated(_actor)
     {
-        IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        require(_isActorApprovedOrOwner(timeline.operator()), "not approved or owner of timeline");
         require(_attributes.length % 2 == 0, "attributes is invalid.");        
 
         bool updated = false;

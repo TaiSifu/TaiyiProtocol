@@ -234,7 +234,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             IActorAttributes attributes = IActorAttributes(_attributeModules.at(i));
             (attrib, attributesModified) = attributes.applyModified(_actor, _attrModifier);
             if(attributesModified)            
-                attributes.setAttributes(_actor, attrib); //this will trigger attribute uptate event
+                attributes.setAttributes(operator, _actor, attrib); //this will trigger attribute uptate event
         }
 
         //check if change age
