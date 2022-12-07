@@ -100,7 +100,7 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
         json = string(abi.encodePacked('{"INF": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.INF][_actor])));
         json = string(abi.encodePacked(json, ', "MAS": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.MAS][_actor])));
         json = string(abi.encodePacked(json, ', "ENG": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.ENG][_actor])));
-        json = string(abi.encodePacked(json, ', "STB": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.STB][_actor])));
+        json = string(abi.encodePacked(json, ', "STB": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.STB][_actor]), '}'));
         return json;
     }
 

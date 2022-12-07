@@ -101,7 +101,7 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     function initOperator(uint256 _operator) external 
         onlyOwner
     {
-        require(_operator == 0, "operator already initialized");
+        require(operator == 0, "operator already initialized");
         IERC721(worldRoute.actorsAddress()).transferFrom(_msgSender(), address(this), _operator);
         operator = _operator;
     }
@@ -115,6 +115,20 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     function grow(uint256 _actor) external override
         onlyApprovedOrOwner(_actor)
     {
+        require(operator > 0, "operator not initialized");
+
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
+            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+            address zta = zts.zoneTimelines(lcs[0]);
+            require(zta == address(this), "not in xumi");
+        }
+        else {
+            require(false, "not in xumi");
+        }
+
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
         require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
 
@@ -168,6 +182,20 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
         onlyApprovedOrOwner(_actor)
     {
+        require(operator > 0, "operator not initialized");
+
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
+            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+            address zta = zts.zoneTimelines(lcs[0]);
+            require(zta == address(this), "not in xumi");
+        }
+        else {
+            require(false, "not in xumi");
+        }
+
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
 
         address evtProcessorAddress = evts.eventProcessors(_eventId);
@@ -410,5 +438,11 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     function _bornActor(uint256 _actor) internal {
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.bornActor(operator, _actor);
+
+        IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+        uint256 zoneId = zts.timelineZones(address(this));
+        require(zoneId > 0, "xumi is not bound to any zone");
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        lc.setActorLocation(operator, _actor, zoneId, zoneId);
     }
 }
