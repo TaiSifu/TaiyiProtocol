@@ -14,7 +14,7 @@ import {
     ActorLocations__factory, WorldVillages, WorldVillages__factory, WorldBuildings, WorldBuildings__factory, ActorRelationship, 
     ActorRelationship__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, Trigrams, Trigrams__factory, 
     TrigramsRender, TrigramsRender__factory, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, 
-    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible,
+    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible, WorldZoneTimelines, WorldZoneTimelines__factory,
 } from '../typechain';
 import { BigNumber, BigNumberish, Contract as EthersContract } from 'ethers';
 import { initSIDNames } from './initSocialIdentity';
@@ -243,6 +243,11 @@ export const deploySifusSeeder = async (deployer: SignerWithAddress): Promise<Si
     return (await factory.deploy()).deployed();
 };
 
+export const deployWorldZoneTimelines = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldZoneTimelines> => {
+    const factory = new WorldZoneTimelines__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
 export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Promise<void> => {
     const { bgcolors, palette, images } = ImageData;
     const { bodies, accessories, heads, glasses } = images;
@@ -302,7 +307,8 @@ export type WorldContractName =
     | 'WorldZoneBaseResources'
     | 'WorldBuildings'
     | 'ActorRelationship'
-    | 'Trigrams';
+    | 'Trigrams'
+    | 'WorldZoneTimelines';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -445,6 +451,8 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address);
+    let worldZoneTimelines = await deployWorldZoneTimelines(routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONE_TIMELINES(), worldZoneTimelines.address);
 
     //render modules
     await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address);
@@ -566,6 +574,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         SifusDescriptor: {instance: sifusDescriptor},
         SifusSeeder: {instance: sifusSeeder},
         SifusToken: {instance: sifusToken},
+        WorldZoneTimelines: {instance: worldZoneTimelines},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

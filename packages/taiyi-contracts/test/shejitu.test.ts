@@ -26,7 +26,9 @@ import {
     deployActorAttributes,
     deployAssetDaoli,
     deployShejiTu,
-    deployWorldEvents
+    deployWorldEvents,
+    deployWorldZoneTimelines,
+    deployActorLocations
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -91,13 +93,15 @@ describe('社稷图全局时间线测试', () => {
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
-
         worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
-
+        let worldZoneTimeliens = await deployWorldZoneTimelines(worldContractRoute, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONE_TIMELINES(), worldZoneTimeliens.address);
+        let actorLocations = await deployActorLocations(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
+    
         shejiTu = ShejiTu__factory.connect((await deployShejiTu(worldContractRoute, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     });

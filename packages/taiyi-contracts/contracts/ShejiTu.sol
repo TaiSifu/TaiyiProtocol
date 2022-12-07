@@ -110,6 +110,15 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function grow(uint256 _actor) external override
         onlyApprovedOrOwner(_actor)
     {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
+            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+            address zta = zts.zoneTimelines(lcs[0]);
+            require(zta == address(0) || zta == address(this), "not in current timeline");
+        }
+
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
         require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
 
@@ -163,6 +172,15 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
         onlyApprovedOrOwner(_actor)
     {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
+            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+            address zta = zts.zoneTimelines(lcs[0]);
+            require(zta == address(0) || zta == address(this), "not in current timeline");
+        }
+
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
 
         address evtProcessorAddress = evts.eventProcessors(_eventId);
@@ -403,5 +421,12 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _bornActor(uint256 _actor) internal {
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.bornActor(operator, _actor);
+
+        IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
+        uint256 zoneId = zts.timelineZones(address(this));
+        if(zoneId > 0) {
+            IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+            lc.setActorLocation(operator, _actor, zoneId, zoneId);
+        }
     }
 }

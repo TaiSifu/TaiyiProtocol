@@ -305,7 +305,7 @@ describe('基本移动测试', () => {
 
             //shold not move since actor is locked
             expect(await evt60509.checkOccurrence(testActor, 0)).to.eq(false);
-            await expect(shejiTu.activeTrigger(60509, testActor, [zone2, zone1], [])).to.be.revertedWith("event check occurrence failed.");
+            await expect(shejiTu.activeTrigger(60509, testActor, [zone2, zone1], [])).to.be.revertedWith("actor is locked by location");
         });
 
         it(`移动到区域2-移动时间达到`, async ()=>{

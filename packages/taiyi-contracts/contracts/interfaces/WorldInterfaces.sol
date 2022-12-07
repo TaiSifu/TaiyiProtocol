@@ -314,3 +314,10 @@ interface ITrigrams is IWorldModule {
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
 }
+
+interface IWorldZoneTimelines is IWorldModule {
+    function zoneTimelines(uint256 _zoneId) external view returns (address);
+    function timelineZones(address _timelineAddress) external view returns (uint256);
+
+    function setTimeline(uint256 _zoneId, address _timelineAddress) external;
+}

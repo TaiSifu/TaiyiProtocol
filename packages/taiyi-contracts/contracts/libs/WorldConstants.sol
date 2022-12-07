@@ -53,4 +53,6 @@ library WorldConstants {
     uint256 public constant WORLD_MODULE_TRIGRAMS     = 30; //角色符文数据
 
     uint256 public constant WORLD_MODULE_SIFUS        = 31; //师傅令牌
+
+    uint256 public constant WORLD_MODULE_ZONE_TIMELINES  = 32; //地区配置的时间线地址
 }
