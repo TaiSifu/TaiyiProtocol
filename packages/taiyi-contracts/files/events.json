@@ -12657,6 +12657,15 @@
         "branch": [
         ]
     },
+    "50002": {
+        "id": 50002,
+        "event": "你捡到一粒奇怪的米粒。",
+        "postEvent": "获得Item紫金米",
+        "include": "",
+        "exclude": "EVT?[50002]",
+        "branch": [
+        ]
+    },
     "60001": {
         "id": 60001,
         "event": "你整日无所事事。",
@@ -12692,6 +12701,17 @@
         "event": "你开辟了一个聚居点。",
         "postEvent": "",
         "effect": {
+        },
+        "include": "",
+        "exclude": ""
+    },
+    "60513": {
+        "id": 60513,
+        "event": "你查看了一粒紫金米。",
+        "postEvent": "传送到须弥域",
+        "params": ["itemId"],
+        "effect": {
+            "AGE": "=0"
         },
         "include": "",
         "exclude": ""

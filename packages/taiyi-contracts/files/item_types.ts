@@ -78,6 +78,10 @@ export function generateItemTypes() {
         },
         "25": {
             "name": "《药房》"
+        },
+        //须弥域入口物件
+        "50": {
+            "name": "紫金米"
         }
     };
 }

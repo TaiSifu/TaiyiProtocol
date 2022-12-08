@@ -84,10 +84,9 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
     }
 
     function _consume_items(uint256 _operator, uint256 _actor, uint256 _itemId) internal returns (uint256 buildingType) {
-        IWorldItems itemNFTs = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        address itemOwner = itemNFTs.ownerOf(_itemId);
-        require(itemOwner == worldRoute.actors().getActor(_actor).account, "book is not belongs to actor");
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
+        address itemOwner = items.ownerOf(_itemId);
+        require(itemOwner == worldRoute.actors().getActor(_actor).account, "book is not belongs to actor");
         uint256 itemType = items.itemTypes(_itemId);
         require(itemType >= 20 && itemType <= 25, "item is not right for building");
         buildingType = itemType - 19; //1 to 6
