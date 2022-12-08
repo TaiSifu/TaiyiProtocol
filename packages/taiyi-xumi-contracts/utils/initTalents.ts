@@ -13,13 +13,12 @@ import * as talentsJSON from "../files/talents.json";
 import { BigNumber, Signer } from 'ethers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-export const initTalents = async (talentsAddress: string, operator: Signer, worldConstants: WorldConstants, xumiConstants: XumiConstants, 
+export const initTalents = async (talentsAddress: string, operator: Signer, xumiConstants: XumiConstants, 
     attributesConst: ActorAttributesConstants,
     xumiAttributesConst: ActorXumiAttributesConstants): Promise<void> => {
 
     let talents = ActorTalents__factory.connect(talentsAddress, operator);
     
-    let W_MODULE_BASE_ATTRIBUTES = await worldConstants.WORLD_MODULE_ATTRIBUTES();
     let W_MODULE_XUMI_ATTRIBUTES = await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES();
 
     let INF = await xumiAttributesConst.INF();

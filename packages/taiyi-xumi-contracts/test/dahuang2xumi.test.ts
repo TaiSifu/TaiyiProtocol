@@ -16,7 +16,10 @@ import {
     ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, 
     ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, 
     ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory,
-    WorldZoneTimelines, WorldZoneTimelines__factory
+    WorldZoneTimelines, WorldZoneTimelines__factory, WorldEventProcessor10001__factory, WorldEventProcessor60001__factory,
+    WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, WorldEventProcessor60004__factory,
+    WorldEventProcessor50002__factory,
+    WorldEventProcessor60513__factory
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -30,11 +33,10 @@ import {
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { 
     ActorXumiAttributesConstants, ActorXumiAttributes,
-    Xumi, XumiConstants, XumiConstants__factory, Xumi__factory,
+    Xumi, XumiConstants, XumiConstants__factory, Xumi__factory, ActorXumiAttributesConstants__factory, ActorXumiAttributes__factory,
 } from '../typechain';
 import { 
-    deployActorXumiAttributes, deployActorXumiAttributesConstants, deployAssetElementH, deployAssetEnergy, deployXumi,
-    deployXumiConstants, initEvents, initItemTypes, initTalents, initTimeline 
+    deployXumiWorld, XumiContractName 
 } from '../utils';
 
 chai.use(asPromised);
@@ -47,7 +49,7 @@ const ZoneResourceGrowTimeDay: number = 60;
 const ZoneResourceGrowQuantityScale: number = 10*1000; //10.0f
 const BaseTravelTime: number = 3000;
 
-describe('须弥时间线基础', () => {
+describe('大荒到须弥', () => {
 
     let deployer: SignerWithAddress;
     let taiyiDAO: SignerWithAddress;
@@ -88,17 +90,24 @@ describe('须弥时间线基础', () => {
     let actorLocations : ActorLocations;
     let worldItems : WorldItems;
     let worldBuildings: WorldBuildings;
+    let worldZoneTimelines: WorldZoneTimelines;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber; 
-    let newZone: BigNumber;   
+    let xumiZone: BigNumber; 
+    let enterItem: BigNumber;  
+
+    let evt60513: any;
 
     ///// 须弥相关
+    let xumiContracts: Record<XumiContractName, WorldContract>;
+    let xumiEventProcessorAddressBook: {[index: string]:any};
+
     let xumiConstants: XumiConstants;
     let xumi: Xumi;
     let actorXumiAttributesConstants: ActorXumiAttributesConstants;
     let actorXumiAttributes: ActorXumiAttributes;
-    let worldZoneTimelines: WorldZoneTimelines;
+    let assetEnergy: WorldFungible;
 
     let makeMoney = async (toWho: string, amount: BigNumberish):Promise<void> => { 
         await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, amount);
@@ -144,8 +153,8 @@ describe('须弥时间线基础', () => {
         await actors.connect(taiyiDAO).mintActor(BigInt(100e18));
 
         if(randomName) {
-            let firstName = `${Math.round(Math.random()*100)}`;
-            await names.connect(taiyiDAO).claim(firstName, "赛博", _actor);    
+            let firstName = `小拼${Math.round(Math.random()*100)}`;
+            await names.connect(taiyiDAO).claim(firstName, "李", _actor);    
         }
 
         await actors.connect(taiyiDAO).approve(shejiTu.address, _actor);
@@ -181,7 +190,7 @@ describe('须弥时间线基础', () => {
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
-        //Deploy world
+        //Deploy Dahuang world
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         let worldDeployed = await deployTaiyiWorld(timestamp, OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale, deployer, taiyiDAO, 
             {
@@ -232,93 +241,49 @@ describe('须弥时间线基础', () => {
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+
+        //部署大荒出生序列
+        let eventsByPanGu = worldEvents.connect(taiyiDAO);
+        const evt10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(10001, evt10001.address);
+        const evt60001 = await (await (new WorldEventProcessor60001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60001, evt60001.address);
+        const evt60002 = await (await (new WorldEventProcessor60002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60002, evt60002.address);
+        const evt60003 = await (await (new WorldEventProcessor60003__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60003, evt60003.address);
+        const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+
+        //配置时间线出生事件
+        await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1);
+
+        //Deploy Xumi world
+        let xumiWorldDeployed = await deployXumiWorld(worldContractRoute, talents, actorAttributesConstants,
+            worldItems, worldEvents, operator1, taiyiDAO, 
+            { noCastXumi : true },
+            false);
+        xumiContracts = xumiWorldDeployed.worldContracts;
+        xumiEventProcessorAddressBook = xumiWorldDeployed.eventProcessorAddressBook;
+
+        xumiConstants = XumiConstants__factory.connect(xumiContracts.XumiConstants.instance.address, operator1);
+        xumi = Xumi__factory.connect(xumiContracts.XumiProxy.instance.address, operator1);
+        actorXumiAttributesConstants = ActorXumiAttributesConstants__factory.connect(xumiContracts.ActorXumiAttributesConstants.instance.address, operator1);
+        actorXumiAttributes = ActorXumiAttributes__factory.connect(xumiContracts.ActorXumiAttributes.instance.address, operator1);
+        assetEnergy = WorldFungible__factory.connect(xumiContracts.AssetEnergy.instance.address, operator1);
+
+        //register actors uri modules
+        await actors.connect(taiyiDAO).registerURIPartModule(names.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(actorXumiAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
+
+        testActor = await newDahuangActor(operator1, true);
     });
 
-    describe('构建须弥域合约组', () => {
-        it(`部署常量库`, async ()=>{
-            xumiConstants = await deployXumiConstants(operator1);
-        });
-
-        it(`部署资源`, async ()=>{
-            let assetEnergy = await deployAssetEnergy(xumiConstants, worldContractRoute, operator1);
-            await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ENERGY(), assetEnergy.address);
-
-            let assetElementH = await deployAssetElementH(xumiConstants, worldContractRoute, operator1);
-            await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ELEMENT_H(), assetElementH.address);
-        });
-
-        it(`部署属性`, async ()=>{
-            actorXumiAttributesConstants = await deployActorXumiAttributesConstants(operator1);
-            actorXumiAttributes = await deployActorXumiAttributes(worldContractRoute, operator1);
-            await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES(), actorXumiAttributes.address);
-        });
-
-        it(`部署须弥时间线`, async ()=>{
-            xumi = Xumi__factory.connect((await deployXumi(worldContractRoute, operator1))[0].address, operator1);
-            await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
-        });
-
-        it('不允许再次初始化', async () => {
-            const tx = xumi.connect(operator1).initialize(
-                worldContractRoute.address
-            );
-            await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
-        });    
-
-        it(`初始化天赋`, async ()=>{
-            await initTalents(talents.address, taiyiDAO, xumiConstants, actorAttributesConstants, actorXumiAttributesConstants);
-
-            let W_MODULE_XUMI_ATTRIBUTES = await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES();
-            let STB = await actorXumiAttributesConstants.STB();
-
-            expect(await talents.talentNames(10004)).to.eq("跃迁达人");
-            expect(await talents.talentDescriptions(10004)).to.eq("运动可能自发突然变化，稳定性-10，属性点+40");
-            expect((await talents.talentAttributeModifiers(10004)).length).to.eq(2);
-            expect((await talents.talentAttributeModifiers(10004))[0]).to.eq(STB);
-            expect((await talents.talentAttributeModifiers(10004))[1]).to.eq(-10);
-            expect(await talents.talentAttrPointsModifiers(10004, W_MODULE_XUMI_ATTRIBUTES)).to.eq(40);
-        });
-
-        it(`增加物品类型`, async ()=>{
-            await initItemTypes(worldItems.address, taiyiDAO);
-            expect(await worldItems.typeNames(100)).to.eq("小型恒星");
-        });
-
-        it(`部署事件`, async ()=>{
-            let eventProcessorAddressBook = await initEvents(worldContractRoute, worldEvents.address, taiyiDAO, operator1);
-        });
-
-        it(`配置时间线`, async ()=>{
-            await initTimeline(xumi.address, operator1);
-        });
-
-        it(`配置Actor URI模块`, async ()=>{
-            //register actors uri modules
-            await actors.connect(taiyiDAO).registerURIPartModule(names.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(actorXumiAttributes.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
-        });
-
-        it(`创建测试角色`, async ()=>{
-            //deal coin
-            await makeMoney(operator1.address, BigInt(1000e18));
-
-            await assetDaoli.approve(actors.address, BigInt(1000e18));
-            testActor = await actors.nextActor();
-            await actors.mintActor(BigInt(100e18));
-
-            let firstName = `${Math.round(Math.random()*100)}`;
-            await names.claim(firstName, "赛博", testActor);    
-            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-        });
-
-        it(`须弥时间线未配置操作员不能出生角色`, async ()=>{
-            await actors.approve(xumi.address, testActor);
-            await expect(xumi.bornActor(testActor)).to.be.revertedWith("only YeMing");
-        });
-
+    describe('配置须弥域', () => {
         it(`配置须弥操作员`, async ()=>{
             let newActor = await newDahuangActor(operator1);
             await worldContractRoute.connect(taiyiDAO).setYeMing(newActor, xumi.address);
@@ -328,50 +293,77 @@ describe('须弥时间线基础', () => {
             expect(await actors.ownerOf(await xumi.operator())).to.eq(xumi.address);
         });
 
-        it(`须弥时间线未绑定区域不能出生角色`, async ()=>{
-            await expect(xumi.bornActor(testActor)).to.be.revertedWith("xumi is not bound to any zone");
-        });
-
         it(`噎明铸造新区域绑定须弥时间线`, async ()=>{
-            newZone = await zones.nextZone();
-            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", testActor)).wait()).eventually.fulfilled;    
-            expect(await zones.ownerOf(newZone)).to.eq((await actors.getActor(testActor)).account);
+            xumiZone = await zones.nextZone();
+            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", await xumi.operator())).wait()).eventually.fulfilled;    
+            expect(await zones.ownerOf(xumiZone)).to.eq((await actors.getActor(await xumi.operator())).account);
 
-            await worldZoneTimelines.connect(taiyiDAO).setTimeline(newZone, xumi.address);
+            await worldZoneTimelines.connect(taiyiDAO).setTimeline(xumiZone, xumi.address);
+        });
+    });
+
+    describe('出生在大荒', () => {
+
+        it(`部署大荒事件线`, async ()=>{
+            let evt50002 = await (await (new WorldEventProcessor50002__factory(operator1)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(50002, evt50002.address);
+            evt60513 = await (await (new WorldEventProcessor60513__factory(operator1)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60513, evt60513.address);
+
+            await evt60513.setXumiZoneId(xumiZone);
+            expect(await evt60513.xumiZone()).to.eq(xumiZone);
+
+            await shejiTu.connect(taiyiDAO).addAgeEvent(1, 50002, 100); 
         });
 
-        it(`出生在须弥时间线`, async ()=>{
-            expect((await xumi.bornActor(testActor)).wait()).eventually.fulfilled;
-            expect((await actorLocations.actorLocations(testActor))[0]).to.eq(newZone);
+        it(`成长到1岁`, async ()=>{
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            enterItem = await worldItems.nextItemId();
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
-        it(`初始化天赋和属性`, async ()=>{
-            await talents.talentActor(testActor);
-            await baseAttributes.pointActor(testActor);
-            await charmAttributes.pointActor(testActor);
-            await coreAttributes.pointActor(testActor);
-            await moodAttributes.pointActor(testActor);
-            await behaviorAttributes.pointActor(testActor);
-            await actorXumiAttributes.pointActor(testActor);
+        it(`捡到紫金米`, async ()=>{
+            expect(await worldItems.itemTypes(enterItem)).to.eq(50);
+            expect(await worldItems.ownerOf(enterItem)).to.eq((await actors.getActor(testActor)).account);
+        });
+
+        it(`查看紫金米`, async ()=>{
+            expect(await evt60513.checkOccurrence(testActor, 0)).to.eq(true);
+            expect((await shejiTu.activeTrigger(60513, testActor, [enterItem], [])).wait()).eventually.fulfilled;
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
-        it(`角色在须弥时间线上成长`, async ()=>{
+        it(`破碎虚空，传送到须弥域`, async ()=>{
+            let currentLc = await actorLocations.actorLocations(testActor);
+            expect(currentLc[0]).to.eq(xumiZone);
+            expect(await worldEvents.ages(testActor)).to.eq(0);
+        });
+
+        it(`不能再在大荒成长`, async ()=>{
+            await expect(shejiTu.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("not in current timeline");
+        });
+    });
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    describe('生长在须弥', () => {
+
+        it(`出生`, async ()=>{
             await actors.approve(xumi.address, testActor);
+            await assetEnergy.approveActor(testActor, await xumi.operator(), BigInt(1000e18));
+
             await xumi.grow(testActor, { gasLimit: 5000000 }); //age 0
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-            // await xumi.grow(testActor, { gasLimit: 5000000 });
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-            // await xumi.grow(testActor, { gasLimit: 5000000 });
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-            // await xumi.grow(testActor, { gasLimit: 5000000 });
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-            // await xumi.grow(testActor, { gasLimit: 5000000 });
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-            // await xumi.grow(testActor, { gasLimit: 5000000 });
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
+        it(`成长到1岁`, async ()=>{
+            await xumi.grow(testActor, { gasLimit: 5000000 }); //age 1
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`成长到2岁`, async ()=>{
+            await xumi.grow(testActor, { gasLimit: 5000000 }); //age 2
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
     });
 });
