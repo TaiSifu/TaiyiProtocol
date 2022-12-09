@@ -16,7 +16,6 @@ import {
     ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, 
     ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, 
     ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory,
-    WorldZoneTimelines, WorldZoneTimelines__factory
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -98,7 +97,6 @@ describe('须弥时间线基础', () => {
     let xumi: Xumi;
     let actorXumiAttributesConstants: ActorXumiAttributesConstants;
     let actorXumiAttributes: ActorXumiAttributes;
-    let worldZoneTimelines: WorldZoneTimelines;
 
     let makeMoney = async (toWho: string, amount: BigNumberish):Promise<void> => { 
         await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, amount);
@@ -206,7 +204,7 @@ describe('须弥时间线基础', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
@@ -227,11 +225,19 @@ describe('须弥时间线基础', () => {
         actorLocations = ActorLocations__factory.connect(contracts.ActorLocations.instance.address, operator1);
         worldItems = WorldItems__factory.connect(contracts.WorldItems.instance.address, operator1);
         worldBuildings = WorldBuildings__factory.connect(contracts.WorldBuildings.instance.address, operator1);
-        worldZoneTimelines = WorldZoneTimelines__factory.connect(contracts.WorldZoneTimelines.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+
+        //bind timeline to a zone
+        let zoneId = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(zoneId);
+
+        //born PanGu
+        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
     });
 
     describe('构建须弥域合约组', () => {
@@ -329,15 +335,15 @@ describe('须弥时间线基础', () => {
         });
 
         it(`须弥时间线未绑定区域不能出生角色`, async ()=>{
-            await expect(xumi.bornActor(testActor)).to.be.revertedWith("xumi is not bound to any zone");
+            await expect(xumi.bornActor(testActor)).to.be.revertedWith("start zone invalid");
         });
 
         it(`噎明铸造新区域绑定须弥时间线`, async ()=>{
             newZone = await zones.nextZone();
-            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", testActor)).wait()).eventually.fulfilled;    
+            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", xumi.address, testActor)).wait()).eventually.fulfilled;    
             expect(await zones.ownerOf(newZone)).to.eq((await actors.getActor(testActor)).account);
-
-            await worldZoneTimelines.connect(taiyiDAO).setTimeline(newZone, xumi.address);
+            expect((await xumi.setStartZone(newZone)).wait()).eventually.fulfilled;
+            expect(await xumi.startZone()).to.eq(newZone);
         });
 
         it(`出生在须弥时间线`, async ()=>{

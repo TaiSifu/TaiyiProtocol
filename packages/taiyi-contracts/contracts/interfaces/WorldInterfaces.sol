@@ -174,8 +174,9 @@ interface IWorldZones is IERC721Enumerable, IWorldModule {
 
     function nextZone() external view returns (uint256);
     function names(uint256 _zoneId) external view returns (string memory);
+    function timelines(uint256 _zoneId) external view returns (address);
 
-    function claim(uint256 _operator, string memory _name, uint256 _actor) external returns (uint256 _zoneId);
+    function claim(uint256 _operator, string memory _name, address _timelineAddress, uint256 _actor) external returns (uint256 _zoneId);
     function withdraw(uint256 _operator, uint256 _zoneId) external;
 }
 
@@ -315,9 +316,8 @@ interface ITrigrams is IWorldModule {
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
 }
 
-interface IWorldZoneTimelines is IWorldModule {
-    function zoneTimelines(uint256 _zoneId) external view returns (address);
-    function timelineZones(address _timelineAddress) external view returns (uint256);
+interface IActorTimelineAges is IWorldModule {
+    function actorTimelineLastAges(uint256 _actor, address _timelineAddress) external view returns (uint256);
 
-    function setTimeline(uint256 _zoneId, address _timelineAddress) external;
+    function setActorTimelineLastAge(uint256 _operator, uint256 _actor, address _timelineAddress, uint256 _age) external;
 }

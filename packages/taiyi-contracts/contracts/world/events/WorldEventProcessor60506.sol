@@ -57,7 +57,7 @@ contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
     {
         require(_stringParams.length > 0, "params is invalid");
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-        uint256 newZoneId = zones.claim(_operator, _stringParams[0], _actor);
+        uint256 newZoneId = zones.claim(_operator, _stringParams[0], worldRoute.YeMings(_operator), _actor);
 
         IWorldVillages(worldRoute.modules(WorldConstants.WORLD_MODULE_VILLAGES)).createVillage(_operator, _actor, newZoneId);
 

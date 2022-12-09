@@ -42,6 +42,7 @@ describe('世界区域测试', () => {
     let actors: Actors;
     let assetDaoli: WorldFungible;
     let worldZones: WorldZones;
+    let fakeTimelineAddress: any;
 
     let actor: BigNumber;
     let actorPanGu: BigNumber;
@@ -98,6 +99,8 @@ describe('世界区域测试', () => {
         //second actor for test
         actor = await newActor(operator1);
         expect(actor).to.eq(2);
+
+        fakeTimelineAddress = operator1.address;
     });
 
     it('合约符号（Symbol）', async () => {
@@ -109,16 +112,16 @@ describe('世界区域测试', () => {
     });
 
     it(`非噎明无权铸造新区域`, async ()=>{
-        await expect(worldZones.connect(operator1).claim(actor, "小灰域", actor)).to.be.revertedWith("only YeMing");
+        await expect(worldZones.connect(operator1).claim(actor, "小灰域", fakeTimelineAddress, actor)).to.be.revertedWith("only YeMing");
     });
 
     it(`噎明铸造新区域参数错误`, async ()=>{
-        await expect(worldZones.connect(taiyiDAO).claim(actorPanGu, "小  灰域", actor)).to.be.revertedWith("invalid name");
+        await expect(worldZones.connect(taiyiDAO).claim(actorPanGu, "小  灰域", fakeTimelineAddress, actor)).to.be.revertedWith("invalid name");
     });
 
     it(`噎明铸造新区域给角色`, async ()=>{
         newZone = await worldZones.nextZone();
-        expect((await worldZones.connect(taiyiDAO).claim(actorPanGu, "小灰域", actor)).wait()).eventually.fulfilled;
+        expect((await worldZones.connect(taiyiDAO).claim(actorPanGu, "小灰域", fakeTimelineAddress, actor)).wait()).eventually.fulfilled;
 
         expect(await worldZones.ownerOf(newZone)).to.eq((await actors.getActor(actor)).account);
         expect(await worldZones.names(newZone)).to.eq("小灰域");
@@ -130,7 +133,7 @@ describe('世界区域测试', () => {
 
     it(`区域改名-区域错误`, async ()=>{
         let anotherZone = await worldZones.nextZone();
-        await worldZones.connect(taiyiDAO).claim(actorPanGu, "无尘星", actorPanGu);
+        await worldZones.connect(taiyiDAO).claim(actorPanGu, "无尘星", fakeTimelineAddress, actorPanGu);
         await expect(worldZones.connect(operator1).updateZone(actor, anotherZone, "大灰域")).to.be.revertedWith("not approved or the owner of zone");
     });
 

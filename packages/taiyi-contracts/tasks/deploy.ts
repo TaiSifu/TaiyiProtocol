@@ -78,8 +78,7 @@ task('deploy', '部署全套太乙合约')
                 noBuildingTypes : true,
                 noEventProcessors : true,
                 noTimelineEvents : true,
-                noZones : true,
-                noCastShejitu : true 
+                noZones : true                
             },
             true);
         let worldContracts = worldDeployed.worldContracts;

@@ -15,6 +15,7 @@
     "build:declarations": "shx cp typechain/*.d.ts dist/typechain",
     "hardhat": "npx hardhat",
     "test": "npx hardhat test",
+    "task:make-utf8": "npx hardhat make-utf8",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
   },

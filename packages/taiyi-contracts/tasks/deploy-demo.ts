@@ -69,7 +69,7 @@ task('deploy-demo', '部署全套太乙合约开发用例')
             args.zoneResourceGrowQuantityScale,
             deployer,
             taisifu || deployer, 
-            { noCastShejitu : true },
+            {},
             true);
         let worldContracts = worldDeployed.worldContracts;
         let eventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;

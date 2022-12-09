@@ -80,7 +80,6 @@ export interface XumiWorldDeployFlag {
     noEventProcessors? : boolean;
     noTimelineEvents? : boolean;
     noZones? : boolean;
-    noCastXumi? : boolean;
 };
     
 export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorTalents, actorAttributesConstants: ActorAttributesConstants, 
@@ -157,7 +156,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
         ActorXumiAttributesConstants: {instance: actorXumiAttributesConstants},
         XumiProxy: {instance: xumiPkg[0]},
         XumiProxyAdmin: {instance: xumiPkg[1]},
-        Xumi: {instance: flags?.noCastXumi ? xumiPkg[2] : xumi},
+        Xumi: {instance: xumiPkg[2]},
         AssetEnergy: {instance: assetEnergy},
         AssetElementH: {instance: assetElementH},
         ActorXumiAttributes: {instance: actorXumiAttributes},

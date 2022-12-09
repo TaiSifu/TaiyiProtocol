@@ -54,5 +54,5 @@ library WorldConstants {
 
     uint256 public constant WORLD_MODULE_SIFUS        = 31; //师傅令牌
 
-    uint256 public constant WORLD_MODULE_ZONE_TIMELINES  = 32; //地区配置的时间线地址
+    uint256 public constant WORLD_MODULE_ACTOR_TIMELINE_LASTAGES  = 32; //角色在对应时间线上的最后年龄
 }

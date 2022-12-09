@@ -39,6 +39,8 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
 
     uint256 public override operator; //timeline administrator authority, 噎鸣
 
+    uint256 public startZone; //actors in this timeline born in this zone
+
     //map age to event pool ids
     mapping(uint256 => uint256[]) private _eventIDs; //age to id list
     mapping(uint256 => uint256[]) private _eventProbs; //age to prob list
@@ -70,6 +72,19 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
         _;
     }
 
+    //角色位置和时间线校验
+    modifier onlyCurrentTimeline(uint256 _actor) {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        require(lcs.length == 2, "actor location invalid");
+        require(lcs[0] == lcs[1] && lcs[0] > 0, "actor location unstable");
+        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
+        address zta = zones.timelines(lcs[0]);
+        require(zta == address(this), "not in current timeline");
+        _;
+    }
+
     /* ****************
      * Public Functions
      * ****************
@@ -96,6 +111,13 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
         worldRoute = WorldContractRoute(_worldRouteAddress);
     }
 
+    function setStartZone(uint256 _zoneId) external 
+        onlyOwner
+    {
+        require(_zoneId > 0, "zoneId invalid");
+        startZone = _zoneId;
+    }
+
     function moduleID() external override pure returns (uint256) { return XumiConstants.WORLD_MODULE_XUMI_TIMELINE; }
 
     function initOperator(uint256 _operator) external 
@@ -114,20 +136,9 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
 
     function grow(uint256 _actor) external override
         onlyApprovedOrOwner(_actor)
+        onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
-
-        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        require(lc.isActorUnlocked(_actor), "actor is locked by location");
-        uint256[] memory lcs = lc.actorLocations(_actor);
-        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
-            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
-            address zta = zts.zoneTimelines(lcs[0]);
-            require(zta == address(this), "not in xumi");
-        }
-        else {
-            require(false, "not in xumi");
-        }
 
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
         require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
@@ -181,25 +192,12 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
 
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
         onlyApprovedOrOwner(_actor)
+        onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
 
-        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        require(lc.isActorUnlocked(_actor), "actor is locked by location");
-        uint256[] memory lcs = lc.actorLocations(_actor);
-        if(lcs.length == 2 && lcs[0] == lcs[1] && lcs[0] > 0) {
-            IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
-            address zta = zts.zoneTimelines(lcs[0]);
-            require(zta == address(this), "not in xumi");
-        }
-        else {
-            require(false, "not in xumi");
-        }
-
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-
-        address evtProcessorAddress = evts.eventProcessors(_eventId);
-        require(evtProcessorAddress != address(0), "can not find event processor.");
+        require(evts.eventProcessors(_eventId) != address(0), "can not find event processor.");
 
         uint256 _age = evts.ages(_actor);
         require(evts.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
@@ -300,7 +298,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     }
 
     function _runEventProcessor(uint256 _actor, uint256 _age, address _processorAddress) private {
-        require(operator > 0, "YeMing is not init");
         //approve event processor the authority of timeline
         //worldRoute.actors().approve(_processorAddress, operator);
         IWorldEventProcessor evtProcessor = IWorldEventProcessor(_processorAddress);
@@ -395,7 +392,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
     }
 
     function _runActiveEventProcessor(uint256 _actor, uint256 /*_age*/, address _processorAddress, uint256[] memory _uintParams, string[] memory _stringParams) private {
-        require(operator > 0, "YeMing is not init");
         //approve event processor the authority of timeline(YeMing)
         //worldRoute.actors().approve(_processorAddress, operator);
         worldRoute.actors().setApprovalForAll(_processorAddress, true);
@@ -439,10 +435,8 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.bornActor(operator, _actor);
 
-        IWorldZoneTimelines zts = IWorldZoneTimelines(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONE_TIMELINES));
-        uint256 zoneId = zts.timelineZones(address(this));
-        require(zoneId > 0, "xumi is not bound to any zone");
+        require(startZone > 0, "start zone invalid");
         IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        lc.setActorLocation(operator, _actor, zoneId, zoneId);
+        lc.setActorLocation(operator, _actor, startZone, startZone);
     }
 }

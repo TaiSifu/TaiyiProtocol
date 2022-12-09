@@ -89,7 +89,6 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
 
     function changeAge(uint256 _operator, uint256 _actor, uint256 _age) external override
         onlyYeMing(_operator)
-        onlyApprovedOrOwner(_actor)
     {
         ages[_actor] = _age;
         if(_age == 0)

@@ -16,10 +16,12 @@ import {
     ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, 
     ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, 
     ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory,
-    WorldZoneTimelines, WorldZoneTimelines__factory, WorldEventProcessor10001__factory, WorldEventProcessor60001__factory,
+    WorldEventProcessor10001__factory, WorldEventProcessor60001__factory,
     WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, WorldEventProcessor60004__factory,
     WorldEventProcessor50002__factory,
-    WorldEventProcessor60513__factory
+    WorldEventProcessor60513__factory,
+    ActorTimelineAges,
+    ActorTimelineAges__factory
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -33,7 +35,7 @@ import {
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { 
     ActorXumiAttributesConstants, ActorXumiAttributes,
-    Xumi, XumiConstants, XumiConstants__factory, Xumi__factory, ActorXumiAttributesConstants__factory, ActorXumiAttributes__factory,
+    Xumi, XumiConstants, XumiConstants__factory, Xumi__factory, ActorXumiAttributesConstants__factory, ActorXumiAttributes__factory, WorldEventProcessor1050001__factory,
 } from '../typechain';
 import { 
     deployXumiWorld, XumiContractName 
@@ -90,10 +92,11 @@ describe('大荒到须弥', () => {
     let actorLocations : ActorLocations;
     let worldItems : WorldItems;
     let worldBuildings: WorldBuildings;
-    let worldZoneTimelines: WorldZoneTimelines;
+    let actorTimelineAges: ActorTimelineAges;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber; 
+    let dahuangZone: BigNumber;
     let xumiZone: BigNumber; 
     let enterItem: BigNumber;  
 
@@ -108,6 +111,8 @@ describe('大荒到须弥', () => {
     let actorXumiAttributesConstants: ActorXumiAttributesConstants;
     let actorXumiAttributes: ActorXumiAttributes;
     let assetEnergy: WorldFungible;
+
+    let evt1050001: any;
 
     let makeMoney = async (toWho: string, amount: BigNumberish):Promise<void> => { 
         await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, amount);
@@ -215,7 +220,7 @@ describe('大荒到须弥', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
@@ -236,11 +241,20 @@ describe('大荒到须弥', () => {
         actorLocations = ActorLocations__factory.connect(contracts.ActorLocations.instance.address, operator1);
         worldItems = WorldItems__factory.connect(contracts.WorldItems.instance.address, operator1);
         worldBuildings = WorldBuildings__factory.connect(contracts.WorldBuildings.instance.address, operator1);
-        worldZoneTimelines = WorldZoneTimelines__factory.connect(contracts.WorldZoneTimelines.instance.address, operator1);
+        actorTimelineAges = ActorTimelineAges__factory.connect(contracts.ActorTimelineAges.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+
+        //bind timeline to a zone
+        dahuangZone = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(dahuangZone);
+
+        //born PanGu
+        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
 
         //部署大荒出生序列
         let eventsByPanGu = worldEvents.connect(taiyiDAO);
@@ -261,7 +275,7 @@ describe('大荒到须弥', () => {
         //Deploy Xumi world
         let xumiWorldDeployed = await deployXumiWorld(worldContractRoute, talents, actorAttributesConstants,
             worldItems, worldEvents, operator1, taiyiDAO, 
-            { noCastXumi : true },
+            {},
             false);
         xumiContracts = xumiWorldDeployed.worldContracts;
         xumiEventProcessorAddressBook = xumiWorldDeployed.eventProcessorAddressBook;
@@ -295,10 +309,10 @@ describe('大荒到须弥', () => {
 
         it(`噎明铸造新区域绑定须弥时间线`, async ()=>{
             xumiZone = await zones.nextZone();
-            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", await xumi.operator())).wait()).eventually.fulfilled;    
+            expect((await zones.connect(taiyiDAO).claim(actorPanGu, "须弥域", xumi.address, await xumi.operator())).wait()).eventually.fulfilled;    
             expect(await zones.ownerOf(xumiZone)).to.eq((await actors.getActor(await xumi.operator())).account);
-
-            await worldZoneTimelines.connect(taiyiDAO).setTimeline(xumiZone, xumi.address);
+            expect((await xumi.setStartZone(xumiZone)).wait()).eventually.fulfilled;
+            expect(await xumi.startZone()).to.eq(xumiZone);
         });
     });
 
@@ -310,15 +324,24 @@ describe('大荒到须弥', () => {
             evt60513 = await (await (new WorldEventProcessor60513__factory(operator1)).deploy(worldContractRoute.address)).deployed();
             await worldEvents.connect(taiyiDAO).setEventProcessor(60513, evt60513.address);
 
-            await evt60513.setXumiZoneId(xumiZone);
-            expect(await evt60513.xumiZone()).to.eq(xumiZone);
+            await evt60513.setTargetZoneId(xumiZone);
+            expect(await evt60513.targetZone()).to.eq(xumiZone);
 
-            await shejiTu.connect(taiyiDAO).addAgeEvent(1, 50002, 100); 
+            await shejiTu.connect(taiyiDAO).addAgeEvent(1, 50002, 1); 
+            await shejiTu.connect(taiyiDAO).addAgeEvent(2, 60001, 1); 
+        });
+
+        it(`成长到0岁`, async ()=>{
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`没有道具无法激活查看紫金米事件`, async ()=>{
+            await expect(shejiTu.activeTrigger(60513, testActor, [1], [])).to.be.revertedWith("ERC721: owner query for nonexistent token");
         });
 
         it(`成长到1岁`, async ()=>{
-            await actors.approve(shejiTu.address, testActor);
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
             enterItem = await worldItems.nextItemId();
             await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
@@ -327,6 +350,10 @@ describe('大荒到须弥', () => {
         it(`捡到紫金米`, async ()=>{
             expect(await worldItems.itemTypes(enterItem)).to.eq(50);
             expect(await worldItems.ownerOf(enterItem)).to.eq((await actors.getActor(testActor)).account);
+        });
+
+        it(`非道具持有者无法激活查看紫金米事件`, async ()=>{
+            await expect(shejiTu.connect(taiyiDAO).activeTrigger(60513, actorPanGu, [enterItem], [])).to.be.revertedWith("item is not belongs to actor");
         });
 
         it(`查看紫金米`, async ()=>{
@@ -338,7 +365,11 @@ describe('大荒到须弥', () => {
         it(`破碎虚空，传送到须弥域`, async ()=>{
             let currentLc = await actorLocations.actorLocations(testActor);
             expect(currentLc[0]).to.eq(xumiZone);
+        });
+
+        it(`年龄检查`, async ()=>{
             expect(await worldEvents.ages(testActor)).to.eq(0);
+            expect(await actorTimelineAges.actorTimelineLastAges(testActor, shejiTu.address)).to.eq(1);
         });
 
         it(`不能再在大荒成长`, async ()=>{
@@ -347,6 +378,14 @@ describe('大荒到须弥', () => {
     });
     ///////////////////////////////////////////////////////////////////////////////////////////
     describe('生长在须弥', () => {
+
+        it(`部署须弥事件线`, async ()=>{
+            evt1050001 = await (await (new WorldEventProcessor1050001__factory(operator1)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(1050001, evt1050001.address);
+
+            await evt1050001.setTargetZoneId(dahuangZone);
+            expect(await evt1050001.targetZone()).to.eq(dahuangZone);
+        });
 
         it(`出生`, async ()=>{
             await actors.approve(xumi.address, testActor);
@@ -361,8 +400,41 @@ describe('大荒到须弥', () => {
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
+        it(`未达到2岁不能回大荒`, async ()=>{
+            expect(await evt1050001.checkOccurrence(testActor, 0)).to.eq(false);
+        });
+
         it(`成长到2岁`, async ()=>{
             await xumi.grow(testActor, { gasLimit: 5000000 }); //age 2
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`直接激活回大荒事件`, async ()=>{
+            expect(await evt1050001.checkOccurrence(testActor, 0)).to.eq(true);
+            expect((await xumi.activeTrigger(1050001, testActor, [], [])).wait()).eventually.fulfilled;
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`破碎虚空，传送回大荒`, async ()=>{
+            let currentLc = await actorLocations.actorLocations(testActor);
+            expect(currentLc[0]).to.eq(dahuangZone);
+        });
+
+        it(`年龄检查`, async ()=>{
+            expect(await worldEvents.ages(testActor)).to.eq(1);
+            expect(await actorTimelineAges.actorTimelineLastAges(testActor, xumi.address)).to.eq(2);
+        });
+
+        it(`不能再在须弥成长`, async ()=>{
+            await expect(xumi.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("not in current timeline");
+        });
+    });
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    describe('回大荒', () => {
+        it(`在大荒成长到2岁`, async ()=>{
+            await actors.approve(shejiTu.address, testActor);
+            expect((await shejiTu.grow(testActor, { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+            expect(await worldEvents.ages(testActor)).to.eq(2);
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
     });

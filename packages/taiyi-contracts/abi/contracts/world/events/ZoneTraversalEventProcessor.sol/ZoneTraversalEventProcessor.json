@@ -1,16 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_worldRouteAddress",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -38,12 +27,12 @@
       },
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "",
         "type": "uint256"
       },
       {
         "internalType": "uint256[]",
-        "name": "_uintParams",
+        "name": "",
         "type": "uint256[]"
       },
       {

@@ -346,6 +346,32 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_zoneId",
+        "type": "uint256"
+      }
+    ],
+    "name": "setStartZone",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startZone",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"

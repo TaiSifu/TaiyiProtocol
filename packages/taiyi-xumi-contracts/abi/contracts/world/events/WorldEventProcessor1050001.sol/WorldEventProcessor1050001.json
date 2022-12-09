@@ -43,7 +43,7 @@
       },
       {
         "internalType": "uint256[]",
-        "name": "_uintParams",
+        "name": "",
         "type": "uint256[]"
       },
       {
@@ -85,7 +85,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {

@@ -15,6 +15,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
 
     uint256 public override nextZone = 1;
     mapping(uint256 => string) public override names;  // token => name
+    mapping(uint256 => address) public override timelines; //token => timeline address
 
     /* *********
      * Modifiers
@@ -30,10 +31,11 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
     }     
 
     // @dev Claim a zone for a actor.
-    function claim(uint256 _operator, string memory _name, uint256 _actor) public override 
+    function claim(uint256 _operator, string memory _name, address _timelineAddress, uint256 _actor) public override 
         onlyYeMing(_operator)
         returns (uint256 _zoneId)
     {
+        require(_timelineAddress != address(0), "invalid timeline address");
         require(validateName(_name), 'invalid name');
 
         _mint(address(0), worldRoute.actors().getActor(_actor).account, nextZone);
@@ -41,6 +43,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
         nextZone++;
 
         names[_zoneId] = _name;        
+        timelines[_zoneId] = _timelineAddress;
         emit ZoneClaimed(_actor, _zoneId, _name);
     }
 

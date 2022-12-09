@@ -1,5 +1,29 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_timelineAddress",
+        "type": "address"
+      }
+    ],
+    "name": "actorTimelineLastAges",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "moduleID",
     "outputs": [
@@ -16,37 +40,28 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_zoneId",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_actor",
         "type": "uint256"
       },
       {
         "internalType": "address",
         "name": "_timelineAddress",
         "type": "address"
-      }
-    ],
-    "name": "setTimeline",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_timelineAddress",
-        "type": "address"
-      }
-    ],
-    "name": "timelineZones",
-    "outputs": [
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_age",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "setActorTimelineLastAge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -97,25 +112,6 @@
         "internalType": "uint256",
         "name": "_endY",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_zoneId",
-        "type": "uint256"
-      }
-    ],
-    "name": "zoneTimelines",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
