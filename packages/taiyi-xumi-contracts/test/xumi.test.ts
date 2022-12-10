@@ -303,7 +303,7 @@ describe('须弥时间线基础', () => {
             await actors.connect(taiyiDAO).registerURIPartModule(names.address);
             await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
             await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(actorXumiAttributes.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(xumi.address);
             await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
         });
 
@@ -366,7 +366,7 @@ describe('须弥时间线基础', () => {
         it(`角色在须弥时间线上成长`, async ()=>{
             await actors.approve(xumi.address, testActor);
             await xumi.grow(testActor, { gasLimit: 5000000 }); //age 0
-            // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
             // await xumi.grow(testActor, { gasLimit: 5000000 });
             // console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
             // await xumi.grow(testActor, { gasLimit: 5000000 });

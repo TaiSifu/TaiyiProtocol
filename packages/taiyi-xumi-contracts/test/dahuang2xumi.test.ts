@@ -290,8 +290,8 @@ describe('大荒到须弥', () => {
         await actors.connect(taiyiDAO).registerURIPartModule(names.address);
         await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
         await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(actorXumiAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(xumi.address);
         await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
 
         testActor = await newDahuangActor(operator1, true);

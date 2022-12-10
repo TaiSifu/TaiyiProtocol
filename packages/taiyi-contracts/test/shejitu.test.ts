@@ -190,7 +190,7 @@ describe('社稷图全局时间线测试', () => {
                 let uriObj = JSON.parse(uriDecode);
                 //console.log(JSON.stringify(uriObj, null, 2));
                 expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
-                expect(JSON.stringify(uriObj.data.m_3)).to.eq("{}");
+                expect(uriObj.data.m_3.base.name).to.eq("大荒");
             });
 
             it('角色生长-未注册角色基础属性情况', async () => {

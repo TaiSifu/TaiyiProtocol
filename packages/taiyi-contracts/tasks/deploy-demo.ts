@@ -79,11 +79,7 @@ task('deploy-demo', '部署全套太乙合约开发用例')
         await actors.registerURIPartModule(worldContracts.ActorNames.instance.address);
         await actors.registerURIPartModule(worldContracts.ActorSocialIdentity.instance.address);
         await actors.registerURIPartModule(worldContracts.ActorTalents.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorCoreAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorCharmAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorMoodAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorBehaviorAttributes.instance.address);
+        await actors.registerURIPartModule(worldContracts.ShejituProxy.instance.address);
         await actors.registerURIPartModule(worldContracts.WorldEvents.instance.address);
         
     

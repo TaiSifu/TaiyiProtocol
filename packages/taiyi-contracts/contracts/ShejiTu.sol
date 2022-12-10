@@ -213,13 +213,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * **************
      */
 
-    function tokenSVG(uint256 /*_actor*/, uint256 /*_startY*/, uint256 /*_lineHeight*/) external virtual override view returns (string memory, uint256 _endY) {
-        return ("", _endY);
+    function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external virtual override view returns (string memory, uint256 _endY) {
+        if(_isActorInCurrentTimeline(_actor))
+            return _tokenURISVGPart(_actor, _startY, _lineHeight);
+        else
+            return ("", _startY);
     }
 
-    function tokenJSON(uint256 /*_actor*/) external virtual override view returns (string memory) {
-        return "{}";
-    }
+    function tokenJSON(uint256 _actor) external virtual override view returns (string memory) {
+        if(_isActorInCurrentTimeline(_actor))
+            return _tokenURIJSONPart(_actor);
+        else
+            return "{}";
+}
 
     function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
@@ -416,10 +422,52 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         return evts.checkBranch(_actor, _eventId, _age);
     }
 
+    /* ****************
+     * Private Functions
+     * ****************
+     */
+
+    function _tokenURISVGPart(uint256 _actor, uint256 _startY, uint256 _lineHeight) private view returns (string memory, uint256 endY) {
+        string memory parts;
+        endY = _startY;
+        (parts, endY) = _tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+
+        //modules
+        string memory moduleSVG;
+        for(uint256 i=0; i<_attributeModules.length(); i++) {
+            (moduleSVG, endY) = IWorldModule(_attributeModules.at(i)).tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+            parts = string(abi.encodePacked(parts, moduleSVG));
+        }
+        return (parts, endY);
+    }
+
+    function _tokenURIJSONPart(uint256 _actor) private view returns (string memory) {
+        string memory json;
+        json = string(abi.encodePacked(json, '{"base": ', _tokenJSON(_actor)));
+        //modules
+        for(uint256 i=0; i<_attributeModules.length(); i++) {
+            IWorldModule mod = IWorldModule(_attributeModules.at(i));
+            json = string(abi.encodePacked(json, ', "m_', Strings.toString(mod.moduleID()),'": ', mod.tokenJSON(_actor)));
+        }
+        json = string(abi.encodePacked(json, '}'));
+        return json;
+    }
+
     /* *****************
      * Internal Functions
      * *****************
      */
+
+    function _tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) internal pure returns (string memory, uint256 _endY) {
+        _endY = _startY;
+        //所在时间线：大荒
+        return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">\xE6\x89\x80\xE5\x9C\xA8\xE6\x97\xB6\xE9\x97\xB4\xE7\xBA\xBF\xEF\xBC\x9A\xE5\xA4\xA7\xE8\x8D\x92</text>')), _endY);
+    }
+
+    function _tokenJSON(uint256 /*_actor*/) internal pure returns (string memory) {
+        //大荒
+        return '{"name":  "\xE5\xA4\xA7\xE8\x8D\x92"}';
+    }
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
         IActors actors = worldRoute.actors();
@@ -433,5 +481,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(startZone > 0, "start zone invalid");
         IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
         lc.setActorLocation(operator, _actor, startZone, startZone);
+    }
+
+    function _isActorInCurrentTimeline(uint256 _actor) internal view returns (bool) {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        uint256[] memory lcs = lc.actorLocations(_actor);        
+        if(lcs.length != 2)
+            return false;
+        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
+        if(zones.timelines(lcs[0]) == address(this))
+            return true;
+        if(zones.timelines(lcs[1]) == address(this))
+            return true;
+
+        return false;
     }
 }

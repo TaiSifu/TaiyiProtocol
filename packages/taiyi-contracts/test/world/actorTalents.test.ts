@@ -188,7 +188,7 @@ describe('角色天赋测试', () => {
         await actors.connect(taiyiDAO).registerURIPartModule(names.address);
         await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
         await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
         await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
     });
 

@@ -109,6 +109,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
     let xumiPkg = await deployXumi(route, deployer);
     let xumi = Xumi__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as Xumi
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
+    await xumi.registerAttributeModule(actorXumiAttributes.address);
 
     //init talents
     if(flags?.noTalents)

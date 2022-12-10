@@ -392,7 +392,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],
@@ -411,17 +411,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_startY",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_lineHeight",
         "type": "uint256"
       }
     ],
