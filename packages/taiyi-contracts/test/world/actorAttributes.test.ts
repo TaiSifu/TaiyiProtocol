@@ -140,7 +140,7 @@ describe('角色属性测试', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
         actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
@@ -159,6 +159,11 @@ describe('角色属性测试', () => {
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+
+        //bind timeline to a zone
+        let zoneId = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(zoneId);
 
         testActor = await newActor(operator1);
     });

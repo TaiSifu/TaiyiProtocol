@@ -9,7 +9,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, ActorAttributesConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible,
+    Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldZones,
 } from '../typechain';
 import {
     blockNumber,
@@ -26,7 +26,9 @@ import {
     deployActorAttributes,
     deployAssetDaoli,
     deployShejiTu,
-    deployWorldEvents
+    deployWorldEvents,
+    deployActorLocations,
+    deployWorldZones
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -53,8 +55,10 @@ describe('社稷图全局时间线测试', () => {
     let actors: Actors;
     let worldEvents: WorldEvents;
     let assetDaoli: WorldFungible;
-    let shejiTu: ShejiTu;
+    let shejiTu: ShejiTu; //proxy
+    let shejiTuImpl: ShejiTu;
     let actorAttributes: ActorAttributes;
+    let worldZones: WorldZones;
 
     let actorPanGu: BigNumber;
 
@@ -91,15 +95,22 @@ describe('社稷图全局时间线测试', () => {
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
-
         worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
-
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu(worldContractRoute, deployer))[0].address, deployer);
+        let actorLocations = await deployActorLocations(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
+        worldZones = await deployWorldZones(worldContractRoute, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
+    
+        let shejiTuPkg = await deployShejiTu(worldContractRoute, deployer);
+        shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
+        shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+
+        //set PanGu as YeMing for test
+        await routeByPanGu.setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
     });
 
     it('不允许再次初始化', async () => {
@@ -118,92 +129,80 @@ describe('社稷图全局时间线测试', () => {
     it('盘古注册噎明', async () => {
         const actorYeMing = await shejiTu.operator();
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
-        await expect(worldContractRoute.setYeMing(actorYeMing, shejiTu.address)).to.be.rejectedWith("only PanGu");
+        await expect(worldContractRoute.setYeMing(actorYeMing, shejiTuImpl.address)).to.be.rejectedWith("only PanGu");
 
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
-        expect((await routeByPanGu.setYeMing(actorYeMing, shejiTu.address)).wait()).eventually.fulfilled;
+        expect((await routeByPanGu.setYeMing(actorYeMing, shejiTuImpl.address)).wait()).eventually.fulfilled;
         expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
     });
 
     describe('社稷图基本操作测试', () => {
 
-        beforeEach(async () => {
-            snapshotId = await ethers.provider.send('evm_snapshot', []);
-        });
-    
-        afterEach(async () => {
-            await ethers.provider.send('evm_revert', [snapshotId]);
-        });
-
         it('盘古注销噎明', async () => {
+            snapshotId = await ethers.provider.send('evm_snapshot', []);
             const actorYeMing = await shejiTu.operator();
             expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(true);
             //should disable this actor as yeming
             await worldContractRoute.connect(taiyiDAO).setYeMing(actorYeMing, "0x0000000000000000000000000000000000000000");
             expect(await worldContractRoute.isYeMing(actorYeMing)).to.eq(false);
+            await ethers.provider.send('evm_revert', [snapshotId]);
         });
 
         it('角色出生-所有者未授权情况', async () => {
             await expect(shejiTu.connect(taiyiDAO).bornActor(await worldConstants.ACTOR_PANGU())).to.be.revertedWith("not approved or owner of actor");
         });
 
-        it('角色出生-所有者授权情况', async () => {
+        it('角色出生-时间线未绑定出生区域', async () => {
             await actors.connect(taiyiDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-            expect((await shejiTu.connect(taiyiDAO).bornActor(await worldConstants.ACTOR_PANGU())).wait()).eventually.fulfilled;
-        });
+            await expect(shejiTu.connect(taiyiDAO).bornActor(await worldConstants.ACTOR_PANGU())).to.be.revertedWith("start zone invalid");
+        });        
 
-        it('角色出生-未注册到角色URI模块的情况', async () => {
-            await actors.connect(taiyiDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-            const receipt = await (await shejiTu.connect(taiyiDAO).bornActor(await worldConstants.ACTOR_PANGU())).wait();
-            const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
+        describe('出生角色', () => {
 
-            let uri = await actors.tokenURI(await worldConstants.ACTOR_PANGU());
-            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
-            let uriObj = JSON.parse(uriDecode);
-            //console.log(JSON.stringify(uriObj, null, 2));
-            expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
-            expect(uriObj.data.m_3).to.be.undefined;
-        });
+            before(async () => {
+                //创建区域并绑定时间线
+                let zoneId = await worldZones.nextZone();
+                await worldZones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+                await shejiTu.connect(deployer).setStartZone(zoneId);
+                //授权角色
+                await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+            });
 
-        it('角色出生-注册到角色URI模块的情况', async () => {
+            it('角色出生', async () => {
+                expect((await shejiTu.connect(taiyiDAO).bornActor(actorPanGu)).wait()).eventually.fulfilled;
+            });
 
-            //register timeline to be one part of Actor URI
-            expect((await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
+            it('未注册到角色URI模块的情况', async () => {
+                let uri = await actors.tokenURI(actorPanGu);
+                let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
+                let uriObj = JSON.parse(uriDecode);
+                //console.log(JSON.stringify(uriObj, null, 2));
+                expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
+                expect(uriObj.data.m_3).to.be.undefined;
+            });
 
-            await actors.connect(taiyiDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-            const receipt = await (await shejiTu.connect(taiyiDAO).bornActor(await worldConstants.ACTOR_PANGU())).wait();
-            const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
+            it('注册到角色URI模块的情况', async () => {
+                //register timeline to be one part of Actor URI
+                expect((await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
 
-            let uri = await actors.tokenURI(await worldConstants.ACTOR_PANGU());
-            let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
-            let uriObj = JSON.parse(uriDecode);
-            //console.log(JSON.stringify(uriObj, null, 2));
-            expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
-            expect(JSON.stringify(uriObj.data.m_3)).to.eq("{}");
-        });
+                let uri = await actors.tokenURI(actorPanGu);
+                let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
+                let uriObj = JSON.parse(uriDecode);
+                //console.log(JSON.stringify(uriObj, null, 2));
+                expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
+                expect(uriObj.data.m_3.base.name).to.eq("大荒");
+            });
 
-        it('角色生长-未注册角色基础属性情况', async () => {
-            let actorPanGu = await worldConstants.ACTOR_PANGU();
+            it('角色生长-未注册角色基础属性情况', async () => {
+                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
+            });
 
-            await actors.connect(taiyiDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-            const receipt = await (await shejiTu.connect(taiyiDAO).bornActor(actorPanGu)).wait();
-            const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
+            it('角色生长-注册角色基础属性但未初始化情况', async () => {
+                //register actor attribute to timeline
+                expect((await shejiTu.connect(taiyiDAO).registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
 
-            await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
-        });
-
-        it('角色生长-注册角色基础属性但未初始化情况', async () => {
-            let actorPanGu = await worldConstants.ACTOR_PANGU();
-
-            await actors.connect(taiyiDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-            let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
-            const receipt = await (await shejiTuByDAO.bornActor(actorPanGu)).wait();
-            const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
-
-            //register actor attribute to timeline
-            expect((await shejiTuByDAO.registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
-
-            await expect(shejiTuByDAO.grow(actorPanGu)).to.be.revertedWith("actor dead!");
+                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
+            });
         });
     });
 });

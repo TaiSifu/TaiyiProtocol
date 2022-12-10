@@ -74,8 +74,9 @@ interface IActorAttributes is IWorldModule {
     event Created(address indexed creator, uint256 indexed actor, uint256[] attributes);
     event Updated(address indexed executor, uint256 indexed actor, uint256[] attributes);
 
+    function setAttributes(uint256 _operator, uint256 _actor, uint256[] memory _attributes) external;
+
     function attributeLabels(uint256 _attributeId) external view returns (string memory);
-    function setAttributes(uint256 _actor, uint256[] memory _attributes) external;
     function attributesScores(uint256 _attributeId, uint256 _actor) external view returns (uint256);
     function characterPointsInitiated(uint256 _actor) external view returns (bool);
     function applyModified(uint256 _actor, int[] memory _modifiers) external view returns (uint256[] memory, bool);
@@ -173,8 +174,9 @@ interface IWorldZones is IERC721Enumerable, IWorldModule {
 
     function nextZone() external view returns (uint256);
     function names(uint256 _zoneId) external view returns (string memory);
+    function timelines(uint256 _zoneId) external view returns (address);
 
-    function claim(uint256 _operator, string memory _name, uint256 _actor) external returns (uint256 _zoneId);
+    function claim(uint256 _operator, string memory _name, address _timelineAddress, uint256 _actor) external returns (uint256 _zoneId);
     function withdraw(uint256 _operator, uint256 _zoneId) external;
 }
 
@@ -312,4 +314,10 @@ interface ITrigrams is IWorldModule {
 
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
+}
+
+interface IActorTimelineAges is IWorldModule {
+    function actorTimelineLastAges(uint256 _actor, address _timelineAddress) external view returns (uint256);
+
+    function setActorTimelineLastAge(uint256 _operator, uint256 _actor, address _timelineAddress, uint256 _age) external;
 }

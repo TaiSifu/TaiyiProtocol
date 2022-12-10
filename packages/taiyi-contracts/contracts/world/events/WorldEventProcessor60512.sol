@@ -84,10 +84,9 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
     }
 
     function _consume_items(uint256 _operator, uint256 _actor, uint256 _itemId) internal returns (uint256 buildingType) {
-        IWorldItems itemNFTs = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        address itemOwner = itemNFTs.ownerOf(_itemId);
-        require(itemOwner == worldRoute.actors().getActor(_actor).account, "book is not belongs to actor");
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
+        address itemOwner = items.ownerOf(_itemId);
+        require(itemOwner == worldRoute.actors().getActor(_actor).account, "book is not belongs to actor");
         uint256 itemType = items.itemTypes(_itemId);
         require(itemType >= 20 && itemType <= 25, "item is not right for building");
         buildingType = itemType - 19; //1 to 6
@@ -101,24 +100,23 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         require(_uintParams.length == 1, "params is invalid");
-        uint256 bookItemId = _uintParams[0];
 
         //消耗资源
         _consume_assets(_actor);
 
         //消耗道具
-        uint256 buildingType = _consume_items(_operator, _actor, bookItemId);
+        uint256 buildingType = _consume_items(_operator, _actor, _uintParams[0]);
 
         //创建木工房区域
         IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
         uint256[] memory lc = locations.actorLocations(_actor);
         require(lc.length == 2 && lc[0] == lc[1] && locations.isActorUnlocked(_actor), "actor is not at one location and freely");
-        IWorldVillages villages = IWorldVillages(worldRoute.modules(WorldConstants.WORLD_MODULE_VILLAGES));
-        require(villages.isZoneVillage(lc[0]), "actor is not at villages"); //必须在村庄
+        require(IWorldVillages(worldRoute.modules(WorldConstants.WORLD_MODULE_VILLAGES)).isZoneVillage(lc[0]), "actor is not at villages"); //必须在村庄
 
         IWorldBuildings buildings = IWorldBuildings(worldRoute.modules(WorldConstants.WORLD_MODULE_BUILDINGS));
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-        uint256 newBuildingZoneId = zones.claim(_operator, buildings.typeNames(buildingType), _actor);
+        address timelineAddress = worldRoute.YeMings(_operator);
+        uint256 newBuildingZoneId = zones.claim(_operator, buildings.typeNames(buildingType), timelineAddress, _actor);
         locations.setActorLocation(_operator, _actor, newBuildingZoneId, newBuildingZoneId);
 
         //设置建筑

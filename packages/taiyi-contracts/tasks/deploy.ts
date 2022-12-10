@@ -78,8 +78,7 @@ task('deploy', '部署全套太乙合约')
                 noBuildingTypes : true,
                 noEventProcessors : true,
                 noTimelineEvents : true,
-                noZones : true,
-                noCastShejitu : true 
+                noZones : true                
             },
             true);
         let worldContracts = worldDeployed.worldContracts;
@@ -90,11 +89,7 @@ task('deploy', '部署全套太乙合约')
         await actors.registerURIPartModule(worldContracts.ActorNames.instance.address);
         await actors.registerURIPartModule(worldContracts.ActorSocialIdentity.instance.address);
         await actors.registerURIPartModule(worldContracts.ActorTalents.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorCoreAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorCharmAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorMoodAttributes.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorBehaviorAttributes.instance.address);
+        await actors.registerURIPartModule(worldContracts.ShejituProxy.instance.address);
         await actors.registerURIPartModule(worldContracts.WorldEvents.instance.address);
         
     

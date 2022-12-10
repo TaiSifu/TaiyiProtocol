@@ -38,6 +38,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     uint256 public override operator; //timeline administrator authority, 噎鸣
 
+    uint256 public startZone; //actors in this timeline born in this zone
+
     //map age to event pool ids
     mapping(uint256 => uint256[]) private _eventIDs; //age to id list
     mapping(uint256 => uint256[]) private _eventProbs; //age to prob list
@@ -66,6 +68,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     modifier onlyYeMing(uint256 _actor) {
         require(worldRoute.isYeMing(_actor), "only YeMing");
         require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
+        _;
+    }
+
+    //角色位置和时间线校验
+    modifier onlyCurrentTimeline(uint256 _actor) {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        require(lc.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = lc.actorLocations(_actor);
+        require(lcs.length == 2, "actor location invalid");
+        require(lcs[0] == lcs[1] && lcs[0] > 0, "actor location unstable");
+        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
+        address zta = zones.timelines(lcs[0]);
+        require(zta == address(this), "not in current timeline");
         _;
     }
 
@@ -99,6 +114,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         actors.mintActor(0);
     }
 
+    function setStartZone(uint256 _zoneId) external 
+        onlyOwner
+    {
+        require(_zoneId > 0, "zoneId invalid");
+        startZone = _zoneId;
+    }
+
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
 
     function bornActor(uint256 _actor) external
@@ -109,7 +131,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function grow(uint256 _actor) external override
         onlyApprovedOrOwner(_actor)
+        onlyCurrentTimeline(_actor)
     {
+        require(operator > 0, "operator not initialized");
+
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
         require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
 
@@ -162,11 +187,12 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
         onlyApprovedOrOwner(_actor)
+        onlyCurrentTimeline(_actor)
     {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        require(operator > 0, "operator not initialized");
 
-        address evtProcessorAddress = evts.eventProcessors(_eventId);
-        require(evtProcessorAddress != address(0), "can not find event processor.");
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        require(evts.eventProcessors(_eventId) != address(0), "can not find event processor.");
 
         uint256 _age = evts.ages(_actor);
         require(evts.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
@@ -187,13 +213,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * **************
      */
 
-    function tokenSVG(uint256 /*_actor*/, uint256 /*_startY*/, uint256 /*_lineHeight*/) external virtual override view returns (string memory, uint256 _endY) {
-        return ("", _endY);
+    function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external virtual override view returns (string memory, uint256 _endY) {
+        if(_isActorInCurrentTimeline(_actor))
+            return _tokenURISVGPart(_actor, _startY, _lineHeight);
+        else
+            return ("", _startY);
     }
 
-    function tokenJSON(uint256 /*_actor*/) external virtual override view returns (string memory) {
-        return "{}";
-    }
+    function tokenJSON(uint256 _actor) external virtual override view returns (string memory) {
+        if(_isActorInCurrentTimeline(_actor))
+            return _tokenURIJSONPart(_actor);
+        else
+            return "{}";
+}
 
     function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
@@ -234,7 +266,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             IActorAttributes attributes = IActorAttributes(_attributeModules.at(i));
             (attrib, attributesModified) = attributes.applyModified(_actor, _attrModifier);
             if(attributesModified)            
-                attributes.setAttributes(_actor, attrib); //this will trigger attribute uptate event
+                attributes.setAttributes(operator, _actor, attrib); //this will trigger attribute uptate event
         }
 
         //check if change age
@@ -390,10 +422,52 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         return evts.checkBranch(_actor, _eventId, _age);
     }
 
+    /* ****************
+     * Private Functions
+     * ****************
+     */
+
+    function _tokenURISVGPart(uint256 _actor, uint256 _startY, uint256 _lineHeight) private view returns (string memory, uint256 endY) {
+        string memory parts;
+        endY = _startY;
+        (parts, endY) = _tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+
+        //modules
+        string memory moduleSVG;
+        for(uint256 i=0; i<_attributeModules.length(); i++) {
+            (moduleSVG, endY) = IWorldModule(_attributeModules.at(i)).tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+            parts = string(abi.encodePacked(parts, moduleSVG));
+        }
+        return (parts, endY);
+    }
+
+    function _tokenURIJSONPart(uint256 _actor) private view returns (string memory) {
+        string memory json;
+        json = string(abi.encodePacked(json, '{"base": ', _tokenJSON(_actor)));
+        //modules
+        for(uint256 i=0; i<_attributeModules.length(); i++) {
+            IWorldModule mod = IWorldModule(_attributeModules.at(i));
+            json = string(abi.encodePacked(json, ', "m_', Strings.toString(mod.moduleID()),'": ', mod.tokenJSON(_actor)));
+        }
+        json = string(abi.encodePacked(json, '}'));
+        return json;
+    }
+
     /* *****************
      * Internal Functions
      * *****************
      */
+
+    function _tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) internal pure returns (string memory, uint256 _endY) {
+        _endY = _startY;
+        //所在时间线：大荒
+        return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">\xE6\x89\x80\xE5\x9C\xA8\xE6\x97\xB6\xE9\x97\xB4\xE7\xBA\xBF\xEF\xBC\x9A\xE5\xA4\xA7\xE8\x8D\x92</text>')), _endY);
+    }
+
+    function _tokenJSON(uint256 /*_actor*/) internal pure returns (string memory) {
+        //大荒
+        return '{"name":  "\xE5\xA4\xA7\xE8\x8D\x92"}';
+    }
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
         IActors actors = worldRoute.actors();
@@ -403,5 +477,23 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _bornActor(uint256 _actor) internal {
         IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.bornActor(operator, _actor);
+
+        require(startZone > 0, "start zone invalid");
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        lc.setActorLocation(operator, _actor, startZone, startZone);
+    }
+
+    function _isActorInCurrentTimeline(uint256 _actor) internal view returns (bool) {
+        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        uint256[] memory lcs = lc.actorLocations(_actor);        
+        if(lcs.length != 2)
+            return false;
+        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
+        if(zones.timelines(lcs[0]) == address(this))
+            return true;
+        if(zones.timelines(lcs[1]) == address(this))
+            return true;
+
+        return false;
     }
 }

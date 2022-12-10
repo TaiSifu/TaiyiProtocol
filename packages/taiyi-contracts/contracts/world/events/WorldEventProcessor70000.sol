@@ -30,7 +30,7 @@ contract WorldEventProcessor70000 is DefaultWorldEventProcessor {
         require(_stringParams.length > 0, "params is invalid");
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
         for(uint256 i=0; i<_stringParams.length; i++) {
-            zones.claim(_operator, _stringParams[i], _operator);
+            zones.claim(_operator, _stringParams[i], worldRoute.YeMings(_operator), _operator);
         }
     }
 }

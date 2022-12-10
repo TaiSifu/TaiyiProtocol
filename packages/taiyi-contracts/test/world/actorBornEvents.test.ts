@@ -24,7 +24,7 @@ import {
     WorldEventProcessor10000__factory,
     WorldEventProcessor60508__factory,
     ActorPrelifes,
-    ActorPrelifes__factory, 
+    ActorPrelifes__factory
 } from '../../typechain';
 import {
     blockNumber,
@@ -145,7 +145,7 @@ describe('角色出生序列事件测试', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
         actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
@@ -159,9 +159,17 @@ describe('角色出生序列事件测试', () => {
         actorPrelifes = ActorPrelifes__factory.connect(contracts.ActorPrelifes.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
-
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+
+        //bind timeline to a zone
+        let zoneId = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(zoneId);
+
+        //born PanGu
+        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
     });
 
     describe('基本出生序列事件测试', () => {
@@ -258,12 +266,12 @@ describe('角色出生序列事件测试', () => {
             expect(await worldConstants.WORLD_MODULE_TALENTS()).to.eq(6);
         });
 
-        it('角色URI-增加基本属性模块', async () => {
-            expect((await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address)).wait()).eventually.fulfilled;
+        it('角色URI-增加时间线模块', async () => {
+            expect((await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
             let uriObj = await parseActorURI(testActor);
             //console.log(JSON.stringify(uriObj, null, 2));
             expect(await worldConstants.WORLD_MODULE_ATTRIBUTES()).to.eq(5);
-            expect(uriObj.data.m_5.HLH).to.eq(100);
+            expect(uriObj.data.m_3.m_5.HLH).to.eq(100);
         });
 
         it('角色URI-增加事件模块', async () => {
@@ -344,7 +352,7 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(taiyiDAO).registerURIPartModule(names.address);
             await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
             await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
             await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
         });
 
@@ -506,7 +514,7 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(taiyiDAO).registerURIPartModule(names.address);
             await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
             await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
             await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
         });
 
@@ -626,7 +634,7 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(taiyiDAO).registerURIPartModule(names.address);
             await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
             await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-            await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+            await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
             await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
         });
 

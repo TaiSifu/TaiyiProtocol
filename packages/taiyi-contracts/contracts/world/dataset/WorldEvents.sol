@@ -89,9 +89,10 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
 
     function changeAge(uint256 _operator, uint256 _actor, uint256 _age) external override
         onlyYeMing(_operator)
-        onlyApprovedOrOwner(_actor)
     {
         ages[_actor] = _age;
+        if(_age == 0)
+            actorBirthday[_actor] = false; //reset birthday
     }
 
     function addActorEvent(uint256 _operator, uint256 _actor, uint256 _age, uint256 _eventId) external override
@@ -226,25 +227,11 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
             uint256 _age = ages[_actor];
             //Age: 
             string memory svg = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\xB9\xB4\xE9\xBE\x84\xEF\xBC\x9A', Strings.toString(ages[_actor]), '</text>'));
-            if(_actorEvents[_actor][_age].length > 0) {
-                uint256 _eventId = _actorEvents[_actor][_age][0];
+            uint256 evtCt = _actorEvents[_actor][_age].length;
+            if(evtCt > 0) {
+                uint256 _eventId = _actorEvents[_actor][_age][evtCt-1];
                 _endY += _lineHeight;
                 svg = string(abi.encodePacked(svg, string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', eventInfo(_eventId, _actor), '</text>'))));
-                if(_actorEvents[_actor][_age].length > 1) {
-                    _eventId = _actorEvents[_actor][_age][1];
-                    _endY += _lineHeight;
-                    svg = string(abi.encodePacked(svg, string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', eventInfo(_eventId, _actor), '</text>'))));
-                    if(_actorEvents[_actor][_age].length > 2) {
-                        _eventId = _actorEvents[_actor][_age][2];
-                        _endY += _lineHeight;
-                        svg = string(abi.encodePacked(svg, string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', eventInfo(_eventId, _actor), '</text>'))));
-                        if(_actorEvents[_actor][_age].length > 3) {
-                            //你自己还做了一些事情。
-                            _endY += _lineHeight;
-                            svg = string(abi.encodePacked(svg, string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE4\xBD\xA0\xE8\x87\xAA\xE5\xB7\xB1\xE8\xBF\x98\xE5\x81\x9A\xE4\xBA\x86\xE4\xB8\x80\xE4\xBA\x9B\xE4\xBA\x8B\xE6\x83\x85\xE3\x80\x82', '</text>'))));
-                        }
-                    }
-                }
             }
             return (svg, _endY);
         }

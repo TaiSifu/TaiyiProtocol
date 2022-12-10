@@ -9,3 +9,4 @@ export * from './new-actor';
 export * from './pangu-daoli';
 export * from './run-log';
 export * from './advance-timestamp';
+export * from './make-utf8';

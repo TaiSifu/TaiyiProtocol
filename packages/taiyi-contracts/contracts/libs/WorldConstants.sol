@@ -53,4 +53,6 @@ library WorldConstants {
     uint256 public constant WORLD_MODULE_TRIGRAMS     = 30; //角色符文数据
 
     uint256 public constant WORLD_MODULE_SIFUS        = 31; //师傅令牌
+
+    uint256 public constant WORLD_MODULE_ACTOR_TIMELINE_LASTAGES  = 32; //角色在对应时间线上的最后年龄
 }
