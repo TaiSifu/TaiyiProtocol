@@ -51,7 +51,7 @@ task('grow-actor', '成长角色')
         console.log(`approve actor#${actor.toString()} to Shejitu`);
         await (await actors.approve(shejitu.address, actor)).wait();
         //授权actor的gold给时间线
-        await golds.approveActor(actor, await shejitu.ACTOR_YEMING(), BigInt(1000e18));
+        await golds.approveActor(actor, await shejitu.operator(), BigInt(1000e18));
         
         let res = await shejitu.grow(actor, { gasLimit: 5000000 });
 

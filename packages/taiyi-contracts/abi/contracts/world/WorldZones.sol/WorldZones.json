@@ -229,6 +229,11 @@
         "type": "string"
       },
       {
+        "internalType": "address",
+        "name": "_timelineAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_actor",
         "type": "uint256"
@@ -481,6 +486,25 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "timelines",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

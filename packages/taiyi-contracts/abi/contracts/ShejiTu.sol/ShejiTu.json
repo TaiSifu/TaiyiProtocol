@@ -107,19 +107,6 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "ACTOR_YEMING",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -217,11 +204,6 @@
   {
     "inputs": [
       {
-        "internalType": "contract ISifusToken",
-        "name": "_sifus",
-        "type": "address"
-      },
-      {
         "internalType": "address",
         "name": "_worldRouteAddress",
         "type": "address"
@@ -281,6 +263,19 @@
   },
   {
     "inputs": [],
+    "name": "operator",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -336,13 +331,26 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_zoneId",
+        "type": "uint256"
+      }
+    ],
+    "name": "setStartZone",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
-    "name": "sifus",
+    "name": "startZone",
     "outputs": [
       {
-        "internalType": "contract ISifusToken",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -371,7 +379,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],
@@ -390,17 +398,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_startY",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_lineHeight",
         "type": "uint256"
       }
     ],

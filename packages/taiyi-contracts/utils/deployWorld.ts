@@ -14,7 +14,7 @@ import {
     ActorLocations__factory, WorldVillages, WorldVillages__factory, WorldBuildings, WorldBuildings__factory, ActorRelationship, 
     ActorRelationship__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, Trigrams, Trigrams__factory, 
     TrigramsRender, TrigramsRender__factory, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, 
-    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible,
+    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible, ActorTimelineAges, ActorTimelineAges__factory,
 } from '../typechain';
 import { BigNumber, BigNumberish, Contract as EthersContract } from 'ethers';
 import { initSIDNames } from './initSocialIdentity';
@@ -68,7 +68,7 @@ route: WorldContractRoute, deployer: SignerWithAddress): Promise<Actors> => {
     return (await factory.deploy(taiyiDAO, mintStart, coinContract, route.address)).deployed();
 };
 
-export const deployShejiTu = async (sifusToken: SifusToken, route: WorldContractRoute, deployer: SignerWithAddress) => {
+export const deployShejiTu = async (route: WorldContractRoute, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
     let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
@@ -76,7 +76,6 @@ export const deployShejiTu = async (sifusToken: SifusToken, route: WorldContract
         shejituImpl.address,
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
-            sifusToken.address,
             route.address]));
     return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl];
 }
@@ -244,6 +243,11 @@ export const deploySifusSeeder = async (deployer: SignerWithAddress): Promise<Si
     return (await factory.deploy()).deployed();
 };
 
+export const deployActorTimelineAges = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<ActorTimelineAges> => {
+    const factory = new ActorTimelineAges__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
 export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Promise<void> => {
     const { bgcolors, palette, images } = ImageData;
     const { bodies, accessories, heads, glasses } = images;
@@ -303,7 +307,8 @@ export type WorldContractName =
     | 'WorldZoneBaseResources'
     | 'WorldBuildings'
     | 'ActorRelationship'
-    | 'Trigrams';
+    | 'Trigrams'
+    | 'ActorTimelineAges';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -320,7 +325,6 @@ export interface WorldDeployFlag {
     noEventProcessors? : boolean;
     noTimelineEvents? : boolean;
     noZones? : boolean;
-    noCastShejitu? : boolean;
 };
     
 export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSecond : number, actRecoverTimeDay: number, zoneResourceGrowTimeDay : number, zoneResourceGrowQuantityScale: number,
@@ -378,11 +382,11 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
 
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu(sifusToken, worldContractRoute, deployer);
+    let shejiTuPkg = await deployShejiTu(worldContractRoute, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
-    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.ACTOR_YEMING()}.`);
+    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-    await routeByPanGu.setYeMing(await shejiTu.ACTOR_YEMING(), shejiTu.address);
+    await routeByPanGu.setYeMing(await shejiTu.operator(), shejiTu.address);
 
     //deploy actor attributes
     if(verbose) console.log("Deploy Actor Attributes...");
@@ -446,6 +450,8 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address);
+    let actorTimelineAges = await deployActorTimelineAges(routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_TIMELINE_LASTAGES(), actorTimelineAges.address);
 
     //render modules
     await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address);
@@ -522,6 +528,9 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         if(verbose) console.log("Initialize Zones...");
         await actors.connect(operatorDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
         await initZones(worldConstants, shejiTu.address, operatorDAO);
+
+        //bind shejitu to first zone
+        await shejiTu.connect(operatorDAO).setStartZone(1);
     }
 
     let contracts: Record<WorldContractName, WorldContract> = {        
@@ -540,7 +549,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         WorldZones: {instance: worldZones},
         ShejituProxy: {instance: shejiTuPkg[0]},
         ShejituProxyAdmin: {instance: shejiTuPkg[1]},
-        Shejitu: {instance: flags?.noCastShejitu ? shejiTuPkg[2] : shejiTu},
+        Shejitu: {instance: shejiTuPkg[2]},
         WorldEvents: {instance: worldEvents},
         AssetFood: {instance: assetFood},
         AssetWood: {instance: assetWood},
@@ -567,6 +576,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         SifusDescriptor: {instance: sifusDescriptor},
         SifusSeeder: {instance: sifusSeeder},
         SifusToken: {instance: sifusToken},
+        ActorTimelineAges: {instance: actorTimelineAges},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

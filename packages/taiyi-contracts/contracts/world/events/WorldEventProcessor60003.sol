@@ -39,34 +39,7 @@ contract WorldEventProcessor60003 is DefaultWorldEventProcessor {
         IActorBornPlaces bornPlaces = IActorBornPlaces(worldRoute.modules(WorldConstants.WORLD_MODULE_BORN_PLACES));
         require(bornPlaces.bornPlaces(_actor) == 0, "already born!");        
 
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
-        IWorldRandom random = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
-        uint256 _place = 1 + random.dn(_actor, 135);
-        //"exclude": "TLT?[1004,1024,1025,1113]"
-        uint256[] memory tlts = talents.actorTalents(_actor);
-        for(uint256 i=0; i<tlts.length; i++) {
-            if(tlts[i] == 1010) {
-                _place = 1;
-                break;
-            }
-            else if(tlts[i] == 1012) {
-                _place = 16 + random.dn(_actor, 15);
-                break;
-            }
-            else if(tlts[i] == 1013) {
-                _place = 1 + random.dn(_actor, 15);
-                break;
-            }
-            else if(tlts[i] == 1014) {
-                _place = 31 + random.dn(_actor, 105);
-                break;
-            }
-        }
-
-        bornPlaces.bornActor(_operator, _actor, _place);
-
-        //地点变更
         IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        locations.setActorLocation(_operator, _actor, _place, _place);
+        bornPlaces.bornActor(_operator, _actor, locations.actorLocations(_actor)[0]);
     }
 }

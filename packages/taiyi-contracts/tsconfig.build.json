@@ -4,5 +4,5 @@
     "rootDirs": ["src", "typechain", "abi/**/*.json", "test", "tasks"],
     "outDir": "dist"
   },
-  "include": ["src", "typechain", "abi/**/*.json", "test/**/*.ts", "scripts/**/*.ts", "tasks/**/*.ts", "files/**/*.json", "files/**/*.ts", "utils/**/*.ts"],
+  "include": ["src", "typechain", "abi/**/*.json", "test/**/*.ts", "tasks/**/*.ts", "files/**/*.json", "files/**/*.ts", "utils/**/*.ts"],
 }

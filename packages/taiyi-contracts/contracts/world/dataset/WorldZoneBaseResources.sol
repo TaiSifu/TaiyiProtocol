@@ -114,13 +114,13 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
 
     function _collectAssets(uint256 _actor, uint256 _zoneId) internal {
         IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        uint256 ACTOR_YEMING = timeline.ACTOR_YEMING();
+        uint256 operator = timeline.operator();
 
-        uint256 collection_gold = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_GOLD, 0, GOLD_GROW_QUANTITY, ACTOR_YEMING);
-        uint256 collection_food = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_FOOD, 1, FOOD_GROW_QUANTITY, ACTOR_YEMING);
-        uint256 collection_wood = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_WOOD, 2, WOOD_GROW_QUANTITY, ACTOR_YEMING);
-        uint256 collection_fabric = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_FABRIC, 3, FABRIC_GROW_QUANTITY, ACTOR_YEMING);
-        uint256 collection_herb = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_HERB, 4, HERB_GROW_QUANTITY, ACTOR_YEMING);
+        uint256 collection_gold = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_GOLD, 0, GOLD_GROW_QUANTITY, operator);
+        uint256 collection_food = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_FOOD, 1, FOOD_GROW_QUANTITY, operator);
+        uint256 collection_wood = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_WOOD, 2, WOOD_GROW_QUANTITY, operator);
+        uint256 collection_fabric = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_FABRIC, 3, FABRIC_GROW_QUANTITY, operator);
+        uint256 collection_herb = _collectAsset(_actor, _zoneId, WorldConstants.WORLD_MODULE_HERB, 4, HERB_GROW_QUANTITY, operator);
 
         if(collection_gold > 0 || collection_food > 0 || collection_herb > 0 || collection_fabric > 0 || collection_wood > 0)
             emit ActorAssetCollected(_actor, collection_gold, collection_food, collection_herb, collection_fabric, collection_wood);

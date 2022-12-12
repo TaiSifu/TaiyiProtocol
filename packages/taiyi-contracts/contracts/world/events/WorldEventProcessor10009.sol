@@ -40,9 +40,9 @@ contract WorldEventProcessor10009 is DefaultWorldEventProcessor {
         if(bornPlaces.bornPlaces(_actor) == 0)
             return false;
 
-        uint256 bornPlace = bornPlaces.bornPlaces(_actor);
-        if(bornPlace <= 30 || bornPlace > 135)
-            return false;
+        // uint256 bornPlace = bornPlaces.bornPlaces(_actor);
+        // if(bornPlace <= 30 || bornPlace > 135)
+        //     return false;
 
         return defaultRt;
     }

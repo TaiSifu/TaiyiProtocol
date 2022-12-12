@@ -162,7 +162,7 @@ describe('主动事件角色行为测试', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
@@ -188,11 +188,20 @@ describe('主动事件角色行为测试', () => {
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
+        //bind timeline to a zone
+        let zoneId = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(zoneId);
+
+        //born PanGu
+        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
+
         //register actors uri modules
         await actors.connect(taiyiDAO).registerURIPartModule(names.address);
         await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
         await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
         await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
 
         //部署出生序列
@@ -337,7 +346,7 @@ describe('主动事件角色行为测试', () => {
 
         it(`创建一个村庄-太乙村`, async ()=>{
             newVillage = await zones.nextZone();
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
             await shejiTu.activeTrigger(60506, testActor, [], ["太乙村"]);
             expect(await zones.names(newVillage)).to.eq("太乙村");
             expect(await zones.ownerOf(newVillage)).to.eq((await actors.getActor(testActor)).account);
@@ -396,8 +405,8 @@ describe('主动事件角色行为测试', () => {
         });
 
         it(`制作工具`, async ()=>{
-            await golds.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
-            await woods.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await golds.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
+            await woods.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
 
             let newItem = await worldItems.nextItemId();
             expect((await shejiTu.activeTrigger(60510, testActor, [8], [])).wait()).eventually.fulfilled;
@@ -448,7 +457,7 @@ describe('主动事件角色行为测试', () => {
         });
 
         it(`申领商会初级资格`, async ()=>{
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
 
             let newItem = await worldItems.nextItemId();
             expect((await shejiTu.activeTrigger(60507, testActor, [7], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
@@ -499,7 +508,7 @@ describe('主动事件角色行为测试', () => {
         });
 
         it(`申领建筑天书`, async ()=>{
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
 
             let newItem = await worldItems.nextItemId();
             expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
@@ -583,7 +592,7 @@ describe('主动事件角色行为测试', () => {
 
         it(`创建一个村庄-太乙村`, async ()=>{
             newVillage = await zones.nextZone();
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
             await shejiTu.activeTrigger(60506, testActor, [], ["太乙村"]);
             expect(await zones.names(newVillage)).to.eq("太乙村");
             expect(await zones.ownerOf(newVillage)).to.eq((await actors.getActor(testActor)).account);
@@ -610,7 +619,7 @@ describe('主动事件角色行为测试', () => {
         it(`申领建筑天书`, async ()=>{
             expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(5e18));
             expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
 
             newItem = await worldItems.nextItemId();
             expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
@@ -634,7 +643,7 @@ describe('主动事件角色行为测试', () => {
         it(`未授权资源消耗不能修建建筑`, async ()=>{
             await expect(shejiTu.activeTrigger(60512, testActor, [newItem], [])).to.be.revertedWith("transfer amount exceeds allowance");
 
-            let actorYeMing = await shejiTu.ACTOR_YEMING();
+            let actorYeMing = await shejiTu.operator();
             await golds.approveActor(testActor, actorYeMing, BigInt(1000e18));
             await woods.approveActor(testActor, actorYeMing, BigInt(1000e18));
             await fabrics.approveActor(testActor, actorYeMing, BigInt(1000e18));

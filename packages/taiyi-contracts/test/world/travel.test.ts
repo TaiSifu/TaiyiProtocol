@@ -162,7 +162,7 @@ describe('基本移动测试', () => {
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.Shejitu.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
@@ -188,11 +188,20 @@ describe('基本移动测试', () => {
         //set PanGu as YeMing for test
         await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
+        //bind timeline to a zone
+        let zoneId = await zones.nextZone();
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.connect(deployer).setStartZone(zoneId);
+
+        //born PanGu
+        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
+
         //register actors uri modules
         await actors.connect(taiyiDAO).registerURIPartModule(names.address);
         await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
         await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(baseAttributes.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
         await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
 
         //部署出生序列
@@ -264,7 +273,7 @@ describe('基本移动测试', () => {
 
         it(`用户创建区域1`, async ()=>{
             zone2 = await zones.nextZone();
-            await prestiges.approveActor(testActor, await shejiTu.ACTOR_YEMING(), BigInt(1000e18));
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
             await shejiTu.activeTrigger(60506, testActor, [], ["区域2"]);
             expect(await zones.names(zone2)).to.eq("区域2");
             expect(await zones.ownerOf(zone2)).to.eq((await actors.getActor(testActor)).account);
@@ -305,7 +314,7 @@ describe('基本移动测试', () => {
 
             //shold not move since actor is locked
             expect(await evt60509.checkOccurrence(testActor, 0)).to.eq(false);
-            await expect(shejiTu.activeTrigger(60509, testActor, [zone2, zone1], [])).to.be.revertedWith("event check occurrence failed.");
+            await expect(shejiTu.activeTrigger(60509, testActor, [zone2, zone1], [])).to.be.revertedWith("actor is locked by location");
         });
 
         it(`移动到区域2-移动时间达到`, async ()=>{

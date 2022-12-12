@@ -67,7 +67,7 @@ contract WorldEventProcessor60507 is DefaultWorldEventProcessor {
         //消耗威望
         IWorldFungible prestige = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_PRESTIGE));
         IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        uint256 ACTOR_YEMING = timeline.ACTOR_YEMING();
-        prestige.transferFromActor(ACTOR_YEMING, _actor, ACTOR_YEMING, 10e18);
+        uint256 operator = timeline.operator();
+        prestige.transferFromActor(operator, _actor, operator, 10e18);
     }
 }

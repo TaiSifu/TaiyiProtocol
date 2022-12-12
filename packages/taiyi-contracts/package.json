@@ -25,6 +25,7 @@
     "task:pangu-daoli": "npx hardhat pangu-daoli",
     "task:run-log": "npx hardhat run-log",
     "task:advance-timestamp": "npx hardhat advance-timestamp",
+    "task:make-utf8": "npx hardhat make-utf8",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
