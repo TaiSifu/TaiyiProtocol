@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/interfaces/WorldInterfaces.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
-import "@taiyi/contracts/contracts/world/attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
 /*
@@ -18,7 +17,7 @@ check order:
 
 contract WorldEventProcessor1000000 is DefaultWorldEventProcessor {
     uint256[] public deadActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你消失了。
         return "\xE4\xBD\xA0\xE6\xB6\x88\xE5\xA4\xB1\xE4\xBA\x86\xE3\x80\x82";
@@ -39,7 +38,7 @@ contract WorldEventProcessor1000000 is DefaultWorldEventProcessor {
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         //"HLH": -1000
         int256[] memory atts = new int256[](2);
-        atts[0] = int256(ActorAttributesConstants.HLH);
+        atts[0] = int256(WorldConstants.ATTR_HLH);
         atts[1] = -1000;
         return atts;
     }

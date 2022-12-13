@@ -22,7 +22,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
 
     uint256 public immutable BASE_BUILD_TIME; //基础建造时间（秒）
 
-    constructor(uint256 baseBuildTime, address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {
+    constructor(uint256 baseBuildTime, WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
         BASE_BUILD_TIME = baseBuildTime;
     }
 
@@ -33,7 +33,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorBehaviorAttributesConstants.ACT);
+        modifiers[0] = int256(WorldConstants.ATTR_ACT);
         modifiers[1] = -15;
         return modifiers;
     }
@@ -42,7 +42,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
         bool defaultRt = true;
 
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
-        if(behavior.attributesScores(ActorBehaviorAttributesConstants.ACT, _actor) < 15)
+        if(behavior.attributesScores(WorldConstants.ATTR_ACT, _actor) < 15)
             return false;
 
         IWorldFungible prestige = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_PRESTIGE));
@@ -115,7 +115,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
 
         IWorldBuildings buildings = IWorldBuildings(worldRoute.modules(WorldConstants.WORLD_MODULE_BUILDINGS));
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-        address timelineAddress = worldRoute.YeMings(_operator);
+        address timelineAddress = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS)).YeMings(_operator);
         uint256 newBuildingZoneId = zones.claim(_operator, buildings.typeNames(buildingType), timelineAddress, _actor);
         locations.setActorLocation(_operator, _actor, newBuildingZoneId, newBuildingZoneId);
 

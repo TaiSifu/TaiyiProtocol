@@ -16,7 +16,7 @@ check order:
 */
 
 contract WorldEventProcessor50002 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你捡到一粒奇怪的米粒。
         return "\xE4\xBD\xA0\xE6\x8D\xA1\xE5\x88\xB0\xE4\xB8\x80\xE7\xB2\x92\xE5\xA5\x87\xE6\x80\xAA\xE7\x9A\x84\xE7\xB1\xB3\xE7\xB2\x92\xE3\x80\x82";

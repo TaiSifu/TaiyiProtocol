@@ -6,13 +6,6 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorCharmAttributesConstants {
-
-    uint256 public constant _BASE = 10; // ID起始值
-    uint256 public constant MEL = 10; // 魅力
-
-}
-
 contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
 
     /* *******
@@ -42,7 +35,7 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************
@@ -73,7 +66,7 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
             //魅力属性：
             string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE9\xAD\x85\xE5\x8A\x9B\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
-            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorCharmAttributesConstants.MEL - ActorCharmAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCharmAttributesConstants.MEL][_actor]), '</text>'));
+            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[WorldConstants.ATTR_MEL - WorldConstants.ATTR_BASE_CHARM], "=", Strings.toString(attributesScores[WorldConstants.ATTR_MEL][_actor]), '</text>'));
             return (string(abi.encodePacked(svg0, svg1)), _endY);
         }
         else
@@ -83,7 +76,7 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"MEL": ', Strings.toString(attributesScores[ActorCharmAttributesConstants.MEL][_actor]), '}'));
+        json = string(abi.encodePacked('{"MEL": ', Strings.toString(attributesScores[WorldConstants.ATTR_MEL][_actor]), '}'));
         return json;
     }
 
@@ -103,15 +96,15 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
 
         //IWorldRandom rand = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
         uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_CHARM_ATTRIBUTES);
-        attributesScores[ActorCharmAttributesConstants.MEL][_actor] = 100;
+        attributesScores[WorldConstants.ATTR_MEL][_actor] = 100;
         if(_maxPointBuy > 0)
-            attributesScores[ActorCharmAttributesConstants.MEL][_actor] = _maxPointBuy;
+            attributesScores[WorldConstants.ATTR_MEL][_actor] = _maxPointBuy;
 
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorCharmAttributesConstants.MEL;
-        atts[1] = attributesScores[ActorCharmAttributesConstants.MEL][_actor];
+        atts[0] = WorldConstants.ATTR_MEL;
+        atts[1] = attributesScores[WorldConstants.ATTR_MEL][_actor];
         emit Created(msg.sender, _actor, atts);
     }
 
@@ -123,8 +116,8 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorCharmAttributesConstants.MEL) {
-                attributesScores[ActorCharmAttributesConstants.MEL][_actor] = _attributes[i+1];
+            if(_attributes[i] == WorldConstants.ATTR_MEL) {
+                attributesScores[WorldConstants.ATTR_MEL][_actor] = _attributes[i+1];
                 updated = true;
                 break;
             }
@@ -132,8 +125,8 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
 
         if(updated) {
             uint256[] memory atts = new uint256[](2);
-            atts[0] = ActorCharmAttributesConstants.MEL;
-            atts[1] = attributesScores[ActorCharmAttributesConstants.MEL][_actor];
+            atts[0] = WorldConstants.ATTR_MEL;
+            atts[1] = attributesScores[WorldConstants.ATTR_MEL][_actor];
             emit Updated(msg.sender, _actor, atts);
         }
     }
@@ -146,16 +139,16 @@ contract ActorCharmAttributes is IActorAttributes, WorldConfigurable {
     function applyModified(uint256 _actor, int[] memory _modifiers) external view override returns (uint256[] memory, bool) {
         require(_modifiers.length % 2 == 0, "ActorAttributes: modifiers is invalid.");        
         bool attributesModified = false;
-        uint256 mel = attributesScores[ActorCharmAttributesConstants.MEL][_actor];
+        uint256 mel = attributesScores[WorldConstants.ATTR_MEL][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorCharmAttributesConstants.MEL)) {
+            if(_modifiers[i] == int(WorldConstants.ATTR_MEL)) {
                 mel = _attributeModify(mel, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorCharmAttributesConstants.MEL;
+        atts[0] = WorldConstants.ATTR_MEL;
         atts[1] = mel;
         return (atts, attributesModified);
     }

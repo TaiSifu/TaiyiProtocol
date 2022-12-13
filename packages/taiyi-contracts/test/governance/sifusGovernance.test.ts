@@ -24,7 +24,7 @@ import {
     blockNumber,
 } from '../utils';
 import { BigNumber } from 'ethers';
-import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../utils';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -83,7 +83,10 @@ describe('太乙师傅令牌管理测试', () => {
         expect(actorPanGu).to.eq(1);
         expect(await actors.nextActor()).to.eq(actorPanGu);
         await actors.mintActor(0);
-        await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
+        let worldYemings = await deployWorldYemings(deployer.address, deployer);
+        await worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+        await worldYemings.setYeMing(actorPanGu, deployer.address);
 
         token = await deploySifusToken(worldContractRoute.address, deployer);
 

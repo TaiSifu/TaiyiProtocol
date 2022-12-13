@@ -8,7 +8,7 @@ import "./DefaultWorldEventProcessor.sol";
 
 contract WorldEventProcessor60002 is DefaultWorldEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 60003) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60003) {}
 
     function eventInfo(uint256 _actor) external view override returns (string memory) {
         //你在${节气}出生。

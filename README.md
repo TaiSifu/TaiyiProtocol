@@ -8,7 +8,7 @@
 
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/TaiSifu/TaiyiProtocol?style=flat-square)](https://hub.docker.com/r/TaiSifu/TaiyiProtocol/tags)
 [![GitHub license](https://img.shields.io/github/license/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/blob/main/LICENSE)
-[![GitHub workflow changelog](https://img.shields.io/github/workflow/status/TaiSifu/TaiyiProtocol/Changelog?style=flat-square&label=github-actions)](https://github.com/TaiSifu/TaiyiProtocol/actions?query=workflow%3AChangelog)
+[![ContractsCI](https://img.shields.io/github/workflow/status/TaiSifu/TaiyiProtocol/ContractsCI?style=flat-square&label=github-actions)](https://github.com/TaiSifu/TaiyiProtocol/actions?query=workflow%3AContractsCI)
 [![GitHub contributors](https://img.shields.io/github/contributors-anon/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/graphs/contributors)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/commits/main)
 

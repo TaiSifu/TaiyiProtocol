@@ -6,17 +6,6 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorCoreAttributesConstants {
-    //主要属性
-    uint256 public constant _BASE = 30; // ID起始值
-    uint256 public constant LVL = 30; // 膂力
-    uint256 public constant TIZ = 31; // 体质
-    uint256 public constant LIM = 32; // 灵敏
-    uint256 public constant GEG = 33; // 根骨
-    uint256 public constant WUX = 34; // 悟性
-    uint256 public constant DIL = 35; // 定力
-}
-
 contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
 
     /* *******
@@ -51,7 +40,7 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************
@@ -84,12 +73,12 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
             parts[0] = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE6\xA0\xB8\xE5\xBF\x83\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
             parts[1] = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">'));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.LVL - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.LVL][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.TIZ - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.TIZ][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.LIM - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.LIM][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.GEG - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.GEG][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.WUX - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.WUX][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorCoreAttributesConstants.DIL - ActorCoreAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorCoreAttributesConstants.DIL][_actor])));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_LVL - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_LVL][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_TIZ - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_TIZ][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_LIM - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_LIM][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_GEG - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_GEG][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_WUX - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_WUX][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[WorldConstants.ATTR_DIL - WorldConstants.ATTR_BASE_CORE], "=", Strings.toString(attributesScores[WorldConstants.ATTR_DIL][_actor])));
             parts[1] = string(abi.encodePacked(parts[1], '</text>'));
             return (string(abi.encodePacked(parts[0], parts[1])), _endY);
         }
@@ -100,12 +89,12 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"LVL": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.LVL][_actor])));
-        json = string(abi.encodePacked(json, ', "TIZ": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.TIZ][_actor])));
-        json = string(abi.encodePacked(json, ', "LIM": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.LIM][_actor])));
-        json = string(abi.encodePacked(json, ', "GEG": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.GEG][_actor])));
-        json = string(abi.encodePacked(json, ', "WUX": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.WUX][_actor])));
-        json = string(abi.encodePacked(json, ', "DIL": ', Strings.toString(attributesScores[ActorCoreAttributesConstants.DIL][_actor]), '}'));
+        json = string(abi.encodePacked('{"LVL": ', Strings.toString(attributesScores[WorldConstants.ATTR_LVL][_actor])));
+        json = string(abi.encodePacked(json, ', "TIZ": ', Strings.toString(attributesScores[WorldConstants.ATTR_TIZ][_actor])));
+        json = string(abi.encodePacked(json, ', "LIM": ', Strings.toString(attributesScores[WorldConstants.ATTR_LIM][_actor])));
+        json = string(abi.encodePacked(json, ', "GEG": ', Strings.toString(attributesScores[WorldConstants.ATTR_GEG][_actor])));
+        json = string(abi.encodePacked(json, ', "WUX": ', Strings.toString(attributesScores[WorldConstants.ATTR_WUX][_actor])));
+        json = string(abi.encodePacked(json, ', "DIL": ', Strings.toString(attributesScores[WorldConstants.ATTR_DIL][_actor]), '}'));
         return json;
     }
 
@@ -143,28 +132,28 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
             wux = rand.dn(_actor+2, _maxPointBuy-lvl-tiz-lim-geg);
         dil = _maxPointBuy-lvl-tiz-lim-geg-wux;
 
-        attributesScores[ActorCoreAttributesConstants.LVL][_actor] = lvl;
-        attributesScores[ActorCoreAttributesConstants.TIZ][_actor] = tiz;
-        attributesScores[ActorCoreAttributesConstants.LIM][_actor] = lim;
-        attributesScores[ActorCoreAttributesConstants.GEG][_actor] = geg;
-        attributesScores[ActorCoreAttributesConstants.WUX][_actor] = wux;
-        attributesScores[ActorCoreAttributesConstants.DIL][_actor] = dil;
+        attributesScores[WorldConstants.ATTR_LVL][_actor] = lvl;
+        attributesScores[WorldConstants.ATTR_TIZ][_actor] = tiz;
+        attributesScores[WorldConstants.ATTR_LIM][_actor] = lim;
+        attributesScores[WorldConstants.ATTR_GEG][_actor] = geg;
+        attributesScores[WorldConstants.ATTR_WUX][_actor] = wux;
+        attributesScores[WorldConstants.ATTR_DIL][_actor] = dil;
 
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](12);
-        atts[0] = ActorCoreAttributesConstants.LVL;
-        atts[1] = attributesScores[ActorCoreAttributesConstants.LVL][_actor];
-        atts[2] = ActorCoreAttributesConstants.TIZ;
-        atts[3] = attributesScores[ActorCoreAttributesConstants.TIZ][_actor];
-        atts[4] = ActorCoreAttributesConstants.LIM;
-        atts[5] = attributesScores[ActorCoreAttributesConstants.LIM][_actor];
-        atts[6] = ActorCoreAttributesConstants.GEG;
-        atts[7] = attributesScores[ActorCoreAttributesConstants.GEG][_actor];
-        atts[8] = ActorCoreAttributesConstants.WUX;
-        atts[9] = attributesScores[ActorCoreAttributesConstants.WUX][_actor];
-        atts[10] = ActorCoreAttributesConstants.DIL;
-        atts[11] = attributesScores[ActorCoreAttributesConstants.DIL][_actor];
+        atts[0] = WorldConstants.ATTR_LVL;
+        atts[1] = attributesScores[WorldConstants.ATTR_LVL][_actor];
+        atts[2] = WorldConstants.ATTR_TIZ;
+        atts[3] = attributesScores[WorldConstants.ATTR_TIZ][_actor];
+        atts[4] = WorldConstants.ATTR_LIM;
+        atts[5] = attributesScores[WorldConstants.ATTR_LIM][_actor];
+        atts[6] = WorldConstants.ATTR_GEG;
+        atts[7] = attributesScores[WorldConstants.ATTR_GEG][_actor];
+        atts[8] = WorldConstants.ATTR_WUX;
+        atts[9] = attributesScores[WorldConstants.ATTR_WUX][_actor];
+        atts[10] = WorldConstants.ATTR_DIL;
+        atts[11] = attributesScores[WorldConstants.ATTR_DIL][_actor];
 
         emit Created(msg.sender, _actor, atts);
     }
@@ -177,46 +166,46 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorCoreAttributesConstants.LVL) {
-                attributesScores[ActorCoreAttributesConstants.LVL][_actor] = _attributes[i+1];
+            if(_attributes[i] == WorldConstants.ATTR_LVL) {
+                attributesScores[WorldConstants.ATTR_LVL][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorCoreAttributesConstants.TIZ) {
-                attributesScores[ActorCoreAttributesConstants.TIZ][_actor] = _attributes[i+1];
+            else if(_attributes[i] == WorldConstants.ATTR_TIZ) {
+                attributesScores[WorldConstants.ATTR_TIZ][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorCoreAttributesConstants.LIM) {
-                attributesScores[ActorCoreAttributesConstants.LIM][_actor] = _attributes[i+1];
+            else if(_attributes[i] == WorldConstants.ATTR_LIM) {
+                attributesScores[WorldConstants.ATTR_LIM][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorCoreAttributesConstants.GEG) {
-                attributesScores[ActorCoreAttributesConstants.GEG][_actor] = _attributes[i+1];
+            else if(_attributes[i] == WorldConstants.ATTR_GEG) {
+                attributesScores[WorldConstants.ATTR_GEG][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorCoreAttributesConstants.WUX) {
-                attributesScores[ActorCoreAttributesConstants.WUX][_actor] = _attributes[i+1];
+            else if(_attributes[i] == WorldConstants.ATTR_WUX) {
+                attributesScores[WorldConstants.ATTR_WUX][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorCoreAttributesConstants.DIL) {
-                attributesScores[ActorCoreAttributesConstants.DIL][_actor] = _attributes[i+1];
+            else if(_attributes[i] == WorldConstants.ATTR_DIL) {
+                attributesScores[WorldConstants.ATTR_DIL][_actor] = _attributes[i+1];
                 updated = true;
             }
         }
 
         if(updated) {
             uint256[] memory atts = new uint256[](12);
-            atts[0] = ActorCoreAttributesConstants.LVL;
-            atts[1] = attributesScores[ActorCoreAttributesConstants.LVL][_actor];
-            atts[2] = ActorCoreAttributesConstants.TIZ;
-            atts[3] = attributesScores[ActorCoreAttributesConstants.TIZ][_actor];
-            atts[4] = ActorCoreAttributesConstants.LIM;
-            atts[5] = attributesScores[ActorCoreAttributesConstants.LIM][_actor];
-            atts[6] = ActorCoreAttributesConstants.GEG;
-            atts[7] = attributesScores[ActorCoreAttributesConstants.GEG][_actor];
-            atts[8] = ActorCoreAttributesConstants.WUX;
-            atts[9] = attributesScores[ActorCoreAttributesConstants.WUX][_actor];
-            atts[10] = ActorCoreAttributesConstants.DIL;
-            atts[11] = attributesScores[ActorCoreAttributesConstants.DIL][_actor];
+            atts[0] = WorldConstants.ATTR_LVL;
+            atts[1] = attributesScores[WorldConstants.ATTR_LVL][_actor];
+            atts[2] = WorldConstants.ATTR_TIZ;
+            atts[3] = attributesScores[WorldConstants.ATTR_TIZ][_actor];
+            atts[4] = WorldConstants.ATTR_LIM;
+            atts[5] = attributesScores[WorldConstants.ATTR_LIM][_actor];
+            atts[6] = WorldConstants.ATTR_GEG;
+            atts[7] = attributesScores[WorldConstants.ATTR_GEG][_actor];
+            atts[8] = WorldConstants.ATTR_WUX;
+            atts[9] = attributesScores[WorldConstants.ATTR_WUX][_actor];
+            atts[10] = WorldConstants.ATTR_DIL;
+            atts[11] = attributesScores[WorldConstants.ATTR_DIL][_actor];
 
             emit Updated(msg.sender, _actor, atts);
         }
@@ -230,51 +219,51 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
     function applyModified(uint256 _actor, int[] memory _modifiers) external view override returns (uint256[] memory, bool) {
         require(_modifiers.length % 2 == 0, "ActorCoreAttributes: modifiers is invalid.");        
         bool attributesModified = false;
-        uint256 lvl = attributesScores[ActorCoreAttributesConstants.LVL][_actor];
-        uint256 tiz = attributesScores[ActorCoreAttributesConstants.TIZ][_actor];
-        uint256 lim = attributesScores[ActorCoreAttributesConstants.LIM][_actor];
-        uint256 geg = attributesScores[ActorCoreAttributesConstants.GEG][_actor];
-        uint256 wux = attributesScores[ActorCoreAttributesConstants.WUX][_actor];
-        uint256 dil = attributesScores[ActorCoreAttributesConstants.DIL][_actor];
+        uint256 lvl = attributesScores[WorldConstants.ATTR_LVL][_actor];
+        uint256 tiz = attributesScores[WorldConstants.ATTR_TIZ][_actor];
+        uint256 lim = attributesScores[WorldConstants.ATTR_LIM][_actor];
+        uint256 geg = attributesScores[WorldConstants.ATTR_GEG][_actor];
+        uint256 wux = attributesScores[WorldConstants.ATTR_WUX][_actor];
+        uint256 dil = attributesScores[WorldConstants.ATTR_DIL][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorCoreAttributesConstants.LVL)) {
+            if(_modifiers[i] == int(WorldConstants.ATTR_LVL)) {
                 lvl = _attributeModify(lvl, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorCoreAttributesConstants.TIZ)) {
+            else if(_modifiers[i] == int(WorldConstants.ATTR_TIZ)) {
                 tiz = _attributeModify(tiz, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorCoreAttributesConstants.LIM)) {
+            else if(_modifiers[i] == int(WorldConstants.ATTR_LIM)) {
                 lim = _attributeModify(lim, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorCoreAttributesConstants.GEG)) {
+            else if(_modifiers[i] == int(WorldConstants.ATTR_GEG)) {
                 geg = _attributeModify(geg, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorCoreAttributesConstants.WUX)) {
+            else if(_modifiers[i] == int(WorldConstants.ATTR_WUX)) {
                 wux = _attributeModify(wux, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorCoreAttributesConstants.DIL)) {
+            else if(_modifiers[i] == int(WorldConstants.ATTR_DIL)) {
                 dil = _attributeModify(dil, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](12);
-        atts[0] = ActorCoreAttributesConstants.LVL;
+        atts[0] = WorldConstants.ATTR_LVL;
         atts[1] = lvl;
-        atts[2] = ActorCoreAttributesConstants.TIZ;
+        atts[2] = WorldConstants.ATTR_TIZ;
         atts[3] = tiz;
-        atts[4] = ActorCoreAttributesConstants.LIM;
+        atts[4] = WorldConstants.ATTR_LIM;
         atts[5] = lim;
-        atts[6] = ActorCoreAttributesConstants.GEG;
+        atts[6] = WorldConstants.ATTR_GEG;
         atts[7] = geg;
-        atts[8] = ActorCoreAttributesConstants.WUX;
+        atts[8] = WorldConstants.ATTR_WUX;
         atts[9] = wux;
-        atts[10] = ActorCoreAttributesConstants.DIL;
+        atts[10] = WorldConstants.ATTR_DIL;
         atts[11] = dil;
 
         return (atts, attributesModified);

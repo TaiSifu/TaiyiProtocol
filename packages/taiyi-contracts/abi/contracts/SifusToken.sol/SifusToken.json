@@ -17,8 +17,8 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "_worldRouteAddress",
+        "internalType": "contract WorldContractRoute",
+        "name": "_route",
         "type": "address"
       }
     ],

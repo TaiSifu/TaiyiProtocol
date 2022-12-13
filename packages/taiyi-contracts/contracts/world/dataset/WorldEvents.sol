@@ -34,7 +34,7 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
      * ****************
      */
 
-    constructor(uint256 _oneAgeVSecond, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) 
+    constructor(uint256 _oneAgeVSecond, WorldContractRoute _route) WorldConfigurable(_route) 
     {
         ONE_AGE_VSECOND = _oneAgeVSecond;
 

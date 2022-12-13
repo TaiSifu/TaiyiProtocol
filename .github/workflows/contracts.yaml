@@ -1,0 +1,46 @@
+name: ContractsCI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "packages/taiyi-contracts/**"
+      - "packages/taiyi-xumi-contracts/**"
+    branches:
+      - "**"
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Install Yarn
+        run: npm install -g yarn
+      - run: yarn 
+      - run: yarn build
+      - name: Run contract tests
+        run: |
+          cd packages/taiyi-contracts
+          yarn test
+      - name: Run contract coverage
+        run: |
+          cd packages/taiyi-contracts
+          yarn coverage
+      - name: Run xumi-contract tests
+        run: |
+          cd packages/taiyi-xumi-contracts
+          yarn test
+      - name: Run xumi-contract coverage
+        run: |
+          cd packages/taiyi-xumi-contracts
+          yarn coverage
+      - name: Uninstall Yarn
+        if: always()
+        run: npm uninstall -g yarn

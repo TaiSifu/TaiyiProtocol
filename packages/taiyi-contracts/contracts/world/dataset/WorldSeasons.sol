@@ -54,7 +54,7 @@ contract WorldSeasons is IWorldSeasons, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************

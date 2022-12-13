@@ -22,9 +22,7 @@ import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './interfaces/WorldInterfaces.sol';
-import { ISifusToken } from './interfaces/ISifusToken.sol';
 import './libs/Base64.sol';
-import "./world/WorldContractRoute.sol";
 import "./world/attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
@@ -36,6 +34,15 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * *******
      */
 
+    IActors public actors;
+    IActorLocations public locations;
+    IWorldZones public zones;
+    IActorAttributes public attributes;
+    IWorldEvents public evts;
+    IActorTalents public talents;
+    ITrigrams public trigrams;
+    IWorldRandom public random;
+
     uint256 public override operator; //timeline administrator authority, 噎鸣
 
     uint256 public startZone; //actors in this timeline born in this zone
@@ -45,10 +52,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     mapping(uint256 => uint256[]) private _eventProbs; //age to prob list
 
     EnumerableSet.AddressSet private _attributeModules;
-
-    // Address of the World Contract Route
-    address internal _worldRouteContract;
-    WorldContractRoute internal worldRoute;
 
     /* *********
      * Modifiers
@@ -60,25 +63,12 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         _;
     }
 
-    modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
-        _;
-    }
-
-    modifier onlyYeMing(uint256 _actor) {
-        require(worldRoute.isYeMing(_actor), "only YeMing");
-        require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
-        _;
-    }
-
     //角色位置和时间线校验
     modifier onlyCurrentTimeline(uint256 _actor) {
-        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        require(lc.isActorUnlocked(_actor), "actor is locked by location");
-        uint256[] memory lcs = lc.actorLocations(_actor);
+        require(locations.isActorUnlocked(_actor), "actor is locked by location");
+        uint256[] memory lcs = locations.actorLocations(_actor);
         require(lcs.length == 2, "actor location invalid");
         require(lcs[0] == lcs[1] && lcs[0] > 0, "actor location unstable");
-        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
         address zta = zones.timelines(lcs[0]);
         require(zta == address(this), "not in current timeline");
         _;
@@ -100,18 +90,26 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * @dev This function can only be called once.
      */
     function initialize(
-        address _worldRouteAddress
+        IActors _actors,
+        IActorLocations _locations,
+        IWorldZones _zones,
+        IActorAttributes _attributes,
+        IWorldEvents _evts,
+        IActorTalents _talents,
+        ITrigrams _trigrams,
+        IWorldRandom _random
     ) external initializer {
         __ReentrancyGuard_init();
         __Ownable_init();
 
-        require(_worldRouteAddress != address(0), "cannot set route contract as zero address");
-        _worldRouteContract = _worldRouteAddress;
-        worldRoute = WorldContractRoute(_worldRouteAddress);
-
-        IActors actors = worldRoute.actors();
-        operator = actors.nextActor();
-        actors.mintActor(0);
+        actors = _actors;
+        locations = _locations;
+        zones = _zones;
+        attributes = _attributes;
+        evts = _evts;
+        talents = _talents;
+        trigrams = _trigrams;
+        random = _random;
     }
 
     function setStartZone(uint256 _zoneId) external 
@@ -122,6 +120,14 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
+
+    function initOperator(uint256 _operator) external 
+        onlyOwner
+    {
+        require(operator == 0, "operator already initialized");
+        actors.transferFrom(_msgSender(), address(this), _operator);
+        operator = _operator;
+    }
 
     function bornActor(uint256 _actor) external
         onlyApprovedOrOwner(_actor)
@@ -134,19 +140,16 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
+        require(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0, "actor dead!");
 
-        IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        require(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0, "actor dead!");
-
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.grow(operator, _actor);
 
-        //do new year age events
+        //do year age events
         _process(_actor, evts.ages(_actor));
     }
 
     function registerAttributeModule(address _attributeModule) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_attributeModule != address(0), "input can not be ZERO address!");
         bool rt = _attributeModules.add(_attributeModule);
@@ -154,7 +157,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function changeAttributeModule(address _oldAddress, address _newAddress) external
-        onlyPanGu
+        onlyOwner
     {
         require(_oldAddress != address(0), "input can not be ZERO address!");
         _attributeModules.remove(_oldAddress);
@@ -163,7 +166,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function addAgeEvent(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
         require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
@@ -172,7 +175,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
         require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
@@ -190,8 +193,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
-
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         require(evts.eventProcessors(_eventId) != address(0), "can not find event processor.");
 
         uint256 _age = evts.ages(_actor);
@@ -254,8 +255,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _runTalentProcessor(uint256 _actor, uint256 _age, address _processorAddress) private {
         //approve talent processor the authority of timeline
-        require(operator > 0, "YeMing is not init");
-        worldRoute.actors().approve(_processorAddress, operator);
+        require(operator > 0, "Operator is not init");
+        actors.approve(_processorAddress, operator);
         IActorTalentProcessor(_processorAddress).process(operator, _actor, _age); 
     }
 
@@ -263,16 +264,15 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         bool attributesModified = false;
         uint256[] memory attrib;
         for(uint256 i=0; i<_attributeModules.length(); i++) {
-            IActorAttributes attributes = IActorAttributes(_attributeModules.at(i));
-            (attrib, attributesModified) = attributes.applyModified(_actor, _attrModifier);
+            IActorAttributes attrs = IActorAttributes(_attributeModules.at(i));
+            (attrib, attributesModified) = attrs.applyModified(_actor, _attrModifier);
             if(attributesModified)            
-                attributes.setAttributes(operator, _actor, attrib); //this will trigger attribute uptate event
+                attrs.setAttributes(operator, _actor, attrib); //this will trigger attribute uptate event
         }
 
         //check if change age
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         for(uint256 m=0; m<_attrModifier.length; m+=2) {
-            if(_attrModifier[m] == int(ActorAttributesConstants.AGE)) {
+            if(_attrModifier[m] == int(WorldConstants.ATTR_AGE)) {
                 evts.changeAge(operator, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
                 break;
             }
@@ -282,8 +282,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _processTalents(uint256 _actor, uint256 _age) internal
         onlyApprovedOrOwner(_actor)
     {
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
-
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(talents.canOccurred(_actor, tlts[i], _age)) {
@@ -302,16 +300,15 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         //approve event processor the authority of timeline
         //worldRoute.actors().approve(_processorAddress, operator);
         IWorldEventProcessor evtProcessor = IWorldEventProcessor(_processorAddress);
-        worldRoute.actors().setApprovalForAll(_processorAddress, true);
+        actors.setApprovalForAll(_processorAddress, true);
         evtProcessor.process(operator, _actor, _age); 
-        worldRoute.actors().setApprovalForAll(_processorAddress, false);
+        actors.setApprovalForAll(_processorAddress, false);
 
-        ITrigrams(worldRoute.modules(WorldConstants.WORLD_MODULE_TRIGRAMS)).addActorTrigrams(operator, _actor, evtProcessor.trigrams(_actor));
+        trigrams.addActorTrigrams(operator, _actor, evtProcessor.trigrams(_actor));
     }
 
     function _processEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256 _depth) private returns (uint256 _branchEvtId) {
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.addActorEvent(operator, _actor, _age, _eventId);
 
         int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
@@ -334,8 +331,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _processEvents(uint256 _actor, uint256 _age) internal 
         onlyApprovedOrOwner(_actor)
     {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-
         //filter events for occurrence
         uint256[] memory _eventsFiltered = new uint256[](_eventIDs[_age].length);
         uint256 _eventsFilteredNum = 0;
@@ -351,10 +346,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             pCt += _eventProbs[_age][_eventsFiltered[i]];
         }
         uint256 prob = 0;
-        if(pCt > 0) {
-            IWorldRandom random = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
+        if(pCt > 0)
             prob = random.dn(_actor, pCt);
-        }
         
         pCt = 0;
         for(uint256 i=0; i<_eventsFilteredNum; i++) {
@@ -383,7 +376,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _process(uint256 _actor, uint256 _age) internal
         onlyApprovedOrOwner(_actor)
     {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         require(evts.actorBorn(_actor), "WorldTimeline: actor have not born!");
         //require(_actorEvents[_actor][_age] == 0, "WorldTimeline: actor already have event!");
         require(_eventIDs[_age].length > 0, "WorldTimeline: not exist any event in this age!");
@@ -395,14 +387,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _runActiveEventProcessor(uint256 _actor, uint256 /*_age*/, address _processorAddress, uint256[] memory _uintParams, string[] memory _stringParams) private {
         //approve event processor the authority of timeline(YeMing)
         //worldRoute.actors().approve(_processorAddress, operator);
-        worldRoute.actors().setApprovalForAll(_processorAddress, true);
+        actors.setApprovalForAll(_processorAddress, true);
         IWorldEventProcessor(_processorAddress).activeTrigger(operator, _actor, _uintParams, _stringParams);
-        worldRoute.actors().setApprovalForAll(_processorAddress, false);
+        actors.setApprovalForAll(_processorAddress, false);
     }
 
     function _processActiveEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256[] memory _uintParams, string[] memory _stringParams, uint256 _depth) private returns (uint256 _branchEvtId)
     {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.addActorEvent(operator, _actor, _age, _eventId);
 
         int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
@@ -470,25 +461,20 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
-        IActors actors = worldRoute.actors();
         return (actors.getApproved(_actor) == msg.sender || actors.ownerOf(_actor) == msg.sender) || actors.isApprovedForAll(actors.ownerOf(_actor), msg.sender);
     }
 
     function _bornActor(uint256 _actor) internal {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
         evts.bornActor(operator, _actor);
 
         require(startZone > 0, "start zone invalid");
-        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        lc.setActorLocation(operator, _actor, startZone, startZone);
+        locations.setActorLocation(operator, _actor, startZone, startZone);
     }
 
     function _isActorInCurrentTimeline(uint256 _actor) internal view returns (bool) {
-        IActorLocations lc = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        uint256[] memory lcs = lc.actorLocations(_actor);        
+        uint256[] memory lcs = locations.actorLocations(_actor);        
         if(lcs.length != 2)
             return false;
-        IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
         if(zones.timelines(lcs[0]) == address(this))
             return true;
         if(zones.timelines(lcs[1]) == address(this))

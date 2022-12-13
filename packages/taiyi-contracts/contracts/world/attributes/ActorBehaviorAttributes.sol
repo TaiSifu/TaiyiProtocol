@@ -6,13 +6,6 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorBehaviorAttributesConstants {
-
-    uint256 public constant _BASE = 40;
-    uint256 public constant ACT = 40; // 行动力
-
-}
-
 contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable {
 
     /* *******
@@ -45,7 +38,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
      * ****************
      */
 
-    constructor(uint256 _actRecoverTimeDay, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(uint256 _actRecoverTimeDay, WorldContractRoute _route) WorldConfigurable(_route) {
         ACT_RECOVER_TIME_DAY = _actRecoverTimeDay;
     }
 
@@ -100,7 +93,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
             //行动属性：
             string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE8\xA1\x8C\xE5\x8A\xA8\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
-            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorBehaviorAttributesConstants.ACT - ActorBehaviorAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorBehaviorAttributesConstants.ACT][_actor]), '</text>'));
+            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[WorldConstants.ATTR_ACT - WorldConstants.ATTR_BASE_BEHAVIOR], "=", Strings.toString(attributesScores[WorldConstants.ATTR_ACT][_actor]), '</text>'));
             return (string(abi.encodePacked(svg0, svg1)), _endY);
         }
         else
@@ -110,7 +103,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"ACT": ', Strings.toString(attributesScores[ActorBehaviorAttributesConstants.ACT][_actor]), '}'));
+        json = string(abi.encodePacked('{"ACT": ', Strings.toString(attributesScores[WorldConstants.ATTR_ACT][_actor]), '}'));
         return json;
     }
 
@@ -128,12 +121,12 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
         require(talents.actorTalentsInitiated(_actor), "talents have not initiated");
         require(!characterPointsInitiated[_actor], "already init points");
 
-        attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = 0;
+        attributesScores[WorldConstants.ATTR_ACT][_actor] = 0;
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorBehaviorAttributesConstants.ACT;
-        atts[1] = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
+        atts[0] = WorldConstants.ATTR_ACT;
+        atts[1] = attributesScores[WorldConstants.ATTR_ACT][_actor];
         emit Created(msg.sender, _actor, atts);
     }
 
@@ -145,8 +138,8 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorBehaviorAttributesConstants.ACT) {
-                attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = _attributes[i+1];
+            if(_attributes[i] == WorldConstants.ATTR_ACT) {
+                attributesScores[WorldConstants.ATTR_ACT][_actor] = _attributes[i+1];
                 updated = true;
                 break;
             }
@@ -154,8 +147,8 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
 
         if(updated) {
             uint256[] memory atts = new uint256[](2);
-            atts[0] = ActorBehaviorAttributesConstants.ACT;
-            atts[1] = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
+            atts[0] = WorldConstants.ATTR_ACT;
+            atts[1] = attributesScores[WorldConstants.ATTR_ACT][_actor];
             emit Updated(msg.sender, _actor, atts);
         }
     }
@@ -170,7 +163,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
             lastActRecoverTimeStamps[_actor] = (block.timestamp / ACT_RECOVER_TIME_DAY) * ACT_RECOVER_TIME_DAY;
             
             uint256 act = getActorMaxRecoverAct(_actor);
-            attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = act;
+            attributesScores[WorldConstants.ATTR_ACT][_actor] = act;
             emit ActRecovered(_actor, act);            
         }
 
@@ -179,7 +172,7 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
             lastActRecoverTimeStamps[_actor] = (block.timestamp / ACT_RECOVER_TIME_DAY) * ACT_RECOVER_TIME_DAY;
 
             uint256 act = getActorMaxRecoverAct(_actor);
-            attributesScores[ActorBehaviorAttributesConstants.ACT][_actor] = act;
+            attributesScores[WorldConstants.ATTR_ACT][_actor] = act;
             emit ActRecovered(_actor, act);
         }
     }
@@ -193,16 +186,16 @@ contract ActorBehaviorAttributes is IActorBehaviorAttributes, WorldConfigurable 
         require(_modifiers.length % 2 == 0, "modifiers is invalid.");        
 
         bool attributesModified = false;
-        uint256 act = attributesScores[ActorBehaviorAttributesConstants.ACT][_actor];
+        uint256 act = attributesScores[WorldConstants.ATTR_ACT][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorBehaviorAttributesConstants.ACT)) {
+            if(_modifiers[i] == int(WorldConstants.ATTR_ACT)) {
                 act = _attributeModify(act, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorBehaviorAttributesConstants.ACT;
+        atts[0] = WorldConstants.ATTR_ACT;
         atts[1] = act;
         return (atts, attributesModified);
     }

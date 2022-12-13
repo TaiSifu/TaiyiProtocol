@@ -5,22 +5,21 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, ActorAttributesConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
+    WorldConstants, WorldContractRoute, WorldContractRoute__factory, 
     Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
     WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributesConstants__factory, 
+    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory,
     ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, ActorCharmAttributesConstants, 
-    ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, 
-    ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, 
+    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory,
     ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory, 
     WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
     WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, 
     WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, 
     WorldEventProcessor60507__factory, WorldEventProcessor60511__factory, WorldEventProcessor60512__factory,
     WorldEventProcessor60510__factory,
+    WorldYemings,
+    WorldYemings__factory,
 } from '../../typechain';
 import {
     blockNumber,
@@ -58,11 +57,6 @@ describe('主动事件角色行为测试', () => {
     let eventProcessorAddressBook: {[index: string]:any};
 
     let worldConstants: WorldConstants;
-    let actorAttributesConstants: ActorAttributesConstants;
-    let actorCharmAttributesConstants: ActorCharmAttributesConstants;
-    let actorCoreAttributesConstants: ActorCoreAttributesConstants;
-    let actorMoodAttributesConstants: ActorMoodAttributesConstants;
-    let actorBehaviorAttributesConstants: ActorBehaviorAttributesConstants;
 
     let worldContractRoute: WorldContractRoute;
     let sifusToken: SifusToken;
@@ -87,6 +81,7 @@ describe('主动事件角色行为测试', () => {
     let actorLocations : ActorLocations;
     let worldItems : WorldItems;
     let worldBuildings: WorldBuildings;
+    let worldYemings: WorldYemings;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber;    
@@ -168,11 +163,7 @@ describe('主动事件角色行为测试', () => {
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
         prestiges = WorldFungible__factory.connect(contracts.AssetPrestige.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
-        actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
-        actorCharmAttributesConstants = ActorCharmAttributesConstants__factory.connect(contracts.ActorCharmAttributesConstants.instance.address, operator1);
-        actorCoreAttributesConstants = ActorCoreAttributesConstants__factory.connect(contracts.ActorCoreAttributesConstants.instance.address, operator1);
-        actorMoodAttributesConstants = ActorMoodAttributesConstants__factory.connect(contracts.ActorMoodAttributesConstants.instance.address, operator1);
-        actorBehaviorAttributesConstants = ActorBehaviorAttributesConstants__factory.connect(contracts.ActorBehaviorAttributesConstants.instance.address, operator1);
+        worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
         baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
         charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
         behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
@@ -186,7 +177,7 @@ describe('主动事件角色行为测试', () => {
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
         //bind timeline to a zone
         let zoneId = await zones.nextZone();
@@ -218,12 +209,12 @@ describe('主动事件角色行为测试', () => {
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
 
         //配置时间线出生事件
-        await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(1, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(2, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(3, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(4, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(5, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(1, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(2, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(3, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(4, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(5, 60001, 1);
 
         testActor = await newActor(operator1, true);
     });
@@ -257,13 +248,13 @@ describe('主动事件角色行为测试', () => {
             await actors.approve(shejiTu.address, testActor);
             await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
 
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(0);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(0);
             expect(await evt60505.checkOccurrence(testActor, 0)).to.eq(false);
         });
 
         it(`恢复行动力`, async ()=>{
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(10);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(10);
         });
 
         it(`采集资源`, async ()=>{
@@ -312,7 +303,7 @@ describe('主动事件角色行为测试', () => {
             await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
 
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(10);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(10);
 
             while((await golds.balanceOfActor(testActor)).lt(BigInt(1e18)) || (await woods.balanceOfActor(testActor)).lt(BigInt(1e18))) {
                 console.log("make assets...");
@@ -333,7 +324,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`体力和威望检查`, async ()=>{
@@ -361,7 +352,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`移动到太乙村-开始`, async ()=>{
@@ -397,7 +388,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`制作工具-未授权资源消耗`, async ()=>{
@@ -444,7 +435,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`体力和威望检查`, async ()=>{
@@ -495,7 +486,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`体力和威望检查`, async ()=>{
@@ -587,7 +578,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`创建一个村庄-太乙村`, async ()=>{
@@ -601,7 +592,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`移动到太乙村`, async ()=>{
@@ -632,7 +623,7 @@ describe('主动事件角色行为测试', () => {
         it(`恢复体力`, async ()=>{
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await actorBehaviorAttributesConstants.ACT(), testActor)).to.eq(20);
+            expect(await behaviorAttributes.attributesScores(await worldConstants.ATTR_ACT(), testActor)).to.eq(20);
         });
 
         it(`条件检查`, async ()=>{

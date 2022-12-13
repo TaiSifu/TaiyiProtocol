@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "../../interfaces/WorldInterfaces.sol";
 import "./DefaultWorldEventProcessor.sol";
-import "../attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
 /*
@@ -23,7 +22,7 @@ contract WorldEventProcessor60508 is DefaultWorldEventProcessor, ERC721Holder {
     uint256 public eventOperator;
     mapping(uint256 => uint256[]) public actors_to_be_claimed;
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function initOperator(uint256 _eventOperator) external 
         onlyOwner
@@ -56,7 +55,7 @@ contract WorldEventProcessor60508 is DefaultWorldEventProcessor, ERC721Holder {
         if(prelifes.postLifes(_actor) > 0)
             return false; //actor is reincarnation
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        if(attributes.attributesScores(ActorAttributesConstants.HLH, _actor) > 0)
+        if(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0)
             return false; //actor is alive
 
         //验证角色所在时间线“道理”够不够

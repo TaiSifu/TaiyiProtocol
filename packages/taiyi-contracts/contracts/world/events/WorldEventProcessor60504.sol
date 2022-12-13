@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "./DefaultWorldEventProcessor.sol";
-import "../attributes/ActorAttributes.sol";
 import "../attributes/ActorCoreAttributes.sol";
 //import "hardhat/console.sol";
 
@@ -22,7 +21,7 @@ contract WorldEventProcessor60504 is DefaultWorldEventProcessor, ERC721Holder {
 
     uint256 public eventOperator;
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function initOperator(uint256 _eventOperator) external 
         onlyOwner
@@ -43,7 +42,7 @@ contract WorldEventProcessor60504 is DefaultWorldEventProcessor, ERC721Holder {
         int256[] memory modifiers;
         if(random.dn(_actor, 100) < 10) {
             modifiers = new int256[](2);
-            modifiers[0] = int256(ActorCoreAttributesConstants.WUX);
+            modifiers[0] = int256(WorldConstants.ATTR_WUX);
             modifiers[1] = 5;
         }
         return modifiers;
@@ -53,7 +52,7 @@ contract WorldEventProcessor60504 is DefaultWorldEventProcessor, ERC721Holder {
         bool defaultRt = true;
 
         IActorAttributes base_attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        uint256 hlh = base_attributes.attributesScores(ActorAttributesConstants.HLH, _actor);
+        uint256 hlh = base_attributes.attributesScores(WorldConstants.ATTR_HLH, _actor);
 
         //"exclude": "AGE<3||AGE>6"
         if(_age < 3 || _age > 6)

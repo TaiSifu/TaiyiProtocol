@@ -19,7 +19,7 @@ check order:
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020017 is DefaultWorldEventProcessor {
     uint[] public paticleActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你成为了一个锂原子。
         return "\xE4\xBD\xA0\xE6\x88\x90\xE4\xB8\xBA\xE4\xBA\x86\xE4\xB8\x80\xE4\xB8\xAA\xE9\x94\x82\xE5\x8E\x9F\xE5\xAD\x90\xE3\x80\x82";

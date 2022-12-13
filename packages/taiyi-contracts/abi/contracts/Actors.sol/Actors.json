@@ -15,11 +15,6 @@
         "internalType": "address",
         "name": "_coin",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_worldRouteAddress",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -181,6 +176,19 @@
     ],
     "name": "Transfer",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ACTOR_PANGU",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],

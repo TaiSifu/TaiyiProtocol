@@ -5,14 +5,14 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, ActorAttributesConstants,
+    WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
     Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
     WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributesConstants__factory, 
+    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory,
     ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, ActorCharmAttributesConstants, ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory,
+    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, WorldYemings, WorldYemings__factory,
 } from '../../typechain';
 import {
     blockNumber,
@@ -48,11 +48,6 @@ describe('角色属性测试', () => {
     let eventProcessorAddressBook: {[index: string]:any};
 
     let worldConstants: WorldConstants;
-    let actorAttributesConstants: ActorAttributesConstants;
-    let actorCharmAttributesConstants: ActorCharmAttributesConstants;
-    let actorCoreAttributesConstants: ActorCoreAttributesConstants;
-    let actorMoodAttributesConstants: ActorMoodAttributesConstants;
-    let actorBehaviorAttributesConstants: ActorBehaviorAttributesConstants;
 
     let worldContractRoute: WorldContractRoute;
     let sifusToken: SifusToken;
@@ -71,6 +66,7 @@ describe('角色属性测试', () => {
     let moodAttributes: ActorMoodAttributes;
     let actorRelationship: ActorRelationship;
     let worldEvents: WorldEvents;
+    let worldYemings: WorldYemings;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber;
@@ -143,11 +139,7 @@ describe('角色属性测试', () => {
         shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
-        actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
-        actorCharmAttributesConstants = ActorCharmAttributesConstants__factory.connect(contracts.ActorCharmAttributesConstants.instance.address, operator1);
-        actorCoreAttributesConstants = ActorCoreAttributesConstants__factory.connect(contracts.ActorCoreAttributesConstants.instance.address, operator1);
-        actorMoodAttributesConstants = ActorMoodAttributesConstants__factory.connect(contracts.ActorMoodAttributesConstants.instance.address, operator1);
-        actorBehaviorAttributesConstants = ActorBehaviorAttributesConstants__factory.connect(contracts.ActorBehaviorAttributesConstants.instance.address, operator1);
+        worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
         baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
         charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
         behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
@@ -158,7 +150,7 @@ describe('角色属性测试', () => {
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
         //bind timeline to a zone
         let zoneId = await zones.nextZone();
@@ -179,7 +171,7 @@ describe('角色属性测试', () => {
     it('基础属性集', async () => {
         //set one talent to test
         let W_MODULE_ATTRIBUTES = await worldConstants.WORLD_MODULE_ATTRIBUTES();
-        let HLH = await actorAttributesConstants.HLH();
+        let HLH = await worldConstants.ATTR_HLH();
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [HLH, BigNumber.from(10)], [W_MODULE_ATTRIBUTES, 20]);
 
         //should not point
@@ -201,7 +193,7 @@ describe('角色属性测试', () => {
     it('外貌属性集', async () => {
         //set one talent to test
         let W_MODULE_CHARM_ATTRIBUTES = await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES();
-        let MEL = await actorCharmAttributesConstants.MEL();
+        let MEL = await worldConstants.ATTR_MEL();
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [MEL, BigNumber.from(10)], [W_MODULE_CHARM_ATTRIBUTES, 20]);
 
         //should not point
@@ -223,12 +215,12 @@ describe('角色属性测试', () => {
     it('核心属性集', async () => {
         //set one talent to test
         let W_MODULE_CORE_ATTRIBUTES = await worldConstants.WORLD_MODULE_CORE_ATTRIBUTES();
-        let DIL = await actorCoreAttributesConstants.DIL();
-        let GEG = await actorCoreAttributesConstants.GEG();
-        let LIM = await actorCoreAttributesConstants.LIM();
-        let LVL = await actorCoreAttributesConstants.LVL();
-        let TIZ = await actorCoreAttributesConstants.TIZ();
-        let WUX = await actorCoreAttributesConstants.WUX();
+        let DIL = await worldConstants.ATTR_DIL();
+        let GEG = await worldConstants.ATTR_GEG();
+        let LIM = await worldConstants.ATTR_LIM();
+        let LVL = await worldConstants.ATTR_LVL();
+        let TIZ = await worldConstants.ATTR_TIZ();
+        let WUX = await worldConstants.ATTR_WUX();
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [DIL, BigNumber.from(1), DIL, BigNumber.from(-1)], [W_MODULE_CORE_ATTRIBUTES, 20]);
 
         //should not point
@@ -255,7 +247,7 @@ describe('角色属性测试', () => {
     it('情绪属性集', async () => {
         //set one talent to test
         let W_MODULE_MOOD_ATTRIBUTES = await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES();
-        let XIQ = await actorMoodAttributesConstants.XIQ();
+        let XIQ = await worldConstants.ATTR_XIQ();
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [XIQ, BigNumber.from(10)], [W_MODULE_MOOD_ATTRIBUTES, 20]);
 
         //should not point
@@ -277,7 +269,7 @@ describe('角色属性测试', () => {
     it('行为属性集', async () => {
         //set one talent to test
         let W_MODULE_BEHAVIOR_ATTRIBUTES = await worldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES();
-        let ACT = await actorBehaviorAttributesConstants.ACT();
+        let ACT = await worldConstants.ATTR_ACT();
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [ACT, BigNumber.from(10)], [W_MODULE_BEHAVIOR_ATTRIBUTES, 20]);
 
         //should not point

@@ -6,16 +6,17 @@ import "../../interfaces/WorldInterfaces.sol";
 import "../WorldConfigurable.sol";
 import "../../libs/Base64.sol";
 import "../../base/DateTimeLibrary.sol";
+import "../../base/Ownable.sol";
 //import "hardhat/console.sol";
 
-contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
+contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, Ownable {
 
     /* *******
      * Globals
      * *******
      */
 
-    uint256 public override immutable ACTOR_GUANGONG; //武财神之一：关公
+    uint256 public override ACTOR_GUANGONG; //武财神之一：关公
     uint256 public immutable GROW_TIME_DAY; //资源生长周期（秒）
     uint256 public immutable GROW_QUANTITY_SCALE; //资源生长倍率(3位精度, 1000=1.0)
     uint256 public immutable GOLD_GROW_QUANTITY = 100e18;
@@ -37,13 +38,9 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
      * ****************
      */
 
-    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, WorldContractRoute _route) WorldConfigurable(_route) {
         GROW_TIME_DAY = _growTimeDay;
         GROW_QUANTITY_SCALE = _growQuantityScale;
-
-        IActors actors = worldRoute.actors();
-        ACTOR_GUANGONG = actors.nextActor();
-        actors.mintActor(0);
     }
 
     /* *****************
@@ -133,9 +130,18 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_ZONE_BASE_RESOURCES; }
 
+    function initOperator(uint256 _operator) external 
+        onlyOwner
+    {
+        require(ACTOR_GUANGONG == 0, "operator already initialized");
+        IActors(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTORS)).transferFrom(_msgSender(), address(this), _operator);
+        ACTOR_GUANGONG = _operator;
+    }
+
     function growAssets(uint256 _operator, uint256 _zoneId) external override
         onlyYeMing(_operator)
     {
+        require(ACTOR_GUANGONG > 0, "operator not initialized");
         if(lastGrowTimeStamps[_zoneId] == 0)
             lastGrowTimeStamps[_zoneId] = (block.timestamp / GROW_TIME_DAY) * GROW_TIME_DAY;
 
@@ -148,6 +154,7 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
     function collectAssets(uint256 _operator, uint256 _actor, uint256 _zoneId) external override
         onlyYeMing(_operator)
     {
+        require(ACTOR_GUANGONG > 0, "operator not initialized");
         _collectAssets(_actor, _zoneId);
     }
 

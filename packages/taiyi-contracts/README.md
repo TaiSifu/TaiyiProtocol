@@ -61,6 +61,7 @@
 | [WorldVillages](./contracts/world/dataset/WorldVillages.sol) | 这是太乙世界的村落（太乙村）集合，记录了角色们自己创建的一些村落。| [0x????](https://etherscan.io/address/0x????) |
 | [WorldZoneBaseResources](./contracts/world/dataset/WorldZoneBaseResources.sol) | 这是太乙世界的区域中基础资源生长的记录数据，用于记录一个区域的基础资源的生成和可采集量。| [0x????](https://etherscan.io/address/0x????) |
 | [ActorTimelineAges](./contracts/world/dataset/ActorTimelineAges.sol) | 这是记录角色在不同时间线跨越时，离开时间线时候的年龄。| [0x????](https://etherscan.io/address/0x????) |
+| [WorldYemings](./contracts/world/dataset/WorldYemings.sol) | 这是记录充当噎明的角色。| [0x????](https://etherscan.io/address/0x????) |
 
 
 ## 开发

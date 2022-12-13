@@ -7,7 +7,7 @@ import "./DefaultWorldEventProcessor.sol";
 
 contract WorldEventProcessor70000 is DefaultWorldEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //盘古开天辟地
@@ -29,8 +29,9 @@ contract WorldEventProcessor70000 is DefaultWorldEventProcessor {
         require(_actor == WorldConstants.ACTOR_PANGU, "actor must be PanGu");
         require(_stringParams.length > 0, "params is invalid");
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
+        IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
         for(uint256 i=0; i<_stringParams.length; i++) {
-            zones.claim(_operator, _stringParams[i], worldRoute.YeMings(_operator), _operator);
+            zones.claim(_operator, _stringParams[i], yemings.YeMings(_operator), _operator);
         }
     }
 }

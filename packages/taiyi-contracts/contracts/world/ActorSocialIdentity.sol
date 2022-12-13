@@ -28,7 +28,7 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
      * ****************
      */
 
-    constructor(address _worldRouteAddress) ERC721("Taiyi Social Identity", "TYSID") WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) ERC721("Taiyi Social Identity", "TYSID") WorldConfigurable(_route) {
     }     
 
     // @dev Claim a sid for a actor. actor must hold the required gold.

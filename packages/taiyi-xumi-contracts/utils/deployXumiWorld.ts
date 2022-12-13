@@ -5,31 +5,28 @@ import { Interface } from 'ethers/lib/utils';
 import { chunkArray } from '@taiyi/contracts/utils/chunkArray';
 import { 
     ActorXumiAttributes,
-    ActorXumiAttributesConstants,
-    ActorXumiAttributesConstants__factory,
     ActorXumiAttributes__factory,
     XumiConstants, XumiConstants__factory, Xumi__factory 
 } from '../typechain';
-import {
-    ActorAttributesConstants,
-    WorldConstants, WorldContractRoute, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, WorldFungible, 
-    WorldFungible__factory,
-    ActorTalents,
-    WorldItems,
-    WorldEvents,
-} from '@taiyi/contracts/dist/typechain';
 import { WorldContract } from '@taiyi/contracts/dist/utils';
 import { deployTalentProcessors, initTalents } from './initTalents';
 import { initItemTypes } from './initItemTypes';
 import { initEvents } from './initEvents';
 import { initTimeline } from './initTimeline';
+import {
+    WorldConstants, WorldContractRoute, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, WorldFungible, 
+    WorldFungible__factory, Actors, ActorLocations, Trigrams, WorldRandom, WorldYemings, WorldZones,
+    ActorTalents, ActorAttributes, WorldItems, WorldEvents,
+} from '@taiyi/contracts/dist/typechain';
 
 export const deployXumiConstants = async (deployer: SignerWithAddress): Promise<XumiConstants> => {
     const factory = new XumiConstants__factory(deployer);
     return (await factory.deploy()).deployed();
 };
 
-export const deployXumi = async (route: WorldContractRoute, deployer: SignerWithAddress) => {
+export const deployXumi = async (actors: Actors, locations: ActorLocations,
+    zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
+    random: WorldRandom, deployer: SignerWithAddress) => {
     let xumiImpl = await (await (new Xumi__factory(deployer)).deploy()).deployed();    
     let xumiProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const xumiProxyFactory = new ShejiTuProxy__factory(deployer);
@@ -37,7 +34,14 @@ export const deployXumi = async (route: WorldContractRoute, deployer: SignerWith
         xumiImpl.address,
         xumiProxyAdmin.address,
         new Interface(XumiABI).encodeFunctionData('initialize', [
-            route.address]));
+            actors.address,
+            locations.address,
+            zones.address,
+            attributes.address,
+            evts.address,
+            talents.address,
+            trigrams.address,
+            random.address]));
     return [await xumiProxy.deployed(), xumiProxyAdmin, xumiImpl];
 }
 
@@ -51,10 +55,6 @@ export const deployAssetElementH = async (worldConst: XumiConstants, route: Worl
     return (await factory.deploy("Xumi Element H", "XMH", await worldConst.WORLD_MODULE_XUMI_ELEMENT_H(), route.address)).deployed();
 };
 
-export const deployActorXumiAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorXumiAttributesConstants> => {
-    const factory = new ActorXumiAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
-};
 export const deployActorXumiAttributes = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<ActorXumiAttributes> => {
     const factory = new ActorXumiAttributes__factory(deployer);
     return (await factory.deploy(route.address)).deployed();
@@ -62,7 +62,6 @@ export const deployActorXumiAttributes = async (route: WorldContractRoute, deplo
 
 export type XumiContractName =
     | 'XumiConstants'
-    | 'ActorXumiAttributesConstants'
     | 'ActorXumiAttributes'
     | 'XumiProxy'
     | 'XumiProxyAdmin'
@@ -82,8 +81,10 @@ export interface XumiWorldDeployFlag {
     noZones? : boolean;
 };
     
-export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorTalents, actorAttributesConstants: ActorAttributesConstants, 
-    worldItems: WorldItems, worldEvents: WorldEvents,
+export const deployXumiWorld = async (route: WorldContractRoute, worldConstants: WorldConstants, 
+    actors: Actors, locations: ActorLocations,
+    zones: WorldZones, attributes: ActorAttributes, talents: ActorTalents, trigrams: Trigrams,
+    random: WorldRandom, worldItems: WorldItems, worldEvents: WorldEvents,
     deployer: SignerWithAddress, operatorDAO: SignerWithAddress, flags?:XumiWorldDeployFlag, verbose?:Boolean): Promise<{
         worldContracts: Record<XumiContractName, WorldContract>,
         eventProcessorAddressBook: {[index: string]:any}
@@ -91,7 +92,6 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
     
     if(verbose) console.log("Deploy Constants...");
     let xumiConstants = await deployXumiConstants(deployer);
-    let actorXumiAttributesConstants = await deployActorXumiAttributesConstants(deployer);
 
     //deploy actor attributes
     if(verbose) console.log("Deploy Actor Attributes...");
@@ -106,7 +106,8 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ELEMENT_H(), assetElementH.address);
 
     if(verbose) console.log("Deploy Xumi...");
-    let xumiPkg = await deployXumi(route, deployer);
+    let xumiPkg = await deployXumi(actors, locations, zones, attributes,
+        worldEvents, talents, trigrams, random, deployer);
     let xumi = Xumi__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as Xumi
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
     await xumi.registerAttributeModule(actorXumiAttributes.address);
@@ -116,7 +117,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
         null;
     else {
         if(verbose) console.log("Initialize Talents...");
-        await initTalents(talents.address, operatorDAO, xumiConstants, actorAttributesConstants, actorXumiAttributesConstants);
+        await initTalents(talents.address, operatorDAO, xumiConstants, worldConstants);
     }
 
     //deploy talent processors
@@ -154,7 +155,6 @@ export const deployXumiWorld = async (route: WorldContractRoute, talents: ActorT
 
     let contracts: Record<XumiContractName, WorldContract> = {        
         XumiConstants: {instance: xumiConstants},
-        ActorXumiAttributesConstants: {instance: actorXumiAttributesConstants},
         XumiProxy: {instance: xumiPkg[0]},
         XumiProxyAdmin: {instance: xumiPkg[1]},
         Xumi: {instance: xumiPkg[2]},

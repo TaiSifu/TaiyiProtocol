@@ -17,7 +17,7 @@ check order:
 */
 
 contract WorldEventProcessor1000018 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你遇到一个质子，相互吸引，似乎又不会走得太近。
         return "\xE4\xBD\xA0\xE9\x81\x87\xE5\x88\xB0\xE4\xB8\x80\xE4\xB8\xAA\xE8\xB4\xA8\xE5\xAD\x90\xEF\xBC\x8C\xE7\x9B\xB8\xE4\xBA\x92\xE5\x90\xB8\xE5\xBC\x95\xEF\xBC\x8C\xE4\xBC\xBC\xE4\xB9\x8E\xE5\x8F\x88\xE4\xB8\x8D\xE4\xBC\x9A\xE8\xB5\xB0\xE5\xBE\x97\xE5\xA4\xAA\xE8\xBF\x91\xE3\x80\x82";
@@ -25,7 +25,7 @@ contract WorldEventProcessor1000018 is DefaultWorldEventProcessor {
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         //INF: 1
         int256[] memory atts = new int256[](2);
-        atts[0] = int256(ActorXumiAttributesConstants.INF);
+        atts[0] = int256(XumiConstants.ATTR_INF);
         atts[1] = 1;
         return atts;
     }
@@ -67,7 +67,7 @@ contract WorldEventProcessor1000018 is DefaultWorldEventProcessor {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000019 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 1000016) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1000016) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //在巨大的压力和温度下，你和质子结合了！
         return "\xE5\x9C\xA8\xE5\xB7\xA8\xE5\xA4\xA7\xE7\x9A\x84\xE5\x8E\x8B\xE5\x8A\x9B\xE5\x92\x8C\xE6\xB8\xA9\xE5\xBA\xA6\xE4\xB8\x8B\xEF\xBC\x8C\xE4\xBD\xA0\xE5\x92\x8C\xE8\xB4\xA8\xE5\xAD\x90\xE7\xBB\x93\xE5\x90\x88\xE4\xBA\x86\xEF\xBC\x81";
@@ -75,7 +75,7 @@ contract WorldEventProcessor1000019 is DefaultWorldEventProcessor {
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         //MAS: 1
         int256[] memory atts = new int256[](2);
-        atts[0] = int256(ActorXumiAttributesConstants.MAS);
+        atts[0] = int256(XumiConstants.ATTR_MAS);
         atts[1] = 1;
         return atts;
     }

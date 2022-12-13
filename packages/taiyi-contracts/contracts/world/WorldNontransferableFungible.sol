@@ -10,7 +10,7 @@ contract WorldNontransferableFungible is WorldFungible {
      * ****************
      */
 
-    constructor(string memory _name, string memory _symbol, uint256 _moduleId, address _worldRouteAddress) WorldFungible(_name, _symbol, _moduleId, _worldRouteAddress) {
+    constructor(string memory _name, string memory _symbol, uint256 _moduleId, WorldContractRoute _route) WorldFungible(_name, _symbol, _moduleId, _route) {
     }
 
     function transferActor(uint256 _from, uint256 _to, uint256 _amount) public virtual override {

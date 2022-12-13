@@ -5,10 +5,10 @@ import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
-import { Actors, SifusDescriptor__factory, SifusToken, WorldConstants, WorldContractRoute, WorldFungible } from '../typechain';
+import { Actors, SifusDescriptor__factory, SifusToken, WorldConstants, WorldContractRoute, WorldFungible, WorldYemings } from '../typechain';
 import { deploySifusToken, populateDescriptor, blockTimestamp, blockNumber } from './utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../utils';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -22,6 +22,7 @@ describe('太乙师傅令牌测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
+    let worldYemings: WorldYemings;
     let assetDaoli: WorldFungible;
 
     let actorPanGu: BigNumber;
@@ -46,6 +47,9 @@ describe('太乙师傅令牌测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy WorldYemings
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
+
         //Deploy Taiyi Daoli ERC20
         assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
@@ -65,8 +69,12 @@ describe('太乙师傅令牌测试', () => {
         const descriptor = await sifusToken.descriptor();
         await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
+        //register world modules
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
+
         //set PanGu as YeMing for test
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address);
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address);
     });
 
     beforeEach(async () => {
@@ -79,7 +87,7 @@ describe('太乙师傅令牌测试', () => {
 
     it('噎明铸造师傅令牌同时自动奖励部分令牌给太乙岛', async () => {
         let actorByDeployer = await newActor(deployer);
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorByDeployer, deployer.address);
+        await worldYemings.connect(taiyiDAO).setYeMing(actorByDeployer, deployer.address);
 
         const receipt = await (await sifusToken.connect(deployer).mint(actorByDeployer)).wait();
 
@@ -139,7 +147,7 @@ describe('太乙师傅令牌测试', () => {
         await (await sifusToken.transferOwnership(creator.address)).wait();
 
         let actorByMinter = await newActor(minter);
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorByMinter, minter.address);
+        await worldYemings.connect(taiyiDAO).setYeMing(actorByMinter, minter.address);
 
         const tx = sifusToken.connect(minter).mint(actorByMinter);
 

@@ -7,11 +7,11 @@ import {toWadUnsafe, toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol"
 import "./interfaces/WorldInterfaces.sol";
 import "./base/ERC721Enumerable.sol";
 import "./libs/Base64.sol";
-import "./world/WorldConfigurable.sol";
+import "./libs/WorldConstants.sol";
 import {LogisticVRGDA} from "./external/VRGDAs/LogisticVRGDA.sol";
 //import "hardhat/console.sol";
 
-contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
+contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /* *******
@@ -19,6 +19,8 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
      * *******
      */
     
+    uint256 public constant ACTOR_PANGU = 1;
+
     /// @notice The address of the Daoli ERC20 token contract.
     address public immutable coin;
 
@@ -86,6 +88,11 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
         _;
     }
 
+    modifier onlyPanGu() {
+        require(_isActorApprovedOrOwner(ACTOR_PANGU), "only PanGu");
+        _;
+    }
+
     /**
      * @notice Require that the sender is the Taiyi DAO.
      */
@@ -104,10 +111,8 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
     constructor(
         address _taiyiDAO,
         uint256 _mintStart,
-        address _coin,
-        address _worldRouteAddress
+        address _coin
     ) 
-        WorldConfigurable(_worldRouteAddress) 
         ERC721("Taiyi Actor Manifested", "TYACTOR") 
         LogisticVRGDA(
             10.0e18, // Target price.
@@ -127,6 +132,10 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
      * Internal Functions
      * *****************
      */
+
+    function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
+        return (getApproved(_actor) == msg.sender || ownerOf(_actor) == msg.sender) || isApprovedForAll(ownerOf(_actor), msg.sender);
+    }
 
     function _tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
@@ -189,7 +198,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
         actorRenderModes[nextActor] = 0;
 
         // Create identifiable actor holder contract
-        ActorHolder holder = new ActorHolder(_worldRouteContract, nextActor);
+        ActorHolder holder = new ActorHolder(this, nextActor);
         _actorHolders[nextActor] = address(holder);
         _holderActors[address(holder)] = nextActor;
 
@@ -395,12 +404,12 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA, WorldConfigurable {
     }
 }
 ///////////////////////////////////////////////////////////////////////////
-contract ActorHolder is WorldConfigurable, ERC165, IERC721Receiver {
-    IActors private actors;
+contract ActorHolder is ERC165, IERC721Receiver {
+    IActors public actors;
     uint256 private actor;
 
-    constructor(address _worldRouteAddress, uint256 _actor) WorldConfigurable(_worldRouteAddress) {
-        actors = worldRoute.actors();
+    constructor(IActors _actors, uint256 _actor) {
+        actors = _actors;
         actor = _actor;
     }
 

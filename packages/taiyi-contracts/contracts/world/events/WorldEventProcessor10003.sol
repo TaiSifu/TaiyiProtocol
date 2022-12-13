@@ -4,9 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../interfaces/WorldInterfaces.sol";
 import "./DefaultWorldEventProcessor.sol";
-import "../attributes/ActorAttributes.sol";
-import "../attributes/ActorMoodAttributes.sol";
-import "../attributes/ActorCoreAttributes.sol";
 //import "hardhat/console.sol";
 
 /*
@@ -22,7 +19,7 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
 
     uint256 public immutable FEE = 5e18;
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你生了场重病，家里花了不少钱。
         return "\xE4\xBD\xA0\xE7\x94\x9F\xE4\xBA\x86\xE5\x9C\xBA\xE9\x87\x8D\xE7\x97\x85\xEF\xBC\x8C\xE5\xAE\xB6\xE9\x87\x8C\xE8\x8A\xB1\xE4\xBA\x86\xE4\xB8\x8D\xE5\xB0\x91\xE9\x92\xB1\xE3\x80\x82";
@@ -43,9 +40,9 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
         if(coin.balanceOfActor(_actor) < FEE) {
             //XIQ: -5, HLH random -50
             int256[] memory atts = new int256[](4);
-            atts[0] = int256(ActorMoodAttributesConstants.XIQ);
+            atts[0] = int256(WorldConstants.ATTR_XIQ);
             atts[1] = -5;
-            atts[2] = int256(ActorAttributesConstants.HLH);
+            atts[2] = int256(WorldConstants.ATTR_HLH);
             IWorldRandom random = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
             atts[3] = -int256(random.dn(_actor, 50));
             return atts;
@@ -53,7 +50,7 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
         else {
             //XIQ: -5
             int256[] memory atts = new int256[](2);
-            atts[0] = int256(ActorMoodAttributesConstants.XIQ);
+            atts[0] = int256(WorldConstants.ATTR_XIQ);
             atts[1] = -5;
             return atts;
         }
@@ -64,7 +61,7 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
         IActorAttributes core_attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_CORE_ATTRIBUTES));
 
         //"exclude": "TIZ>30",
-        uint256 tiz = core_attributes.attributesScores(ActorCoreAttributesConstants.TIZ, _actor);
+        uint256 tiz = core_attributes.attributesScores(WorldConstants.ATTR_TIZ, _actor);
         if(tiz > 30)
             return false;
 
@@ -95,7 +92,7 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
                 return 10004;
         }
 
-        uint256 tiz = core_attributes.attributesScores(ActorCoreAttributesConstants.TIZ, _actor);
+        uint256 tiz = core_attributes.attributesScores(WorldConstants.ATTR_TIZ, _actor);
         if(tiz < 10)
             return 10000;
 

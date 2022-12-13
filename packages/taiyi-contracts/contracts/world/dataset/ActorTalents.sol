@@ -41,7 +41,7 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************

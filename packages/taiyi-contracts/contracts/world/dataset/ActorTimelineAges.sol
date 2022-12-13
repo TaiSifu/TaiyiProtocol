@@ -26,7 +26,7 @@ contract ActorTimelineAges is IActorTimelineAges, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {}
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {}
 
     /* *****************
      * Private Functions

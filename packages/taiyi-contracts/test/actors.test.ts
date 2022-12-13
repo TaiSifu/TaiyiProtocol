@@ -8,7 +8,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory,
-    Actors, Actors__factory, WorldFungible, WorldFungible__factory, 
+    Actors, Actors__factory, WorldFungible, WorldFungible__factory, WorldYemings, 
 } from '../typechain';
 import {
     blockTimestamp,
@@ -21,6 +21,7 @@ import {
     deployActors,
     deployWorldRandom,
     deployAssetDaoli,
+    deployWorldYemings,
 } from '../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import web3 from 'web3';
@@ -32,7 +33,7 @@ const { expect } = chai;
 describe('太乙角色基础测试', () => {
 
     let deployer: SignerWithAddress;
-    let taisifusDAO: SignerWithAddress;
+    let taiyiDAO: SignerWithAddress;
     let operator1: SignerWithAddress;
     let operator2: SignerWithAddress;
     let snapshotId: number;
@@ -40,10 +41,11 @@ describe('太乙角色基础测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
+    let worldYemings: WorldYemings;
     let assetDaoli: WorldFungible;
 
     before(async () => {
-        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
+        [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -51,21 +53,16 @@ describe('太乙角色基础测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy WorldYemings
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
+
         //Deploy Taiyi Daoli ERC20
         assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
         //Deploy Actors
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        actors = await deployActors(taisifusDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
-    });
-
-    beforeEach(async () => {
-        snapshotId = await ethers.provider.send('evm_snapshot', []);
-    });
-
-    afterEach(async () => {
-        await ethers.provider.send('evm_revert', [snapshotId]);
     });
 
     it('角色合约符号（Symbol）', async () => {
@@ -77,166 +74,115 @@ describe('太乙角色基础测试', () => {
     });
 
     it('访问不存在的角色', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-
-        await expect(actorsByDAO.getActor(0)).to.be.revertedWith('invalid actor');
-        await expect(actorsByDAO.getActor(1)).to.be.revertedWith('ERC721: owner query for nonexistent token');
+        await expect(actors.getActor(0)).to.be.revertedWith('invalid actor');
+        await expect(actors.getActor(1)).to.be.revertedWith('ERC721: owner query for nonexistent token');
     });
 
-    it('第一个角色必须名为「盘古」', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
+    it('注册世界模块-盘古不存在的情况', async () => {
+        //deploy module with out any actor exist
+        let worldRandom = await deployWorldRandom(deployer);
+        await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
+        .to.be.revertedWith('ERC721: approved query for nonexistent token');
+    });
 
+    it('第一个角色作为「盘古」', async () => {
         //first actor token id must be PanGu
         expect(await worldConstants.ACTOR_PANGU()).to.eq(1);
-        expect(await actorsByDAO.nextActor()).to.eq(1);
+        expect(await actors.nextActor()).to.eq(1);
 
         //PanGu should be mint
         const holderAddress = ethers.utils.getContractAddress({
-            from: actorsByDAO.address,
+            from: actors.address,
             nonce: 1,
         });
-        const receipt = await (await actorsByDAO.mintActor(0)).wait();
+        const receipt = await (await actors.connect(taiyiDAO).mintActor(0)).wait();
         //console.log(JSON.stringify(receipt.events, null, 2));
-        const [, , actorMinted] = receipt.events || [];
+        const [, actorMinted] = receipt.events || [];
 
-        expect(await actorsByDAO.ownerOf(1)).to.eq(taisifusDAO.address);
+        expect(await actors.ownerOf(1)).to.eq(taiyiDAO.address);
         expect(actorMinted?.event).to.eq('ActorMinted');
-        expect(actorMinted?.args?.owner).to.eq(taisifusDAO.address);
+        expect(actorMinted?.args?.owner).to.eq(taiyiDAO.address);
         expect(actorMinted?.args?.actorId).to.equal(1);
 
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
         expect(actorMinted?.args?.time).to.equal(timestamp);
 
-        const actor1 = await actorsByDAO.getActor(1);
+        const actor1 = await actors.getActor(1);
         expect(actor1.actorId).to.eq(1);
-        expect(actor1.owner).to.eq(taisifusDAO.address);
+        expect(actor1.owner).to.eq(taiyiDAO.address);
         expect(actor1.account).to.eq(holderAddress);
     });
 
-    it('无准入铸造新角色', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-
-        //PanGu should be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor(0);
-        //YeMing should be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(2);
-        await actorsByDAO.mintActor(0);
-        //GuanGong should be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(3);
-        await actorsByDAO.mintActor(0);
+    it('无准入铸造新角色-免费角色', async () => {
+        //2 should be mint for free
+        expect(await actors.nextActor()).to.eq(2);
+        await actors.mintActor(0);
+        //3 should be mint for free
+        expect(await actors.nextActor()).to.eq(3);
+        await actors.connect(operator1).mintActor(0);
 
         //newone should not be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(4);
-        await expect(actorsByDAO.mintActor(0)).to.be.revertedWith("current actor price exceeded max");
-        await expect(actorsByDAO.mintActor(BigInt(100.0e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        expect(await actors.nextActor()).to.eq(4);
+        await expect(actors.mintActor(0)).to.be.revertedWith("current actor price exceeded max");
+        await expect(actors.mintActor(BigInt(100.0e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
 
     it('非盘古操作员无权注册世界模块', async () => {
-        //connect actors to operator
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-
-        //deploy module with out any actor exist
         let worldRandom = await deployWorldRandom(deployer);
-        await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
-        .to.be.revertedWith('ERC721: approved query for nonexistent token');
-
-        //PanGu should be mint at first, or you can not register any module
-        expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor(0);
 
         //deploy modules when operator is not PanGu
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
         .to.be.revertedWith('only PanGu');
     });
 
-    it('无准入铸造新角色', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
+    it('盘古注册世界模块', async () => {
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
+    });
 
-        //PanGu should be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor(0);
-        //YeMing should be mint for free
-        expect(await actorsByOp1.nextActor()).to.eq(2);
-        await actorsByOp1.mintActor(0);
-        //GuanGong should be mint for free
-        expect(await actorsByDAO.nextActor()).to.eq(3);
-        await actorsByDAO.mintActor(0);
-
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
-        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
-        expect(await worldContractRoute.isYeMing(2)).to.eq(true);
+    it('无准入铸造新角色-付费角色', async () => {
+        //set actor #3 as YeMing
+        await worldYemings.connect(taiyiDAO).setYeMing(3, operator1.address); //fake address just for test
+        expect(await worldYemings.isYeMing(3)).to.eq(true);
 
         //deal coin
         let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
-        expect((await assetDaoliByOp1.claim(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
+        expect((await assetDaoliByOp1.claim(3, 3, BigInt(1000e18))).wait()).eventually.fulfilled;
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(0);
-        expect((await assetDaoliByOp1.withdraw(2, 2, BigInt(1000e18))).wait()).eventually.fulfilled;
+        expect((await assetDaoliByOp1.withdraw(3, 3, BigInt(1000e18))).wait()).eventually.fulfilled;
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigInt(1000e18));
 
         //not approve coin to spend by Actors
         expect(await actors.nextActor()).to.eq(4);
-        await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        await expect(actors.connect(operator1).mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
 
         //newone should be mint
         await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
-        expect((await actorsByOp1.mintActor(BigInt(100e18))).wait()).to.eventually.fulfilled;
-        let actualPay = await assetDaoli.balanceOf(taisifusDAO.address);
+        expect((await actors.connect(operator1).mintActor(BigInt(100e18))).wait()).to.eventually.fulfilled;
+        let actualPay = await assetDaoli.balanceOf(taiyiDAO.address);
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigNumber.from(BigInt(1000e18)).sub(actualPay));
 
         expect(await actors.ownerOf(4)).to.eq(operator1.address);
     });
 
     it('铸造新角色-道理不够情况', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
-
-        //PanGu should be mint for free
-        await actorsByDAO.mintActor(0);
-        //YeMing should be mint for free
-        await actorsByOp1.mintActor(0);
-        //GuanGong should be mint for free
-        await actorsByOp1.mintActor(0);
-
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
-        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
+        await worldYemings.connect(taiyiDAO).setYeMing(2, deployer.address); //fake address just for test
 
         //deal coin
-        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
-        await assetDaoliByOp1.claim(2, 2, BigInt(1e17));
-        await assetDaoliByOp1.withdraw(2, 2, BigInt(1e17));
-        await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
+        await assetDaoli.claim(2, 2, BigInt(1e17));
+        await assetDaoli.withdraw(2, 2, BigInt(1e17));
+        await assetDaoli.approve(actors.address, BigInt(1000e18));
 
-        expect(await actors.nextActor()).to.eq(4);
+        expect(await actors.nextActor()).to.eq(5);
         expect(await actors.actorPrice()).to.gt(BigInt(1e17));
-        await expect(actorsByOp1.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(actors.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
 
     it('铸造新角色-最小花费上限情况', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-        let actorsByOp1 = Actors__factory.connect(actors.address, operator1);
-
-        //PanGu should be mint for free
-        await actorsByDAO.mintActor(0);
-        //YeMing should be mint for free
-        await actorsByOp1.mintActor(0);
-        //GuanGong should be mint for free
-        await actorsByOp1.mintActor(0);
-
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taisifusDAO);
-        await routeByPanGu.setYeMing(2, operator1.address); //fake address just for test
-
-        //deal coin
-        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
-        await assetDaoliByOp1.claim(2, 2, BigInt(100e18));
-        await assetDaoliByOp1.withdraw(2, 2, BigInt(100e18));
-        await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
-
-        expect(await actors.nextActor()).to.eq(4);
+        expect(await actors.nextActor()).to.eq(5);
         let price = await actors.actorPrice();
         expect(price).to.gt(BigInt(9e17));
-        await expect(actorsByOp1.mintActor(price.sub(BigInt(9e17)))).to.be.revertedWith("current actor price exceeded max");
+        await expect(actors.connect(operator1).mintActor(price.sub(BigInt(9e17)))).to.be.revertedWith("current actor price exceeded max");
     });
 
     it('铸造角色花费-标准值精度', async () => {
@@ -256,7 +202,7 @@ describe('太乙角色基础测试', () => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 describe('角色铸造费用VRGDA测试', () => {
     let deployer: SignerWithAddress;
-    let taisifusDAO: SignerWithAddress;
+    let taiyiDAO: SignerWithAddress;
     let operator1: SignerWithAddress;
     let operator2: SignerWithAddress;
     let snapshotId: number;
@@ -267,7 +213,7 @@ describe('角色铸造费用VRGDA测试', () => {
     let assetDaoli: WorldFungible;
 
     before(async () => {
-        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
+        [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -280,7 +226,7 @@ describe('角色铸造费用VRGDA测试', () => {
 
         //Deploy Actors
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        actors = await deployActors(taisifusDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
     });
 
@@ -349,7 +295,7 @@ describe('角色铸造费用VRGDA测试', () => {
 describe('角色URI测试', () => {
 
     let deployer: SignerWithAddress;
-    let taisifusDAO: SignerWithAddress;
+    let taiyiDAO: SignerWithAddress;
     let operator1: SignerWithAddress;
     let operator2: SignerWithAddress;
     let snapshotId: number;
@@ -360,7 +306,7 @@ describe('角色URI测试', () => {
     let actors: Actors;
 
     before(async () => {
-        [deployer, taisifusDAO, operator1, operator2] = await ethers.getSigners();
+        [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
@@ -373,66 +319,17 @@ describe('角色URI测试', () => {
 
         //Deploy Actors
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        actors = await deployActors(taisifusDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
+        actors = await deployActors(taiyiDAO.address, timestamp, assetDaoli.address, worldContractRoute, deployer);
         await worldContractRoute.registerActors(actors.address);
 
-        //connect actors to operator
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-
         //PanGu should be mint at first, or you can not register any module
-        expect(await actorsByDAO.nextActor()).to.eq(1);
-        await actorsByDAO.mintActor(0);
-    });
-
-    beforeEach(async () => {
-        snapshotId = await ethers.provider.send('evm_snapshot', []);
-    });
-
-    afterEach(async () => {
-        await ethers.provider.send('evm_revert', [snapshotId]);
-    });
-
-    it('访问不存在角色', async () => {
-        let actorsByDAO = Actors__factory.connect(actors.address, taisifusDAO);
-
-        await expect(actorsByDAO.getActor(2)).to.be.revertedWith('ERC721: owner query for nonexistent token');
-    });
-
-    it('角色铸造', async () => {
-        //connect actors to operator
-        let actorsByOperator1 = Actors__factory.connect(actors.address, operator1);
-
-        //new actor can be mint
-        expect(await actors.nextActor()).to.eq(2);
-
-        const holderAddress = ethers.utils.getContractAddress({
-            from: actors.address,
-            nonce: 1+1,
-        });
-        const receipt = await (await actorsByOperator1.mintActor(0)).wait();
-        const [, , actorMinted] = receipt.events || [];
-
-        expect(await actors.ownerOf(2)).to.eq(operator1.address);
-        expect(actorMinted?.event).to.eq('ActorMinted');
-        expect(actorMinted?.args?.owner).to.eq(operator1.address);
-        expect(actorMinted?.args?.actorId).to.equal(2);
-
-        const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
-        expect(actorMinted?.args?.time).to.equal(timestamp);
-
-        const actor1 = await actors.getActor(2);
-        expect(actor1.actorId).to.eq(2);
-        expect(actor1.owner).to.eq(operator1.address);
-        expect(actor1.account).to.eq(holderAddress);
+        expect(await actors.nextActor()).to.eq(1);
+        await actors.connect(taiyiDAO).mintActor(0);
     });
 
     it('角色URI', async () => {
-        //connect actors to operator
-        let actorsByOperator1 = Actors__factory.connect(actors.address, operator1);
-
         expect(await actors.nextActor()).to.eq(2);
-        const receipt = await (await actorsByOperator1.mintActor(0)).wait();
-
+        const receipt = await (await actors.connect(operator1).mintActor(0)).wait();
         const timestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
 
         let uri = await actors.tokenURI(2);

@@ -5,12 +5,11 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, ActorAttributesConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
+    WorldConstants, WorldContractRoute, WorldContractRoute__factory, 
     Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
     WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributesConstants__factory, 
+    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, 
     ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
     ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory,
     WorldEventProcessor10001__factory,
@@ -24,7 +23,9 @@ import {
     WorldEventProcessor10000__factory,
     WorldEventProcessor60508__factory,
     ActorPrelifes,
-    ActorPrelifes__factory
+    ActorPrelifes__factory,
+    WorldYemings,
+    WorldYemings__factory
 } from '../../typechain';
 import {
     blockNumber,
@@ -60,7 +61,6 @@ describe('角色出生序列事件测试', () => {
     let eventProcessorAddressBook: {[index: string]:any};
 
     let worldConstants: WorldConstants;
-    let actorAttributesConstants: ActorAttributesConstants;
     let worldContractRoute: WorldContractRoute;
     let sifusToken: SifusToken;
     let actors: Actors;
@@ -79,6 +79,7 @@ describe('角色出生序列事件测试', () => {
     let actorRelationship: ActorRelationship;
     let worldEvents: WorldEvents;
     let actorPrelifes: ActorPrelifes;
+    let worldYemings: WorldYemings;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber;
@@ -148,7 +149,7 @@ describe('角色出生序列事件测试', () => {
         shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
-        actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
+        worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
         baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);        
         charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
         behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
@@ -160,7 +161,7 @@ describe('角色出生序列事件测试', () => {
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
         //bind timeline to a zone
         let zoneId = await zones.nextZone();
@@ -188,8 +189,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            expect((await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
+            expect((await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
         });
 
         it('创建新角色', async () => {
@@ -303,8 +303,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10001, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -365,10 +364,9 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10009, 1);
-            await shejituByPanGu.addAgeEvent(2, 10012, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10009, 1);
+            await shejiTu.connect(deployer).addAgeEvent(2, 10012, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -465,8 +463,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10001, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -527,10 +524,9 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10009, 1);
-            await shejituByPanGu.addAgeEvent(2, 10014, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10009, 1);
+            await shejiTu.connect(deployer).addAgeEvent(2, 10014, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -647,9 +643,8 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10000, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10000, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -677,7 +672,7 @@ describe('角色出生序列事件测试', () => {
             expect(await evt60508.checkOccurrence(testActor, 0)).to.eq(false);
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 }); //age 1, dead
             expect(await worldEvents.ages(testActor)).to.eq(1);
-            expect(await baseAttributes.attributesScores(await actorAttributesConstants.HLH(), testActor)).to.eq(0);
+            expect(await baseAttributes.attributesScores(await worldConstants.ATTR_HLH(), testActor)).to.eq(0);
         });
 
         it('60508时间线资金检查', async () => {

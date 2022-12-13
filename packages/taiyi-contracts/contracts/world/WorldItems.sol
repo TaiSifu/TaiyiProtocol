@@ -42,7 +42,7 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) ERC721("Taiyi Items", "TYITEM") {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Items", "TYITEM") {
     }     
 
     function mint(uint256 _operator, uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) public override 
@@ -136,7 +136,7 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     {
         if(worldRoute.actors().isHolderExist(ownerOf(_itemId))) {
             //yeming can burn if in custody
-            require(worldRoute.isYeMing(_operator), "only YeMing");
+            require(IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS)).isYeMing(_operator), "only YeMing");
             require(_isActorApprovedOrOwner(_operator), "not YeMing's operator");
         }
         else {

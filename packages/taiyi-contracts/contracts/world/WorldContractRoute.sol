@@ -3,30 +3,20 @@ pragma solidity ^0.8.6;
 
 import "../interfaces/WorldInterfaces.sol";
 import "../libs/WorldConstants.sol";
+import "../base/Ownable.sol";
 
-contract WorldContractRoute 
-{
-    // Deployment Address
-    address internal _owner;    
- 
+contract WorldContractRoute is Ownable
+{ 
+    uint256 public constant ACTOR_PANGU = 1;
+    
     mapping(uint256 => address) public modules;
     address                     public actorsAddress;
     IActors                     public actors;
-    mapping(uint256 => address) public YeMings; //YeMing => Timeline
  
-    constructor() {
-        _owner = msg.sender;
-    }
-
     /* *********
      * Modifiers
      * *********
      */
-
-    modifier onlyContractOwner() {
-        require(msg.sender == _owner, "Only contract owner");
-        _;
-    }
 
     modifier onlyValidAddress(address _address) {
         require(_address != address(0), "cannot set zero address");
@@ -34,7 +24,7 @@ contract WorldContractRoute
     }
 
     modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
+        require(_isActorApprovedOrOwner(ACTOR_PANGU), "only PanGu");
         _;
     }
 
@@ -53,7 +43,7 @@ contract WorldContractRoute
      */
 
     function registerActors(address _address) external 
-        onlyContractOwner()
+        onlyOwner
         onlyValidAddress(_address)
     {
         require(actorsAddress == address(0), "Actors address already registered.");
@@ -63,28 +53,11 @@ contract WorldContractRoute
     }
 
     function registerModule(uint256 id, address _address) external 
-        onlyPanGu()
+        onlyPanGu
         onlyValidAddress(_address)
     {
         //require(modules[id] == address(0), "module address already registered.");
         require(IWorldModule(_address).moduleID() == id, "module id is not match.");
         modules[id] = _address;
-    }
-
-    //set address = 0 means disable this actor as yeming
-    function setYeMing(uint256 _actor, address _timelineAddress) external 
-        onlyPanGu()
-    {
-        require(_actor != 0, "invalid actor.");
-        YeMings[_actor] = _timelineAddress;
-    }
-
-    /* ****************
-     * View Functions
-     * ****************
-     */
-
-    function isYeMing(uint256 _actor) public view returns (bool) {
-        return (_actor!=0 && YeMings[_actor] != address(0));
     }
 }

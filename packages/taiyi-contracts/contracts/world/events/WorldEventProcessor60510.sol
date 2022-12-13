@@ -21,7 +21,7 @@ check order:
 
 contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
@@ -31,7 +31,7 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorBehaviorAttributesConstants.ACT);
+        modifiers[0] = int256(WorldConstants.ATTR_ACT);
         modifiers[1] = -5;
         return modifiers;
     }
@@ -61,7 +61,7 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
 
         //行动力要求
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
-        if(behavior.attributesScores(ActorBehaviorAttributesConstants.ACT, _actor) < 5) {
+        if(behavior.attributesScores(WorldConstants.ATTR_ACT, _actor) < 5) {
             require(false, "act point is low");
             return false;
         }

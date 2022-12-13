@@ -9,7 +9,7 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
 
     uint256 public override moduleID;
 
-    constructor(string memory _name, string memory _symbol, uint256 _moduleID, address _worldRouteAddress) ERC20(_name, _symbol) WorldConfigurable(_worldRouteAddress) {
+    constructor(string memory _name, string memory _symbol, uint256 _moduleID, WorldContractRoute _route) ERC20(_name, _symbol) WorldConfigurable(_route) {
         moduleID = _moduleID;
     }
 

@@ -147,7 +147,7 @@ contract ActorNames is IActorNames, WorldConfigurable, ERC721Enumerable
      * *****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) ERC721("Taiyi Actor Names", "TYNAMES") {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Actor Names", "TYNAMES") {
     }
 
     /* *****************

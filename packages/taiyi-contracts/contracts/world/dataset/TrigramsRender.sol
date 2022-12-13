@@ -31,7 +31,7 @@ contract TrigramsRender is ITrigramsRender, WorldConfigurable {
      * *****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {}
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {}
 
     /* *****************
      * Internal Functions
