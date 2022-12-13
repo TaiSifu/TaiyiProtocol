@@ -16,7 +16,7 @@ check order:
 
 contract WorldEventProcessor1050001 is ZoneTraversalEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你回到了大荒世界。

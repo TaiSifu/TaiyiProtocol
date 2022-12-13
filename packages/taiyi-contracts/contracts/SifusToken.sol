@@ -27,6 +27,7 @@ import './interfaces/ISifusToken.sol';
 import './libs/Base64.sol';
 import './libs/Strings.sol';
 import './world/WorldConfigurable.sol';
+import './libs/WorldConstants.sol';
 //import "hardhat/console.sol";
 
 contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
@@ -117,9 +118,9 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
         address _taiyiDAO,
         ISifusDescriptor _descriptor,
         ISifusSeeder _seeder,
-        address _worldRouteAddress
+        WorldContractRoute _route
         //IProxyRegistry _proxyRegistry
-    ) ERC721('Taiyi Sifus', 'SIFU') WorldConfigurable(_worldRouteAddress) {
+    ) ERC721('Taiyi Sifus', 'SIFU') WorldConfigurable(_route) {
         taiyiDAO = _taiyiDAO;
         descriptor = _descriptor;
         seeder = _seeder;

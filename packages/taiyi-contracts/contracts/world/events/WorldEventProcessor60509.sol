@@ -23,7 +23,7 @@ contract WorldEventProcessor60509 is DefaultWorldEventProcessor {
 
     uint256 public immutable BASE_TRAVEL_TIME; //基础旅行时间（秒）
 
-    constructor(uint256 baseTravelTime, address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {
+    constructor(uint256 baseTravelTime, WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
         BASE_TRAVEL_TIME = baseTravelTime;
     }
 
@@ -34,7 +34,7 @@ contract WorldEventProcessor60509 is DefaultWorldEventProcessor {
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorBehaviorAttributesConstants.ACT);
+        modifiers[0] = int256(WorldConstants.ATTR_ACT);
         modifiers[1] = -15;
         return modifiers;
     }
@@ -57,7 +57,7 @@ contract WorldEventProcessor60509 is DefaultWorldEventProcessor {
         }
 
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
-        uint256 _act = behavior.attributesScores(ActorBehaviorAttributesConstants.ACT, _actor);
+        uint256 _act = behavior.attributesScores(WorldConstants.ATTR_ACT, _actor);
         if(_act < 15) {
             //require(false, "action point is low");
             return false;

@@ -27,7 +27,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) ERC721("Taiyi Zone", "TYZONE") {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Zone", "TYZONE") {
     }     
 
     // @dev Claim a zone for a actor.

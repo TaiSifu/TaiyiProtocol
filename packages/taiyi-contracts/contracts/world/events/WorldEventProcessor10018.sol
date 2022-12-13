@@ -16,7 +16,7 @@ check order:
 */
 
 contract WorldEventProcessor10018 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你的父亲在种地时意外发现一袋金子。
         return "\xE4\xBD\xA0\xE7\x9A\x84\xE7\x88\xB6\xE4\xBA\xB2\xE5\x9C\xA8\xE7\xA7\x8D\xE5\x9C\xB0\xE6\x97\xB6\xE6\x84\x8F\xE5\xA4\x96\xE5\x8F\x91\xE7\x8E\xB0\xE4\xB8\x80\xE8\xA2\x8B\xE9\x87\x91\xE5\xAD\x90\xE3\x80\x82";
@@ -35,7 +35,7 @@ contract WorldEventProcessor10018 is DefaultWorldEventProcessor {
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         //"XIQ": 5
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorMoodAttributesConstants.XIQ);
+        modifiers[0] = int256(WorldConstants.ATTR_XIQ);
         modifiers[1] = 5;
         return modifiers;
     }

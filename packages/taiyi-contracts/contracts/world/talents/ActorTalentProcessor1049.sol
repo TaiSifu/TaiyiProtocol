@@ -15,7 +15,7 @@ check order:
 
 contract ActorTalentProcessor1049 is IActorTalentProcessor, WorldConfigurable {
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     function checkOccurrence(uint256 /*_actor*/, uint256 _age) external virtual view override returns (bool) {

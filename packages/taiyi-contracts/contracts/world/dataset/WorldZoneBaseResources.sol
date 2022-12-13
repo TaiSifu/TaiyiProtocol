@@ -37,7 +37,7 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable {
      * ****************
      */
 
-    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, WorldContractRoute _route) WorldConfigurable(_route) {
         GROW_TIME_DAY = _growTimeDay;
         GROW_QUANTITY_SCALE = _growQuantityScale;
 

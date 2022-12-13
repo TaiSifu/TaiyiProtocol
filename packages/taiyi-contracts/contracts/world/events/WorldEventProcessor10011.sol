@@ -16,7 +16,7 @@ check order:
 
 contract WorldEventProcessor10011 is DefaultWorldEventProcessor {
     uint256 public actorNum;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你自幼被门派收养。
         return "\xE4\xBD\xA0\xE8\x87\xAA\xE5\xB9\xBC\xE8\xA2\xAB\xE9\x97\xA8\xE6\xB4\xBE\xE6\x94\xB6\xE5\x85\xBB\xE3\x80\x82";

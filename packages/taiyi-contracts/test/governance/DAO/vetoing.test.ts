@@ -34,7 +34,7 @@ import {
     TaiyiDaoExecutor,
     TaiyiDaoExecutor__factory,
 } from '../../../typechain';
-import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -133,7 +133,9 @@ async function reset(): Promise<void> {
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), deployer));
 
     //set PanGu as YeMing for test
-    await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+    let worldYemings = await deployWorldYemings(deployer.address, deployer);
+    await worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+    await worldYemings.setYeMing(actorPanGu, deployer.address);
 
     snapshotId = await ethers.provider.send('evm_snapshot', []);
 }

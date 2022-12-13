@@ -5,17 +5,15 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, BigNumberish, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, ActorAttributesConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
+    WorldConstants, WorldContractRoute, WorldContractRoute__factory, 
     Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
     WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributesConstants__factory, 
+    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory,
     ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, ActorCharmAttributesConstants, 
-    ActorCoreAttributesConstants, ActorMoodAttributesConstants, ActorBehaviorAttributesConstants, ActorCharmAttributesConstants__factory, 
-    ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants__factory, ActorBehaviorAttributesConstants__factory, 
+    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory,
     ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory,
+    Trigrams, Trigrams__factory, WorldRandom, WorldRandom__factory, WorldYemings, WorldYemings__factory
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -28,11 +26,11 @@ import {
 } from '@taiyi/contracts/utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { 
-    ActorXumiAttributesConstants, ActorXumiAttributes,
+    ActorXumiAttributes,
     Xumi, XumiConstants, XumiConstants__factory, Xumi__factory,
 } from '../typechain';
 import { 
-    deployActorXumiAttributes, deployActorXumiAttributesConstants, deployAssetElementH, deployAssetEnergy, deployXumi,
+    deployActorXumiAttributes, deployAssetElementH, deployAssetEnergy, deployXumi,
     deployXumiConstants, initEvents, initItemTypes, initTalents, initTimeline 
 } from '../utils';
 
@@ -58,12 +56,6 @@ describe('须弥时间线基础', () => {
     let eventProcessorAddressBook: {[index: string]:any};
 
     let worldConstants: WorldConstants;
-    let actorAttributesConstants: ActorAttributesConstants;
-    let actorCharmAttributesConstants: ActorCharmAttributesConstants;
-    let actorCoreAttributesConstants: ActorCoreAttributesConstants;
-    let actorMoodAttributesConstants: ActorMoodAttributesConstants;
-    let actorBehaviorAttributesConstants: ActorBehaviorAttributesConstants;
-
     let worldContractRoute: WorldContractRoute;
     let sifusToken: SifusToken;
     let actors: Actors;
@@ -87,6 +79,9 @@ describe('须弥时间线基础', () => {
     let actorLocations : ActorLocations;
     let worldItems : WorldItems;
     let worldBuildings: WorldBuildings;
+    let worldYemings: WorldYemings;
+    let random: WorldRandom;
+    let trigrams: Trigrams;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber; 
@@ -95,7 +90,6 @@ describe('须弥时间线基础', () => {
     ///// 须弥相关
     let xumiConstants: XumiConstants;
     let xumi: Xumi;
-    let actorXumiAttributesConstants: ActorXumiAttributesConstants;
     let actorXumiAttributes: ActorXumiAttributes;
 
     let makeMoney = async (toWho: string, amount: BigNumberish):Promise<void> => { 
@@ -210,11 +204,7 @@ describe('须弥时间线基础', () => {
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
         prestiges = WorldFungible__factory.connect(contracts.AssetPrestige.instance.address, operator1);
         zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
-        actorAttributesConstants = ActorAttributesConstants__factory.connect(contracts.ActorAttributesConstants.instance.address, operator1);
-        actorCharmAttributesConstants = ActorCharmAttributesConstants__factory.connect(contracts.ActorCharmAttributesConstants.instance.address, operator1);
-        actorCoreAttributesConstants = ActorCoreAttributesConstants__factory.connect(contracts.ActorCoreAttributesConstants.instance.address, operator1);
-        actorMoodAttributesConstants = ActorMoodAttributesConstants__factory.connect(contracts.ActorMoodAttributesConstants.instance.address, operator1);
-        actorBehaviorAttributesConstants = ActorBehaviorAttributesConstants__factory.connect(contracts.ActorBehaviorAttributesConstants.instance.address, operator1);
+        worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
         baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
         charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
         behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
@@ -225,10 +215,12 @@ describe('须弥时间线基础', () => {
         actorLocations = ActorLocations__factory.connect(contracts.ActorLocations.instance.address, operator1);
         worldItems = WorldItems__factory.connect(contracts.WorldItems.instance.address, operator1);
         worldBuildings = WorldBuildings__factory.connect(contracts.WorldBuildings.instance.address, operator1);
+        random = WorldRandom__factory.connect(contracts.WorldRandom.instance.address, operator1);
+        trigrams = Trigrams__factory.connect(contracts.Trigrams.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
-        await worldContractRoute.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
         //bind timeline to a zone
         let zoneId = await zones.nextZone();
@@ -254,28 +246,35 @@ describe('须弥时间线基础', () => {
         });
 
         it(`部署属性`, async ()=>{
-            actorXumiAttributesConstants = await deployActorXumiAttributesConstants(operator1);
             actorXumiAttributes = await deployActorXumiAttributes(worldContractRoute, operator1);
             await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES(), actorXumiAttributes.address);
         });
 
         it(`部署须弥时间线`, async ()=>{
-            xumi = Xumi__factory.connect((await deployXumi(worldContractRoute, operator1))[0].address, operator1);
+            xumi = Xumi__factory.connect((await deployXumi(actors, worldYemings, actorLocations, zones, baseAttributes,
+                worldEvents, talents, trigrams, random, operator1))[0].address, operator1);
             await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
         });
 
         it('不允许再次初始化', async () => {
             const tx = xumi.connect(operator1).initialize(
-                worldContractRoute.address
-            );
+                actors.address,
+                worldYemings.address,
+                actorLocations.address,
+                zones.address,
+                baseAttributes.address,
+                worldEvents.address,
+                talents.address,
+                trigrams.address,
+                random.address);
             await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
         });    
 
         it(`初始化天赋`, async ()=>{
-            await initTalents(talents.address, taiyiDAO, xumiConstants, actorAttributesConstants, actorXumiAttributesConstants);
+            await initTalents(talents.address, taiyiDAO, xumiConstants, worldConstants);
 
             let W_MODULE_XUMI_ATTRIBUTES = await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES();
-            let STB = await actorXumiAttributesConstants.STB();
+            let STB = await xumiConstants.ATTR_STB();
 
             expect(await talents.talentNames(10004)).to.eq("跃迁达人");
             expect(await talents.talentDescriptions(10004)).to.eq("运动可能自发突然变化，稳定性-10，属性点+40");
@@ -327,10 +326,10 @@ describe('须弥时间线基础', () => {
 
         it(`配置须弥操作员`, async ()=>{
             let newActor = await newDahuangActor(operator1);
-            await worldContractRoute.connect(taiyiDAO).setYeMing(newActor, xumi.address);
+            await worldYemings.connect(taiyiDAO).setYeMing(newActor, xumi.address);
             await actors.approve(xumi.address, newActor);
             expect((await xumi.initOperator(newActor)).wait()).eventually.fulfilled;
-            expect(await worldContractRoute.isYeMing(await xumi.operator())).to.eq(true);
+            expect(await worldYemings.isYeMing(await xumi.operator())).to.eq(true);
             expect(await actors.ownerOf(await xumi.operator())).to.eq(xumi.address);
         });
 

@@ -3,14 +3,26 @@ pragma solidity ^0.8.4;
 
 library WorldConstants {
 
-    //time constants
-    uint256 public constant DAY = 1 days;
-    uint256 public constant HOUR = 1 hours;
-    uint256 public constant MINUTE = 1 minutes;
-    uint256 public constant SECOND = 1 seconds;
-
-    //top authority actors. 盘古
+    //special actors ID
     uint256 public constant ACTOR_PANGU = 1;
+
+    //actor attributes ID
+    uint256 public constant ATTR_BASE = 0;
+    uint256 public constant ATTR_AGE = 0; // 年龄
+    uint256 public constant ATTR_HLH = 1; // 健康，生命
+    uint256 public constant ATTR_BASE_CHARM = 10; // ID起始值
+    uint256 public constant ATTR_MEL = 10; // 魅力
+    uint256 public constant ATTR_BASE_MOOD = 20; // ID起始值
+    uint256 public constant ATTR_XIQ = 20; // 心情
+    uint256 public constant ATTR_BASE_CORE = 30; // ID起始值
+    uint256 public constant ATTR_LVL = 30; // 膂力
+    uint256 public constant ATTR_TIZ = 31; // 体质
+    uint256 public constant ATTR_LIM = 32; // 灵敏
+    uint256 public constant ATTR_GEG = 33; // 根骨
+    uint256 public constant ATTR_WUX = 34; // 悟性
+    uint256 public constant ATTR_DIL = 35; // 定力
+    uint256 public constant ATTR_BASE_BEHAVIOR = 40;
+    uint256 public constant ATTR_ACT = 40; // 行动力
 
     //module ID
     uint256 public constant WORLD_MODULE_ACTORS       = 0;
@@ -55,4 +67,5 @@ library WorldConstants {
     uint256 public constant WORLD_MODULE_SIFUS        = 31; //师傅令牌
 
     uint256 public constant WORLD_MODULE_ACTOR_TIMELINE_LASTAGES  = 32; //角色在对应时间线上的最后年龄
+    uint256 public constant WORLD_MODULE_YEMINGS  = 33; //噎明权限记录
 }

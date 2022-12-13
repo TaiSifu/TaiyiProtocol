@@ -1,20 +1,18 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
-    ActorAttributes, ActorAttributes__factory, ActorAttributesConstants, ActorAttributesConstants__factory,
+    ActorAttributes, ActorAttributes__factory,
     ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,    
     WorldFungible, WorldFungible__factory, ShejiTu, ShejiTu__factory, SifusToken,
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
     WorldItems, WorldItems__factory, WorldZones, WorldZones__factory, WorldEvents, WorldEvents__factory, 
-    ActorCharmAttributesConstants, ActorCharmAttributesConstants__factory, ActorCoreAttributesConstants, 
-    ActorCoreAttributesConstants__factory, ActorMoodAttributesConstants, ActorMoodAttributesConstants__factory,
-    ActorBehaviorAttributesConstants, ActorBehaviorAttributesConstants__factory, SifusDescriptor__factory, ActorTalents, 
+    SifusDescriptor__factory, ActorTalents, 
     ActorTalents__factory, ActorCharmAttributes, ActorCharmAttributes__factory, ActorCoreAttributes, ActorCoreAttributes__factory, 
     ActorMoodAttributes, ActorMoodAttributes__factory, ActorBehaviorAttributes, ActorBehaviorAttributes__factory, WorldSeasons, 
     WorldSeasons__factory, ActorBornPlaces, ActorBornPlaces__factory, ActorPrelifes, ActorPrelifes__factory, ActorLocations, 
     ActorLocations__factory, WorldVillages, WorldVillages__factory, WorldBuildings, WorldBuildings__factory, ActorRelationship, 
     ActorRelationship__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, Trigrams, Trigrams__factory, 
     TrigramsRender, TrigramsRender__factory, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, 
-    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible, ActorTimelineAges, ActorTimelineAges__factory,
+    SifusDescriptor, SifusSeeder, SifusSeeder__factory, WorldNontransferableFungible__factory, WorldNontransferableFungible, ActorTimelineAges, ActorTimelineAges__factory, WorldYemings, WorldYemings__factory,
 } from '../typechain';
 import { BigNumber, BigNumberish, Contract as EthersContract } from 'ethers';
 import { initSIDNames } from './initSocialIdentity';
@@ -40,35 +38,20 @@ export const deployWorldConstants = async (deployer: SignerWithAddress): Promise
     return (await factory.deploy()).deployed();
 };
 
-export const deployActorAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorAttributesConstants> => {
-    const factory = new ActorAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
-};
-
-export const deployActorCharmAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorCharmAttributesConstants> => {
-    const factory = new ActorCharmAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
-};
-export const deployActorCoreAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorCoreAttributesConstants> => {
-    const factory = new ActorCoreAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
-};
-export const deployActorMoodAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorMoodAttributesConstants> => {
-    const factory = new ActorMoodAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
-};
-export const deployActorBehaviorAttributesConstants = async (deployer: SignerWithAddress): Promise<ActorBehaviorAttributesConstants> => {
-    const factory = new ActorBehaviorAttributesConstants__factory(deployer);
-    return (await factory.deploy()).deployed();
+export const deployWorldYemings = async (taiyiDAO: string, deployer: SignerWithAddress): Promise<WorldYemings> => {
+    const factory = new WorldYemings__factory(deployer);
+    return (await factory.deploy(taiyiDAO)).deployed();
 };
 
 export const deployActors = async (taiyiDAO: string, mintStart: BigNumberish, coinContract: string,
 route: WorldContractRoute, deployer: SignerWithAddress): Promise<Actors> => {
     const factory = new Actors__factory(deployer);
-    return (await factory.deploy(taiyiDAO, mintStart, coinContract, route.address)).deployed();
+    return (await factory.deploy(taiyiDAO, mintStart, coinContract)).deployed();
 };
 
-export const deployShejiTu = async (route: WorldContractRoute, deployer: SignerWithAddress) => {
+export const deployShejiTu = async (actors: Actors, yemings: WorldYemings, locations: ActorLocations,
+    zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
+    random: WorldRandom, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
     let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
@@ -76,7 +59,15 @@ export const deployShejiTu = async (route: WorldContractRoute, deployer: SignerW
         shejituImpl.address,
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
-            route.address]));
+            actors.address,
+            yemings.address,
+            locations.address,
+            zones.address,
+            attributes.address,
+            evts.address,
+            talents.address,
+            trigrams.address,
+            random.address]));
     return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl];
 }
 
@@ -270,15 +261,11 @@ export type WorldContractName =
     | 'SifusSeeder'
     | 'SifusToken'
     | 'WorldConstants'
-    | 'ActorAttributesConstants' 
-    | 'ActorCharmAttributesConstants' 
-    | 'ActorCoreAttributesConstants'
-    | 'ActorMoodAttributesConstants' 
-    | 'ActorBehaviorAttributesConstants' 
     | 'WorldContractRoute' 
     | 'Actors' 
     | 'WorldRandom' 
     | 'ActorNames' 
+    | 'WorldYemings'
     | 'WorldItems' 
     | 'ActorSocialIdentity' 
     | 'WorldZones' 
@@ -335,11 +322,6 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     
     if(verbose) console.log("Deploy Constants...");
     let worldConstants = await deployWorldConstants(deployer);
-    let actorAttributesConstants = await deployActorAttributesConstants(deployer);
-    let actorCharmAttributesConstants = await deployActorCharmAttributesConstants(deployer);
-    let actorCoreAttributesConstants = await deployActorCoreAttributesConstants(deployer);
-    let actorMoodAttributesConstants = await deployActorMoodAttributesConstants(deployer);
-    let actorBehaviorAttributesConstants = await deployActorBehaviorAttributesConstants(deployer);
 
     if(verbose) console.log("Deploy WorldContractRoute...");
     let worldContractRoute = await deployWorldContractRoute(deployer);
@@ -365,6 +347,10 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await populateDescriptor(sifusDescriptor);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIFUS(), sifusToken.address);
 
+    if(verbose) console.log("Deploy WorldRandom...");
+    let worldRandom = await deployWorldRandom(deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address);
+
     if(verbose) console.log("Deploy ActorNames...");
     let actorNames = await deployActorNames(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_NAMES(), actorNames.address);
@@ -381,16 +367,39 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     let worldZones = await deployWorldZones(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
 
+    if(verbose) console.log("Deploy WorldYemings...");
+    let worldYemings = await deployWorldYemings(operatorDAO.address, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+
+    if(verbose) console.log("Deploy Actor Attributes...");
+    let actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
+
+    if(verbose) console.log("Deploy ActorLocations...");
+    let actorLocations = await deployActorLocations(routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
+
+    if(verbose) console.log("Deploy WorldEvents...");
+    let worldEvents = await deployWorldEvents(oneAgeVSecond, routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+
+    if(verbose) console.log("Deploy ActorTalents...");
+    let actorTalents = await deployActorTalents(routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+
+    if(verbose) console.log("Deploy Trigrams...");
+    let trigrams = await deployTrigrams(routeByPanGu, deployer);
+    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
+
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu(worldContractRoute, deployer);
+    let shejiTuPkg = await deployShejiTu(actors, worldYemings, actorLocations, worldZones, actorAttributes,
+        worldEvents, actorTalents, trigrams, worldRandom, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
     if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-    await routeByPanGu.setYeMing(await shejiTu.operator(), shejiTu.address);
+    await worldYemings.connect(operatorDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
     //deploy actor attributes
-    if(verbose) console.log("Deploy Actor Attributes...");
-    let actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
+    if(verbose) console.log("Deploy Actor Ext Attributes...");
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address);
     await shejiTu.connect(operatorDAO).registerAttributeModule(actorAttributes.address);
     let actorCharmAttributes = await deployActorCharmAttributes(routeByPanGu, deployer);
@@ -422,32 +431,22 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     let assetPrestige = await deployAssetPrestige(worldConstants, routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_PRESTIGE(), assetPrestige.address);
 
-    if(verbose) console.log("Deploy World Modules...");
-    let worldRandom = await deployWorldRandom(deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address);
-    let actorTalents = await deployActorTalents(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+    if(verbose) console.log("Deploy Other World Modules...");
     let actorPrelifes = await deployActorPrelifes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_PRELIFES(), actorPrelifes.address);
     let worldSeasons = await deployWorldSeasons(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SEASONS(), worldSeasons.address);
     let actorBornPlaces = await deployActorBornPlaces(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_BORN_PLACES(), actorBornPlaces.address);
-    let actorLocations = await deployActorLocations(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
     let worldVillages = await deployWorldVillages(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_VILLAGES(), worldVillages.address);
     let worldBuildings = await deployWorldBuildings(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_BUILDINGS(), worldBuildings.address);
-    let worldEvents = await deployWorldEvents(oneAgeVSecond, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
     let actorRelationships = await deployActorRelationship(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RELATIONSHIP(), actorRelationships.address);
     let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer);
     if(verbose) console.log(`Mint GuanGong as actor#${await worldZoneBaseResources.ACTOR_GUANGONG()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address);
-    let trigrams = await deployTrigrams(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address);
     let actorTimelineAges = await deployActorTimelineAges(routeByPanGu, deployer);
@@ -469,7 +468,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         null;
     else {
         if(verbose) console.log("Initialize Talents...");
-        await initTalents(actorTalents.address, operatorDAO, worldConstants, actorAttributesConstants, actorCharmAttributesConstants, actorCoreAttributesConstants, actorMoodAttributesConstants);
+        await initTalents(actorTalents.address, operatorDAO, worldConstants);
     }
 
     //deploy talent processors
@@ -535,15 +534,11 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
 
     let contracts: Record<WorldContractName, WorldContract> = {        
         WorldConstants: {instance: worldConstants},
-        ActorAttributesConstants: {instance: actorAttributesConstants},
-        ActorCharmAttributesConstants: {instance: actorCharmAttributesConstants},
-        ActorCoreAttributesConstants: {instance: actorCoreAttributesConstants},
-        ActorMoodAttributesConstants: {instance: actorMoodAttributesConstants},
-        ActorBehaviorAttributesConstants: {instance: actorBehaviorAttributesConstants},
         WorldContractRoute: {instance: worldContractRoute},
         Actors: {instance: actors},
         WorldRandom: {instance: worldRandom},
         ActorNames: {instance: actorNames},
+        WorldYemings: {instance: worldYemings},
         WorldItems: {instance: worldItems},
         ActorSocialIdentity: {instance: actorSIDs},
         WorldZones: {instance: worldZones},

@@ -1,8 +1,4 @@
 import {
-    ActorAttributesConstants,
-    ActorCharmAttributesConstants,
-    ActorCoreAttributesConstants,
-    ActorMoodAttributesConstants,
     ActorTalentProcessor1010__factory,
     ActorTalentProcessor1049__factory,
     ActorTalentProcessor1050__factory,
@@ -15,8 +11,7 @@ import * as talentsJSON from "../files/talents.json";
 import { BigNumber, Signer } from 'ethers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-export const initTalents = async (talentsAddress: string, operator: Signer, worldConstants: WorldConstants, attributesConst: ActorAttributesConstants,
-    charmAttributesConst: ActorCharmAttributesConstants, coreAttributesConst: ActorCoreAttributesConstants, moodAttributesConst: ActorMoodAttributesConstants): Promise<void> => {
+export const initTalents = async (talentsAddress: string, operator: Signer, worldConstants: WorldConstants): Promise<void> => {
 
     let talents = ActorTalents__factory.connect(talentsAddress, operator);
     
@@ -25,16 +20,16 @@ export const initTalents = async (talentsAddress: string, operator: Signer, worl
     let W_MODULE_CHARM_ATTRIBUTES = await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES();
     let W_MODULE_MOOD_ATTRIBUTES = await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES();
 
-    let HLH = await attributesConst.HLH();
-    let AGE = await attributesConst.AGE();
-    let MEL = await charmAttributesConst.MEL();
-    let XIQ = await moodAttributesConst.XIQ();
-    let LVL = await coreAttributesConst.LVL();
-    let TIZ = await coreAttributesConst.TIZ();
-    let LIM = await coreAttributesConst.LIM();
-    let GEG = await coreAttributesConst.GEG();
-    let WUX = await coreAttributesConst.WUX();
-    let DIL = await coreAttributesConst.DIL();
+    let HLH = await worldConstants.ATTR_HLH();
+    let AGE = await worldConstants.ATTR_AGE();
+    let MEL = await worldConstants.ATTR_MEL();
+    let XIQ = await worldConstants.ATTR_XIQ();
+    let LVL = await worldConstants.ATTR_LVL();
+    let TIZ = await worldConstants.ATTR_TIZ();
+    let LIM = await worldConstants.ATTR_LIM();
+    let GEG = await worldConstants.ATTR_GEG();
+    let WUX = await worldConstants.ATTR_WUX();
+    let DIL = await worldConstants.ATTR_DIL();
 
     //read talent list to init talent automatically, most for development and debug
     let talentsData: { [index: string]: any } = talentsJSON;

@@ -16,7 +16,7 @@ check order:
 */
 
 contract WorldEventProcessor10494 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //体质过低，胎死腹中。
         return "\xE4\xBD\x93\xE8\xB4\xA8\xE8\xBF\x87\xE4\xBD\x8E\xEF\xBC\x8C\xE8\x83\x8E\xE6\xAD\xBB\xE8\x85\xB9\xE4\xB8\xAD\xE3\x80\x82";
@@ -48,7 +48,7 @@ contract WorldEventProcessor10494 is DefaultWorldEventProcessor {
         //"include": "TIZ<5"
         defaultRt = false; //default should be fasle if have "include" conditions
         IActorSocialIdentity sids = IActorSocialIdentity(worldRoute.modules(WorldConstants.WORLD_MODULE_SIDS));
-        uint256 tiz = core_attributes.attributesScores(ActorCoreAttributesConstants.TIZ, _actor);
+        uint256 tiz = core_attributes.attributesScores(WorldConstants.ATTR_TIZ, _actor);
         if(tiz < 5 && sids.haveName(_actor, 49)) //太乙百子不会胎死腹中
             return true;
 
@@ -59,7 +59,7 @@ contract WorldEventProcessor10494 is DefaultWorldEventProcessor {
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {        
         IActorAttributes core_attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_CORE_ATTRIBUTES));
-        uint256 tiz = core_attributes.attributesScores(ActorCoreAttributesConstants.TIZ, _actor);
+        uint256 tiz = core_attributes.attributesScores(WorldConstants.ATTR_TIZ, _actor);
         if(tiz < 5)
             return 10000;
 

@@ -43,6 +43,15 @@ interface IActors is IERC721, IWorldModule {
     function isHolderExist(address _holder) external view returns (bool);
 }
 
+interface IWorldYemings is IWorldModule {
+    event TaiyiDAOUpdated(address taiyiDAO);
+
+    function setTaiyiDAO(address _taiyiDAO) external;
+
+    function YeMings(uint256 _actor) external view returns (address);
+    function isYeMing(uint256 _actor) external view returns (bool);
+}
+
 interface IWorldTimeline is IWorldModule {
 
     event AgeEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);

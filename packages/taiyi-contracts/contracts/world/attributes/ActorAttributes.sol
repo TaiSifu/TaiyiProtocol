@@ -6,21 +6,13 @@ import "../../interfaces/WorldInterfaces.sol";
 import '../../libs/Base64.sol';
 import '../WorldConfigurable.sol';
 
-library ActorAttributesConstants {
-
-    uint256 public constant _BASE = 0;
-    uint256 public constant AGE = 0; // 年龄
-    uint256 public constant HLH = 1; // 健康，生命
-
-}
-
 contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
     /* *******
      * Globals
      * *******
      */
-
+    
     string[] public override attributeLabels = [
         "\xE5\xB9\xB4\xE9\xBE\x84", //年龄
         "\xE5\x81\xA5\xE5\xBA\xB7" //健康
@@ -44,8 +36,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
-    }
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {}
 
     /* *****************
      * Private Functions
@@ -75,7 +66,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
             //基础属性：
             string memory svg0 = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\x9F\xBA\xE7\xA1\x80\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
-            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[ActorAttributesConstants.HLH], "=", Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '</text>'));
+            string memory svg1 = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', attributeLabels[WorldConstants.ATTR_HLH], "=", Strings.toString(attributesScores[WorldConstants.ATTR_HLH][_actor]), '</text>'));
             return (string(abi.encodePacked(svg0, svg1)), _endY);
         }
         else
@@ -85,7 +76,7 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"HLH": ', Strings.toString(attributesScores[ActorAttributesConstants.HLH][_actor]), '}'));
+        json = string(abi.encodePacked('{"HLH": ', Strings.toString(attributesScores[WorldConstants.ATTR_HLH][_actor]), '}'));
         return json;
     }
 
@@ -104,15 +95,15 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         require(!characterPointsInitiated[_actor], "already init points");
 
         uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_ATTRIBUTES);
-        attributesScores[ActorAttributesConstants.HLH][_actor] = 100;
+        attributesScores[WorldConstants.ATTR_HLH][_actor] = 100;
         if(_maxPointBuy > 0)
-            attributesScores[ActorAttributesConstants.HLH][_actor] = _maxPointBuy;
+            attributesScores[WorldConstants.ATTR_HLH][_actor] = _maxPointBuy;
 
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
-        atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+        atts[0] = WorldConstants.ATTR_HLH;
+        atts[1] = attributesScores[WorldConstants.ATTR_HLH][_actor];
         emit Created(msg.sender, _actor, atts);
     }
 
@@ -124,8 +115,8 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorAttributesConstants.HLH) {
-                attributesScores[ActorAttributesConstants.HLH][_actor] = _attributes[i+1];
+            if(_attributes[i] == WorldConstants.ATTR_HLH) {
+                attributesScores[WorldConstants.ATTR_HLH][_actor] = _attributes[i+1];
                 updated = true;
                 break;
             }
@@ -133,8 +124,8 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
         if(updated) {
             uint256[] memory atts = new uint256[](2);
-            atts[0] = ActorAttributesConstants.HLH;
-            atts[1] = attributesScores[ActorAttributesConstants.HLH][_actor];
+            atts[0] = WorldConstants.ATTR_HLH;
+            atts[1] = attributesScores[WorldConstants.ATTR_HLH][_actor];
             emit Updated(msg.sender, _actor, atts);
         }
     }
@@ -148,16 +139,16 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
         require(_modifiers.length % 2 == 0, "modifiers is invalid.");        
 
         bool attributesModified = false;
-        uint256 hlh = attributesScores[ActorAttributesConstants.HLH][_actor];
+        uint256 hlh = attributesScores[WorldConstants.ATTR_HLH][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorAttributesConstants.HLH)) {
+            if(_modifiers[i] == int(WorldConstants.ATTR_HLH)) {
                 hlh = _attributeModify(hlh, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](2);
-        atts[0] = ActorAttributesConstants.HLH;
+        atts[0] = WorldConstants.ATTR_HLH;
         atts[1] = hlh;
         return (atts, attributesModified);
     }

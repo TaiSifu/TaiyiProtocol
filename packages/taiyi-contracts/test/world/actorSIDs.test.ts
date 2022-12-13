@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, WorldFungible, ActorSocialIdentity,
+    Actors, WorldFungible, ActorSocialIdentity, WorldYemings,
 } from '../../typechain';
 import {
     blockNumber,
@@ -19,6 +19,7 @@ import {
     deployWorldRandom,
     deployAssetDaoli,
     deployActorSocialIdentity,
+    deployWorldYemings,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -39,6 +40,7 @@ describe('角色社会身份测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
+    let worldYemings: WorldYemings;
     let assetDaoli: WorldFungible;
     let actorSIDs: ActorSocialIdentity;
 
@@ -64,6 +66,9 @@ describe('角色社会身份测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy WorldYemings
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
+
         //Deploy Taiyi Daoli ERC20
         assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
@@ -76,17 +81,17 @@ describe('角色社会身份测试', () => {
         expect(await actors.nextActor()).to.eq(1);
         await actors.connect(taiyiDAO).mintActor(0);
 
-        //connect route to operator
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
         actorSIDs = await deployActorSocialIdentity(worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIDS(), actorSIDs.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_SIDS(), actorSIDs.address);
 
         //second actor test for YeMing, should be mint for free
         expect(await actors.nextActor()).to.eq(2);
         await actors.connect(operator1).mintActor(0);
-        await worldContractRoute.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test
+        await worldYemings.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test
     });
 
     it('合约符号（Symbol）', async () => {

@@ -4,12 +4,13 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../interfaces/WorldInterfaces.sol";
 import "../WorldConfigurable.sol";
+import "../../base/Ownable.sol";
 
-contract DefaultWorldEventProcessor is IWorldEventProcessor, WorldConfigurable
+contract DefaultWorldEventProcessor is IWorldEventProcessor, WorldConfigurable, Ownable
 {
     uint256 public defaultBranchEvent;
 
-    constructor(address worldRouteAddress, uint256 _defaultBranchEvent) WorldConfigurable(worldRouteAddress) {
+    constructor(WorldContractRoute _route, uint256 _defaultBranchEvent) WorldConfigurable(_route) {
         defaultBranchEvent = _defaultBranchEvent;
     }
 

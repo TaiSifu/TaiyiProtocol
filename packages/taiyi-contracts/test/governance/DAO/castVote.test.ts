@@ -29,7 +29,7 @@ import {
     Actors,
     WorldFungible,
 } from '../../../typechain';
-import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute } from '../../../utils';
+import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../../utils';
 
 chai.use(solidity);
 const { expect } = chai;
@@ -100,7 +100,10 @@ async function reset() {
     expect(actorPanGu).to.eq(1);
     expect(await actors.nextActor()).to.eq(actorPanGu);
     await actors.mintActor(0);
-    await worldContractRoute.setYeMing(actorPanGu, deployer.address);
+
+    let worldYemings = await deployWorldYemings(deployer.address, deployer);
+    await worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+    await worldYemings.setYeMing(actorPanGu, deployer.address);
 
     token = await deploySifusToken(worldContractRoute.address, signers.deployer);
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), signers.deployer));

@@ -2,8 +2,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "worldRouteAddress",
+        "internalType": "contract WorldContractRoute",
+        "name": "_route",
         "type": "address"
       },
       {

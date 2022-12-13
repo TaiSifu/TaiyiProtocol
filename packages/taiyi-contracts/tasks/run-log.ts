@@ -5,16 +5,14 @@ import { task, types } from 'hardhat/config';
 import { BigNumber, utils } from 'ethers'; //https://docs.ethers.io/v5/
 import chalk from 'chalk';
 import { 
-    ActorAttributesConstants__factory, ActorAttributes__factory, ActorBehaviorAttributesConstants__factory, 
-    ActorBehaviorAttributes__factory, ActorCharmAttributesConstants__factory, ActorCharmAttributes__factory, 
-    ActorCoreAttributesConstants__factory, ActorCoreAttributes__factory, ActorLocations__factory, 
-    ActorMoodAttributesConstants__factory, ActorMoodAttributes__factory, ActorNames__factory, ActorPrelifes__factory, 
+    ActorAttributes__factory, ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, 
+    ActorCoreAttributes__factory, ActorLocations__factory, ActorMoodAttributes__factory, ActorNames__factory, ActorPrelifes__factory, 
     ActorRelationship__factory, ActorSocialIdentity__factory, Actors__factory, ActorTalents__factory, 
     ShejiTu__factory, Trigrams__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, 
     WorldEventProcessor10002__factory, WorldEventProcessor10009__factory, WorldEventProcessor10010__factory, 
     WorldEventProcessor10011__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, 
     WorldEvents__factory, WorldItems__factory, WorldNontransferableFungible__factory, WorldZoneBaseResources__factory, 
-    WorldZones__factory, WorldFungible__factory
+    WorldZones__factory, WorldFungible__factory, WorldConstants, WorldConstants__factory
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -75,6 +73,7 @@ var addressBook:{[index: string]:any} = {};
 async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {
     let provider = await ethersHelper.provider;
     const [wallet] = await ethersHelper.getSigners();
+    const worldConstants = WorldConstants__factory.connect(addressBook.WorldConstants, wallet);
     const actors = Actors__factory.connect(addressBook.Actors, wallet);
     const actorPrelifes = ActorPrelifes__factory.connect(addressBook.ActorPrelifes, wallet);
     const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);
@@ -94,15 +93,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const worldItems = WorldItems__factory.connect(addressBook.WorldItems, wallet);
     const actorSID = ActorSocialIdentity__factory.connect(addressBook.ActorSocialIdentity, wallet);
     const trigrams = Trigrams__factory.connect(addressBook.Trigrams, wallet);
-    const actorBaseAttributesConstants = ActorAttributesConstants__factory.connect(addressBook.ActorAttributesConstants, wallet);
     const actorBaseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, wallet);
-    const actorCharmAttributesConstants = ActorCharmAttributesConstants__factory.connect(addressBook.ActorCharmAttributesConstants, wallet);
     const actorCharmAttributes = ActorCharmAttributes__factory.connect(addressBook.ActorCharmAttributes, wallet);
-    const actorCoreAttributesConstants = ActorCoreAttributesConstants__factory.connect(addressBook.ActorCoreAttributesConstants, wallet);
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
-    const actorMoodAttributesConstants = ActorMoodAttributesConstants__factory.connect(addressBook.ActorMoodAttributesConstants, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
-    const actorBehaviorAttributesConstants = ActorBehaviorAttributesConstants__factory.connect(addressBook.ActorBehaviorAttributesConstants, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
     const eventProcessor10000 = WorldEventProcessor10000__factory.connect(addressBook.WorldEventProcessor10000, wallet);
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
@@ -147,13 +141,13 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     let reincarnation_filter = actorPrelifes.filters.Reincarnation(null, null);
     let actorLoacationChanged_filter = actorLocations.filters.ActorLocationChanged(null, null, null, null, null);
 
-    let _RL_ATTRIBUTE_BASE = await actorBaseAttributesConstants._BASE();
-    let _RL_ATTRIBUTE_CHARM_BASE = await actorCharmAttributesConstants._BASE();
-    let _RL_ATTRIBUTE_CORE_BASE = await actorCoreAttributesConstants._BASE();
-    let _RL_ATTRIBUTE_MOOD_BASE = await actorMoodAttributesConstants._BASE();
-    let _RL_ATTRIBUTE_BEHAVIOR_BASE = await actorBehaviorAttributesConstants._BASE();
+    let _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
+    let _RL_ATTRIBUTE_CHARM_BASE = await worldConstants.ATTR_BASE_CHARM();
+    let _RL_ATTRIBUTE_CORE_BASE = await worldConstants.ATTR_BASE_CORE();
+    let _RL_ATTRIBUTE_MOOD_BASE = await worldConstants.ATTR_BASE_MOOD();
+    let _RL_ATTRIBUTE_BEHAVIOR_BASE = await worldConstants.ATTR_BASE_BEHAVIOR();
 
-    let RL_ATTRIBUTE_ACT = await actorBehaviorAttributesConstants.ACT();
+    let RL_ATTRIBUTE_ACT = await worldConstants.ATTR_ACT();
 
     let ACTOR_GUANGONG = await worldZoneBaseResources.ACTOR_GUANGONG();
 

@@ -47,7 +47,7 @@ contract WorldEventProcessor60004 is DefaultWorldEventProcessor {
         return "";
     }
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
     }
 
     function eventInfo(uint256 _actor) external virtual view override returns (string memory) {

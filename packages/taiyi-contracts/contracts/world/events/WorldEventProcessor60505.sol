@@ -4,9 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../interfaces/WorldInterfaces.sol";
 import "./DefaultWorldEventProcessor.sol";
-import "../attributes/ActorAttributes.sol";
-import "../attributes/ActorCoreAttributes.sol";
-import "../attributes/ActorBehaviorAttributes.sol";
 import "../../base/DateTimeLibrary.sol";
 //import "hardhat/console.sol";
 
@@ -21,7 +18,7 @@ check order:
 
 contract WorldEventProcessor60505 is DefaultWorldEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你进行了原始的野外采集活动。
@@ -30,17 +27,17 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor {
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorBehaviorAttributesConstants.ACT);
+        modifiers[0] = int256(WorldConstants.ATTR_ACT);
         modifiers[1] = -1;
         return modifiers;
     }
 
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external virtual view override returns (bool) {
         IActorAttributes baseAttr = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        uint256 _hlh = baseAttr.attributesScores(ActorAttributesConstants.HLH, _actor);
+        uint256 _hlh = baseAttr.attributesScores(WorldConstants.ATTR_HLH, _actor);
 
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
-        uint256 _act = behavior.attributesScores(ActorBehaviorAttributesConstants.ACT, _actor);
+        uint256 _act = behavior.attributesScores(WorldConstants.ATTR_ACT, _actor);
         
         return (_hlh > 0 && _act >= 1);
     }

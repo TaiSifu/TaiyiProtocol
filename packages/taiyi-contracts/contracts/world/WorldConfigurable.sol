@@ -2,12 +2,9 @@
 pragma solidity ^0.8.6;
 
 import "./WorldContractRoute.sol";
-import "../base/Ownable.sol";
 
-contract WorldConfigurable is Ownable
+contract WorldConfigurable
 {
-    // Address of the World Contract Route
-    address internal _worldRouteContract;
     WorldContractRoute internal worldRoute;
 
     modifier onlyApprovedOrOwner(uint _actor) {
@@ -21,15 +18,13 @@ contract WorldConfigurable is Ownable
     }
 
     modifier onlyYeMing(uint256 _actor) {
-        require(worldRoute.isYeMing(_actor), "only YeMing");
+        require(IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS)).isYeMing(_actor), "only YeMing");
         require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
         _;
     }
 
-    constructor(address worldRouteAddress) {
-        require(worldRouteAddress != address(0), "cannot set contract as zero address");
-        _worldRouteContract = worldRouteAddress;
-        worldRoute = WorldContractRoute(worldRouteAddress);
+    constructor(WorldContractRoute _route) {
+        worldRoute = _route;
     }
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {

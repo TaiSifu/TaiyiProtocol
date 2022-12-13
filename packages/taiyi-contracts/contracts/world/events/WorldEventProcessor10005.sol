@@ -17,7 +17,7 @@ check order:
 */
 
 contract WorldEventProcessor10005 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //刚学会走路，你意外从桌子上跌落。
         return "\xE5\x88\x9A\xE5\xAD\xA6\xE4\xBC\x9A\xE8\xB5\xB0\xE8\xB7\xAF\xEF\xBC\x8C\xE4\xBD\xA0\xE6\x84\x8F\xE5\xA4\x96\xE4\xBB\x8E\xE6\xA1\x8C\xE5\xAD\x90\xE4\xB8\x8A\xE8\xB7\x8C\xE8\x90\xBD\xE3\x80\x82";
@@ -40,7 +40,7 @@ contract WorldEventProcessor10005 is DefaultWorldEventProcessor {
         IActorAttributes core_attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_CORE_ATTRIBUTES));
 
         //"exclude": "LIM>35",
-        uint256 lim = core_attributes.attributesScores(ActorCoreAttributesConstants.LIM, _actor);
+        uint256 lim = core_attributes.attributesScores(WorldConstants.ATTR_LIM, _actor);
         if(lim > 35)
             return false;
 
@@ -62,7 +62,7 @@ contract WorldEventProcessor10005 is DefaultWorldEventProcessor {
                 return 10006;
         }
 
-        uint256 tiz = core_attributes.attributesScores(ActorCoreAttributesConstants.TIZ, _actor);
+        uint256 tiz = core_attributes.attributesScores(WorldConstants.ATTR_TIZ, _actor);
         if(tiz < 15)
             return 10000;
 

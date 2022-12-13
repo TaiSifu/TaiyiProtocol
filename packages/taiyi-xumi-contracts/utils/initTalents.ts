@@ -1,32 +1,28 @@
 import {
-    ActorAttributesConstants,
     WorldConstants,
     ActorTalents,
     ActorTalents__factory,
     WorldContractRoute,
 } from '@taiyi/contracts/dist/typechain';
 import {
-    ActorXumiAttributesConstants,
     XumiConstants,
 } from '../typechain';
 import * as talentsJSON from "../files/talents.json";
 import { BigNumber, Signer } from 'ethers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-export const initTalents = async (talentsAddress: string, operator: Signer, xumiConstants: XumiConstants, 
-    attributesConst: ActorAttributesConstants,
-    xumiAttributesConst: ActorXumiAttributesConstants): Promise<void> => {
+export const initTalents = async (talentsAddress: string, operator: Signer, xumiConstants: XumiConstants, worldConstants: WorldConstants): Promise<void> => {
 
     let talents = ActorTalents__factory.connect(talentsAddress, operator);
     
     let W_MODULE_XUMI_ATTRIBUTES = await xumiConstants.WORLD_MODULE_XUMI_ATTRIBUTES();
 
-    let INF = await xumiAttributesConst.INF();
-    let MAS = await xumiAttributesConst.MAS();
-    let ENG = await xumiAttributesConst.ENG();
-    let STB = await xumiAttributesConst.STB();
-    let HLH = await attributesConst.HLH();
-    let AGE = await attributesConst.AGE();
+    let INF = await xumiConstants.ATTR_INF();
+    let MAS = await xumiConstants.ATTR_MAS();
+    let ENG = await xumiConstants.ATTR_ENG();
+    let STB = await xumiConstants.ATTR_STB();
+    let HLH = await worldConstants.ATTR_HLH();
+    let AGE = await worldConstants.ATTR_AGE();
 
     //read talent list to init talent automatically, most for development and debug
     let talentsData: { [index: string]: any } = talentsJSON;

@@ -21,7 +21,7 @@ check order:
 
 contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
@@ -31,7 +31,7 @@ contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory modifiers = new int256[](2);
-        modifiers[0] = int256(ActorBehaviorAttributesConstants.ACT);
+        modifiers[0] = int256(WorldConstants.ATTR_ACT);
         modifiers[1] = -15;
         return modifiers;
     }
@@ -40,7 +40,7 @@ contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
         bool defaultRt = true;
 
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
-        uint256 _act = behavior.attributesScores(ActorBehaviorAttributesConstants.ACT, _actor);
+        uint256 _act = behavior.attributesScores(WorldConstants.ATTR_ACT, _actor);
         if(_act < 15)
             return false;
 
@@ -57,7 +57,8 @@ contract WorldEventProcessor60506 is DefaultWorldEventProcessor {
     {
         require(_stringParams.length > 0, "params is invalid");
         IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-        uint256 newZoneId = zones.claim(_operator, _stringParams[0], worldRoute.YeMings(_operator), _actor);
+        IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
+        uint256 newZoneId = zones.claim(_operator, _stringParams[0], yemings.YeMings(_operator), _actor);
 
         IWorldVillages(worldRoute.modules(WorldConstants.WORLD_MODULE_VILLAGES)).createVillage(_operator, _actor, newZoneId);
 

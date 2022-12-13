@@ -7,27 +7,31 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, ActorAttributesConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldEventProcessor10001__factory, WorldEventProcessor10001,
-} from '../typechain';
+    WorldConstants,
+    WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken,
+    SifusDescriptor__factory, WorldEvents, WorldFungible, WorldEventProcessor10001__factory, WorldEventProcessor10001, WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams,
+} from '../../typechain';
 import {
     blockNumber,
     blockTimestamp,
     deploySifusToken,
     populateDescriptor,
-} from './utils';
+} from '../utils';
 import {
     deployWorldConstants,
-    deployActorAttributesConstants,
     deployWorldContractRoute,
     deployActors,
     deployWorldRandom,
     deployActorAttributes,
     deployAssetDaoli,
     deployShejiTu,
-    deployWorldEvents
-} from '../utils';
+    deployWorldEvents,
+    deployWorldYemings,
+    deployActorLocations,
+    deployWorldZones,
+    deployActorTalents,
+    deployTrigrams
+} from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 chai.use(asPromised);
@@ -47,14 +51,18 @@ describe('世界事件集测试', () => {
     let sifusToken: SifusToken;
 
     let worldConstants: WorldConstants;
-    let actorAttributesConstants: ActorAttributesConstants;
-
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
+    let worldYemings: WorldYemings;
     let assetDaoli: WorldFungible;
     let worldEvents: WorldEvents;
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;
+    let worldRandom: WorldRandom;
+    let worldZones: WorldZones;
+    let actorLocations: ActorLocations;
+    let actorTalents: ActorTalents;
+    let trigrams: Trigrams;
 
     let actorPanGu: BigNumber;
     let event10001 : WorldEventProcessor10001;
@@ -75,10 +83,12 @@ describe('世界事件集测试', () => {
 
         //Deploy Constants
         worldConstants = await deployWorldConstants(deployer);
-        actorAttributesConstants = await deployActorAttributesConstants(deployer);
 
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
+
+        //Deploy WorldYemings
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
 
         //Deploy Taiyi Daoli ERC20
         assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
@@ -102,20 +112,31 @@ describe('世界事件集测试', () => {
         //connect route to operator
         let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
-
+        worldRandom = await deployWorldRandom(deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address);
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address)
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
-
         worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+        actorLocations = await deployActorLocations(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
+        worldZones = await deployWorldZones(worldContractRoute, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
+        actorTalents = await deployActorTalents(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+        trigrams = await deployTrigrams(routeByPanGu, deployer);
+        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu(worldContractRoute, deployer))[0].address, deployer);
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu(actors, worldYemings, actorLocations, worldZones, actorAttributes,
+            worldEvents, actorTalents, trigrams, worldRandom, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-        await routeByPanGu.setYeMing(await shejiTu.operator(), shejiTu.address);
+        await worldYemings.connect(taiyiDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
         //set PanGu as YeMing for test
-        await routeByPanGu.setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
     });
 
     it('部署事件10001', async () => {

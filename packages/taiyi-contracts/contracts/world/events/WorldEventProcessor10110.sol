@@ -17,7 +17,7 @@ check order:
 contract WorldEventProcessor10110 is DefaultWorldEventProcessor {
     uint256[] public asexualActors;
 
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 60002) {        
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60002) {        
     }
     
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {

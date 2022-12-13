@@ -19,7 +19,7 @@ check order:
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020015 is DefaultWorldEventProcessor {
     uint256[] public paticleActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你成为了一个氢原子。
         return "\xE4\xBD\xA0\xE6\x88\x90\xE4\xB8\xBA\xE4\xBA\x86\xE4\xB8\x80\xE4\xB8\xAA\xE6\xB0\xA2\xE5\x8E\x9F\xE5\xAD\x90\xE3\x80\x82";
@@ -35,7 +35,7 @@ contract WorldEventProcessor1020015 is DefaultWorldEventProcessor {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000023 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //周围温度继续降低，你和电子的这种关系竟然稳定了下来。
         return "\xE5\x91\xA8\xE5\x9B\xB4\xE6\xB8\xA9\xE5\xBA\xA6\xE7\xBB\xA7\xE7\xBB\xAD\xE9\x99\x8D\xE4\xBD\x8E\xEF\xBC\x8C\xE4\xBD\xA0\xE5\x92\x8C\xE7\x94\xB5\xE5\xAD\x90\xE7\x9A\x84\xE8\xBF\x99\xE7\xA7\x8D\xE5\x85\xB3\xE7\xB3\xBB\xE7\xAB\x9F\xE7\x84\xB6\xE7\xA8\xB3\xE5\xAE\x9A\xE4\xBA\x86\xE4\xB8\x8B\xE6\x9D\xA5\xE3\x80\x82";
@@ -44,7 +44,7 @@ contract WorldEventProcessor1000023 is DefaultWorldEventProcessor {
     //"INF": 1
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         int256[] memory atts = new int256[](2);
-        atts[0] = int256(ActorXumiAttributesConstants.INF);
+        atts[0] = int256(XumiConstants.ATTR_INF);
         atts[1] = 1;
         return atts;
     }
@@ -88,7 +88,7 @@ contract WorldEventProcessor1000023 is DefaultWorldEventProcessor {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000024 is DefaultWorldEventProcessor {
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你所在的星云正在塌陷。
         return "\xE4\xBD\xA0\xE6\x89\x80\xE5\x9C\xA8\xE7\x9A\x84\xE6\x98\x9F\xE4\xBA\x91\xE6\xAD\xA3\xE5\x9C\xA8\xE5\xA1\x8C\xE9\x99\xB7\xE3\x80\x82";
@@ -148,7 +148,7 @@ contract WorldEventProcessor1000024 is DefaultWorldEventProcessor {
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1030001 is DefaultWorldEventProcessor {
     uint256[] public starActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你成为一颗小恒星。
         return "\xE4\xBD\xA0\xE6\x88\x90\xE4\xB8\xBA\xE4\xB8\x80\xE9\xA2\x97\xE5\xB0\x8F\xE6\x81\x92\xE6\x98\x9F\xE3\x80\x82";
@@ -171,7 +171,7 @@ contract WorldEventProcessor1030001 is DefaultWorldEventProcessor {
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1030002 is DefaultWorldEventProcessor {
     uint256[] public starActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你成为一颗中等大小恒星。
         return "\xE4\xBD\xA0\xE6\x88\x90\xE4\xB8\xBA\xE4\xB8\x80\xE9\xA2\x97\xE4\xB8\xAD\xE7\xAD\x89\xE5\xA4\xA7\xE5\xB0\x8F\xE6\x81\x92\xE6\x98\x9F\xE3\x80\x82";
@@ -194,7 +194,7 @@ contract WorldEventProcessor1030002 is DefaultWorldEventProcessor {
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1030003 is DefaultWorldEventProcessor {
     uint256[] public starActors;
-    constructor(address _worldRouteAddress) DefaultWorldEventProcessor(_worldRouteAddress, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你成为一颗巨大恒星。
         return "\xE4\xBD\xA0\xE6\x88\x90\xE4\xB8\xBA\xE4\xB8\x80\xE9\xA2\x97\xE5\xB7\xA8\xE5\xA4\xA7\xE6\x81\x92\xE6\x98\x9F\xE3\x80\x82";

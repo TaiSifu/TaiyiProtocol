@@ -6,7 +6,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, 
-    Actors, WorldFungible, SifusToken, SifusDescriptor__factory, WorldZones,
+    Actors, WorldFungible, SifusToken, SifusDescriptor__factory, WorldZones, WorldYemings,
 } from '../../typechain';
 import {
     blockNumber,
@@ -21,6 +21,7 @@ import {
     deployWorldRandom,
     deployAssetDaoli,
     deployWorldZones,
+    deployWorldYemings,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -42,6 +43,7 @@ describe('世界区域测试', () => {
     let actors: Actors;
     let assetDaoli: WorldFungible;
     let worldZones: WorldZones;
+    let worldYemings: WorldYemings;
     let fakeTimelineAddress: any;
 
     let actor: BigNumber;
@@ -68,6 +70,9 @@ describe('世界区域测试', () => {
         //Deploy WorldContractRoute
         worldContractRoute = await deployWorldContractRoute(deployer);
 
+        //Deploy WorldYemings
+        worldYemings = await deployWorldYemings(taiyiDAO.address, deployer);
+
         //Deploy Taiyi Daoli ERC20
         assetDaoli = await deployAssetDaoli(worldConstants, worldContractRoute, deployer);
 
@@ -87,15 +92,15 @@ describe('世界区域测试', () => {
         const descriptor = await sifusToken.descriptor();
         await populateDescriptor(SifusDescriptor__factory.connect(descriptor, deployer));
 
-        //connect route to operator
-        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
         //deploy all basic modules
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_RANDOM(), (await deployWorldRandom(deployer)).address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
         worldZones = await deployWorldZones(worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
+        await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
 
         //set PanGu as YeMing for test
-        await routeByPanGu.setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
+        await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
         //second actor for test
         actor = await newActor(operator1);
         expect(actor).to.eq(2);

@@ -7,15 +7,6 @@ import '@taiyi/contracts/contracts/libs/Base64.sol';
 import '@taiyi/contracts/contracts/world/WorldConfigurable.sol';
 import '../../libs/XumiConstants.sol';
 
-library ActorXumiAttributesConstants {
-    //主要属性
-    uint256 public constant _BASE = 1000; // ID起始值
-    uint256 public constant INF = _BASE;        // 信息 information INF
-    uint256 public constant MAS = _BASE + 1;    // 质量 mass MAS
-    uint256 public constant ENG = _BASE + 2;    // 能量 energy ENG
-    uint256 public constant STB = _BASE + 3;    // 稳定性 stability STB
-}
-
 contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
 
     /* *******
@@ -48,7 +39,7 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************
@@ -82,10 +73,10 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
                 '\xE7\xB2\x92\xE5\xAD\x90\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
             parts[1] = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">'));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorXumiAttributesConstants.INF - ActorXumiAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorXumiAttributesConstants.INF][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorXumiAttributesConstants.MAS - ActorXumiAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorXumiAttributesConstants.MAS][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorXumiAttributesConstants.ENG - ActorXumiAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorXumiAttributesConstants.ENG][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[ActorXumiAttributesConstants.STB - ActorXumiAttributesConstants._BASE], "=", Strings.toString(attributesScores[ActorXumiAttributesConstants.STB][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_INF - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_INF][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_MAS - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_MAS][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_ENG - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_ENG][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_STB - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_STB][_actor]), "\xEF\xBC\x8C  "));
             parts[1] = string(abi.encodePacked(parts[1], '</text>'));
             return (string(abi.encodePacked(parts[0], parts[1])), _endY);
         }
@@ -97,10 +88,10 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
         string memory json = '';
-        json = string(abi.encodePacked('{"INF": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.INF][_actor])));
-        json = string(abi.encodePacked(json, ', "MAS": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.MAS][_actor])));
-        json = string(abi.encodePacked(json, ', "ENG": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.ENG][_actor])));
-        json = string(abi.encodePacked(json, ', "STB": ', Strings.toString(attributesScores[ActorXumiAttributesConstants.STB][_actor]), '}'));
+        json = string(abi.encodePacked('{"INF": ', Strings.toString(attributesScores[XumiConstants.ATTR_INF][_actor])));
+        json = string(abi.encodePacked(json, ', "MAS": ', Strings.toString(attributesScores[XumiConstants.ATTR_MAS][_actor])));
+        json = string(abi.encodePacked(json, ', "ENG": ', Strings.toString(attributesScores[XumiConstants.ATTR_ENG][_actor])));
+        json = string(abi.encodePacked(json, ', "STB": ', Strings.toString(attributesScores[XumiConstants.ATTR_STB][_actor]), '}'));
         return json;
     }
 
@@ -132,22 +123,22 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
             eng = rand.dn(_actor+2, _maxPointBuy-inf-mas);
         stb = _maxPointBuy-inf-mas-eng;
 
-        attributesScores[ActorXumiAttributesConstants.INF][_actor] = inf;
-        attributesScores[ActorXumiAttributesConstants.MAS][_actor] = mas;
-        attributesScores[ActorXumiAttributesConstants.ENG][_actor] = eng;
-        attributesScores[ActorXumiAttributesConstants.STB][_actor] = stb;
+        attributesScores[XumiConstants.ATTR_INF][_actor] = inf;
+        attributesScores[XumiConstants.ATTR_MAS][_actor] = mas;
+        attributesScores[XumiConstants.ATTR_ENG][_actor] = eng;
+        attributesScores[XumiConstants.ATTR_STB][_actor] = stb;
 
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](8);
-        atts[0] = ActorXumiAttributesConstants.INF;
-        atts[1] = attributesScores[ActorXumiAttributesConstants.INF][_actor];
-        atts[2] = ActorXumiAttributesConstants.MAS;
-        atts[3] = attributesScores[ActorXumiAttributesConstants.MAS][_actor];
-        atts[4] = ActorXumiAttributesConstants.ENG;
-        atts[5] = attributesScores[ActorXumiAttributesConstants.ENG][_actor];
-        atts[6] = ActorXumiAttributesConstants.STB;
-        atts[7] = attributesScores[ActorXumiAttributesConstants.STB][_actor];
+        atts[0] = XumiConstants.ATTR_INF;
+        atts[1] = attributesScores[XumiConstants.ATTR_INF][_actor];
+        atts[2] = XumiConstants.ATTR_MAS;
+        atts[3] = attributesScores[XumiConstants.ATTR_MAS][_actor];
+        atts[4] = XumiConstants.ATTR_ENG;
+        atts[5] = attributesScores[XumiConstants.ATTR_ENG][_actor];
+        atts[6] = XumiConstants.ATTR_STB;
+        atts[7] = attributesScores[XumiConstants.ATTR_STB][_actor];
 
         emit Created(msg.sender, _actor, atts);
     }
@@ -160,34 +151,34 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
 
         bool updated = false;
         for(uint256 i=0; i<_attributes.length; i+=2) {
-            if(_attributes[i] == ActorXumiAttributesConstants.INF) {
-                attributesScores[ActorXumiAttributesConstants.INF][_actor] = _attributes[i+1];
+            if(_attributes[i] == XumiConstants.ATTR_INF) {
+                attributesScores[XumiConstants.ATTR_INF][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorXumiAttributesConstants.MAS) {
-                attributesScores[ActorXumiAttributesConstants.MAS][_actor] = _attributes[i+1];
+            else if(_attributes[i] == XumiConstants.ATTR_MAS) {
+                attributesScores[XumiConstants.ATTR_MAS][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorXumiAttributesConstants.ENG) {
-                attributesScores[ActorXumiAttributesConstants.ENG][_actor] = _attributes[i+1];
+            else if(_attributes[i] == XumiConstants.ATTR_ENG) {
+                attributesScores[XumiConstants.ATTR_ENG][_actor] = _attributes[i+1];
                 updated = true;
             }
-            else if(_attributes[i] == ActorXumiAttributesConstants.STB) {
-                attributesScores[ActorXumiAttributesConstants.STB][_actor] = _attributes[i+1];
+            else if(_attributes[i] == XumiConstants.ATTR_STB) {
+                attributesScores[XumiConstants.ATTR_STB][_actor] = _attributes[i+1];
                 updated = true;
             }
         }
 
         if(updated) {
             uint256[] memory atts = new uint256[](8);
-            atts[0] = ActorXumiAttributesConstants.INF;
-            atts[1] = attributesScores[ActorXumiAttributesConstants.INF][_actor];
-            atts[2] = ActorXumiAttributesConstants.MAS;
-            atts[3] = attributesScores[ActorXumiAttributesConstants.MAS][_actor];
-            atts[4] = ActorXumiAttributesConstants.ENG;
-            atts[5] = attributesScores[ActorXumiAttributesConstants.ENG][_actor];
-            atts[6] = ActorXumiAttributesConstants.STB;
-            atts[7] = attributesScores[ActorXumiAttributesConstants.STB][_actor];
+            atts[0] = XumiConstants.ATTR_INF;
+            atts[1] = attributesScores[XumiConstants.ATTR_INF][_actor];
+            atts[2] = XumiConstants.ATTR_MAS;
+            atts[3] = attributesScores[XumiConstants.ATTR_MAS][_actor];
+            atts[4] = XumiConstants.ATTR_ENG;
+            atts[5] = attributesScores[XumiConstants.ATTR_ENG][_actor];
+            atts[6] = XumiConstants.ATTR_STB;
+            atts[7] = attributesScores[XumiConstants.ATTR_STB][_actor];
 
             emit Updated(msg.sender, _actor, atts);
         }
@@ -201,37 +192,37 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
     function applyModified(uint256 _actor, int[] memory _modifiers) external view override returns (uint256[] memory, bool) {
         require(_modifiers.length % 2 == 0, "ActorCoreAttributes: modifiers is invalid.");        
         bool attributesModified = false;
-        uint256 inf = attributesScores[ActorXumiAttributesConstants.INF][_actor];
-        uint256 mas = attributesScores[ActorXumiAttributesConstants.MAS][_actor];
-        uint256 eng = attributesScores[ActorXumiAttributesConstants.ENG][_actor];
-        uint256 stb = attributesScores[ActorXumiAttributesConstants.STB][_actor];
+        uint256 inf = attributesScores[XumiConstants.ATTR_INF][_actor];
+        uint256 mas = attributesScores[XumiConstants.ATTR_MAS][_actor];
+        uint256 eng = attributesScores[XumiConstants.ATTR_ENG][_actor];
+        uint256 stb = attributesScores[XumiConstants.ATTR_STB][_actor];
         for(uint256 i=0; i<_modifiers.length; i+=2) {
-            if(_modifiers[i] == int(ActorXumiAttributesConstants.INF)) {
+            if(_modifiers[i] == int(XumiConstants.ATTR_INF)) {
                 inf = _attributeModify(inf, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorXumiAttributesConstants.MAS)) {
+            else if(_modifiers[i] == int(XumiConstants.ATTR_MAS)) {
                 mas = _attributeModify(mas, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorXumiAttributesConstants.ENG)) {
+            else if(_modifiers[i] == int(XumiConstants.ATTR_ENG)) {
                 eng = _attributeModify(eng, _modifiers[i+1]);
                 attributesModified = true;
             }
-            else if(_modifiers[i] == int(ActorXumiAttributesConstants.STB)) {
+            else if(_modifiers[i] == int(XumiConstants.ATTR_STB)) {
                 stb = _attributeModify(stb, _modifiers[i+1]);
                 attributesModified = true;
             }
         }
 
         uint256[] memory atts = new uint256[](8);
-        atts[0] = ActorXumiAttributesConstants.INF;
+        atts[0] = XumiConstants.ATTR_INF;
         atts[1] = inf;
-        atts[2] = ActorXumiAttributesConstants.MAS;
+        atts[2] = XumiConstants.ATTR_MAS;
         atts[3] = mas;
-        atts[4] = ActorXumiAttributesConstants.ENG;
+        atts[4] = XumiConstants.ATTR_ENG;
         atts[5] = eng;
-        atts[6] = ActorXumiAttributesConstants.STB;
+        atts[6] = XumiConstants.ATTR_STB;
         atts[7] = stb;
 
         return (atts, attributesModified);

@@ -4,7 +4,6 @@ pragma solidity ^0.8.6;
 import "../../interfaces/WorldInterfaces.sol";
 import "../WorldConfigurable.sol";
 import "../../libs/Base64.sol";
-import "../attributes/ActorAttributes.sol";
 //import "hardhat/console.sol";
 
 contract ActorPrelifes is IActorPrelifes, WorldConfigurable {
@@ -27,7 +26,7 @@ contract ActorPrelifes is IActorPrelifes, WorldConfigurable {
      * ****************
      */
 
-    constructor(address _worldRouteAddress) WorldConfigurable(_worldRouteAddress) {
+    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
     }
 
     /* *****************
@@ -72,7 +71,7 @@ contract ActorPrelifes is IActorPrelifes, WorldConfigurable {
         require(st != 0, "non exist prelife");
         require(postLifes[_prelife] == 0, "prelife is reincarnation.");
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
-        require(attributes.attributesScores(ActorAttributesConstants.HLH, _prelife) == 0, "prelife actor is alive.");
+        require(attributes.attributesScores(WorldConstants.ATTR_HLH, _prelife) == 0, "prelife actor is alive.");
 
         preLifes[_actor] = _prelife;
         postLifes[_prelife] = _actor;
