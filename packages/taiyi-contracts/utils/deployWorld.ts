@@ -449,6 +449,10 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     let actorRelationships = await deployActorRelationship(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RELATIONSHIP(), actorRelationships.address);
     let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer);
+    let worldZoneBaseResourceOperator = await actors.nextActor();
+    await actors.mintActor(0);
+    await actors.approve(worldZoneBaseResources.address, worldZoneBaseResourceOperator);
+    await worldZoneBaseResources.initOperator(worldZoneBaseResourceOperator);
     if(verbose) console.log(`Mint GuanGong as actor#${await worldZoneBaseResources.ACTOR_GUANGONG()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address);
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
