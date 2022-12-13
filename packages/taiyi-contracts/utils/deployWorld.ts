@@ -49,7 +49,7 @@ route: WorldContractRoute, deployer: SignerWithAddress): Promise<Actors> => {
     return (await factory.deploy(taiyiDAO, mintStart, coinContract)).deployed();
 };
 
-export const deployShejiTu = async (actors: Actors, locations: ActorLocations,
+export const deployShejiTu = async (name: string, desc: string, moduleID: BigNumberish, actors: Actors, locations: ActorLocations,
     zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
     random: WorldRandom, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
@@ -59,6 +59,7 @@ export const deployShejiTu = async (actors: Actors, locations: ActorLocations,
         shejituImpl.address,
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
+            name, desc, moduleID,
             actors.address,
             locations.address,
             zones.address,
@@ -390,7 +391,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
+    let shejiTuPkg = await deployShejiTu("大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(),actors, actorLocations, worldZones, actorAttributes,
         worldEvents, actorTalents, trigrams, worldRandom, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);

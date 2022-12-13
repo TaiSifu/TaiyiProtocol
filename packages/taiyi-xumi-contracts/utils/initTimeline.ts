@@ -1,8 +1,8 @@
-import { Xumi, Xumi__factory } from '../typechain';
 import * as eventsData from "../files/ages.json";
 import { BigNumber, Signer } from 'ethers';
+import { ShejiTu, ShejiTu__factory} from "@taiyi/contracts/dist/typechain";
 
-export async function addTimeline(timeline: Xumi, age: BigNumber, ageEvts: any) {
+export async function addTimeline(timeline: ShejiTu, age: BigNumber, ageEvts: any) {
 
     for(var i=0; i<ageEvts.length; i++) {
         process.stdout.write(`\u001B[1000Dage ${age} ${Math.round(i*100.0/ageEvts.length)}%`);
@@ -14,7 +14,7 @@ export async function addTimeline(timeline: Xumi, age: BigNumber, ageEvts: any) 
 }
 
 export async function initTimeline(timelineAddress: string, operator: Signer) {
-    let timeline = Xumi__factory.connect(timelineAddress, operator);
+    let timeline = ShejiTu__factory.connect(timelineAddress, operator);
     let events :{[index: string]:any} = eventsData;
     //read age list to init events in certain age automatically, most for development and debug
     let ages = Object.keys(events);

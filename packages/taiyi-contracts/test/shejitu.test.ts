@@ -115,7 +115,7 @@ describe('社稷图全局时间线测试', () => {
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
             
-        let shejiTuPkg = await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
+        let shejiTuPkg = await deployShejiTu("大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(), actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
         shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
         shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
@@ -127,7 +127,7 @@ describe('社稷图全局时间线测试', () => {
 
     it('不允许再次初始化', async () => {
         let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
-        const tx = shejiTuByDAO.initialize(actors.address, actorLocations.address, worldZones.address,
+        const tx = shejiTuByDAO.initialize("大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(), actors.address, actorLocations.address, worldZones.address,
             actorAttributes.address, worldEvents.address, actorTalents.address, trigrams.address, worldRandom.address);
         await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
     });

@@ -20,15 +20,15 @@ import {
 import {
     blockNumber,
     blockTimestamp,
-} from '@taiyi/contracts/test/utils';
+} from '@taiyi/contracts/dist/test/utils';
 import {
     WorldContractName,
     WorldContract,
     deployTaiyiWorld
-} from '@taiyi/contracts/utils';
+} from '@taiyi/contracts/dist/utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { 
-    ActorXumiAttributes, Xumi, XumiConstants, XumiConstants__factory, Xumi__factory, ActorXumiAttributes__factory, 
+    ActorXumiAttributes, XumiConstants, XumiConstants__factory, ActorXumiAttributes__factory, 
     WorldEventProcessor1050001__factory,
 } from '../typechain';
 import { 
@@ -98,7 +98,7 @@ describe('大荒到须弥', () => {
     let xumiEventProcessorAddressBook: {[index: string]:any};
 
     let xumiConstants: XumiConstants;
-    let xumi: Xumi;
+    let xumi: ShejiTu;
     let actorXumiAttributes: ActorXumiAttributes;
     let assetEnergy: WorldFungible;
 
@@ -269,7 +269,7 @@ describe('大荒到须弥', () => {
         xumiEventProcessorAddressBook = xumiWorldDeployed.eventProcessorAddressBook;
 
         xumiConstants = XumiConstants__factory.connect(xumiContracts.XumiConstants.instance.address, operator1);
-        xumi = Xumi__factory.connect(xumiContracts.XumiProxy.instance.address, operator1);
+        xumi = ShejiTu__factory.connect(xumiContracts.XumiProxy.instance.address, operator1);
         actorXumiAttributes = ActorXumiAttributes__factory.connect(xumiContracts.ActorXumiAttributes.instance.address, operator1);
         assetEnergy = WorldFungible__factory.connect(xumiContracts.AssetEnergy.instance.address, operator1);
 

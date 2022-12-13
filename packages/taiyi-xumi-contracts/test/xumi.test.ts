@@ -18,19 +18,20 @@ import {
 import {
     blockNumber,
     blockTimestamp,
-} from '@taiyi/contracts/test/utils';
+} from '@taiyi/contracts/dist/test/utils';
 import {
     WorldContractName,
     WorldContract,
-    deployTaiyiWorld
-} from '@taiyi/contracts/utils';
+    deployTaiyiWorld,
+    deployShejiTu,
+} from '@taiyi/contracts/dist/utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { 
     ActorXumiAttributes,
-    Xumi, XumiConstants, XumiConstants__factory, Xumi__factory,
+    XumiConstants,
 } from '../typechain';
 import { 
-    deployActorXumiAttributes, deployAssetElementH, deployAssetEnergy, deployXumi,
+    deployActorXumiAttributes, deployAssetElementH, deployAssetEnergy,
     deployXumiConstants, initEvents, initItemTypes, initTalents, initTimeline 
 } from '../utils';
 
@@ -89,7 +90,7 @@ describe('须弥时间线基础', () => {
 
     ///// 须弥相关
     let xumiConstants: XumiConstants;
-    let xumi: Xumi;
+    let xumi: ShejiTu;
     let actorXumiAttributes: ActorXumiAttributes;
 
     let makeMoney = async (toWho: string, amount: BigNumberish):Promise<void> => { 
@@ -251,13 +252,15 @@ describe('须弥时间线基础', () => {
         });
 
         it(`部署须弥时间线`, async ()=>{
-            xumi = Xumi__factory.connect((await deployXumi(actors, actorLocations, zones, baseAttributes,
-                worldEvents, talents, trigrams, random, operator1))[0].address, operator1);
+            xumi = ShejiTu__factory.connect((await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), 
+                actors, actorLocations, zones, baseAttributes, worldEvents, talents, trigrams, random,
+                operator1))[0].address, operator1);
             await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
         });
 
         it('不允许再次初始化', async () => {
             const tx = xumi.connect(operator1).initialize(
+                "须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(),
                 actors.address,
                 actorLocations.address,
                 zones.address,

@@ -130,7 +130,7 @@ describe('世界事件集测试', () => {
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu("大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(), actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
 

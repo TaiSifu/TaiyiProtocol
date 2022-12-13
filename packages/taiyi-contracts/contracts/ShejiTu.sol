@@ -43,6 +43,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     ITrigrams public trigrams;
     IWorldRandom public random;
 
+    string public override name;
+    string public override description;
+    uint256 public override moduleID;
+
     uint256 public override operator; //timeline administrator authority, 噎鸣
 
     uint256 public startZone; //actors in this timeline born in this zone
@@ -90,6 +94,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * @dev This function can only be called once.
      */
     function initialize(
+        string memory _name,
+        string memory _desc,
+        uint256 _moduleID,
         IActors _actors,
         IActorLocations _locations,
         IWorldZones _zones,
@@ -101,6 +108,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     ) external initializer {
         __ReentrancyGuard_init();
         __Ownable_init();
+
+        name = _name;
+        description = _desc;
+        moduleID = _moduleID;
 
         actors = _actors;
         locations = _locations;
@@ -118,8 +129,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(_zoneId > 0, "zoneId invalid");
         startZone = _zoneId;
     }
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
 
     function initOperator(uint256 _operator) external 
         onlyOwner
@@ -449,15 +458,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      * *****************
      */
 
-    function _tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) internal pure returns (string memory, uint256 _endY) {
+    function _tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
-        //所在时间线：大荒
-        return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">\xE6\x89\x80\xE5\x9C\xA8\xE6\x97\xB6\xE9\x97\xB4\xE7\xBA\xBF\xEF\xBC\x9A\xE5\xA4\xA7\xE8\x8D\x92</text>')), _endY);
+        return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', description,'</text>')), _endY);
     }
 
-    function _tokenJSON(uint256 /*_actor*/) internal pure returns (string memory) {
-        //大荒
-        return '{"name":  "\xE5\xA4\xA7\xE8\x8D\x92"}';
+    function _tokenJSON(uint256 /*_actor*/) internal view returns (string memory) {
+        return string(abi.encodePacked('{"name":  "', name,'"}'));
     }
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {

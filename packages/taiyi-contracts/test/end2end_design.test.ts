@@ -123,6 +123,7 @@ async function deploy() {
     expect(await actors.connect(taiyiDAO).nextActor()).to.eq(2);
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
+        "大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(),
         actors.address,
         actorLocations.address,
         worldZones.address,

@@ -1,12 +1,11 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { BigNumber, BigNumberish, Contract as EthersContract } from 'ethers';
-import { default as XumiABI } from '../abi/contracts/Xumi.sol/Xumi.json';
 import { Interface } from 'ethers/lib/utils';
 import { chunkArray } from '@taiyi/contracts/utils/chunkArray';
 import { 
     ActorXumiAttributes,
     ActorXumiAttributes__factory,
-    XumiConstants, XumiConstants__factory, Xumi__factory 
+    XumiConstants, XumiConstants__factory 
 } from '../typechain';
 import { WorldContract } from '@taiyi/contracts/dist/utils';
 import { deployTalentProcessors, initTalents } from './initTalents';
@@ -14,36 +13,16 @@ import { initItemTypes } from './initItemTypes';
 import { initEvents } from './initEvents';
 import { initTimeline } from './initTimeline';
 import {
-    WorldConstants, WorldContractRoute, ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, WorldFungible, 
+    WorldConstants, WorldContractRoute, WorldFungible, 
     WorldFungible__factory, Actors, ActorLocations, Trigrams, WorldRandom, WorldYemings, WorldZones,
-    ActorTalents, ActorAttributes, WorldItems, WorldEvents,
+    ActorTalents, ActorAttributes, WorldItems, WorldEvents, ShejiTu__factory
 } from '@taiyi/contracts/dist/typechain';
+import { deployShejiTu } from '@taiyi/contracts/dist/utils';
 
 export const deployXumiConstants = async (deployer: SignerWithAddress): Promise<XumiConstants> => {
     const factory = new XumiConstants__factory(deployer);
     return (await factory.deploy()).deployed();
 };
-
-export const deployXumi = async (actors: Actors, locations: ActorLocations,
-    zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
-    random: WorldRandom, deployer: SignerWithAddress) => {
-    let xumiImpl = await (await (new Xumi__factory(deployer)).deploy()).deployed();    
-    let xumiProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
-    const xumiProxyFactory = new ShejiTuProxy__factory(deployer);
-    let xumiProxy = await xumiProxyFactory.deploy(
-        xumiImpl.address,
-        xumiProxyAdmin.address,
-        new Interface(XumiABI).encodeFunctionData('initialize', [
-            actors.address,
-            locations.address,
-            zones.address,
-            attributes.address,
-            evts.address,
-            talents.address,
-            trigrams.address,
-            random.address]));
-    return [await xumiProxy.deployed(), xumiProxyAdmin, xumiImpl];
-}
 
 export const deployAssetEnergy = async (worldConst: XumiConstants, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldFungible> => {
     const factory = new WorldFungible__factory(deployer);
@@ -106,9 +85,10 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ELEMENT_H(), assetElementH.address);
 
     if(verbose) console.log("Deploy Xumi...");
-    let xumiPkg = await deployXumi(actors, locations, zones, attributes,
+    let xumiPkg = await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), 
+        actors, locations, zones, attributes,
         worldEvents, talents, trigrams, random, deployer);
-    let xumi = Xumi__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as Xumi
+    let xumi = ShejiTu__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as ShejiTu
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
     await xumi.registerAttributeModule(actorXumiAttributes.address);
 
