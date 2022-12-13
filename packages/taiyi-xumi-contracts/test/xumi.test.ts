@@ -251,7 +251,7 @@ describe('须弥时间线基础', () => {
         });
 
         it(`部署须弥时间线`, async ()=>{
-            xumi = Xumi__factory.connect((await deployXumi(actors, worldYemings, actorLocations, zones, baseAttributes,
+            xumi = Xumi__factory.connect((await deployXumi(actors, actorLocations, zones, baseAttributes,
                 worldEvents, talents, trigrams, random, operator1))[0].address, operator1);
             await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
         });
@@ -259,7 +259,6 @@ describe('须弥时间线基础', () => {
         it('不允许再次初始化', async () => {
             const tx = xumi.connect(operator1).initialize(
                 actors.address,
-                worldYemings.address,
                 actorLocations.address,
                 zones.address,
                 baseAttributes.address,

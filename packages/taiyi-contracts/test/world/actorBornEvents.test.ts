@@ -189,8 +189,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            expect((await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
+            expect((await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
         });
 
         it('创建新角色', async () => {
@@ -304,8 +303,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10001, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -366,10 +364,9 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10009, 1);
-            await shejituByPanGu.addAgeEvent(2, 10012, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10009, 1);
+            await shejiTu.connect(deployer).addAgeEvent(2, 10012, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -466,8 +463,7 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10001, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -528,10 +524,9 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10009, 1);
-            await shejituByPanGu.addAgeEvent(2, 10014, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10009, 1);
+            await shejiTu.connect(deployer).addAgeEvent(2, 10014, 1);
         });
 
         it('创建角色在社稷图出生', async () => {
@@ -648,9 +643,8 @@ describe('角色出生序列事件测试', () => {
         });
 
         it('配置时间线', async () => {
-            let shejituByPanGu = shejiTu.connect(taiyiDAO);
-            await shejituByPanGu.addAgeEvent(0, 10002, 1);
-            await shejituByPanGu.addAgeEvent(1, 10000, 1);
+            await shejiTu.connect(deployer).addAgeEvent(0, 10002, 1);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10000, 1);
         });
 
         it('创建角色在社稷图出生', async () => {

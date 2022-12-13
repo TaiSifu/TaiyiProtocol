@@ -125,7 +125,6 @@ async function deploy() {
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
         actors.address,
-        worldYemings.address,
         actorLocations.address,
         worldZones.address,
         actorAttributes.address,
@@ -138,7 +137,10 @@ async function deploy() {
     shejiTu = ShejiTu__factory.connect(shejiTuProxy.address, deployer);
     await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
     //- register yeming for shejitu
-    expect(await shejiTu.operator()).to.eq(2);
+    let shejiTuOperator = await actors.nextActor();
+    await actors.mintActor(0);
+    await actors.approve(shejiTu.address, shejiTuOperator);
+    await shejiTu.initOperator(shejiTuOperator);
     await worldYemings.connect(taiyiDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
     // 4. POPULATE body parts

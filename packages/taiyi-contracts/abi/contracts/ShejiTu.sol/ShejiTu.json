@@ -243,13 +243,21 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      }
+    ],
+    "name": "initOperator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "contract IActors",
         "name": "_actors",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IWorldYemings",
-        "name": "_yemings",
         "type": "address"
       },
       {
@@ -565,19 +573,6 @@
     "outputs": [
       {
         "internalType": "contract ITrigrams",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "yemings",
-    "outputs": [
-      {
-        "internalType": "contract IWorldYemings",
         "name": "",
         "type": "address"
       }

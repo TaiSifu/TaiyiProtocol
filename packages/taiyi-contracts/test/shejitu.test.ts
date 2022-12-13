@@ -115,7 +115,7 @@ describe('社稷图全局时间线测试', () => {
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
             
-        let shejiTuPkg = await deployShejiTu(actors, worldYemings, actorLocations, worldZones, actorAttributes,
+        let shejiTuPkg = await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
         shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
         shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
@@ -127,12 +127,18 @@ describe('社稷图全局时间线测试', () => {
 
     it('不允许再次初始化', async () => {
         let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
-        const tx = shejiTuByDAO.initialize(actors.address, worldYemings.address, actorLocations.address, worldZones.address,
+        const tx = shejiTuByDAO.initialize(actors.address, actorLocations.address, worldZones.address,
             actorAttributes.address, worldEvents.address, actorTalents.address, trigrams.address, worldRandom.address);
         await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
     });
 
     it('时间线管理者-噎明', async () => {
+        expect(await shejiTu.operator()).to.eq(0);
+        let YeMing = await actors.nextActor();
+        await actors.connect(deployer).mintActor(0);
+
+        await actors.connect(deployer).approve(shejiTu.address, YeMing);
+        expect((await shejiTu.connect(deployer).initOperator(YeMing)).wait()).eventually.fulfilled;
         const actorYeMing = await actors.getActor(await shejiTu.operator());
         expect(actorYeMing.owner).to.eq(shejiTu.address);
     });
@@ -209,7 +215,7 @@ describe('社稷图全局时间线测试', () => {
 
             it('角色生长-注册角色基础属性但未初始化情况', async () => {
                 //register actor attribute to timeline
-                expect((await shejiTu.connect(taiyiDAO).registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
+                expect((await shejiTu.connect(deployer).registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
 
                 await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
             });

@@ -204,12 +204,12 @@ describe('基本移动测试', () => {
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
 
         //配置时间线出生事件
-        await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(1, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(2, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(3, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(4, 60001, 1);
-        await shejiTu.connect(taiyiDAO).addAgeEvent(5, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(1, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(2, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(3, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(4, 60001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(5, 60001, 1);
 
         testActor = await newActor(operator1, true);
     });

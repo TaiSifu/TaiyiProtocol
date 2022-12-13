@@ -258,10 +258,10 @@ describe('大荒到须弥', () => {
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
 
         //配置时间线出生事件
-        await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1);
+        await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
 
         //Deploy Xumi world
-        let xumiWorldDeployed = await deployXumiWorld(worldContractRoute, worldConstants, actors, worldYemings, actorLocations,
+        let xumiWorldDeployed = await deployXumiWorld(worldContractRoute, worldConstants, actors, actorLocations,
             zones, baseAttributes, talents, trigrams, random, worldItems, worldEvents, operator1, taiyiDAO, 
             {},
             false);
@@ -314,8 +314,8 @@ describe('大荒到须弥', () => {
             await evt60513.setTargetZoneId(xumiZone);
             expect(await evt60513.targetZone()).to.eq(xumiZone);
 
-            await shejiTu.connect(taiyiDAO).addAgeEvent(1, 50002, 1); 
-            await shejiTu.connect(taiyiDAO).addAgeEvent(2, 60001, 1); 
+            await shejiTu.connect(deployer).addAgeEvent(1, 50002, 1); 
+            await shejiTu.connect(deployer).addAgeEvent(2, 60001, 1); 
         });
 
         it(`成长到0岁`, async ()=>{

@@ -130,9 +130,14 @@ describe('世界事件集测试', () => {
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu(actors, worldYemings, actorLocations, worldZones, actorAttributes,
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer))[0].address, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+
+        let shejiTuOperator = await actors.nextActor();
+        await actors.mintActor(0);
+        await actors.approve(shejiTu.address, shejiTuOperator);
+        await shejiTu.initOperator(shejiTuOperator);
         await worldYemings.connect(taiyiDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
 
         //set PanGu as YeMing for test
@@ -152,11 +157,11 @@ describe('世界事件集测试', () => {
         expect(await worldEvents.eventProcessors(10001)).to.eq(event10001.address);
     });
 
-    it('非盘古无权配置时间线', async () => {
-        await expect(shejiTu.connect(operator1).addAgeEvent(0, 10001, 1)).to.be.revertedWith("only PanGu");
+    it('非Owner无权配置时间线', async () => {
+        await expect(shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it('盘古配置时间线', async () => {
-        expect((await shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
+    it('Owner配置时间线', async () => {
+        expect((await shejiTu.addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
     });
 });

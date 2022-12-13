@@ -35,7 +35,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      */
 
     IActors public actors;
-    IWorldYemings public yemings;
     IActorLocations public locations;
     IWorldZones public zones;
     IActorAttributes public attributes;
@@ -61,17 +60,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     modifier onlyApprovedOrOwner(uint _actor) {
         require(_isActorApprovedOrOwner(_actor), "not approved or owner of actor");
-        _;
-    }
-
-    modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
-        _;
-    }
-
-    modifier onlyYeMing(uint256 _actor) {
-        require(yemings.isYeMing(_actor), "only YeMing");
-        require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
         _;
     }
 
@@ -103,7 +91,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
      */
     function initialize(
         IActors _actors,
-        IWorldYemings _yemings,
         IActorLocations _locations,
         IWorldZones _zones,
         IActorAttributes _attributes,
@@ -116,7 +103,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         __Ownable_init();
 
         actors = _actors;
-        yemings = _yemings;
         locations = _locations;
         zones = _zones;
         attributes = _attributes;
@@ -124,9 +110,6 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         talents = _talents;
         trigrams = _trigrams;
         random = _random;
-
-        operator = actors.nextActor();
-        actors.mintActor(0);
     }
 
     function setStartZone(uint256 _zoneId) external 
@@ -137,6 +120,14 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TIMELINE; }
+
+    function initOperator(uint256 _operator) external 
+        onlyOwner
+    {
+        require(operator == 0, "operator already initialized");
+        actors.transferFrom(_msgSender(), address(this), _operator);
+        operator = _operator;
+    }
 
     function bornActor(uint256 _actor) external
         onlyApprovedOrOwner(_actor)
@@ -158,7 +149,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function registerAttributeModule(address _attributeModule) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_attributeModule != address(0), "input can not be ZERO address!");
         bool rt = _attributeModules.add(_attributeModule);
@@ -166,7 +157,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function changeAttributeModule(address _oldAddress, address _newAddress) external
-        onlyPanGu
+        onlyOwner
     {
         require(_oldAddress != address(0), "input can not be ZERO address!");
         _attributeModules.remove(_oldAddress);
@@ -175,7 +166,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function addAgeEvent(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
         require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
@@ -184,7 +175,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
-        onlyPanGu
+        onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
         require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");

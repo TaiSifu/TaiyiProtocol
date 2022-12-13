@@ -261,11 +261,6 @@
         "type": "address"
       },
       {
-        "internalType": "contract IWorldYemings",
-        "name": "_yemings",
-        "type": "address"
-      },
-      {
         "internalType": "contract IActorLocations",
         "name": "_locations",
         "type": "address"
@@ -578,19 +573,6 @@
     "outputs": [
       {
         "internalType": "contract ITrigrams",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "yemings",
-    "outputs": [
-      {
-        "internalType": "contract IWorldYemings",
         "name": "",
         "type": "address"
       }

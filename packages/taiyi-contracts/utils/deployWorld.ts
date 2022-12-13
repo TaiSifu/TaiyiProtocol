@@ -49,7 +49,7 @@ route: WorldContractRoute, deployer: SignerWithAddress): Promise<Actors> => {
     return (await factory.deploy(taiyiDAO, mintStart, coinContract)).deployed();
 };
 
-export const deployShejiTu = async (actors: Actors, yemings: WorldYemings, locations: ActorLocations,
+export const deployShejiTu = async (actors: Actors, locations: ActorLocations,
     zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
     random: WorldRandom, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
@@ -60,7 +60,6 @@ export const deployShejiTu = async (actors: Actors, yemings: WorldYemings, locat
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
             actors.address,
-            yemings.address,
             locations.address,
             zones.address,
             attributes.address,
@@ -391,29 +390,34 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu(actors, worldYemings, actorLocations, worldZones, actorAttributes,
+    let shejiTuPkg = await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
         worldEvents, actorTalents, trigrams, worldRandom, deployer);
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
-    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
-    await worldYemings.connect(operatorDAO).setYeMing(await shejiTu.operator(), shejiTu.address);
+
+    let shejiTuOperator = await actors.nextActor();
+    await actors.mintActor(0);
+    await actors.approve(shejiTu.address, shejiTuOperator);
+    await shejiTu.initOperator(shejiTuOperator);
+    await worldYemings.connect(operatorDAO).setYeMing(shejiTuOperator, shejiTu.address);
+    if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
 
     //deploy actor attributes
-    if(verbose) console.log("Deploy Actor Ext Attributes...");
+    if(verbose) console.log("Deploy Actor Attributes...");
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address);
-    await shejiTu.connect(operatorDAO).registerAttributeModule(actorAttributes.address);
+    await shejiTu.registerAttributeModule(actorAttributes.address);
     let actorCharmAttributes = await deployActorCharmAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES(), actorCharmAttributes.address);
-    await shejiTu.connect(operatorDAO).registerAttributeModule(actorCharmAttributes.address);
+    await shejiTu.registerAttributeModule(actorCharmAttributes.address);
     let actorCoreAttributes = await deployActorCoreAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_CORE_ATTRIBUTES(), actorCoreAttributes.address);
-    await shejiTu.connect(operatorDAO).registerAttributeModule(actorCoreAttributes.address);
+    await shejiTu.registerAttributeModule(actorCoreAttributes.address);
     let actorMoodAttributes = await deployActorMoodAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES(), actorMoodAttributes.address);
-    await shejiTu.connect(operatorDAO).registerAttributeModule(actorMoodAttributes.address);
+    await shejiTu.registerAttributeModule(actorMoodAttributes.address);
     let actorBehaviorAttributes = await deployActorBehaviorAttributes(actRecoverTimeDay, routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES(), actorBehaviorAttributes.address);
-    await shejiTu.connect(operatorDAO).registerAttributeModule(actorBehaviorAttributes.address);
+    await shejiTu.registerAttributeModule(actorBehaviorAttributes.address);
 
     //deploy assets
     if(verbose) console.log("Deploy Assets...");
@@ -517,7 +521,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         null;
     else {
         if(verbose) console.log("Initialize Global Timeline...");
-        await initTimeline(shejiTu.address, operatorDAO);
+        await initTimeline(shejiTu.address, deployer);
     }
 
     //init zones
@@ -529,7 +533,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, oneAgeVSec
         await initZones(worldConstants, shejiTu.address, operatorDAO);
 
         //bind shejitu to first zone
-        await shejiTu.connect(operatorDAO).setStartZone(1);
+        await shejiTu.setStartZone(1);
     }
 
     let contracts: Record<WorldContractName, WorldContract> = {        

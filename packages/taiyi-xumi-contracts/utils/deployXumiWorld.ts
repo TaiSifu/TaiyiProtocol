@@ -24,7 +24,7 @@ export const deployXumiConstants = async (deployer: SignerWithAddress): Promise<
     return (await factory.deploy()).deployed();
 };
 
-export const deployXumi = async (actors: Actors, yemings: WorldYemings, locations: ActorLocations,
+export const deployXumi = async (actors: Actors, locations: ActorLocations,
     zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
     random: WorldRandom, deployer: SignerWithAddress) => {
     let xumiImpl = await (await (new Xumi__factory(deployer)).deploy()).deployed();    
@@ -35,7 +35,6 @@ export const deployXumi = async (actors: Actors, yemings: WorldYemings, location
         xumiProxyAdmin.address,
         new Interface(XumiABI).encodeFunctionData('initialize', [
             actors.address,
-            yemings.address,
             locations.address,
             zones.address,
             attributes.address,
@@ -83,7 +82,7 @@ export interface XumiWorldDeployFlag {
 };
     
 export const deployXumiWorld = async (route: WorldContractRoute, worldConstants: WorldConstants, 
-    actors: Actors, yemings: WorldYemings, locations: ActorLocations,
+    actors: Actors, locations: ActorLocations,
     zones: WorldZones, attributes: ActorAttributes, talents: ActorTalents, trigrams: Trigrams,
     random: WorldRandom, worldItems: WorldItems, worldEvents: WorldEvents,
     deployer: SignerWithAddress, operatorDAO: SignerWithAddress, flags?:XumiWorldDeployFlag, verbose?:Boolean): Promise<{
@@ -107,7 +106,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ELEMENT_H(), assetElementH.address);
 
     if(verbose) console.log("Deploy Xumi...");
-    let xumiPkg = await deployXumi(actors, yemings, locations, zones, attributes,
+    let xumiPkg = await deployXumi(actors, locations, zones, attributes,
         worldEvents, talents, trigrams, random, deployer);
     let xumi = Xumi__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as Xumi
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);

@@ -36,7 +36,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
      */
 
     IActors public actors;
-    IWorldYemings public yemings;
     IActorLocations public locations;
     IWorldZones public zones;
     IActorAttributes public attributes;
@@ -62,17 +61,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
 
     modifier onlyApprovedOrOwner(uint _actor) {
         require(_isActorApprovedOrOwner(_actor), "not approved or owner of actor");
-        _;
-    }
-
-    modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(WorldConstants.ACTOR_PANGU), "only PanGu");
-        _;
-    }
-
-    modifier onlyYeMing(uint256 _actor) {
-        require(yemings.isYeMing(_actor), "only YeMing");
-        require(_isActorApprovedOrOwner(_actor), "not YeMing's operator");
         _;
     }
 
@@ -104,7 +92,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
      */
     function initialize(
         IActors _actors,
-        IWorldYemings _yemings,
         IActorLocations _locations,
         IWorldZones _zones,
         IActorAttributes _attributes,
@@ -117,7 +104,6 @@ contract Xumi is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgrade
         __Ownable_init();
 
         actors = _actors;
-        yemings = _yemings;
         locations = _locations;
         zones = _zones;
         attributes = _attributes;
