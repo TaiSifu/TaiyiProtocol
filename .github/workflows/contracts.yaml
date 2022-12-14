@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - "packages/taiyi-contracts/**"
-      - "packages/taiyi-xumi-contracts/**"
+      - "packages/xumi-contracts/**"
     branches:
       - "**"
 
@@ -35,11 +35,11 @@ jobs:
           yarn coverage
       - name: Run xumi-contract tests
         run: |
-          cd packages/taiyi-xumi-contracts
+          cd packages/xumi-contracts
           yarn test
       - name: Run xumi-contract coverage
         run: |
-          cd packages/taiyi-xumi-contracts
+          cd packages/xumi-contracts
           yarn coverage
       - name: Uninstall Yarn
         if: always()
