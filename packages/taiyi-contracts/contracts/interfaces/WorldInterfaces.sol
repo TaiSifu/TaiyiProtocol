@@ -58,7 +58,10 @@ interface IWorldTimeline is IWorldModule {
     event BranchEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event ActiveEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
 
+    function name() external view returns (string memory);
+    function description() external view returns (string memory);
     function operator() external view returns (uint256);
+    function events() external view returns (IWorldEvents);
 
     function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
@@ -323,10 +326,4 @@ interface ITrigrams is IWorldModule {
 
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
-}
-
-interface IActorTimelineAges is IWorldModule {
-    function actorTimelineLastAges(uint256 _actor, address _timelineAddress) external view returns (uint256);
-
-    function setActorTimelineLastAge(uint256 _operator, uint256 _actor, address _timelineAddress, uint256 _age) external;
 }

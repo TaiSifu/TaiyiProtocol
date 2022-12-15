@@ -6,7 +6,7 @@
     "build": "lerna run build",
     "test": "lerna run --parallel test",
     "clean": "lerna run --parallel clean",
-    "prepare": "lerna run prepare --scope=@taiyi/{contracts,xumi-contracts}",
+    "prepare": "lerna run prepare --scope=@taiyi/{contracts,dahuang-contracts,xumi-contracts}",
     "lint": "eslint 'packages/**/*.ts' --fix",
     "format": "prettier --write 'packages/**/*.{ts(x)?,sol,md,css}' '!**/typechain/**'"
   },

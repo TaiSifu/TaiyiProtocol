@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../interfaces/WorldInterfaces.sol";
-import "../WorldConfigurable.sol";
-import "../../base/Ownable.sol";
+import '../../libs/Base64.sol';
+import '../WorldConfigurable.sol';
 
 contract DefaultWorldEventProcessor is IWorldEventProcessor, WorldConfigurable, Ownable
 {

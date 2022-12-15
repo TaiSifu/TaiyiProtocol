@@ -90,15 +90,9 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
     function pointActor(uint256 _actor) external 
         onlyApprovedOrOwner(_actor)
     {        
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
-        require(talents.actorTalentsInitiated(_actor), "talents have not initiated");
         require(!characterPointsInitiated[_actor], "already init points");
 
-        uint256 _maxPointBuy = talents.actorAttributePointBuy(_actor, WorldConstants.WORLD_MODULE_ATTRIBUTES);
         attributesScores[WorldConstants.ATTR_HLH][_actor] = 100;
-        if(_maxPointBuy > 0)
-            attributesScores[WorldConstants.ATTR_HLH][_actor] = _maxPointBuy;
-
         characterPointsInitiated[_actor] = true;
 
         uint256[] memory atts = new uint256[](2);

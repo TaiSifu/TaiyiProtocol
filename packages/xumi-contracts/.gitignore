@@ -1,0 +1,24 @@
+node_modules
+parts.html
+
+#Hardhat files
+cache
+artifacts
+typechain/
+.openzeppelin
+
+# Script output
+logs
+
+# Coverage result files
+coverage/
+coverage.json
+
+abi/@openzeppelin
+abi/@taiyi
+abi/contracts/base
+abi/contracts/external
+abi/contracts/proxies
+abi/contracts/test
+
+addresses/hard.json

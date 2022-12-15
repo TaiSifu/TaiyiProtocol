@@ -72,6 +72,9 @@ let newSeeder: SifusSeeder; //for test
 
 const RESERVE_PRICE = 2;
 const OneAgeVSecond : number = 1;
+const FAKE_MODULE_EVENTS = 101;
+const FAKE_MODULE_TIMELINE = 102;
+const FAKE_MODULE_TALENTS = 103;
 
 async function deploy() {
     [deployer, wethDeployer, taiyiDAO, operator1] = await ethers.getSigners();
@@ -104,14 +107,14 @@ async function deploy() {
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
     actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address);
-    worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+    worldEvents = await deployWorldEvents(OneAgeVSecond, FAKE_MODULE_EVENTS, worldContractRoute, deployer);
+    await routeByPanGu.registerModule(FAKE_MODULE_EVENTS, worldEvents.address);
     actorLocations = await deployActorLocations(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
     worldZones = await deployWorldZones(worldContractRoute, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
-    actorTalents = await deployActorTalents(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+    actorTalents = await deployActorTalents(FAKE_MODULE_TALENTS, routeByPanGu, deployer);
+    await routeByPanGu.registerModule(FAKE_MODULE_TALENTS, actorTalents.address);
     trigrams = await deployTrigrams(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
@@ -124,6 +127,7 @@ async function deploy() {
     expect(await actors.connect(taiyiDAO).nextActor()).to.eq(2);
     const shejiTuFactory = await ethers.getContractFactory('ShejiTu', deployer);
     const shejiTuProxy = await upgrades.deployProxy(shejiTuFactory, [
+        "测试", "所在时间线：测试", FAKE_MODULE_TIMELINE,
         actors.address,
         actorLocations.address,
         worldZones.address,
@@ -135,7 +139,7 @@ async function deploy() {
     ]);
     // 3b. CAST proxy as ShejiTu
     shejiTu = ShejiTu__factory.connect(shejiTuProxy.address, deployer);
-    await worldContractRoute.connect(taiyiDAO).registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+    await worldContractRoute.connect(taiyiDAO).registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
     //- register yeming for shejitu
     let shejiTuOperator = await actors.nextActor();
     await actors.mintActor(0);

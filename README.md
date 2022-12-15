@@ -8,7 +8,7 @@
 
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/TaiSifu/TaiyiProtocol?style=flat-square)](https://hub.docker.com/r/TaiSifu/TaiyiProtocol/tags)
 [![GitHub license](https://img.shields.io/github/license/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/blob/main/LICENSE)
-[![ContractsCI](https://img.shields.io/github/workflow/status/TaiSifu/TaiyiProtocol/ContractsCI?style=flat-square&label=github-actions)](https://github.com/TaiSifu/TaiyiProtocol/actions?query=workflow%3AContractsCI)
+[![ContractsCI](https://img.shields.io/github/workflow/status/TaiSifu/TaiyiProtocol/ContractsCI?style=flat-square&label=ContractsCI)](https://github.com/TaiSifu/TaiyiProtocol/actions?query=workflow%3AContractsCI)
 [![GitHub contributors](https://img.shields.io/github/contributors-anon/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/graphs/contributors)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/TaiSifu/TaiyiProtocol?style=flat-square)](https://github.com/TaiSifu/TaiyiProtocol/commits/main)
 
@@ -44,8 +44,11 @@
 
 太乙世界可以衍生出各种物理定律以及事实。很多现象都无法用现实世界的物理定律加以推演，因此太乙之道在现实世界不得实证和应用，但在太乙宇宙中，这些定律却皆可实现。太乙角色（NFT）默认为一种[Loot](https://www.lootproject.com/)式叙事渲染，也可以切换到各种扩展信息的渲染，比如一种传说中的符文图案。
 
-### 须弥合约
-[须弥合约](packages/taiyi-xumi-contracts)是一套扩展太乙世界的智能合约示例，以Solidity语言编写。
+### 大荒世界
+[大荒合约](packages/dahuang-contracts)是一套扩展太乙世界的智能合约示例，以Solidity语言编写。
+
+### 须弥世界
+[须弥合约](packages/xumi-contracts)是一套扩展太乙世界的智能合约示例，以Solidity语言编写。
 
 ### 太乙开发套件
 [太乙开发套件](packages/taiyi-sdk)对外提供了太乙岛和太乙世界相关合约的链上地址，合约ABIs，以及一系列用于图像编码和SVG创建的工具。

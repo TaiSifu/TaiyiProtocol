@@ -13,6 +13,7 @@ contract ActorBornPlaces is IActorBornPlaces, WorldConfigurable {
      * Globals
      * *******
      */
+    uint256 public override moduleID;
 
     mapping(uint256 => uint256) public override bornPlaces;
     
@@ -26,7 +27,9 @@ contract ActorBornPlaces is IActorBornPlaces, WorldConfigurable {
      * ****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) {}
+    constructor(WorldContractRoute _route, uint256 _moduleID) WorldConfigurable(_route) {
+        moduleID = _moduleID;
+    }
 
     /* *****************
      * Private Functions
@@ -62,8 +65,6 @@ contract ActorBornPlaces is IActorBornPlaces, WorldConfigurable {
      * External Functions
      * ****************
      */
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_BORN_PLACES; }
 
     function bornActor(uint256 _operator, uint256 _actor, uint256 _zoneId) external override
         onlyYeMing(_operator)

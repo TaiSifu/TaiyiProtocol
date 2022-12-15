@@ -12,6 +12,7 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
      * Globals
      * *******
      */
+    uint256 public override moduleID;
 
     uint256[]                  public talentIDs;
     mapping(uint256 => string) public talentNames;
@@ -41,7 +42,8 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
      * ****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
+    constructor(WorldContractRoute _route, uint256 _moduleID) WorldConfigurable(_route) {
+        moduleID = _moduleID;
     }
 
     /* *****************
@@ -106,8 +108,6 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
      * External Functions
      * ****************
      */
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_TALENTS; }
 
     function setTalent(uint256 _id, string memory _name, string memory _description, int[] memory _modifiers, int[] memory _attrPointModifiers) external override
         onlyPanGu

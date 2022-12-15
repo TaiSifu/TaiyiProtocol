@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "./utils",
+    "./tasks",
+    "./src",
+    "./test",
+    "./files",
+    "./typechain",
+    "./abi/**/*.json",
+    "./files/*.json"
+  ],
+  "files": ["./hardhat.config.ts"],
+  "references": [
+  ]
+}

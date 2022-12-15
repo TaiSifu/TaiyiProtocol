@@ -7,9 +7,9 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldZones, WorldYemings, WorldRandom, ActorLocations, ActorTalents, Trigrams,
+    WorldConstants, WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, 
+    ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldZones, WorldYemings, 
+    WorldRandom, ActorLocations, ActorTalents, Trigrams,
 } from '../typechain';
 import {
     blockNumber,
@@ -68,6 +68,10 @@ describe('社稷图全局时间线测试', () => {
 
     let actorPanGu: BigNumber;
 
+    const FAKE_MODULE_EVENTS = 101;
+    const FAKE_MODULE_TIMELINE = 102;
+    const FAKE_MODULE_TALENTS = 103;
+
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
@@ -104,22 +108,22 @@ describe('社稷图全局时间线测试', () => {
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address)
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
-        worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+        worldEvents = await deployWorldEvents(OneAgeVSecond, FAKE_MODULE_EVENTS, worldContractRoute, deployer); //moduleId for test
+        await routeByPanGu.registerModule(FAKE_MODULE_EVENTS, worldEvents.address);
         actorLocations = await deployActorLocations(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
         worldZones = await deployWorldZones(worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
-        actorTalents = await deployActorTalents(routeByPanGu, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+        actorTalents = await deployActorTalents(FAKE_MODULE_TALENTS, routeByPanGu, deployer); //moduleId for test
+        await routeByPanGu.registerModule(FAKE_MODULE_TALENTS, actorTalents.address);
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
             
-        let shejiTuPkg = await deployShejiTu(actors, actorLocations, worldZones, actorAttributes,
+        let shejiTuPkg = await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
         shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
         shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+        await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         //set PanGu as YeMing for test
         await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
@@ -127,7 +131,7 @@ describe('社稷图全局时间线测试', () => {
 
     it('不允许再次初始化', async () => {
         let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
-        const tx = shejiTuByDAO.initialize(actors.address, actorLocations.address, worldZones.address,
+        const tx = shejiTuByDAO.initialize("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors.address, actorLocations.address, worldZones.address,
             actorAttributes.address, worldEvents.address, actorTalents.address, trigrams.address, worldRandom.address);
         await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
     });
@@ -193,8 +197,8 @@ describe('社稷图全局时间线测试', () => {
                 let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
                 let uriObj = JSON.parse(uriDecode);
                 //console.log(JSON.stringify(uriObj, null, 2));
-                expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
-                expect(uriObj.data.m_3).to.be.undefined;
+                expect(FAKE_MODULE_TIMELINE).to.eq(102);
+                expect(uriObj.data.m_102).to.be.undefined;
             });
 
             it('注册到角色URI模块的情况', async () => {
@@ -205,8 +209,8 @@ describe('社稷图全局时间线测试', () => {
                 let uriDecode = Buffer.from(uri.substring(29), 'base64').toString('utf-8');
                 let uriObj = JSON.parse(uriDecode);
                 //console.log(JSON.stringify(uriObj, null, 2));
-                expect(await worldConstants.WORLD_MODULE_TIMELINE()).to.eq(3);
-                expect(uriObj.data.m_3.base.name).to.eq("大荒");
+                expect(FAKE_MODULE_TIMELINE).to.eq(102);
+                expect(uriObj.data.m_102.base.name).to.eq("测试");
             });
 
             it('角色生长-未注册角色基础属性情况', async () => {

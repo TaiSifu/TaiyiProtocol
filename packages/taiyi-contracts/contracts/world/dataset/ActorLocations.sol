@@ -90,7 +90,7 @@ contract ActorLocations is IActorLocations, WorldConfigurable {
         uint256[] memory currentLocation = _actorLocations[_actor]; 
         if(currentLocation.length == 2) {
             if(currentLocation[0] == _A && currentLocation[1] == _B)
-                require(false, "already here");
+                return; // require(false, "already here");
             //remove from old location
             uint256[] memory actors = _locationActors[currentLocation[0]][currentLocation[1]];
             for(uint256 i=0; i<actors.length; i++) {
