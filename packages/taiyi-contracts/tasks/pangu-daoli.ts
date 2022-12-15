@@ -3,9 +3,8 @@
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import { 
-    ActorAttributes__factory, ActorNames__factory, Actors__factory, ActorTalents__factory, ShejiTu__factory, 
-    WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, 
-    WorldEvents__factory, WorldFungible__factory, WorldZones__factory 
+    ActorAttributes__factory, ActorNames__factory, Actors__factory,
+    WorldConstants__factory, WorldFungible__factory, WorldYemings__factory, WorldZones__factory 
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 
@@ -37,7 +36,7 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
         let addressBook:{[index: string]:any} = await getContractAddress(process_args.network?process_args.network:"hard");
 
         let worldConstants = WorldConstants__factory.connect(addressBook.WorldConstants, taisifu);
-        let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, taisifu);
+        let worldYemings = WorldYemings__factory.connect(addressBook.WorldYemings, taisifu);
         let actors = Actors__factory.connect(addressBook.Actors, taisifu);
         let names = ActorNames__factory.connect(addressBook.ActorNames, taisifu);
         let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, taisifu);
@@ -46,8 +45,8 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
 
         console.log("检查盘古铸币权...");
         let actorPanGu = await worldConstants.ACTOR_PANGU();
-        if(!(await worldContractRoute.isYeMing(actorPanGu)))
-            await worldContractRoute.setYeMing(actorPanGu, taisifu.address); //fake address
+        if(!(await worldYemings.isYeMing(actorPanGu)))
+            await worldYemings.setYeMing(actorPanGu, taisifu.address); //fake address
         
         console.log("盘古铸币中...");
         let amount = ethers.utils.parseEther(args.amount);

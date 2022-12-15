@@ -14,6 +14,12 @@ import { deployDahuangWorld, WorldContract } from '../utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
+async function getContractAddress(net: string) : Promise<{[index: string]:any}> {
+    // @ts-ignore
+    const sharedAddressPath = getAddressBookShareFilePath(net);
+    return JSON.parse(fs.readFileSync(sharedAddressPath, { encoding: "ascii"}));
+}    
+
 type ContractName =
     //| 'WETH'
     | 'ShejiTu'
@@ -43,21 +49,23 @@ task('deploy', '部署全套大荒合约')
         //     return;
         // }
 
+        let addressBook:{[index: string]:any} = await getContractAddress(process_args.network?process_args.network:"hard");
+
         const [deployer, taisifu] = await ethers.getSigners();
         console.log(`Deployer: ${deployer.address}`);
         console.log(`Taisifu: ${taisifu.address}`);
 
-        let worldConstants = WorldConstants__factory.connect(args.taiyiContracts, taisifu);
-        let worldContractRoute = WorldContractRoute__factory.connect(args.worldContractRoute, taisifu);
-        let actors = Actors__factory.connect(args.actors, taisifu);
-        let zones = WorldZones__factory.connect(args.worldZones, taisifu);
-        let worldYemings = WorldYemings__factory.connect(args.worldYemings, taisifu);
-        let baseAttributes = ActorAttributes__factory.connect(args.actorAttributes, taisifu);
-        let actorSIDs = ActorSocialIdentity__factory.connect(args.actorSocialIdentity, taisifu);
-        let worldRandom = WorldRandom__factory.connect(args.worldRandom, taisifu);
-        let actorLocations = ActorLocations__factory.connect(args.actorLocations, taisifu);
-        let trigrams = Trigrams__factory.connect(args.trigrams, taisifu);
-        let worldItems = WorldItems__factory.connect(args.worldItems, taisifu);
+        let worldConstants = WorldConstants__factory.connect(args.worldConstants=="0x00"?addressBook.WorldConstants:args.worldConstants, taisifu);
+        let worldContractRoute = WorldContractRoute__factory.connect(args.worldContractRoute=="0x00"?addressBook.WorldContractRoute:args.worldContractRoute, taisifu);
+        let actors = Actors__factory.connect(args.actors=="0x00"?addressBook.Actors:args.actors, taisifu);
+        let zones = WorldZones__factory.connect(args.worldZones=="0x00"?addressBook.WorldZones:args.worldZones, taisifu);
+        let worldYemings = WorldYemings__factory.connect(args.worldYemings=="0x00"?addressBook.WorldYemings:args.worldYemings, taisifu);
+        let baseAttributes = ActorAttributes__factory.connect(args.actorAttributes=="0x00"?addressBook.ActorAttributes:args.actorAttributes, taisifu);
+        let actorSIDs = ActorSocialIdentity__factory.connect(args.actorSocialIdentity=="0x00"?addressBook.ActorSocialIdentity:args.actorSocialIdentity, taisifu);
+        let worldRandom = WorldRandom__factory.connect(args.worldRandom=="0x00"?addressBook.WorldRandom:args.worldRandom, taisifu);
+        let actorLocations = ActorLocations__factory.connect(args.actorLocations=="0x00"?addressBook.ActorLocations:args.actorLocations, taisifu);
+        let trigrams = Trigrams__factory.connect(args.trigrams=="0x00"?addressBook.Trigrams:args.trigrams, taisifu);
+        let worldItems = WorldItems__factory.connect(args.worldItems=="0x00"?addressBook.WorldItems:args.worldItems, taisifu);
 
         //Deploy dahuang world
         let worldDeployed = await deployDahuangWorld(
@@ -91,7 +99,6 @@ task('deploy', '部署全套大荒合约')
         };
 
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
-        let addressBook:{[index: string]:any} = {};
         for (const [name, contract] of Object.entries(dahuangContracts)) 
             addressBook[name] = contract.instance.address;
         for (const [name, contract] of Object.entries(contracts)) 

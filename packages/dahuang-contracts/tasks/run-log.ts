@@ -17,6 +17,7 @@ import {
     WorldEventProcessor10011__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, 
     WorldZoneBaseResources__factory, 
     DahuangConstants,
+    DahuangConstants__factory,
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -110,6 +111,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const eventProcessor10009 = WorldEventProcessor10009__factory.connect(addressBook.WorldEventProcessor10009, wallet);
     const eventProcessor10010 = WorldEventProcessor10010__factory.connect(addressBook.WorldEventProcessor10010, wallet);
     const eventProcessor10011 = WorldEventProcessor10011__factory.connect(addressBook.WorldEventProcessor10011, wallet);
+    const dahuangConstants = DahuangConstants__factory.connect(addressBook.DahuangConstants, wallet);
 
     let blockNum = await provider.getBlockNumber();
     //console.log(startBlockNum, blockNum);
@@ -146,12 +148,12 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     let actorLoacationChanged_filter = actorLocations.filters.ActorLocationChanged(null, null, null, null, null);
 
     let _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
-    let _RL_ATTRIBUTE_CHARM_BASE = await worldConstants.ATTR_BASE_CHARM();
-    let _RL_ATTRIBUTE_CORE_BASE = await worldConstants.ATTR_BASE_CORE();
-    let _RL_ATTRIBUTE_MOOD_BASE = await worldConstants.ATTR_BASE_MOOD();
-    let _RL_ATTRIBUTE_BEHAVIOR_BASE = await worldConstants.ATTR_BASE_BEHAVIOR();
+    let _RL_ATTRIBUTE_CHARM_BASE = await dahuangConstants.ATTR_BASE_CHARM();
+    let _RL_ATTRIBUTE_CORE_BASE = await dahuangConstants.ATTR_BASE_CORE();
+    let _RL_ATTRIBUTE_MOOD_BASE = await dahuangConstants.ATTR_BASE_MOOD();
+    let _RL_ATTRIBUTE_BEHAVIOR_BASE = await dahuangConstants.ATTR_BASE_BEHAVIOR();
 
-    let RL_ATTRIBUTE_ACT = await worldConstants.ATTR_ACT();
+    let RL_ATTRIBUTE_ACT = await dahuangConstants.ATTR_ACT();
 
     let ACTOR_GUANGONG = await worldZoneBaseResources.ACTOR_GUANGONG();
 

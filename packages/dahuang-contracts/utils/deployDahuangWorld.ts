@@ -240,7 +240,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         null;
     else {
         if(verbose) console.log("Initialize Talents...");
-        await initTalents(actorTalents.address, operatorDAO, dahuangConstants);
+        await initTalents(actorTalents.address, operatorDAO, worldConstants, dahuangConstants);
     }
 
     //deploy talent processors
@@ -288,7 +288,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     if(flags?.noTimelineEvents)
         null;
     else {
-        if(verbose) console.log("Initialize Global Timeline...");
+        if(verbose) console.log("Initialize Dahuang Timeline...");
         await initTimeline(shejiTu.address, deployer);
     }
 
@@ -297,11 +297,20 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         null;
     else {
         if(verbose) console.log("Initialize Zones...");
-        await actors.connect(operatorDAO).approve(shejiTu.address, await worldConstants.ACTOR_PANGU());
-        await initZones(worldConstants, shejiTu.address, operatorDAO);
+        let actorPanGu = await worldConstants.ACTOR_PANGU();
+        //set PanGu as YeMing
+        await yemings.connect(operatorDAO).setYeMing(actorPanGu, operatorDAO.address); //fake address for PanGu
+        //bind timeline to a zone
+        let dahuangZone = await zones.nextZone();
+        await zones.connect(operatorDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        await shejiTu.setStartZone(dahuangZone);
 
-        //bind shejitu to first zone
-        await shejiTu.setStartZone(1);
+        //born PanGu
+        await actors.connect(operatorDAO).approve(shejiTu.address, actorPanGu);
+        await shejiTu.connect(operatorDAO).bornActor(actorPanGu);
+        
+        //init zones by PanGu
+        await initZones(worldConstants, shejiTu.address, operatorDAO);
     }
 
     let contracts: Record<DahuangContractName, WorldContract> = {        
