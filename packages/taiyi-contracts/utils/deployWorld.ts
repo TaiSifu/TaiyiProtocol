@@ -9,8 +9,7 @@ import {
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, ActorTimelineAges, 
-    ActorTimelineAges__factory, WorldYemings, WorldYemings__factory,
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -152,11 +151,6 @@ export const deploySifusSeeder = async (deployer: SignerWithAddress): Promise<Si
     return (await factory.deploy()).deployed();
 };
 
-export const deployActorTimelineAges = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<ActorTimelineAges> => {
-    const factory = new ActorTimelineAges__factory(deployer);
-    return (await factory.deploy(route.address)).deployed();
-};
-
 export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Promise<void> => {
     const { bgcolors, palette, images } = ImageData;
     const { bodies, accessories, heads, glasses } = images;
@@ -191,8 +185,7 @@ export type TaiyiContractName =
     | 'ActorAttributes' 
     | 'ActorPrelifes' 
     | 'ActorLocations' 
-    | 'Trigrams'
-    | 'ActorTimelineAges';
+    | 'Trigrams';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -274,10 +267,6 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
     await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address);
 
-    if(verbose) console.log("Deploy ActorTimelineAges...");
-    let actorTimelineAges = await deployActorTimelineAges(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_TIMELINE_LASTAGES(), actorTimelineAges.address);
-
     //render modules
     await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address);
 
@@ -299,7 +288,6 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
         SifusDescriptor: {instance: sifusDescriptor},
         SifusSeeder: {instance: sifusSeeder},
         SifusToken: {instance: sifusToken},
-        ActorTimelineAges: {instance: actorTimelineAges},
     };
 
     return contracts;

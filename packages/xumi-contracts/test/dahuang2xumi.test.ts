@@ -12,7 +12,7 @@ import {
     SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, 
     ActorSocialIdentity__factory, ActorRelationship__factory, WorldRandom, 
     ActorLocations, Trigrams, WorldRandom__factory, ActorLocations__factory, Trigrams__factory, WorldItems, WorldItems__factory, 
-    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, ActorTimelineAges, ActorTimelineAges__factory,
+    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -79,7 +79,6 @@ describe('大荒到须弥', () => {
     let actorLocations: ActorLocations;
     let trigrams: Trigrams;
     let worldItems: WorldItems;
-    let actorTimelineAges: ActorTimelineAges;
 
     //dahuang
     let dahuangConstants: DahuangConstants;
@@ -215,7 +214,6 @@ describe('大荒到须弥', () => {
         trigrams = Trigrams__factory.connect(taiyiContracts.Trigrams.instance.address, operator1);
         worldItems = WorldItems__factory.connect(taiyiContracts.WorldItems.instance.address, operator1);
         actorPrelifes = ActorPrelifes__factory.connect(taiyiContracts.ActorPrelifes.instance.address, operator1);
-        actorTimelineAges = ActorTimelineAges__factory.connect(taiyiContracts.ActorTimelineAges.instance.address, operator1);
 
         //Deploy dahuang world
         let worldDeployed = await deployDahuangWorld(OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale,

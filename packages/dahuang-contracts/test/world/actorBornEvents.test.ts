@@ -292,13 +292,13 @@ describe('角色出生序列事件测试', () => {
             expect((await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address)).wait()).eventually.fulfilled;
             let uriObj = await parseActorURI(testActor);
             //console.log(JSON.stringify(uriObj, null, 2));
-            expect(await worldConstants.WORLD_MODULE_ATTRIBUTES()).to.eq(14);
-            expect(uriObj.data.m_200.m_14.HLH).to.eq(100);
+            expect(await worldConstants.WORLD_MODULE_ATTRIBUTES()).to.eq(13);
+            expect(uriObj.data.m_200.m_13.HLH).to.eq(100);
             expect(await dahuangConstants.WORLD_MODULE_TALENTS()).to.eq(202);
             expect(await dahuangConstants.WORLD_MODULE_EVENTS()).to.eq(201);
-            expect(uriObj.data.m200.m_201.age).to.eq(0);
-            expect(uriObj.data.m200.m_201.bornTime).to.eq(bornTimestamp);
-            expect(uriObj.data.m200.m_201.events.length).to.eq(4);
+            expect(uriObj.data.m_200.m_201.age).to.eq(0);
+            expect(uriObj.data.m_200.m_201.bornTime).to.eq(bornTimestamp);
+            expect(uriObj.data.m_200.m_201.events.length).to.eq(4);
         });
     });    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -327,9 +327,3 @@ interface ITrigrams is IWorldModule {
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
 }
-
-interface IActorTimelineAges is IWorldModule {
-    function actorTimelineLastAges(uint256 _actor, address _timelineAddress) external view returns (uint256);
-
-    function setActorTimelineLastAge(uint256 _operator, uint256 _actor, address _timelineAddress, uint256 _age) external;
-}

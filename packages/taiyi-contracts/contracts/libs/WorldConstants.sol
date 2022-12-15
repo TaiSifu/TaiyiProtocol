@@ -27,8 +27,5 @@ library WorldConstants {
     uint256 public constant WORLD_MODULE_TRIGRAMS           = 11; //角色符文数据
 
     uint256 public constant WORLD_MODULE_SIFUS        = 12; //师傅令牌
-
-    uint256 public constant WORLD_MODULE_ACTOR_TIMELINE_LASTAGES  = 13; //角色在对应时间线上的最后年龄
-    
-    uint256 public constant WORLD_MODULE_ATTRIBUTES   = 14; //角色基本属性
+    uint256 public constant WORLD_MODULE_ATTRIBUTES   = 13; //角色基本属性
 }
