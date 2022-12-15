@@ -12,6 +12,7 @@ contract ActorRelationship is IActorRelationship, WorldConfigurable {
      * Globals
      * *******
      */
+    uint256 public override moduleID;
 
     mapping(uint256 => string) public override relations;              // rsid -> rsname
     mapping(uint256 => address) public override relationProcessors;   // rsid -> rs_processor
@@ -30,7 +31,8 @@ contract ActorRelationship is IActorRelationship, WorldConfigurable {
      * ****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) {
+    constructor(WorldContractRoute _route, uint256 _moduleID) WorldConfigurable(_route) {
+        moduleID = _moduleID;
     }
 
     /* *****************
@@ -47,8 +49,6 @@ contract ActorRelationship is IActorRelationship, WorldConfigurable {
      * External Functions
      * ****************
      */
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_RELATIONSHIP; }
 
     function setRelation(uint256 _rsid, string memory _name) external override
         onlyPanGu

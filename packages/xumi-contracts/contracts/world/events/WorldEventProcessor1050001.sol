@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/ZoneTraversalEventProcessor.sol";
+import "../../libs/XumiConstants.sol";
 //import "hardhat/console.sol";
 
 /*
@@ -26,7 +27,7 @@ contract WorldEventProcessor1050001 is ZoneTraversalEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
 
         //"exclude": "AGE<2",
         if(evts.ages(_actor) < 2)

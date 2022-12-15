@@ -4,8 +4,7 @@ import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
+    WorldConstants, WorldContractRoute, 
     Actors, WorldFungible, WorldItems, SifusToken, SifusDescriptor__factory, WorldYemings,
 } from '../../typechain';
 import {

@@ -23,7 +23,7 @@ abstract contract DefaultWorldEventProcessorBoson is DefaultWorldEventProcessor 
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) virtual external view override returns (bool) {
         bool defaultRt = true;
 
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(tlts[i] == 10003)
@@ -75,7 +75,7 @@ contract WorldEventProcessor1000003 is DefaultWorldEventProcessor {
             // "MAS<2&ENG<3:1000000"
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(tlts[i] == 10001)
@@ -146,7 +146,7 @@ contract WorldEventProcessor1000005 is DefaultWorldEventProcessor {
     // "MAS<2&ENG<3:1000000"
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(tlts[i] == 10001)
@@ -200,7 +200,7 @@ contract WorldEventProcessor1000007 is DefaultWorldEventProcessor {
         if(mas < 3)
             return false;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         if(evts.actorEventCount(_actor, 1000007) > 0)
             return false;
 
@@ -228,7 +228,7 @@ contract WorldEventProcessor1000008 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         if(evts.actorEventCount(_actor, 1000009) > 0)
             return false;
 
@@ -262,7 +262,7 @@ contract WorldEventProcessor1000009 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         if(evts.actorEventCount(_actor, 1000008) > 0)
             return false;
 
@@ -295,7 +295,7 @@ contract WorldEventProcessor1000010 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(tlts[i] == 10002 || tlts[i] == 10003)
@@ -318,7 +318,7 @@ contract WorldEventProcessor1000011 is DefaultWorldEventProcessor {
         bool defaultRt = true;
 
         defaultRt = false; //default should be fasle if have "include" conditions
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         if(evts.actorEventCount(_actor, 1000002) > 0) {
             uint256 pp = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM)).dn(_actor, 100);
             if(pp > 20)
@@ -333,7 +333,7 @@ contract WorldEventProcessor1000011 is DefaultWorldEventProcessor {
     //     "1000000"
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
             if(tlts[i] == 10004)

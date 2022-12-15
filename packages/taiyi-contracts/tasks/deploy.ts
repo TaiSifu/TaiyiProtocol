@@ -16,19 +16,12 @@ type ContractName =
     | 'SifusDescriptor'
     | 'SifusSeeder'
     | 'SifusToken'
-    | 'ShejiTu'
-    | 'ShejiTuProxyAdmin'
-    | 'ShejiTuProxy'
     | 'TaiyiDAOExecutor'
     | 'TaiyiDAOLogicV1'
     | 'TaiyiDAOProxy';
 
-task('deploy', '部署全套太乙合约')
+task('deploy', '部署太乙基础合约')
     .addOptionalParam('actorMintStartTime', '角色发行起始时间 (block timestamp)', '', types.string) // Default: immediately
-    .addOptionalParam('oneAgeVSecond', '生长1岁的间隔期 (seconds)', 60 * 60 * 24, types.int) // Default: 1 day
-    .addOptionalParam('actRecoverTimeDay', '行动力恢复期 (seconds)', 60 * 60 * 24, types.int) // Default: 1 day
-    .addOptionalParam('zoneResourceGrowTimeDay', '野外区域资源生长期 (seconds)', 60 * 60 * 24, types.int) // Default: 1 day
-    .addOptionalParam('zoneResourceGrowQuantityScale', '资源生长系数 (基点1000=1.0)', 1000, types.int) // Default: 1.0
     .addOptionalParam('timelockDelay', '赏善罚恶令执行延迟 (seconds)', 60 * 60 * 24 * 2, types.int) // Default: 2 days
     .addOptionalParam('votingPeriod', '投票期 (blocks)', 4 * 60 * 24 * 3, types.int) // Default: 3 days
     .addOptionalParam('votingDelay', '投票延迟开始 (blocks)', 1, types.int) // Default: 1 block
@@ -61,36 +54,12 @@ task('deploy', '部署全套太乙合约')
                 
         //Deploy Taiyi World
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        let worldDeployed = await deployTaiyiWorld(
-            timestamp,
-            args.oneAgeVSecond,
-            args.actRecoverTimeDay,
-            args.zoneResourceGrowTimeDay,
-            args.zoneResourceGrowQuantityScale,
-            deployer,
-            taisifu || deployer, 
-            { 
-                noSIDNames : true,
-                noTalents : true,
-                noTalentProcessors : true,
-                noRelations : true,
-                noItemTypes : true,
-                noBuildingTypes : true,
-                noEventProcessors : true,
-                noTimelineEvents : true,
-                noZones : true                
-            },
-            true);
-        let worldContracts = worldDeployed.worldContracts;
-        let eventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;
+        let worldContracts = await deployTaiyiWorld(timestamp, deployer, taisifu || deployer, true);
 
         //register actors uri modules
         const actors = Actors__factory.connect(worldContracts.Actors.instance.address, taisifu);
         await actors.registerURIPartModule(worldContracts.ActorNames.instance.address);
         await actors.registerURIPartModule(worldContracts.ActorSocialIdentity.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorTalents.instance.address);
-        await actors.registerURIPartModule(worldContracts.ShejituProxy.instance.address);
-        await actors.registerURIPartModule(worldContracts.WorldEvents.instance.address);
         
     
         //CALCULATE Gov Delegate, takes place after 2 transactions
@@ -126,9 +95,6 @@ task('deploy', '部署全套太乙合约')
             SifusDescriptor : worldContracts.SifusDescriptor,
             SifusSeeder : worldContracts.SifusSeeder,
             SifusToken : worldContracts.SifusToken,
-            ShejiTu : worldContracts.Shejitu,
-            ShejiTuProxyAdmin : worldContracts.ShejituProxyAdmin,
-            ShejiTuProxy : worldContracts.ShejituProxy,
             TaiyiDAOExecutor: { instance : timelock },
             TaiyiDAOLogicV1: { instance : govDelegate },
             TaiyiDAOProxy: { instance : taiyiDAOProxy },
@@ -143,7 +109,6 @@ task('deploy', '部署全套太乙合约')
             if(addressBook[name] != contract.instance.address)
                 addressBook[name] = contract.instance.address;
         }
-        addressBook = Object.assign(addressBook, addressBook, worldDeployed.eventProcessorAddressBook);
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));

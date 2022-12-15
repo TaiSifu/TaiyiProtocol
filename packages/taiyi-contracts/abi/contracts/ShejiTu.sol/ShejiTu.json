@@ -229,7 +229,7 @@
   },
   {
     "inputs": [],
-    "name": "evts",
+    "name": "events",
     "outputs": [
       {
         "internalType": "contract IWorldEvents",

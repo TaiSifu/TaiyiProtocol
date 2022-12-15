@@ -5,25 +5,23 @@ import { ethers, upgrades  } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
-    Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
-    WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
-    Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory,
-    ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory, WorldYemings, WorldYemings__factory,
+    WorldConstants, WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ActorAttributes, SifusToken, 
+    WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, WorldZones, Actors__factory, 
+    ActorNames__factory, WorldConstants__factory, WorldFungible__factory, SifusToken__factory, ShejiTu__factory,
+    WorldZones__factory, ActorAttributes__factory, ActorSocialIdentity__factory, WorldYemings, WorldYemings__factory, 
+    WorldRandom, WorldRandom__factory, ActorLocations, ActorLocations__factory, Trigrams, Trigrams__factory,
 } from '../../typechain';
 import {
     blockNumber,
     blockTimestamp,
-    deploySifusToken,
-    populateDescriptor,
 } from '../utils';
 import {
-    WorldContractName,
+    TaiyiContractName,
     WorldContract,
-    deployTaiyiWorld
+    deployTaiyiWorld,
+    deployShejiTu,
+    deployWorldEvents,
+    deployActorTalents,
 } from '../../utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -32,9 +30,6 @@ chai.use(solidity);
 const { expect } = chai;
 
 const OneAgeVSecond : number = 1;
-const ActRecoverTimeDay: number = 60;
-const ZoneResourceGrowTimeDay: number = 60;
-const ZoneResourceGrowQuantityScale: number = 10*1000; //10.0f
 
 describe('角色属性测试', () => {
 
@@ -44,8 +39,7 @@ describe('角色属性测试', () => {
     let operator2: SignerWithAddress;
     let snapshotId: number;
 
-    let contracts: Record<WorldContractName, WorldContract>;
-    let eventProcessorAddressBook: {[index: string]:any};
+    let contracts: Record<TaiyiContractName, WorldContract>;
 
     let worldConstants: WorldConstants;
 
@@ -53,24 +47,26 @@ describe('角色属性测试', () => {
     let sifusToken: SifusToken;
     let actors: Actors;
     let names: ActorNames;
-    let talents: ActorTalents;
+    let actorTalents: ActorTalents;
     let shejiTu: ShejiTu;
+    let shejiTuImpl: ShejiTu;
     let actorSIDs: ActorSocialIdentity;
     let assetDaoli: WorldFungible;
-    let golds: WorldFungible;
-    let zones: WorldZones;
-    let baseAttributes: ActorAttributes;
-    let charmAttributes: ActorCharmAttributes;
-    let behaviorAttributes: ActorBehaviorAttributes;
-    let coreAttributes: ActorCoreAttributes;
-    let moodAttributes: ActorMoodAttributes;
-    let actorRelationship: ActorRelationship;
+    let worldZones: WorldZones;
+    let actorAttributes: ActorAttributes;
     let worldEvents: WorldEvents;
     let worldYemings: WorldYemings;
+    let worldRandom: WorldRandom;
+    let actorLocations: ActorLocations;
+    let trigrams: Trigrams;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber;
     
+    const FAKE_MODULE_EVENTS = 101;
+    const FAKE_MODULE_TIMELINE = 102;
+    const FAKE_MODULE_TALENTS = 103;
+
     let newActor = async (toWho: SignerWithAddress, randomName?:boolean):Promise<BigNumber> => {
         //deal coin
         await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(1000e18));
@@ -113,20 +109,7 @@ describe('角色属性测试', () => {
 
         //Deploy world
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        let worldDeployed = await deployTaiyiWorld(timestamp, OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale, deployer, taiyiDAO, 
-            {
-                noSIDNames : true,
-                noTalents : true,
-                noTalentProcessors : true,
-                noRelations : true,
-                noItemTypes : true,
-                noBuildingTypes : true,
-                noEventProcessors : true,
-                noTimelineEvents : true,
-                noZones : true
-            }, false);
-        contracts = worldDeployed.worldContracts;
-        eventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;
+        contracts = await deployTaiyiWorld(timestamp, deployer, taiyiDAO, false);
 
         sifusToken = SifusToken__factory.connect(contracts.SifusToken.instance.address, operator1);
         worldConstants = WorldConstants__factory.connect(contracts.WorldConstants.instance.address, operator1);
@@ -134,27 +117,41 @@ describe('角色属性测试', () => {
         actors = Actors__factory.connect(contracts.Actors.instance.address, operator1);
         assetDaoli = WorldFungible__factory.connect(contracts.AssetDaoli.instance.address, operator1);
         names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
-        talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
-        worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
-        golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
-        zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
+        worldZones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
         worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
-        baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
-        charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
-        behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
-        coreAttributes = ActorCoreAttributes__factory.connect(contracts.ActorCoreAttributes.instance.address, operator1);
-        moodAttributes = ActorMoodAttributes__factory.connect(contracts.ActorMoodAttributes.instance.address, operator1);
+        actorAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
         actorSIDs = ActorSocialIdentity__factory.connect(contracts.ActorSocialIdentity.instance.address, operator1);
-        actorRelationship = ActorRelationship__factory.connect(contracts.ActorRelationship.instance.address, operator1);
+        worldRandom = WorldRandom__factory.connect(contracts.WorldRandom.instance.address, operator1);
+        actorLocations = ActorLocations__factory.connect(contracts.ActorLocations.instance.address, operator1);
+        trigrams = Trigrams__factory.connect(contracts.Trigrams.instance.address, operator1);
 
-        actorPanGu = await worldConstants.ACTOR_PANGU();
+        //deploy all basic modules pre shejitu
+        let routeByPanGu = WorldContractRoute__factory.connect(worldContractRoute.address, taiyiDAO);
+        worldEvents = await deployWorldEvents(OneAgeVSecond, FAKE_MODULE_EVENTS, worldContractRoute, deployer); //moduleId for test
+        await routeByPanGu.registerModule(FAKE_MODULE_EVENTS, worldEvents.address);
+        actorTalents = await deployActorTalents(FAKE_MODULE_TALENTS, routeByPanGu, deployer); //moduleId for test
+        await routeByPanGu.registerModule(FAKE_MODULE_TALENTS, actorTalents.address);
+            
+        let shejiTuPkg = await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors, actorLocations, worldZones, actorAttributes,
+            worldEvents, actorTalents, trigrams, worldRandom, deployer);
+        shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
+        shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
+        await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
+
+        //set timeline YeMing
+        let shejiTuOperator = await actors.nextActor();
+        await actors.connect(deployer).mintActor(0);
+        await actors.connect(deployer).approve(shejiTu.address, shejiTuOperator);
+        await shejiTu.connect(deployer).initOperator(shejiTuOperator);
+        await worldYemings.connect(taiyiDAO).setYeMing(shejiTuOperator, shejiTu.address);
+    
         //set PanGu as YeMing for test
+        actorPanGu = await worldConstants.ACTOR_PANGU();
         await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
 
         //bind timeline to a zone
-        let zoneId = await zones.nextZone();
-        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
+        let zoneId = await worldZones.nextZone();
+        await worldZones.connect(taiyiDAO).claim(actorPanGu, "测试区域", shejiTu.address, actorPanGu);
         await shejiTu.connect(deployer).setStartZone(zoneId);
 
         testActor = await newActor(operator1);
@@ -169,119 +166,13 @@ describe('角色属性测试', () => {
     });
 
     it('基础属性集', async () => {
-        //set one talent to test
-        let W_MODULE_ATTRIBUTES = await worldConstants.WORLD_MODULE_ATTRIBUTES();
         let HLH = await worldConstants.ATTR_HLH();
-        await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [HLH, BigNumber.from(10)], [W_MODULE_ATTRIBUTES, 20]);
 
         //should not point
-        await expect(baseAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
-        //can not point with out talents initialized
-        await expect(baseAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
+        await expect(actorAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
 
-        await talents.connect(operator1).talentActor(testActor);
-        let actTlts = await talents.actorTalents(testActor);
-
-        expect((await baseAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
-        let _hlh = await baseAttributes.attributesScores(HLH, testActor);
-        if(actTlts.length >= 1)
-            expect(_hlh).to.be.equal(120);
-        else
-            expect(_hlh).to.be.equal(100);
-    });
-
-    it('外貌属性集', async () => {
-        //set one talent to test
-        let W_MODULE_CHARM_ATTRIBUTES = await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES();
-        let MEL = await worldConstants.ATTR_MEL();
-        await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [MEL, BigNumber.from(10)], [W_MODULE_CHARM_ATTRIBUTES, 20]);
-
-        //should not point
-        await expect(charmAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
-        //can not point with out talents initialized
-        await expect(charmAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
-
-        await talents.connect(operator1).talentActor(testActor);
-        let actTlts = await talents.actorTalents(testActor);
-
-        expect((await charmAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
-        let _mel = await charmAttributes.attributesScores(MEL, testActor);
-        if(actTlts.length >= 1)
-            expect(_mel).to.be.equal(120);
-        else
-            expect(_mel).to.be.equal(100);
-    });
-
-    it('核心属性集', async () => {
-        //set one talent to test
-        let W_MODULE_CORE_ATTRIBUTES = await worldConstants.WORLD_MODULE_CORE_ATTRIBUTES();
-        let DIL = await worldConstants.ATTR_DIL();
-        let GEG = await worldConstants.ATTR_GEG();
-        let LIM = await worldConstants.ATTR_LIM();
-        let LVL = await worldConstants.ATTR_LVL();
-        let TIZ = await worldConstants.ATTR_TIZ();
-        let WUX = await worldConstants.ATTR_WUX();
-        await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [DIL, BigNumber.from(1), DIL, BigNumber.from(-1)], [W_MODULE_CORE_ATTRIBUTES, 20]);
-
-        //should not point
-        await expect(coreAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
-        //can not point with out talents initialized
-        await expect(coreAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
-
-        await talents.connect(operator1).talentActor(testActor);
-        let actTlts = await talents.actorTalents(testActor);
-
-        expect((await coreAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
-        let _dil = await coreAttributes.attributesScores(DIL, testActor);
-        let _geg = await coreAttributes.attributesScores(GEG, testActor);
-        let _lim = await coreAttributes.attributesScores(LIM, testActor);
-        let _lvl = await coreAttributes.attributesScores(LVL, testActor);
-        let _tiz = await coreAttributes.attributesScores(TIZ, testActor);
-        let _wux = await coreAttributes.attributesScores(WUX, testActor);
-        if(actTlts.length >= 1)
-            expect(_dil.add(_geg).add(_lim).add(_lvl).add(_tiz).add(_wux)).to.be.equal(120);
-        else
-            expect(_dil.add(_geg).add(_lim).add(_lvl).add(_tiz).add(_wux)).to.be.equal(100);
-    });
-
-    it('情绪属性集', async () => {
-        //set one talent to test
-        let W_MODULE_MOOD_ATTRIBUTES = await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES();
-        let XIQ = await worldConstants.ATTR_XIQ();
-        await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [XIQ, BigNumber.from(10)], [W_MODULE_MOOD_ATTRIBUTES, 20]);
-
-        //should not point
-        await expect(moodAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
-        //can not point with out talents initialized
-        await expect(moodAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
-
-        await talents.connect(operator1).talentActor(testActor);
-        let actTlts = await talents.actorTalents(testActor);
-
-        expect((await moodAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
-        let _xiq = await moodAttributes.attributesScores(XIQ, testActor);
-        if(actTlts.length >= 1)
-            expect(_xiq).to.be.equal(120);
-        else
-            expect(_xiq).to.be.equal(100);
-    });
-
-    it('行为属性集', async () => {
-        //set one talent to test
-        let W_MODULE_BEHAVIOR_ATTRIBUTES = await worldConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES();
-        let ACT = await worldConstants.ATTR_ACT();
-        await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [ACT, BigNumber.from(10)], [W_MODULE_BEHAVIOR_ATTRIBUTES, 20]);
-
-        //should not point
-        await expect(behaviorAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
-        //can not point with out talents initialized
-        await expect(behaviorAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
-
-        await talents.connect(operator1).talentActor(testActor);
-        let actTlts = await talents.actorTalents(testActor);
-
-        expect((await behaviorAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
-        let _act = await behaviorAttributes.attributesScores(ACT, testActor);
-        expect(_act).to.be.equal(0);
+        expect((await actorAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
+        let _hlh = await actorAttributes.attributesScores(HLH, testActor);
+        expect(_hlh).to.be.equal(100);
     });
 });

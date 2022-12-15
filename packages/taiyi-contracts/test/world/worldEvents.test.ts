@@ -9,7 +9,8 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken,
-    SifusDescriptor__factory, WorldEvents, WorldFungible, WorldEventProcessor10001__factory, WorldEventProcessor10001, WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams,
+    SifusDescriptor__factory, WorldEvents, WorldFungible, DefaultWorldEventProcessor__factory, DefaultWorldEventProcessor,
+     WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams,
 } from '../../typechain';
 import {
     blockNumber,
@@ -65,7 +66,11 @@ describe('世界事件集测试', () => {
     let trigrams: Trigrams;
 
     let actorPanGu: BigNumber;
-    let event10001 : WorldEventProcessor10001;
+    let eventTest : DefaultWorldEventProcessor;
+
+    const FAKE_MODULE_EVENTS = 101;
+    const FAKE_MODULE_TIMELINE = 102;
+    const FAKE_MODULE_TALENTS = 103;
 
     let newActor = async (toWho: SignerWithAddress):Promise<BigNumber> => {
         //deal coin
@@ -119,20 +124,21 @@ describe('世界事件集测试', () => {
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address)
         actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)
-        worldEvents = await deployWorldEvents(OneAgeVSecond, worldContractRoute, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+        worldEvents = await deployWorldEvents(OneAgeVSecond, FAKE_MODULE_EVENTS, worldContractRoute, deployer);
+        await routeByPanGu.registerModule(FAKE_MODULE_EVENTS, worldEvents.address);
         actorLocations = await deployActorLocations(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
         worldZones = await deployWorldZones(worldContractRoute, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
-        actorTalents = await deployActorTalents(routeByPanGu, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+        actorTalents = await deployActorTalents(FAKE_MODULE_TALENTS, routeByPanGu, deployer);
+        await routeByPanGu.registerModule(FAKE_MODULE_TALENTS, actorTalents.address);
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu("大荒", "所在时间线：大荒", await worldConstants.WORLD_MODULE_TIMELINE(), actors, actorLocations, worldZones, actorAttributes,
+        shejiTu = ShejiTu__factory.connect((await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE,
+            actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer))[0].address, deployer);
-        await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+        await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         let shejiTuOperator = await actors.nextActor();
         await actors.mintActor(0);
@@ -144,17 +150,17 @@ describe('世界事件集测试', () => {
         await worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
     });
 
-    it('部署事件10001', async () => {
-        event10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+    it('部署测试事件', async () => {
+        eventTest = await (await (new DefaultWorldEventProcessor__factory(deployer)).deploy(worldContractRoute.address, 0)).deployed();
     });
 
     it('非盘古无权注册事件', async () => {
-        await expect(worldEvents.connect(operator1).setEventProcessor(10001, event10001.address)).to.be.revertedWith("only PanGu");
+        await expect(worldEvents.connect(operator1).setEventProcessor(10001, eventTest.address)).to.be.revertedWith("only PanGu");
     });
 
     it('盘古注册事件', async () => {
-        expect((await worldEvents.connect(taiyiDAO).setEventProcessor(10001, event10001.address)).wait()).eventually.fulfilled;
-        expect(await worldEvents.eventProcessors(10001)).to.eq(event10001.address);
+        expect((await worldEvents.connect(taiyiDAO).setEventProcessor(10001, eventTest.address)).wait()).eventually.fulfilled;
+        expect(await worldEvents.eventProcessors(10001)).to.eq(eventTest.address);
     });
 
     it('非Owner无权配置时间线', async () => {

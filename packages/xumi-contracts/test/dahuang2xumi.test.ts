@@ -2,31 +2,37 @@ import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import '@openzeppelin/hardhat-upgrades';
 import { ethers, upgrades  } from 'hardhat';
-import { BigNumber, BigNumber as EthersBN, BigNumberish, constants } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { solidity } from 'ethereum-waffle';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     WorldConstants, WorldContractRoute, WorldContractRoute__factory, 
     Actors, ShejiTu, ActorAttributes, SifusToken, WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, 
-    WorldZones, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, ActorMoodAttributes, ActorRelationship, 
-    Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
-    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory,
-    ActorAttributes__factory, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory, 
-    ActorMoodAttributes__factory, ActorSocialIdentity__factory, ActorRelationship__factory,
-    ActorLocations, WorldItems, WorldBuildings, ActorLocations__factory, WorldItems__factory, WorldBuildings__factory,
-    WorldEventProcessor10001__factory, WorldEventProcessor60001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory,
-    WorldEventProcessor60004__factory, WorldEventProcessor50002__factory, WorldEventProcessor60513__factory, ActorTimelineAges, ActorTimelineAges__factory,
-    Trigrams, Trigrams__factory, WorldRandom, WorldRandom__factory, WorldYemings, WorldYemings__factory    
+    WorldZones, ActorRelationship,  Actors__factory, ActorNames__factory, ActorTalents__factory, WorldConstants__factory, WorldFungible__factory, 
+    SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, 
+    ActorSocialIdentity__factory, ActorRelationship__factory, WorldRandom, 
+    ActorLocations, Trigrams, WorldRandom__factory, ActorLocations__factory, Trigrams__factory, WorldItems, WorldItems__factory, 
+    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, ActorTimelineAges, ActorTimelineAges__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
     blockTimestamp,
 } from '@taiyi/contracts/dist/test/utils';
 import {
-    WorldContractName,
+    TaiyiContractName,
     WorldContract,
     deployTaiyiWorld
 } from '@taiyi/contracts/dist/utils';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import {
+    DahuangConstants, DahuangConstants__factory, ActorCharmAttributes, ActorBehaviorAttributes, ActorCoreAttributes, 
+    ActorMoodAttributes, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory,
+    ActorMoodAttributes__factory, WorldBuildings, WorldBuildings__factory, WorldEventProcessor10001__factory, 
+    WorldEventProcessor60001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
+    WorldEventProcessor60004__factory,
+    WorldEventProcessor50002__factory,
+    WorldEventProcessor60513__factory, 
+} from '@taiyi/dahuang-contracts/dist/typechain';
+import { DahuangContractName, deployDahuangWorld } from '@taiyi/dahuang-contracts/dist/utils';
 import { 
     ActorXumiAttributes, XumiConstants, XumiConstants__factory, ActorXumiAttributes__factory, 
     WorldEventProcessor1050001__factory,
@@ -53,37 +59,43 @@ describe('大荒到须弥', () => {
     let operator2: SignerWithAddress;
     let snapshotId: number;
 
-    let contracts: Record<WorldContractName, WorldContract>;
-    let eventProcessorAddressBook: {[index: string]:any};
+    let taiyiContracts: Record<TaiyiContractName, WorldContract>;
+    let dahuangEventProcessorAddressBook: {[index: string]:any};
+    let dahuangContracts: Record<DahuangContractName, WorldContract>;
 
+    //taiyi basic
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let sifusToken: SifusToken;
     let actors: Actors;
     let names: ActorNames;
-    let talents: ActorTalents;
-    let shejiTu: ShejiTu;
     let actorSIDs: ActorSocialIdentity;
     let assetDaoli: WorldFungible;
+    let zones: WorldZones;
+    let baseAttributes: ActorAttributes;
+    let actorPrelifes: ActorPrelifes;
+    let worldYemings: WorldYemings;
+    let worldRandom: WorldRandom;
+    let actorLocations: ActorLocations;
+    let trigrams: Trigrams;
+    let worldItems: WorldItems;
+    let actorTimelineAges: ActorTimelineAges;
+
+    //dahuang
+    let dahuangConstants: DahuangConstants;
+    let dahuangTalents: ActorTalents;
+    let dahuang: ShejiTu;
     let golds: WorldFungible;
     let woods: WorldFungible;
     let fabrics: WorldFungible;
     let prestiges: WorldFungible;
-    let zones: WorldZones;
-    let baseAttributes: ActorAttributes;
     let charmAttributes: ActorCharmAttributes;
     let behaviorAttributes: ActorBehaviorAttributes;
     let coreAttributes: ActorCoreAttributes;
     let moodAttributes: ActorMoodAttributes;
-    let actorRelationship: ActorRelationship;
-    let worldEvents: WorldEvents;
-    let actorLocations : ActorLocations;
-    let worldItems : WorldItems;
+    let dahuangActorRelationship: ActorRelationship;
+    let dahuangWorldEvents: WorldEvents;
     let worldBuildings: WorldBuildings;
-    let actorTimelineAges: ActorTimelineAges;
-    let worldYemings: WorldYemings;
-    let random: WorldRandom;
-    let trigrams: Trigrams;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber; 
@@ -99,8 +111,11 @@ describe('大荒到须弥', () => {
 
     let xumiConstants: XumiConstants;
     let xumi: ShejiTu;
+    let xumiTalents: ActorTalents;
     let actorXumiAttributes: ActorXumiAttributes;
     let assetEnergy: WorldFungible;
+    let xumiActorRelationship: ActorRelationship;
+    let xumiWorldEvents: WorldEvents;
 
     let evt1050001: any;
 
@@ -126,12 +141,8 @@ describe('大荒到须弥', () => {
 
         await actors.connect(taiyiDAO).approve(xumi.address, _actor);
         await xumi.connect(taiyiDAO).bornActor(_actor);
-        await talents.connect(taiyiDAO).talentActor(_actor);
+        await xumiTalents.connect(taiyiDAO).talentActor(_actor);
         await baseAttributes.connect(taiyiDAO).pointActor(_actor);
-        await charmAttributes.connect(taiyiDAO).pointActor(_actor);
-        await coreAttributes.connect(taiyiDAO).pointActor(_actor);
-        await moodAttributes.connect(taiyiDAO).pointActor(_actor);
-        await behaviorAttributes.connect(taiyiDAO).pointActor(_actor);
         await actorXumiAttributes.connect(taiyiDAO).pointActor(_actor);
 
         if(toWho.address != taiyiDAO.address)
@@ -152,9 +163,9 @@ describe('大荒到须弥', () => {
             await names.connect(taiyiDAO).claim(firstName, "李", _actor);    
         }
 
-        await actors.connect(taiyiDAO).approve(shejiTu.address, _actor);
-        await shejiTu.connect(taiyiDAO).bornActor(_actor);
-        await talents.connect(taiyiDAO).talentActor(_actor);
+        await actors.connect(taiyiDAO).approve(dahuang.address, _actor);
+        await dahuang.connect(taiyiDAO).bornActor(_actor);
+        await dahuangTalents.connect(taiyiDAO).talentActor(_actor);
         await baseAttributes.connect(taiyiDAO).pointActor(_actor);
         await charmAttributes.connect(taiyiDAO).pointActor(_actor);
         await coreAttributes.connect(taiyiDAO).pointActor(_actor);
@@ -185,9 +196,32 @@ describe('大荒到须弥', () => {
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
 
-        //Deploy Dahuang world
+        //Deploy taiyi basic
         const timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
-        let worldDeployed = await deployTaiyiWorld(timestamp, OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale, deployer, taiyiDAO, 
+        taiyiContracts = await deployTaiyiWorld(timestamp, deployer, taiyiDAO, false);
+
+        sifusToken = SifusToken__factory.connect(taiyiContracts.SifusToken.instance.address, operator1);
+        worldConstants = WorldConstants__factory.connect(taiyiContracts.WorldConstants.instance.address, operator1);
+        worldContractRoute = WorldContractRoute__factory.connect(taiyiContracts.WorldContractRoute.instance.address, operator1);
+        actors = Actors__factory.connect(taiyiContracts.Actors.instance.address, operator1);
+        assetDaoli = WorldFungible__factory.connect(taiyiContracts.AssetDaoli.instance.address, operator1);
+        names = ActorNames__factory.connect(taiyiContracts.ActorNames.instance.address, operator1);
+        zones = WorldZones__factory.connect(taiyiContracts.WorldZones.instance.address, operator1);
+        worldYemings = WorldYemings__factory.connect(taiyiContracts.WorldYemings.instance.address, operator1);
+        baseAttributes = ActorAttributes__factory.connect(taiyiContracts.ActorAttributes.instance.address, operator1);
+        actorSIDs = ActorSocialIdentity__factory.connect(taiyiContracts.ActorSocialIdentity.instance.address, operator1);
+        worldRandom = WorldRandom__factory.connect(taiyiContracts.WorldRandom.instance.address, operator1);
+        actorLocations = ActorLocations__factory.connect(taiyiContracts.ActorLocations.instance.address, operator1);
+        trigrams = Trigrams__factory.connect(taiyiContracts.Trigrams.instance.address, operator1);
+        worldItems = WorldItems__factory.connect(taiyiContracts.WorldItems.instance.address, operator1);
+        actorPrelifes = ActorPrelifes__factory.connect(taiyiContracts.ActorPrelifes.instance.address, operator1);
+        actorTimelineAges = ActorTimelineAges__factory.connect(taiyiContracts.ActorTimelineAges.instance.address, operator1);
+
+        //Deploy dahuang world
+        let worldDeployed = await deployDahuangWorld(OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale,
+            worldContractRoute, worldConstants, actors, actorLocations, worldYemings, zones, baseAttributes, trigrams, 
+            worldRandom, worldItems, actorSIDs, 
+            deployer, taiyiDAO, 
             {
                 noSIDNames : true,
                 noTalents : true,
@@ -199,37 +233,23 @@ describe('大荒到须弥', () => {
                 noTimelineEvents : true,
                 noZones : true
             }, false);
-        contracts = worldDeployed.worldContracts;
-        eventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;
+        dahuangContracts = worldDeployed.worldContracts;
+        dahuangEventProcessorAddressBook = worldDeployed.eventProcessorAddressBook;
 
-        sifusToken = SifusToken__factory.connect(contracts.SifusToken.instance.address, operator1);
-        worldConstants = WorldConstants__factory.connect(contracts.WorldConstants.instance.address, operator1);
-        worldContractRoute = WorldContractRoute__factory.connect(contracts.WorldContractRoute.instance.address, operator1);
-        actors = Actors__factory.connect(contracts.Actors.instance.address, operator1);
-        assetDaoli = WorldFungible__factory.connect(contracts.AssetDaoli.instance.address, operator1);
-        names = ActorNames__factory.connect(contracts.ActorNames.instance.address, operator1);
-        talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
-        worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
-        golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
-        woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
-        fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);
-        prestiges = WorldFungible__factory.connect(contracts.AssetPrestige.instance.address, operator1);
-        zones = WorldZones__factory.connect(contracts.WorldZones.instance.address, operator1);
-        worldYemings = WorldYemings__factory.connect(contracts.WorldYemings.instance.address, operator1);
-        baseAttributes = ActorAttributes__factory.connect(contracts.ActorAttributes.instance.address, operator1);
-        charmAttributes = ActorCharmAttributes__factory.connect(contracts.ActorCharmAttributes.instance.address, operator1);
-        behaviorAttributes = ActorBehaviorAttributes__factory.connect(contracts.ActorBehaviorAttributes.instance.address, operator1);
-        coreAttributes = ActorCoreAttributes__factory.connect(contracts.ActorCoreAttributes.instance.address, operator1);
-        moodAttributes = ActorMoodAttributes__factory.connect(contracts.ActorMoodAttributes.instance.address, operator1);
-        actorSIDs = ActorSocialIdentity__factory.connect(contracts.ActorSocialIdentity.instance.address, operator1);
-        actorRelationship = ActorRelationship__factory.connect(contracts.ActorRelationship.instance.address, operator1);
-        actorLocations = ActorLocations__factory.connect(contracts.ActorLocations.instance.address, operator1);
-        worldItems = WorldItems__factory.connect(contracts.WorldItems.instance.address, operator1);
-        worldBuildings = WorldBuildings__factory.connect(contracts.WorldBuildings.instance.address, operator1);
-        actorTimelineAges = ActorTimelineAges__factory.connect(contracts.ActorTimelineAges.instance.address, operator1);
-        random = WorldRandom__factory.connect(contracts.WorldRandom.instance.address, operator1);
-        trigrams = Trigrams__factory.connect(contracts.Trigrams.instance.address, operator1);
+        dahuangConstants = DahuangConstants__factory.connect(dahuangContracts.DahuangConstants.instance.address, operator1);
+        dahuangTalents = ActorTalents__factory.connect(dahuangContracts.ActorTalents.instance.address, operator1);
+        dahuangWorldEvents = WorldEvents__factory.connect(dahuangContracts.WorldEvents.instance.address, operator1);
+        dahuang = ShejiTu__factory.connect(dahuangContracts.ShejituProxy.instance.address, operator1);
+        golds = WorldFungible__factory.connect(dahuangContracts.AssetGold.instance.address, operator1);
+        woods = WorldFungible__factory.connect(dahuangContracts.AssetWood.instance.address, operator1);
+        fabrics = WorldFungible__factory.connect(dahuangContracts.AssetFabric.instance.address, operator1);
+        prestiges = WorldFungible__factory.connect(dahuangContracts.AssetPrestige.instance.address, operator1);
+        charmAttributes = ActorCharmAttributes__factory.connect(dahuangContracts.ActorCharmAttributes.instance.address, operator1);
+        behaviorAttributes = ActorBehaviorAttributes__factory.connect(dahuangContracts.ActorBehaviorAttributes.instance.address, operator1);
+        coreAttributes = ActorCoreAttributes__factory.connect(dahuangContracts.ActorCoreAttributes.instance.address, operator1);
+        moodAttributes = ActorMoodAttributes__factory.connect(dahuangContracts.ActorMoodAttributes.instance.address, operator1);
+        dahuangActorRelationship = ActorRelationship__factory.connect(dahuangContracts.ActorRelationship.instance.address, operator1);
+        worldBuildings = WorldBuildings__factory.connect(dahuangContracts.WorldBuildings.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
@@ -237,15 +257,15 @@ describe('大荒到须弥', () => {
 
         //bind timeline to a zone
         dahuangZone = await zones.nextZone();
-        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
-        await shejiTu.connect(deployer).setStartZone(dahuangZone);
+        await zones.connect(taiyiDAO).claim(actorPanGu, "大荒", dahuang.address, actorPanGu);
+        await dahuang.connect(deployer).setStartZone(dahuangZone);
 
         //born PanGu
-        await actors.connect(taiyiDAO).approve(shejiTu.address, actorPanGu);
-        await shejiTu.connect(taiyiDAO).bornActor(actorPanGu);
+        await actors.connect(taiyiDAO).approve(dahuang.address, actorPanGu);
+        await dahuang.connect(taiyiDAO).bornActor(actorPanGu);
 
         //部署大荒出生序列
-        let eventsByPanGu = worldEvents.connect(taiyiDAO);
+        let eventsByPanGu = dahuangWorldEvents.connect(taiyiDAO);
         const evt10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
         await eventsByPanGu.setEventProcessor(10001, evt10001.address);
         const evt60001 = await (await (new WorldEventProcessor60001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
@@ -258,11 +278,11 @@ describe('大荒到须弥', () => {
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
 
         //配置时间线出生事件
-        await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
+        await dahuang.connect(deployer).addAgeEvent(0, 10001, 1);
 
         //Deploy Xumi world
-        let xumiWorldDeployed = await deployXumiWorld(worldContractRoute, worldConstants, actors, actorLocations,
-            zones, baseAttributes, talents, trigrams, random, worldItems, worldEvents, operator1, taiyiDAO, 
+        let xumiWorldDeployed = await deployXumiWorld(OneAgeVSecond, worldContractRoute, worldConstants, actors, actorLocations,
+            zones, baseAttributes, trigrams, worldRandom, worldItems, operator1, taiyiDAO, 
             {},
             false);
         xumiContracts = xumiWorldDeployed.worldContracts;
@@ -272,14 +292,15 @@ describe('大荒到须弥', () => {
         xumi = ShejiTu__factory.connect(xumiContracts.XumiProxy.instance.address, operator1);
         actorXumiAttributes = ActorXumiAttributes__factory.connect(xumiContracts.ActorXumiAttributes.instance.address, operator1);
         assetEnergy = WorldFungible__factory.connect(xumiContracts.AssetEnergy.instance.address, operator1);
+        xumiTalents = ActorTalents__factory.connect(xumiContracts.ActorTalents.instance.address, operator1);
+        xumiWorldEvents = WorldEvents__factory.connect(xumiContracts.WorldEvents.instance.address, operator1);
+        xumiActorRelationship = ActorRelationship__factory.connect(xumiContracts.ActorRelationship.instance.address, operator1);
 
         //register actors uri modules
         await actors.connect(taiyiDAO).registerURIPartModule(names.address);
         await actors.connect(taiyiDAO).registerURIPartModule(actorSIDs.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(talents.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(shejiTu.address);
+        await actors.connect(taiyiDAO).registerURIPartModule(dahuang.address);
         await actors.connect(taiyiDAO).registerURIPartModule(xumi.address);
-        await actors.connect(taiyiDAO).registerURIPartModule(worldEvents.address);
 
         testActor = await newDahuangActor(operator1, true);
     });
@@ -307,30 +328,30 @@ describe('大荒到须弥', () => {
 
         it(`部署大荒事件线`, async ()=>{
             let evt50002 = await (await (new WorldEventProcessor50002__factory(operator1)).deploy(worldContractRoute.address)).deployed();
-            await worldEvents.connect(taiyiDAO).setEventProcessor(50002, evt50002.address);
+            await dahuangWorldEvents.connect(taiyiDAO).setEventProcessor(50002, evt50002.address);
             evt60513 = await (await (new WorldEventProcessor60513__factory(operator1)).deploy(worldContractRoute.address)).deployed();
-            await worldEvents.connect(taiyiDAO).setEventProcessor(60513, evt60513.address);
+            await dahuangWorldEvents.connect(taiyiDAO).setEventProcessor(60513, evt60513.address);
 
             await evt60513.setTargetZoneId(xumiZone);
             expect(await evt60513.targetZone()).to.eq(xumiZone);
 
-            await shejiTu.connect(deployer).addAgeEvent(1, 50002, 1); 
-            await shejiTu.connect(deployer).addAgeEvent(2, 60001, 1); 
+            await dahuang.connect(deployer).addAgeEvent(1, 50002, 1); 
+            await dahuang.connect(deployer).addAgeEvent(2, 60001, 1); 
         });
 
         it(`成长到0岁`, async ()=>{
-            await actors.approve(shejiTu.address, testActor);
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            await actors.approve(dahuang.address, testActor);
+            await dahuang.grow(testActor, { gasLimit: 5000000 }); //age 0
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
         it(`没有道具无法激活查看紫金米事件`, async ()=>{
-            await expect(shejiTu.activeTrigger(60513, testActor, [1], [])).to.be.revertedWith("ERC721: owner query for nonexistent token");
+            await expect(dahuang.activeTrigger(60513, testActor, [1], [])).to.be.revertedWith("ERC721: owner query for nonexistent token");
         });
 
         it(`成长到1岁`, async ()=>{
             enterItem = await worldItems.nextItemId();
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
+            await dahuang.grow(testActor, { gasLimit: 5000000 }); //age 1
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
@@ -340,12 +361,12 @@ describe('大荒到须弥', () => {
         });
 
         it(`非道具持有者无法激活查看紫金米事件`, async ()=>{
-            await expect(shejiTu.connect(taiyiDAO).activeTrigger(60513, actorPanGu, [enterItem], [])).to.be.revertedWith("item is not belongs to actor");
+            await expect(dahuang.connect(taiyiDAO).activeTrigger(60513, actorPanGu, [enterItem], [])).to.be.revertedWith("item is not belongs to actor");
         });
 
         it(`查看紫金米`, async ()=>{
             expect(await evt60513.checkOccurrence(testActor, 0)).to.eq(true);
-            expect((await shejiTu.activeTrigger(60513, testActor, [enterItem], [])).wait()).eventually.fulfilled;
+            expect((await dahuang.activeTrigger(60513, testActor, [enterItem], [])).wait()).eventually.fulfilled;
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
@@ -355,12 +376,12 @@ describe('大荒到须弥', () => {
         });
 
         it(`年龄检查`, async ()=>{
-            expect(await worldEvents.ages(testActor)).to.eq(0);
-            expect(await actorTimelineAges.actorTimelineLastAges(testActor, shejiTu.address)).to.eq(1);
+            expect(await xumiWorldEvents.ages(testActor)).to.eq(0);
+            expect(await dahuangWorldEvents.ages(testActor)).to.eq(1);
         });
 
         it(`不能再在大荒成长`, async ()=>{
-            await expect(shejiTu.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("not in current timeline");
+            await expect(dahuang.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("not in current timeline");
         });
     });
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -368,16 +389,18 @@ describe('大荒到须弥', () => {
 
         it(`部署须弥事件线`, async ()=>{
             evt1050001 = await (await (new WorldEventProcessor1050001__factory(operator1)).deploy(worldContractRoute.address)).deployed();
-            await worldEvents.connect(taiyiDAO).setEventProcessor(1050001, evt1050001.address);
+            await xumiWorldEvents.connect(taiyiDAO).setEventProcessor(1050001, evt1050001.address);
 
             await evt1050001.setTargetZoneId(dahuangZone);
             expect(await evt1050001.targetZone()).to.eq(dahuangZone);
         });
 
         it(`出生`, async ()=>{
+            await actors.connect(operator1).approve(xumi.address, testActor);
+            await xumi.connect(operator1).bornActor(testActor);
+            await xumiTalents.talentActor(testActor);
             await actorXumiAttributes.pointActor(testActor);
 
-            await actors.approve(xumi.address, testActor);
             await assetEnergy.approveActor(testActor, await xumi.operator(), BigInt(1000e18));
 
             await xumi.grow(testActor, { gasLimit: 5000000 }); //age 0
@@ -410,8 +433,8 @@ describe('大荒到须弥', () => {
         });
 
         it(`年龄检查`, async ()=>{
-            expect(await worldEvents.ages(testActor)).to.eq(1);
-            expect(await actorTimelineAges.actorTimelineLastAges(testActor, xumi.address)).to.eq(2);
+            expect(await dahuangWorldEvents.ages(testActor)).to.eq(1);
+            expect(await xumiWorldEvents.ages(testActor)).to.eq(2);
         });
 
         it(`不能再在须弥成长`, async ()=>{
@@ -421,9 +444,9 @@ describe('大荒到须弥', () => {
     ///////////////////////////////////////////////////////////////////////////////////////////
     describe('回大荒', () => {
         it(`在大荒成长到2岁`, async ()=>{
-            await actors.approve(shejiTu.address, testActor);
-            expect((await shejiTu.grow(testActor, { gasLimit: 5000000 })).wait()).eventually.fulfilled;
-            expect(await worldEvents.ages(testActor)).to.eq(2);
+            await actors.approve(dahuang.address, testActor);
+            await expect((await dahuang.grow(testActor, { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+            expect(await dahuangWorldEvents.ages(testActor)).to.eq(2);
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
     });

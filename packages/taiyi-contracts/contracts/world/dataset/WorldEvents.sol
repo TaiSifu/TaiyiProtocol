@@ -12,6 +12,7 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
      * Globals
      * *******
      */
+    uint256 public override moduleID;
 
     uint256 immutable public ONE_AGE_VSECOND; //how many seconds in real means 1 age in rarelife
     mapping(uint256 => uint256) public bornTimeStamps;
@@ -34,10 +35,10 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
      * ****************
      */
 
-    constructor(uint256 _oneAgeVSecond, WorldContractRoute _route) WorldConfigurable(_route) 
+    constructor(uint256 _oneAgeVSecond, WorldContractRoute _route, uint256 _moduleID) WorldConfigurable(_route) 
     {
         ONE_AGE_VSECOND = _oneAgeVSecond;
-
+        moduleID = _moduleID;
     }
 
     /* *****************
@@ -49,8 +50,6 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
      * External Functions
      * ****************
      */
-
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_EVENTS; }
 
     function setEventProcessor(uint256 _id, address _address) external override
         onlyPanGu
@@ -177,8 +176,6 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
     }
 
     function tokenURIByAge(uint256 _actor, uint256 _age) public view returns (string memory) {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
-
         string[7] memory parts;
         //start svg
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
@@ -190,7 +187,7 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
             uint256 _eventId = _actorEvents[_actor][_age][i];
             uint256 y = 20*i;
             parts[2] = string(abi.encodePacked(parts[2],
-                string(abi.encodePacked('<text x="10" y="', Strings.toString(40+y), '" class="base">', evts.eventInfo(_eventId, _actor), '</text>'))));
+                string(abi.encodePacked('<text x="10" y="', Strings.toString(40+y), '" class="base">', eventInfo(_eventId, _actor), '</text>'))));
             evtJson = string(abi.encodePacked(evtJson, Strings.toString(_eventId), ','));
         }
         //end svg

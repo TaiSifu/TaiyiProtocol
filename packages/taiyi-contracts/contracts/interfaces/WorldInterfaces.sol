@@ -61,6 +61,7 @@ interface IWorldTimeline is IWorldModule {
     function name() external view returns (string memory);
     function description() external view returns (string memory);
     function operator() external view returns (uint256);
+    function events() external view returns (IWorldEvents);
 
     function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;

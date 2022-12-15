@@ -10,6 +10,11 @@
         "internalType": "contract WorldContractRoute",
         "name": "_route",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_moduleID",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -406,7 +411,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {

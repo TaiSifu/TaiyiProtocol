@@ -73,10 +73,10 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
                 '\xE7\xB2\x92\xE5\xAD\x90\xE5\xB1\x9E\xE6\x80\xA7\xEF\xBC\x9A', '</text>'));
             _endY += _lineHeight;
             parts[1] = string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">'));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_INF - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_INF][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_MAS - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_MAS][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_ENG - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_ENG][_actor]), "\xEF\xBC\x8C  "));
-            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_STB - XumiConstants.ATTR_BASE_XUMI], "=", Strings.toString(attributesScores[XumiConstants.ATTR_STB][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_INF - XumiConstants.ATTR_BASE], "=", Strings.toString(attributesScores[XumiConstants.ATTR_INF][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_MAS - XumiConstants.ATTR_BASE], "=", Strings.toString(attributesScores[XumiConstants.ATTR_MAS][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_ENG - XumiConstants.ATTR_BASE], "=", Strings.toString(attributesScores[XumiConstants.ATTR_ENG][_actor]), "\xEF\xBC\x8C  "));
+            parts[1] = string(abi.encodePacked(parts[1], attributeLabels[XumiConstants.ATTR_STB - XumiConstants.ATTR_BASE], "=", Strings.toString(attributesScores[XumiConstants.ATTR_STB][_actor]), "\xEF\xBC\x8C  "));
             parts[1] = string(abi.encodePacked(parts[1], '</text>'));
             return (string(abi.encodePacked(parts[0], parts[1])), _endY);
         }
@@ -105,7 +105,7 @@ contract ActorXumiAttributes is IActorAttributes, WorldConfigurable {
     function pointActor(uint256 _actor) external 
         onlyApprovedOrOwner(_actor)
     {        
-        IActorTalents talents = IActorTalents(worldRoute.modules(WorldConstants.WORLD_MODULE_TALENTS));
+        IActorTalents talents = IActorTalents(worldRoute.modules(XumiConstants.WORLD_MODULE_TALENTS));
         require(talents.actorTalentsInitiated(_actor), "talents have not initiated");
         require(!characterPointsInitiated[_actor], "already init points");
 

@@ -38,7 +38,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     IActorLocations public locations;
     IWorldZones public zones;
     IActorAttributes public attributes;
-    IWorldEvents public evts;
+    IWorldEvents public override events;
     IActorTalents public talents;
     ITrigrams public trigrams;
     IWorldRandom public random;
@@ -117,7 +117,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         locations = _locations;
         zones = _zones;
         attributes = _attributes;
-        evts = _evts;
+        events = _evts;
         talents = _talents;
         trigrams = _trigrams;
         random = _random;
@@ -151,10 +151,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(operator > 0, "operator not initialized");
         require(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0, "actor dead!");
 
-        evts.grow(operator, _actor);
+        events.grow(operator, _actor);
 
         //do year age events
-        _process(_actor, evts.ages(_actor));
+        _process(_actor, events.ages(_actor));
     }
 
     function registerAttributeModule(address _attributeModule) external 
@@ -202,16 +202,16 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
-        require(evts.eventProcessors(_eventId) != address(0), "can not find event processor.");
+        require(events.eventProcessors(_eventId) != address(0), "can not find event processor.");
 
-        uint256 _age = evts.ages(_actor);
-        require(evts.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
+        uint256 _age = events.ages(_actor);
+        require(events.canOccurred(_actor, _eventId, _age), "event check occurrence failed.");
         uint256 branchEvtId = _processActiveEvent(_actor, _age, _eventId, _uintParams, _stringParams, 0);
 
         //only support two level branchs
-        if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+        if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
             branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 1);
-            if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+            if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                 branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 2);
                 require(branchEvtId == 0, "only support two level branchs");
             }
@@ -282,7 +282,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         //check if change age
         for(uint256 m=0; m<_attrModifier.length; m+=2) {
             if(_attrModifier[m] == int(WorldConstants.ATTR_AGE)) {
-                evts.changeAge(operator, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
+                events.changeAge(operator, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
                 break;
             }
         }
@@ -318,13 +318,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _processEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256 _depth) private returns (uint256 _branchEvtId) {
 
-        evts.addActorEvent(operator, _actor, _age, _eventId);
+        events.addActorEvent(operator, _actor, _age, _eventId);
 
-        int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
+        int[] memory _attrModifier = events.eventAttributeModifiers(_eventId, _actor);
         _applyAttributeModifiers(_actor, _age, _attrModifier);
 
         //process event if any processor
-        address evtProcessorAddress = evts.eventProcessors(_eventId);
+        address evtProcessorAddress = events.eventProcessors(_eventId);
         if(evtProcessorAddress != address(0))
             _runEventProcessor(_actor, _age, evtProcessorAddress);
 
@@ -334,7 +334,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             emit BranchEvent(_actor, _age, _eventId);
 
         //check branch
-        return evts.checkBranch(_actor, _eventId, _age);
+        return events.checkBranch(_actor, _eventId, _age);
     }
 
     function _processEvents(uint256 _actor, uint256 _age) internal 
@@ -344,7 +344,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         uint256[] memory _eventsFiltered = new uint256[](_eventIDs[_age].length);
         uint256 _eventsFilteredNum = 0;
         for(uint256 i=0; i<_eventIDs[_age].length; i++) {
-            if(evts.canOccurred(_actor, _eventIDs[_age][i], _age)) {
+            if(events.canOccurred(_actor, _eventIDs[_age][i], _age)) {
                 _eventsFiltered[_eventsFilteredNum] = i;
                 _eventsFilteredNum++;
             }
@@ -366,11 +366,11 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
                 uint256 branchEvtId = _processEvent(_actor, _age, _eventId, 0);
 
                 //only support 3 level branchs
-                if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+                if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                     branchEvtId = _processEvent(_actor, _age, branchEvtId, 1);
-                    if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+                    if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                         branchEvtId = _processEvent(_actor, _age, branchEvtId, 2);
-                        if(branchEvtId > 0 && evts.canOccurred(_actor, branchEvtId, _age)) {
+                        if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                             branchEvtId = _processEvent(_actor, _age, branchEvtId, 3);
                             require(branchEvtId == 0, "only support 3 level branchs");
                         }
@@ -385,7 +385,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _process(uint256 _actor, uint256 _age) internal
         onlyApprovedOrOwner(_actor)
     {
-        require(evts.actorBorn(_actor), "WorldTimeline: actor have not born!");
+        require(events.actorBorn(_actor), "WorldTimeline: actor have not born!");
         //require(_actorEvents[_actor][_age] == 0, "WorldTimeline: actor already have event!");
         require(_eventIDs[_age].length > 0, "WorldTimeline: not exist any event in this age!");
 
@@ -403,13 +403,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
     function _processActiveEvent(uint256 _actor, uint256 _age, uint256 _eventId, uint256[] memory _uintParams, string[] memory _stringParams, uint256 _depth) private returns (uint256 _branchEvtId)
     {
-        evts.addActorEvent(operator, _actor, _age, _eventId);
+        events.addActorEvent(operator, _actor, _age, _eventId);
 
-        int[] memory _attrModifier = evts.eventAttributeModifiers(_eventId, _actor);
+        int[] memory _attrModifier = events.eventAttributeModifiers(_eventId, _actor);
         _applyAttributeModifiers(_actor, _age, _attrModifier);
 
         //process active event if any processor
-        address evtProcessorAddress = evts.eventProcessors(_eventId);
+        address evtProcessorAddress = events.eventProcessors(_eventId);
         if(evtProcessorAddress != address(0))
             _runActiveEventProcessor(_actor, _age, evtProcessorAddress, _uintParams, _stringParams);
 
@@ -419,7 +419,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             emit BranchEvent(_actor, _age, _eventId);
 
         //check branch
-        return evts.checkBranch(_actor, _eventId, _age);
+        return events.checkBranch(_actor, _eventId, _age);
     }
 
     /* ****************
@@ -432,23 +432,33 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         endY = _startY;
         (parts, endY) = _tokenSVG(_actor, endY + _lineHeight, _lineHeight);
 
-        //modules
         string memory moduleSVG;
+        //talents
+        (moduleSVG, endY) = talents.tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+        parts = string(abi.encodePacked(parts, moduleSVG));
+        //attributes
         for(uint256 i=0; i<_attributeModules.length(); i++) {
             (moduleSVG, endY) = IWorldModule(_attributeModules.at(i)).tokenSVG(_actor, endY + _lineHeight, _lineHeight);
             parts = string(abi.encodePacked(parts, moduleSVG));
         }
+        //events
+        (moduleSVG, endY) = events.tokenSVG(_actor, endY + _lineHeight, _lineHeight);
+        parts = string(abi.encodePacked(parts, moduleSVG));
         return (parts, endY);
     }
 
     function _tokenURIJSONPart(uint256 _actor) private view returns (string memory) {
         string memory json;
         json = string(abi.encodePacked(json, '{"base": ', _tokenJSON(_actor)));
-        //modules
+        //talents
+        json = string(abi.encodePacked(json, ', "m_', Strings.toString(talents.moduleID()),'": ', talents.tokenJSON(_actor)));
+        //attributes
         for(uint256 i=0; i<_attributeModules.length(); i++) {
             IWorldModule mod = IWorldModule(_attributeModules.at(i));
             json = string(abi.encodePacked(json, ', "m_', Strings.toString(mod.moduleID()),'": ', mod.tokenJSON(_actor)));
         }
+        //events
+        json = string(abi.encodePacked(json, ', "m_', Strings.toString(events.moduleID()),'": ', events.tokenJSON(_actor)));
         json = string(abi.encodePacked(json, '}'));
         return json;
     }
@@ -472,7 +482,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     }
 
     function _bornActor(uint256 _actor) internal {
-        evts.bornActor(operator, _actor);
+        events.bornActor(operator, _actor);
 
         require(startZone > 0, "start zone invalid");
         locations.setActorLocation(operator, _actor, startZone, startZone);

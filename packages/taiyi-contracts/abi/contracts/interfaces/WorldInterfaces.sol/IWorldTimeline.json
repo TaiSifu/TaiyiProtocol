@@ -116,6 +116,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "events",
+    "outputs": [
+      {
+        "internalType": "contract IWorldEvents",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",

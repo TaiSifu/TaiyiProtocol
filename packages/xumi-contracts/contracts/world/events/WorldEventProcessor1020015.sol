@@ -52,7 +52,7 @@ contract WorldEventProcessor1000023 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
 
         //"exclude": "EVT?[1000016,1000023]",
         if(evts.actorEventCount(_actor, 1000016) > 0)
@@ -74,7 +74,7 @@ contract WorldEventProcessor1000023 is DefaultWorldEventProcessor {
     //     "EVT?[1000020==1]=>1020015"
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         uint256 ct = evts.actorEventCount(_actor, 1000020);
         if(ct == 3)
             return 1020017;
@@ -97,7 +97,7 @@ contract WorldEventProcessor1000024 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
 
         //"exclude": "EVT?[1030001,1030002,1030003]",
         if(evts.actorEventCount(_actor, 1030001) > 0)
@@ -130,7 +130,7 @@ contract WorldEventProcessor1000024 is DefaultWorldEventProcessor {
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
         IWorldRandom rand = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
-        IWorldEvents evts = IWorldEvents(worldRoute.modules(WorldConstants.WORLD_MODULE_EVENTS));
+        IWorldEvents evts = IWorldEvents(worldRoute.modules(XumiConstants.WORLD_MODULE_EVENTS));
         uint256 ct = evts.actorEventCount(_actor, 1000024);
         if(ct == 3)
             if(rand.dn(_actor, 100) < 30)

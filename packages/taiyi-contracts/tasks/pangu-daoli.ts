@@ -3,11 +3,8 @@
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import { 
-    ActorAttributes__factory, ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory,
-    ActorMoodAttributes__factory, ActorNames__factory, Actors__factory, ActorTalents__factory, ShejiTu__factory, 
-    WorldConstants__factory, 
-    WorldContractRoute, 
-    WorldContractRoute__factory, 
+    ActorAttributes__factory, ActorNames__factory, Actors__factory, ActorTalents__factory, ShejiTu__factory, 
+    WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, 
     WorldEvents__factory, WorldFungible__factory, WorldZones__factory 
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
@@ -43,17 +40,9 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
         let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, taisifu);
         let actors = Actors__factory.connect(addressBook.Actors, taisifu);
         let names = ActorNames__factory.connect(addressBook.ActorNames, taisifu);
-        let talents = ActorTalents__factory.connect(addressBook.ActorTalents, taisifu);
-        let shejitu = ShejiTu__factory.connect(addressBook.ShejituProxy, taisifu);
-        let events = WorldEvents__factory.connect(addressBook.WorldEvents, taisifu);
         let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, taisifu);
-        let golds = WorldFungible__factory.connect(addressBook.AssetGold, taisifu);
         let zones = WorldZones__factory.connect(addressBook.WorldZones, taisifu);
         let baseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, taisifu);        
-        let charmAttributes = ActorCharmAttributes__factory.connect(addressBook.ActorCharmAttributes, taisifu);
-        let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, taisifu);
-        let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, taisifu);
-        let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, taisifu);
 
         console.log("检查盘古铸币权...");
         let actorPanGu = await worldConstants.ACTOR_PANGU();

@@ -7,7 +7,7 @@ import {
     ActorXumiAttributes__factory,
     XumiConstants, XumiConstants__factory 
 } from '../typechain';
-import { WorldContract } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, WorldContract } from '@taiyi/contracts/dist/utils';
 import { deployTalentProcessors, initTalents } from './initTalents';
 import { initItemTypes } from './initItemTypes';
 import { initEvents } from './initEvents';
@@ -45,8 +45,12 @@ export type XumiContractName =
     | 'XumiProxy'
     | 'XumiProxyAdmin'
     | 'Xumi'
+    | 'ActorTalents' 
+    | 'WorldEvents'
+    | 'ActorBornPlaces' 
     | 'AssetEnergy'
-    | 'AssetElementH';
+    | 'AssetElementH'
+    | 'ActorRelationship';
 
 export interface XumiWorldDeployFlag {
     noSIDNames? : boolean;
@@ -60,11 +64,10 @@ export interface XumiWorldDeployFlag {
     noZones? : boolean;
 };
     
-export const deployXumiWorld = async (route: WorldContractRoute, worldConstants: WorldConstants, 
-    actors: Actors, locations: ActorLocations,
-    zones: WorldZones, attributes: ActorAttributes, talents: ActorTalents, trigrams: Trigrams,
-    random: WorldRandom, worldItems: WorldItems, worldEvents: WorldEvents,
-    deployer: SignerWithAddress, operatorDAO: SignerWithAddress, flags?:XumiWorldDeployFlag, verbose?:Boolean): Promise<{
+export const deployXumiWorld = async (oneAgeVSecond : number, route: WorldContractRoute, worldConstants: WorldConstants, 
+    actors: Actors, locations: ActorLocations, zones: WorldZones, attributes: ActorAttributes, trigrams: Trigrams,
+    random: WorldRandom, worldItems: WorldItems, deployer: SignerWithAddress, operatorDAO: SignerWithAddress,
+    flags?:XumiWorldDeployFlag, verbose?:Boolean): Promise<{
         worldContracts: Record<XumiContractName, WorldContract>,
         eventProcessorAddressBook: {[index: string]:any}
     }> => {
@@ -84,20 +87,35 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
     let assetElementH = await deployAssetElementH(xumiConstants, route, deployer);
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_ELEMENT_H(), assetElementH.address);
 
+    if(verbose) console.log("Deploy WorldEvents...");
+    let worldEvents = await deployWorldEvents(oneAgeVSecond, await xumiConstants.WORLD_MODULE_EVENTS(), route, deployer);
+    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+
+    if(verbose) console.log("Deploy ActorTalents...");
+    let actorTalents = await deployActorTalents(await xumiConstants.WORLD_MODULE_TALENTS(), route, deployer);
+    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+
     if(verbose) console.log("Deploy Xumi...");
-    let xumiPkg = await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), 
-        actors, locations, zones, attributes,
-        worldEvents, talents, trigrams, random, deployer);
+    let xumiPkg = await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_TIMELINE(), 
+        actors, locations, zones, attributes, worldEvents, actorTalents, trigrams, random, deployer);
     let xumi = ShejiTu__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as ShejiTu
-    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_XUMI_TIMELINE(), xumi.address);
+    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_TIMELINE(), xumi.address);
     await xumi.registerAttributeModule(actorXumiAttributes.address);
+
+    if(verbose) console.log("Deploy ActorBornPlaces...");
+    let actorBornPlaces = await deployActorBornPlaces(await xumiConstants.WORLD_MODULE_BORN_PLACES(), route, deployer);
+    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_BORN_PLACES(), actorBornPlaces.address);
+
+    if(verbose) console.log("Deploy ActorRelationShip...");
+    let actorRelationships = await deployActorRelationship(await xumiConstants.WORLD_MODULE_RELATIONSHIP(), route, deployer);
+    await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_RELATIONSHIP(), actorRelationships.address);
 
     //init talents
     if(flags?.noTalents)
         null;
     else {
         if(verbose) console.log("Initialize Talents...");
-        await initTalents(talents.address, operatorDAO, xumiConstants, worldConstants);
+        await initTalents(actorTalents.address, operatorDAO, xumiConstants, worldConstants);
     }
 
     //deploy talent processors
@@ -105,7 +123,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
         null;
     else {
         if(verbose) console.log("Initialize Talent Processors...");
-        await deployTalentProcessors(talents.address, operatorDAO, route, deployer);
+        await deployTalentProcessors(actorTalents.address, operatorDAO, route, deployer);
     }
 
     //init item types
@@ -129,7 +147,7 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
     if(flags?.noTimelineEvents)
         null;
     else {
-        if(verbose) console.log("Initialize Global Timeline...");
+        if(verbose) console.log("Initialize Xumi Timeline...");
         await initTimeline(xumi.address, deployer);
     }
 
@@ -141,6 +159,10 @@ export const deployXumiWorld = async (route: WorldContractRoute, worldConstants:
         AssetEnergy: {instance: assetEnergy},
         AssetElementH: {instance: assetElementH},
         ActorXumiAttributes: {instance: actorXumiAttributes},
+        ActorTalents: {instance: actorTalents},
+        WorldEvents: {instance: worldEvents},
+        ActorBornPlaces: {instance: actorBornPlaces},
+        ActorRelationship: {instance: actorRelationships},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};
