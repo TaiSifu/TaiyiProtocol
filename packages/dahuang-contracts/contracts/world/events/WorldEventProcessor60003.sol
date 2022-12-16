@@ -11,35 +11,76 @@ contract WorldEventProcessor60003 is DefaultWorldEventProcessor {
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60004) {}
 
     function eventInfo(uint256 _actor) external view override returns (string memory) {
-        //你出生在${地点}。
-        IActorBornPlaces bornPlaces = IActorBornPlaces(worldRoute.modules(DahuangConstants.WORLD_MODULE_BORN_PLACES));
-        uint256 born_place = bornPlaces.bornPlaces(_actor);
-        if(born_place > 0) {
-            IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
-            return string(abi.encodePacked("\xE4\xBD\xA0\xE5\x87\xBA\xE7\x94\x9F\xE5\x9C\xA8", zones.names(born_place), "\xE3\x80\x82"));
-        }
+        //你在${节气}出生。
+        IWorldSeasons seasons = IWorldSeasons(worldRoute.modules(DahuangConstants.WORLD_MODULE_SEASONS));
+        uint256 born_season = seasons.actorBornSeasons(_actor);
+        if(born_season > 0)
+            return string(abi.encodePacked("\xE4\xBD\xA0\xE5\x9C\xA8", seasons.seasonLabels(born_season), "\xE5\x87\xBA\xE7\x94\x9F\xE3\x80\x82"));
         else
             return "NA";
+    }
+
+    function trigrams(uint256 _actor) virtual external override view returns (uint256[] memory) {
+        IWorldSeasons seasons = IWorldSeasons(worldRoute.modules(DahuangConstants.WORLD_MODULE_SEASONS));
+        uint256 born_season = seasons.actorBornSeasons(_actor);
+        uint256[] memory _t = randomTrigrams(_actor);
+        if(born_season == 1 || born_season == 2) {
+            _t[0] = 0; _t[1] = 0; _t[2] = 0; _t[3] = 0; _t[4] = 0; _t[5] = 1;
+        }
+        else if(born_season == 3 || born_season == 4) {
+            _t[0] = 0; _t[1] = 0; _t[2] = 0; _t[3] = 0; _t[4] = 0; _t[5] = 0;
+        }
+        else if(born_season == 5 || born_season == 6) {
+            _t[0] = 1; _t[1] = 0; _t[2] = 0; _t[3] = 0; _t[4] = 0; _t[5] = 0;
+        }
+        else if(born_season == 7 || born_season == 8) {
+            _t[0] = 1; _t[1] = 1; _t[2] = 0; _t[3] = 0; _t[4] = 0; _t[5] = 0;
+        }
+        else if(born_season == 9 || born_season == 10) {
+            _t[0] = 1; _t[1] = 1; _t[2] = 1; _t[3] = 0; _t[4] = 0; _t[5] = 0;
+        }
+        else if(born_season == 11 || born_season == 12) {
+            _t[0] = 1; _t[1] = 1; _t[2] = 1; _t[3] = 1; _t[4] = 0; _t[5] = 0;
+        }
+        else if(born_season == 13 || born_season == 14) {
+            _t[0] = 1; _t[1] = 1; _t[2] = 1; _t[3] = 1; _t[4] = 1; _t[5] = 0;
+        }
+        else if(born_season == 15 || born_season == 16) {
+            _t[0] = 1; _t[1] = 1; _t[2] = 1; _t[3] = 1; _t[4] = 1; _t[5] = 1;
+        }
+        else if(born_season == 17 || born_season == 18) {
+            _t[0] = 0; _t[1] = 1; _t[2] = 1; _t[3] = 1; _t[4] = 1; _t[5] = 1;
+        }
+        else if(born_season == 19 || born_season == 20) {
+            _t[0] = 0; _t[1] = 0; _t[2] = 1; _t[3] = 1; _t[4] = 1; _t[5] = 1;
+        }
+        else if(born_season == 21 || born_season == 22) {
+            _t[0] = 0; _t[1] = 0; _t[2] = 0; _t[3] = 1; _t[4] = 1; _t[5] = 1;
+        }
+        else if(born_season == 23 || born_season == 24) {
+            _t[0] = 0; _t[1] = 0; _t[2] = 0; _t[3] = 0; _t[4] = 1; _t[5] = 1;
+        }
+        return _t;
     }
 
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
-        IActorBornPlaces bornPlaces = IActorBornPlaces(worldRoute.modules(DahuangConstants.WORLD_MODULE_BORN_PLACES));
-        uint256 born_place = bornPlaces.bornPlaces(_actor);
-        if(born_place > 0)
+        IWorldSeasons seasons = IWorldSeasons(worldRoute.modules(DahuangConstants.WORLD_MODULE_SEASONS));
+        if(seasons.actorBornSeasons(_actor) > 0)
             return false;
 
         return defaultRt;
     }
 
-    function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override 
+    function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override
         onlyYeMing(_operator)
     {
-        IActorBornPlaces bornPlaces = IActorBornPlaces(worldRoute.modules(DahuangConstants.WORLD_MODULE_BORN_PLACES));
-        require(bornPlaces.bornPlaces(_actor) == 0, "already born!");        
+        //random time
+        IWorldRandom random = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
+        uint256 _time = 1 + random.dn(_actor, 24);
 
-        IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
-        bornPlaces.bornActor(_operator, _actor, locations.actorLocations(_actor)[0]);
+        IWorldSeasons seasons = IWorldSeasons(worldRoute.modules(DahuangConstants.WORLD_MODULE_SEASONS));
+        seasons.bornActor(_operator, _actor, _time);
     }
 }

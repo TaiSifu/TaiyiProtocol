@@ -248,6 +248,24 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      }
+    ],
+    "name": "talentActor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
       },

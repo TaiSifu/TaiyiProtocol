@@ -196,14 +196,14 @@ describe('角色属性测试', () => {
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [MEL, BigNumber.from(10)], [W_MODULE_CHARM_ATTRIBUTES, 20]);
 
         //should not point
-        await expect(charmAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
+        await expect(charmAttributes.connect(taiyiDAO).pointActor(testActor, testActor)).to.be.revertedWith('only YeMing');
         //can not point with out talents initialized
-        await expect(charmAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
+        await expect(charmAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).to.be.revertedWith('talents have not initiated');
 
-        await talents.connect(operator1).talentActor(testActor);
+        await talents.connect(taiyiDAO).talentActor(actorPanGu, testActor);
         let actTlts = await talents.actorTalents(testActor);
 
-        expect((await charmAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
+        expect((await charmAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).wait()).eventually.fulfilled;
         let _mel = await charmAttributes.attributesScores(MEL, testActor);
         if(actTlts.length >= 1)
             expect(_mel).to.be.equal(120);
@@ -223,14 +223,14 @@ describe('角色属性测试', () => {
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [DIL, BigNumber.from(1), DIL, BigNumber.from(-1)], [W_MODULE_CORE_ATTRIBUTES, 20]);
 
         //should not point
-        await expect(coreAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
+        await expect(coreAttributes.connect(taiyiDAO).pointActor(testActor, testActor)).to.be.revertedWith('only YeMing');
         //can not point with out talents initialized
-        await expect(coreAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
+        await expect(coreAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).to.be.revertedWith('talents have not initiated');
 
-        await talents.connect(operator1).talentActor(testActor);
+        await talents.connect(taiyiDAO).talentActor(actorPanGu, testActor);
         let actTlts = await talents.actorTalents(testActor);
 
-        expect((await coreAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
+        expect((await coreAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).wait()).eventually.fulfilled;
         let _dil = await coreAttributes.attributesScores(DIL, testActor);
         let _geg = await coreAttributes.attributesScores(GEG, testActor);
         let _lim = await coreAttributes.attributesScores(LIM, testActor);
@@ -250,14 +250,14 @@ describe('角色属性测试', () => {
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [XIQ, BigNumber.from(10)], [W_MODULE_MOOD_ATTRIBUTES, 20]);
 
         //should not point
-        await expect(moodAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
+        await expect(moodAttributes.connect(taiyiDAO).pointActor(testActor, testActor)).to.be.revertedWith('only YeMing');
         //can not point with out talents initialized
-        await expect(moodAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
+        await expect(moodAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).to.be.revertedWith('talents have not initiated');
 
-        await talents.connect(operator1).talentActor(testActor);
+        await talents.connect(taiyiDAO).talentActor(actorPanGu, testActor);
         let actTlts = await talents.actorTalents(testActor);
 
-        expect((await moodAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
+        expect((await moodAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).wait()).eventually.fulfilled;
         let _xiq = await moodAttributes.attributesScores(XIQ, testActor);
         if(actTlts.length >= 1)
             expect(_xiq).to.be.equal(120);
@@ -272,14 +272,14 @@ describe('角色属性测试', () => {
         await talents.connect(taiyiDAO).setTalent(1010, "Good Man", "Born as good man", [ACT, BigNumber.from(10)], [W_MODULE_BEHAVIOR_ATTRIBUTES, 20]);
 
         //should not point
-        await expect(behaviorAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
+        await expect(behaviorAttributes.connect(taiyiDAO).pointActor(testActor, testActor)).to.be.revertedWith('only YeMing');
         //can not point with out talents initialized
-        await expect(behaviorAttributes.pointActor(testActor)).to.be.revertedWith('talents have not initiated');
+        await expect(behaviorAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).to.be.revertedWith('talents have not initiated');
 
-        await talents.connect(operator1).talentActor(testActor);
+        await talents.connect(taiyiDAO).talentActor(actorPanGu, testActor);
         let actTlts = await talents.actorTalents(testActor);
 
-        expect((await behaviorAttributes.pointActor(testActor)).wait()).eventually.fulfilled;
+        expect((await behaviorAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).wait()).eventually.fulfilled;
         let _act = await behaviorAttributes.attributesScores(ACT, testActor);
         expect(_act).to.be.equal(0);
     });

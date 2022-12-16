@@ -240,8 +240,8 @@ describe('角色天赋测试', () => {
         await talentsByDAO.setTalentExclusive(1010, [1002, 1020]);
 
         //should not talent actor by any one except owner or appoved.
-        await expect(talentsByDAO.talentActor(actor)).to.be.revertedWith('not approved or owner of actor');
-        await actorTalents.connect(operator1).talentActor(actor);
+        await expect(talentsByDAO.talentActor(actor, actor)).to.be.revertedWith('only YeMing');
+        await talentsByDAO.talentActor(actorPanGu, actor);
         let actTlts = await actorTalents.actorTalents(actor);
         if(actTlts.length >= 1) {
             expect(actTlts[0]).to.eq(1010);

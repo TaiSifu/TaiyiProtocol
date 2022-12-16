@@ -44,7 +44,7 @@ abstract contract DefaultWorldEventProcessorFermion is DefaultWorldEventProcesso
 } 
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000001 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个电子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE7\x94\xB5\xE5\xAD\x90\xE3\x80\x82";
@@ -52,7 +52,7 @@ contract WorldEventProcessor1000001 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020001 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个μ子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xCE\xBC\xE5\xAD\x90\xE3\x80\x82";
@@ -60,7 +60,7 @@ contract WorldEventProcessor1020001 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020002 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个τ子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xCF\x84\xE5\xAD\x90\xE3\x80\x82";
@@ -68,7 +68,7 @@ contract WorldEventProcessor1020002 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020003 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个电子中微子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE7\x94\xB5\xE5\xAD\x90\xE4\xB8\xAD\xE5\xBE\xAE\xE5\xAD\x90\xE3\x80\x82";
@@ -76,7 +76,7 @@ contract WorldEventProcessor1020003 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020004 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个μ子中微子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xCE\xBC\xE5\xAD\x90\xE4\xB8\xAD\xE5\xBE\xAE\xE5\xAD\x90\xE3\x80\x82";
@@ -84,7 +84,7 @@ contract WorldEventProcessor1020004 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020005 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个τ子中微子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xCF\x84\xE5\xAD\x90\xE4\xB8\xAD\xE5\xBE\xAE\xE5\xAD\x90\xE3\x80\x82";
@@ -92,7 +92,7 @@ contract WorldEventProcessor1020005 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020006 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个上夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE4\xB8\x8A\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";
@@ -100,7 +100,7 @@ contract WorldEventProcessor1020006 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020007 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个下夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE4\xB8\x8B\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";
@@ -108,7 +108,7 @@ contract WorldEventProcessor1020007 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020008 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个粲夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE7\xB2\xB2\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";
@@ -116,7 +116,7 @@ contract WorldEventProcessor1020008 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020009 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个奇夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE5\xA5\x87\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";
@@ -124,7 +124,7 @@ contract WorldEventProcessor1020009 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020010 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个顶夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE9\xA1\xB6\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";
@@ -132,7 +132,7 @@ contract WorldEventProcessor1020010 is DefaultWorldEventProcessorFermion {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020011 is DefaultWorldEventProcessorFermion {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个底夸克。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE5\xBA\x95\xE5\xA4\xB8\xE5\x85\x8B\xE3\x80\x82";

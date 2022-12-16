@@ -284,13 +284,6 @@ describe('须弥时间线基础', () => {
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
 
-        it(`初始化天赋和属性`, async ()=>{
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await actorXumiAttributes.connect(operator1).pointActor(testActor);
-            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-        });
-
         it(`角色在须弥时间线上成长`, async ()=>{
             await actors.approve(xumi.address, testActor);
             await xumi.grow(testActor, { gasLimit: 5000000 }); //age 0

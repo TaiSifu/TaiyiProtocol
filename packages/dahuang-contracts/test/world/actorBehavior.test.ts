@@ -31,6 +31,7 @@ import {
     WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, 
     WorldEventProcessor60507__factory, WorldEventProcessor60511__factory, WorldEventProcessor60512__factory,
     WorldEventProcessor60510__factory,
+    WorldEventProcessor60005__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -107,12 +108,6 @@ describe('主动事件角色行为测试', () => {
 
         await actors.connect(taiyiDAO).approve(shejiTu.address, _actor);
         await shejiTu.connect(taiyiDAO).bornActor(_actor);
-        await talents.connect(taiyiDAO).talentActor(_actor);
-        await baseAttributes.connect(taiyiDAO).pointActor(_actor);
-        await charmAttributes.connect(taiyiDAO).pointActor(_actor);
-        await coreAttributes.connect(taiyiDAO).pointActor(_actor);
-        await moodAttributes.connect(taiyiDAO).pointActor(_actor);
-        await behaviorAttributes.connect(taiyiDAO).pointActor(_actor);
 
         if(toWho.address != taiyiDAO.address)
             await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
@@ -221,6 +216,8 @@ describe('主动事件角色行为测试', () => {
         await eventsByPanGu.setEventProcessor(60003, evt60003.address);
         const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+        const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60005, evt60005.address);
 
         //配置时间线出生事件
         await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);

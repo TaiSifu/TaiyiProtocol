@@ -87,8 +87,8 @@ contract ActorAttributes is IActorAttributes, WorldConfigurable {
 
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_ATTRIBUTES; }
 
-    function pointActor(uint256 _actor) external 
-        onlyApprovedOrOwner(_actor)
+    function pointActor(uint256 _operator, uint256 _actor) external override
+        onlyYeMing(_operator)
     {        
         require(!characterPointsInitiated[_actor], "already init points");
 

@@ -87,6 +87,7 @@ interface IActorAttributes is IWorldModule {
     event Updated(address indexed executor, uint256 indexed actor, uint256[] attributes);
 
     function setAttributes(uint256 _operator, uint256 _actor, uint256[] memory _attributes) external;
+    function pointActor(uint256 _operator, uint256 _actor) external;
 
     function attributeLabels(uint256 _attributeId) external view returns (string memory);
     function attributesScores(uint256 _attributeId, uint256 _actor) external view returns (uint256);
@@ -116,6 +117,7 @@ interface IActorTalents is IWorldModule {
     function talentExclusivity(uint256 _id) external view returns (uint256[] memory);
 
     function setActorTalent(uint256 _operator, uint256 _actor, uint256 _tid) external;
+    function talentActor(uint256 _operator, uint256 _actor) external; 
     function actorAttributePointBuy(uint256 _actor, uint256 _attributeModuleId) external view returns (uint256);
     function actorTalents(uint256 _actor) external view returns (uint256[] memory);
     function actorTalentsInitiated(uint256 _actor) external view returns (bool);

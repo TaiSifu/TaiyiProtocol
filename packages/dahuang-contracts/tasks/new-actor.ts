@@ -54,16 +54,6 @@ task('new-actor', 'Mint an actor')
         let firstName = `小拼${Math.round(Math.random()*100)}`;
         await names.claim(firstName, "李", actor);
 
-        console.log("初始化角色天赋...");
-        await talents.talentActor(actor);
-
-        console.log("初始化角色属性...");
-        await baseAttributes.pointActor(actor);
-        await charmAttributes.pointActor(actor);
-        await coreAttributes.pointActor(actor);
-        await moodAttributes.pointActor(actor);
-        await behaviorAttributes.pointActor(actor);        
-
         console.log(`Actor#${actor} has been minted with name \"${(await names.actorName(actor))._name}\" to address ${await actors.ownerOf(actor)}.`);
         console.log(`Taiyi actor #${actor.toString()} uri:`);
         logURI(await actors.tokenURI(actor));

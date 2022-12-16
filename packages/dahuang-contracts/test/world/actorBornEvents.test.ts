@@ -37,6 +37,7 @@ import {
     WorldEventProcessor10014__factory,
     WorldEventProcessor10000__factory,
     WorldEventProcessor60508__factory,
+    WorldEventProcessor60005__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -215,7 +216,9 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
-        });
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
+            });
 
         it('配置时间线', async () => {
             expect((await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;
@@ -239,19 +242,7 @@ describe('角色出生序列事件测试', () => {
             bornTimestamp = await blockTimestamp(BigNumber.from(receipt.blockNumber).toHexString().replace("0x0", "0x"));
         });
 
-        it('角色初始化天赋', async () => {
-            expect((await talents.connect(operator1).talentActor(testActor)).wait()).eventually.fulfilled;
-        });
-
-        it('角色初始化属性', async () => {
-            expect((await baseAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
-            expect((await charmAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
-            expect((await coreAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
-            expect((await moodAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
-            expect((await behaviorAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
-        });
-
-        it('角色在社稷图首次成长（0岁生日）', async () => {
+        it('角色在社稷图首次成长（百日礼）', async () => {
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
             expect(await worldEvents.ages(testActor)).to.eq(0);
             expect(await actorSIDs.balanceOf((await actors.getActor(testActor)).account)).to.equal(2);
@@ -298,7 +289,7 @@ describe('角色出生序列事件测试', () => {
             expect(await dahuangConstants.WORLD_MODULE_EVENTS()).to.eq(201);
             expect(uriObj.data.m_200.m_201.age).to.eq(0);
             expect(uriObj.data.m_200.m_201.bornTime).to.eq(bornTimestamp);
-            expect(uriObj.data.m_200.m_201.events.length).to.eq(4);
+            expect(uriObj.data.m_200.m_201.events.length).to.eq(5);
         });
     });    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,6 +306,8 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
             evt10012 = await (await (new WorldEventProcessor10012__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(10012, evt10012.address);
         });
@@ -328,12 +321,6 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await charmAttributes.connect(operator1).pointActor(testActor);
-            await coreAttributes.connect(operator1).pointActor(testActor);
-            await moodAttributes.connect(operator1).pointActor(testActor);
-            await behaviorAttributes.connect(operator1).pointActor(testActor);
             //grow brithday
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
         });
@@ -361,6 +348,8 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
             evt10012 = await (await (new WorldEventProcessor10012__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(10012, evt10012.address);
 
@@ -389,12 +378,6 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await charmAttributes.connect(operator1).pointActor(testActor);
-            await coreAttributes.connect(operator1).pointActor(testActor);
-            await moodAttributes.connect(operator1).pointActor(testActor);
-            await behaviorAttributes.connect(operator1).pointActor(testActor);
             //grow brithday
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
         });
@@ -473,6 +456,8 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
             evt10014 = await (await (new WorldEventProcessor10014__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(10014, evt10014.address);
         });
@@ -486,12 +471,6 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await charmAttributes.connect(operator1).pointActor(testActor);
-            await coreAttributes.connect(operator1).pointActor(testActor);
-            await moodAttributes.connect(operator1).pointActor(testActor);
-            await behaviorAttributes.connect(operator1).pointActor(testActor);
             //grow brithday
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
         });
@@ -519,6 +498,8 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
             evt10014 = await (await (new WorldEventProcessor10014__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(10014, evt10014.address);
 
@@ -547,12 +528,6 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await charmAttributes.connect(operator1).pointActor(testActor);
-            await coreAttributes.connect(operator1).pointActor(testActor);
-            await moodAttributes.connect(operator1).pointActor(testActor);
-            await behaviorAttributes.connect(operator1).pointActor(testActor);
             //grow brithday
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
         });
@@ -632,6 +607,8 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60003, evt60003.address);
             const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+            const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await eventsByPanGu.setEventProcessor(60005, evt60005.address);
             //死亡
             const evt10000 = await (await (new WorldEventProcessor10000__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(10000, evt10000.address);
@@ -663,12 +640,6 @@ describe('角色出生序列事件测试', () => {
             await actors.connect(operator1).approve(shejiTu.address, testActor);
             await shejiTu.connect(operator1).bornActor(testActor);
 
-            await talents.connect(operator1).talentActor(testActor);
-            await baseAttributes.connect(operator1).pointActor(testActor);
-            await charmAttributes.connect(operator1).pointActor(testActor);
-            await coreAttributes.connect(operator1).pointActor(testActor);
-            await moodAttributes.connect(operator1).pointActor(testActor);
-            await behaviorAttributes.connect(operator1).pointActor(testActor);
             //grow brithday
             await shejiTu.connect(operator1).grow(testActor, { gasLimit: 5000000 });
         });
