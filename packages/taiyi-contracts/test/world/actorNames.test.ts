@@ -4,8 +4,7 @@ import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants, WorldContractRoute, 
-    Actors, ActorNames, ActorNames__factory, WorldFungible, WorldYemings,
+    WorldConstants, WorldContractRoute, Actors, ActorNames, ActorNames__factory, WorldYemings, AssetDaoli,
 } from '../../typechain';
 import {
     blockNumber,
@@ -41,7 +40,7 @@ describe('角色姓名测试', () => {
     let actors: Actors;
     let worldYemings: WorldYemings;
     let actorNames: ActorNames;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
@@ -193,7 +192,7 @@ describe('角色姓名测试', () => {
         await worldYemings.connect(taiyiDAO).setYeMing(2, operator1.address); //fake address just for test
 
         //deal coin
-        await assetDaoli.connect(operator1).claim(2, 2, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).claim(1, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).withdraw(2, 2, BigInt(1000e18));
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigInt(1000e18));
 

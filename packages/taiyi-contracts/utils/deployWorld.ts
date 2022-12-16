@@ -1,15 +1,14 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
-    ActorAttributes, ActorAttributes__factory,
-    ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,    
-    WorldFungible, WorldFungible__factory, ShejiTu, ShejiTu__factory, SifusToken,
+    ActorAttributes, ActorAttributes__factory, ShejiTu__factory, SifusToken,
+    ActorNames, ActorNames__factory, Actors, Actors__factory, ActorSocialIdentity, ActorSocialIdentity__factory,        
     WorldConstants, WorldConstants__factory, WorldContractRoute, WorldContractRoute__factory, WorldRandom, WorldRandom__factory, 
     WorldItems, WorldItems__factory, WorldZones, WorldZones__factory, WorldEvents, WorldEvents__factory, 
     SifusDescriptor__factory, ActorTalents, ActorTalents__factory, ActorBornPlaces, ActorBornPlaces__factory, 
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, WorldYemings, WorldYemings__factory,
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -70,8 +69,8 @@ export const deployActorAttributes = async (route: WorldContractRoute, deployer:
     return (await factory.deploy(route.address)).deployed();
 };
 
-export const deployAssetDaoli = async (worldConst: WorldConstants, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldFungible> => {
-    const factory = new WorldFungible__factory(deployer);
+export const deployAssetDaoli = async (worldConst: WorldConstants, route: WorldContractRoute, deployer: SignerWithAddress): Promise<AssetDaoli> => {
+    const factory = new AssetDaoli__factory(deployer);
     return (await factory.deploy("Taiyi Daoli", "DAOLI", await worldConst.WORLD_MODULE_COIN(), route.address)).deployed();
 };
 

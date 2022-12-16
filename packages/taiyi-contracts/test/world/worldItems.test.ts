@@ -5,7 +5,7 @@ import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, WorldContractRoute, 
-    Actors, WorldFungible, WorldItems, SifusToken, SifusDescriptor__factory, WorldYemings,
+    Actors, WorldItems, SifusToken, SifusDescriptor__factory, WorldYemings, AssetDaoli,
 } from '../../typechain';
 import {
     blockNumber,
@@ -40,7 +40,7 @@ describe('世界道具测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
     let worldItems: WorldItems;
     let worldYemings: WorldYemings;
 

@@ -5,7 +5,7 @@ import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
-import { Actors, SifusDescriptor__factory, SifusToken, WorldConstants, WorldContractRoute, WorldFungible, WorldYemings } from '../typechain';
+import { Actors, AssetDaoli, SifusDescriptor__factory, SifusToken, WorldConstants, WorldContractRoute, WorldYemings } from '../typechain';
 import { deploySifusToken, populateDescriptor, blockTimestamp, blockNumber } from './utils';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../utils';
@@ -23,7 +23,7 @@ describe('太乙师傅令牌测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let worldYemings: WorldYemings;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
 
     let actorPanGu: BigNumber;
 

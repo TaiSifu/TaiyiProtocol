@@ -4,9 +4,7 @@ import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants,
-    WorldContractRoute, WorldContractRoute__factory, 
-    Actors, WorldFungible, ActorSocialIdentity, WorldYemings,
+    WorldConstants, WorldContractRoute, Actors, ActorSocialIdentity, WorldYemings, AssetDaoli,
 } from '../../typechain';
 import {
     blockNumber,
@@ -41,7 +39,7 @@ describe('角色社会身份测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let worldYemings: WorldYemings;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
     let actorSIDs: ActorSocialIdentity;
 
     let actor: BigNumber;
@@ -49,7 +47,7 @@ describe('角色社会身份测试', () => {
 
     let newActorByOp1 = async ():Promise<BigNumber> => {
         //deal coin
-        await assetDaoli.connect(operator1).claim(2, 2, BigInt(1000e18));
+        await assetDaoli.connect(taiyiDAO).claim(1, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).withdraw(2, 2, BigInt(1000e18));
         await assetDaoli.connect(operator1).approve(actors.address, BigInt(1000e18));
         let _actor = await actors.nextActor();

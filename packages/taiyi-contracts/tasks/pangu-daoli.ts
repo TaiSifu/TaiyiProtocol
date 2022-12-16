@@ -43,10 +43,7 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
         let zones = WorldZones__factory.connect(addressBook.WorldZones, taisifu);
         let baseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, taisifu);        
 
-        console.log("检查盘古铸币权...");
         let actorPanGu = await worldConstants.ACTOR_PANGU();
-        if(!(await worldYemings.isYeMing(actorPanGu)))
-            await worldYemings.setYeMing(actorPanGu, taisifu.address); //fake address
         
         console.log("盘古铸币中...");
         let amount = ethers.utils.parseEther(args.amount);

@@ -9,8 +9,8 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken,
-    SifusDescriptor__factory, WorldEvents, WorldFungible, DefaultWorldEventProcessor__factory, DefaultWorldEventProcessor,
-     WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams,
+    SifusDescriptor__factory, WorldEvents, DefaultWorldEventProcessor__factory, DefaultWorldEventProcessor,
+     WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams, AssetDaoli,
 } from '../../typechain';
 import {
     blockNumber,
@@ -55,7 +55,7 @@ describe('世界事件集测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let worldYemings: WorldYemings;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
     let worldEvents: WorldEvents;
     let shejiTu: ShejiTu;
     let actorAttributes: ActorAttributes;

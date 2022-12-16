@@ -6,8 +6,8 @@ import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, 
-    ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldZones, WorldYemings, 
-    WorldRandom, ActorLocations, ActorTalents, Trigrams, ActorNames,
+    ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldZones, WorldYemings, 
+    WorldRandom, ActorLocations, ActorTalents, Trigrams, ActorNames, AssetDaoli,
 } from '../../typechain';
 import {
     blockNumber,
@@ -55,7 +55,7 @@ describe('角色天赋测试', () => {
     let worldRandom: WorldRandom;
     let worldYemings: WorldYemings;
     let worldEvents: WorldEvents;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
     let shejiTu: ShejiTu; //proxy
     let shejiTuImpl: ShejiTu;
     let actorAttributes: ActorAttributes;

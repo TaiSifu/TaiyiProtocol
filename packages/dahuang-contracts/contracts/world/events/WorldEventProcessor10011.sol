@@ -50,8 +50,5 @@ contract WorldEventProcessor10011 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         actorNum += 1;
-        //"coin": 50e18
-        //IWorldFungible coin = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
-        //coin.claim(_actor, 50e18);
     }
 }
