@@ -6,9 +6,7 @@ import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 import {
-    WorldConstants,
-    WorldContractRoute, WorldContractRoute__factory,
-    Actors, Actors__factory, WorldFungible, WorldFungible__factory, WorldYemings, 
+    WorldConstants, WorldContractRoute, Actors, WorldFungible__factory, WorldYemings, AssetDaoli, 
 } from '../typechain';
 import {
     blockTimestamp,
@@ -42,7 +40,7 @@ describe('太乙角色基础测试', () => {
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
     let worldYemings: WorldYemings;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();
@@ -141,15 +139,15 @@ describe('太乙角色基础测试', () => {
     });
 
     it('无准入铸造新角色-付费角色', async () => {
+        //deal coin by PanGu
+        expect((await assetDaoli.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 3, BigInt(1000e18))).wait()).eventually.fulfilled;
+
         //set actor #3 as YeMing
         await worldYemings.connect(taiyiDAO).setYeMing(3, operator1.address); //fake address just for test
         expect(await worldYemings.isYeMing(3)).to.eq(true);
-
-        //deal coin
-        let assetDaoliByOp1 = WorldFungible__factory.connect(assetDaoli.address, operator1);
-        expect((await assetDaoliByOp1.claim(3, 3, BigInt(1000e18))).wait()).eventually.fulfilled;
+        
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(0);
-        expect((await assetDaoliByOp1.withdraw(3, 3, BigInt(1000e18))).wait()).eventually.fulfilled;
+        expect((await assetDaoli.connect(operator1).withdraw(3, 3, BigInt(1000e18))).wait()).eventually.fulfilled;
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigInt(1000e18));
 
         //not approve coin to spend by Actors
@@ -157,7 +155,7 @@ describe('太乙角色基础测试', () => {
         await expect(actors.connect(operator1).mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
 
         //newone should be mint
-        await assetDaoliByOp1.approve(actors.address, BigInt(1000e18));
+        await assetDaoli.connect(operator1).approve(actors.address, BigInt(1000e18));
         expect((await actors.connect(operator1).mintActor(BigInt(100e18))).wait()).to.eventually.fulfilled;
         let actualPay = await assetDaoli.balanceOf(taiyiDAO.address);
         expect(await assetDaoli.balanceOf(operator1.address)).to.eq(BigNumber.from(BigInt(1000e18)).sub(actualPay));
@@ -169,7 +167,7 @@ describe('太乙角色基础测试', () => {
         await worldYemings.connect(taiyiDAO).setYeMing(2, deployer.address); //fake address just for test
 
         //deal coin
-        await assetDaoli.claim(2, 2, BigInt(1e17));
+        await assetDaoli.connect(taiyiDAO).claim(await worldConstants.ACTOR_PANGU(), 2, BigInt(1e17));
         await assetDaoli.withdraw(2, 2, BigInt(1e17));
         await assetDaoli.approve(actors.address, BigInt(1000e18));
 
@@ -210,7 +208,7 @@ describe('角色铸造费用VRGDA测试', () => {
     let worldConstants: WorldConstants;
     let worldContractRoute: WorldContractRoute;
     let actors: Actors;
-    let assetDaoli: WorldFungible;
+    let assetDaoli: AssetDaoli;
 
     before(async () => {
         [deployer, taiyiDAO, operator1, operator2] = await ethers.getSigners();

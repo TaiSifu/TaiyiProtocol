@@ -144,8 +144,8 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
         talentProcessors[_id] = _processorAddress;        
     }
 
-    function talentActor(uint256 _actor) external 
-        onlyApprovedOrOwner(_actor)
+    function talentActor(uint256 _operator, uint256 _actor) external override
+        onlyYeMing(_operator)
     {        
         require(!actorTalentsInitiated[_actor], "already init talents");
 

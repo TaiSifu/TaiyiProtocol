@@ -169,9 +169,9 @@ describe('角色属性测试', () => {
         let HLH = await worldConstants.ATTR_HLH();
 
         //should not point
-        await expect(actorAttributes.connect(taiyiDAO).pointActor(testActor)).to.be.revertedWith('not approved or owner of actor');
+        await expect(actorAttributes.connect(operator1).pointActor(testActor, testActor)).to.be.revertedWith('only YeMing');
 
-        expect((await actorAttributes.connect(operator1).pointActor(testActor)).wait()).eventually.fulfilled;
+        expect((await actorAttributes.connect(taiyiDAO).pointActor(actorPanGu, testActor)).wait()).eventually.fulfilled;
         let _hlh = await actorAttributes.attributesScores(HLH, testActor);
         expect(_hlh).to.be.equal(100);
     });

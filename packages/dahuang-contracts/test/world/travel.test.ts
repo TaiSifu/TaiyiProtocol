@@ -29,7 +29,7 @@ import {
     ActorMoodAttributes__factory, WorldBuildings, WorldBuildings__factory, 
     WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
     WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, 
-    WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory,
+    WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, WorldEventProcessor60005__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -114,12 +114,6 @@ describe('基本移动测试', () => {
 
         await actors.connect(taiyiDAO).approve(shejiTu.address, _actor);
         await shejiTu.connect(taiyiDAO).bornActor(_actor);
-        await talents.connect(taiyiDAO).talentActor(_actor);
-        await baseAttributes.connect(taiyiDAO).pointActor(_actor);
-        await charmAttributes.connect(taiyiDAO).pointActor(_actor);
-        await coreAttributes.connect(taiyiDAO).pointActor(_actor);
-        await moodAttributes.connect(taiyiDAO).pointActor(_actor);
-        await behaviorAttributes.connect(taiyiDAO).pointActor(_actor);
 
         if(toWho.address != taiyiDAO.address)
             await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
@@ -229,6 +223,8 @@ describe('基本移动测试', () => {
         await eventsByPanGu.setEventProcessor(60003, evt60003.address);
         const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+        const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60005, evt60005.address);
 
         //配置时间线出生事件
         await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);

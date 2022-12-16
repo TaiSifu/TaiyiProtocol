@@ -43,7 +43,7 @@ abstract contract DefaultWorldEventProcessorBoson is DefaultWorldEventProcessor 
 } 
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000002 is DefaultWorldEventProcessorBoson {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个光子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE5\x85\x89\xE5\xAD\x90\xE3\x80\x82";
@@ -285,7 +285,7 @@ contract WorldEventProcessor1000009 is DefaultWorldEventProcessor {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1000010 is DefaultWorldEventProcessor {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是极为罕见的希格斯粒子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE6\x9E\x81\xE4\xB8\xBA\xE7\xBD\x95\xE8\xA7\x81\xE7\x9A\x84\xE5\xB8\x8C\xE6\xA0\xBC\xE6\x96\xAF\xE7\xB2\x92\xE5\xAD\x90\xE3\x80\x82";
@@ -353,7 +353,7 @@ contract WorldEventProcessor1000012 is DefaultWorldEventProcessor {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020012 is DefaultWorldEventProcessorBoson {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个胶子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE8\x83\xB6\xE5\xAD\x90\xE3\x80\x82";
@@ -361,7 +361,7 @@ contract WorldEventProcessor1020012 is DefaultWorldEventProcessorBoson {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020013 is DefaultWorldEventProcessorBoson {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个引力子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE5\xBC\x95\xE5\x8A\x9B\xE5\xAD\x90\xE3\x80\x82";
@@ -369,7 +369,7 @@ contract WorldEventProcessor1020013 is DefaultWorldEventProcessorBoson {
 }
 //-----------------------------------------------------------------------------------------------
 contract WorldEventProcessor1020014 is DefaultWorldEventProcessorBoson {
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 1060002) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出现了，是个Z玻色子。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x8E\xB0\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\x5A\xE7\x8E\xBB\xE8\x89\xB2\xE5\xAD\x90\xE3\x80\x82";

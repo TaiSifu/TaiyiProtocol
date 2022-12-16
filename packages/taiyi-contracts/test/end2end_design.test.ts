@@ -7,10 +7,10 @@ import { solidity } from 'ethereum-waffle';
 
 import {
     Weth,
-    SifusToken, SifusDescriptor, SifusDescriptor__factory,
-    TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,
-    ShejiTu, ShejiTu__factory, Actors,
-    WorldConstants, WorldContractRoute, ActorAttributes, WorldFungible, WorldRandom, WorldYemings, WorldEvents, WorldZones, ActorLocations, ActorTalents, Trigrams, WorldFungible__factory,
+    SifusToken, SifusDescriptor, SifusDescriptor__factory, ShejiTu, ShejiTu__factory, Actors,
+    TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,    
+    WorldConstants, WorldContractRoute, ActorAttributes, WorldFungible, WorldRandom, WorldYemings, WorldEvents, WorldZones,
+    ActorLocations, ActorTalents, Trigrams, WorldFungible__factory, AssetDaoli,
 } from '../typechain';
 
 import {
@@ -45,7 +45,7 @@ let actors: Actors;
 let worldRandom: WorldRandom;
 let worldYemings: WorldYemings;
 let worldEvents: WorldEvents;
-let assetDaoli: WorldFungible;
+let assetDaoli: AssetDaoli;
 let actorAttributes: ActorAttributes;
 let worldZones: WorldZones;
 let actorLocations: ActorLocations;

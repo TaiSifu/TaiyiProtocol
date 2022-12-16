@@ -1,6 +1,7 @@
 import {
     ActorTalents__factory,
     WorldContractRoute,
+    WorldConstants,
 } from '@taiyi/contracts/dist/typechain';
 import * as talentsJSON from "../files/talents.json";
 import { BigNumber, Signer } from 'ethers';
@@ -12,17 +13,14 @@ import {
     DahuangConstants,
 } from '../typechain';
 
-export const initTalents = async (talentsAddress: string, operator: Signer, worldConstants: DahuangConstants): Promise<void> => {
+export const initTalents = async (talentsAddress: string, operator: Signer, taiyiConstants: WorldConstants, worldConstants: DahuangConstants): Promise<void> => {
 
     let talents = ActorTalents__factory.connect(talentsAddress, operator);
     
     let W_MODULE_CORE_ATTRIBUTES = await worldConstants.WORLD_MODULE_CORE_ATTRIBUTES();
-    let W_MODULE_BASE_ATTRIBUTES = await worldConstants.WORLD_MODULE_ATTRIBUTES();
-    let W_MODULE_CHARM_ATTRIBUTES = await worldConstants.WORLD_MODULE_CHARM_ATTRIBUTES();
-    let W_MODULE_MOOD_ATTRIBUTES = await worldConstants.WORLD_MODULE_MOOD_ATTRIBUTES();
 
-    let HLH = await worldConstants.ATTR_HLH();
-    let AGE = await worldConstants.ATTR_AGE();
+    let HLH = await taiyiConstants.ATTR_HLH();
+    let AGE = await taiyiConstants.ATTR_AGE();
     let MEL = await worldConstants.ATTR_MEL();
     let XIQ = await worldConstants.ATTR_XIQ();
     let LVL = await worldConstants.ATTR_LVL();

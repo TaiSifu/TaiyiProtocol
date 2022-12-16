@@ -203,7 +203,7 @@ task('make-utf8', 'make utf')
         
         
         if(1) {
-            console.log(String2UTF8X("你回到了大荒世界。"));
+            console.log(String2UTF8X("你具备了结构。"));
         }
 
     });

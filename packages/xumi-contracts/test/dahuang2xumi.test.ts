@@ -30,7 +30,8 @@ import {
     WorldEventProcessor60001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
     WorldEventProcessor60004__factory,
     WorldEventProcessor50002__factory,
-    WorldEventProcessor60513__factory, 
+    WorldEventProcessor60513__factory,
+    WorldEventProcessor60005__factory, 
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { DahuangContractName, deployDahuangWorld } from '@taiyi/dahuang-contracts/dist/utils';
 import { 
@@ -140,9 +141,6 @@ describe('大荒到须弥', () => {
 
         await actors.connect(taiyiDAO).approve(xumi.address, _actor);
         await xumi.connect(taiyiDAO).bornActor(_actor);
-        await xumiTalents.connect(taiyiDAO).talentActor(_actor);
-        await baseAttributes.connect(taiyiDAO).pointActor(_actor);
-        await actorXumiAttributes.connect(taiyiDAO).pointActor(_actor);
 
         if(toWho.address != taiyiDAO.address)
             await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
@@ -164,12 +162,6 @@ describe('大荒到须弥', () => {
 
         await actors.connect(taiyiDAO).approve(dahuang.address, _actor);
         await dahuang.connect(taiyiDAO).bornActor(_actor);
-        await dahuangTalents.connect(taiyiDAO).talentActor(_actor);
-        await baseAttributes.connect(taiyiDAO).pointActor(_actor);
-        await charmAttributes.connect(taiyiDAO).pointActor(_actor);
-        await coreAttributes.connect(taiyiDAO).pointActor(_actor);
-        await moodAttributes.connect(taiyiDAO).pointActor(_actor);
-        await behaviorAttributes.connect(taiyiDAO).pointActor(_actor);
 
         if(toWho.address != taiyiDAO.address)
             await actors.connect(taiyiDAO).transferFrom(taiyiDAO.address, toWho.address, _actor);
@@ -274,6 +266,8 @@ describe('大荒到须弥', () => {
         await eventsByPanGu.setEventProcessor(60003, evt60003.address);
         const evt60004 = await (await (new WorldEventProcessor60004__factory(deployer)).deploy(worldContractRoute.address)).deployed();
         await eventsByPanGu.setEventProcessor(60004, evt60004.address);
+        const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        await eventsByPanGu.setEventProcessor(60005, evt60005.address);
 
         //配置时间线出生事件
         await dahuang.connect(deployer).addAgeEvent(0, 10001, 1);
@@ -396,8 +390,6 @@ describe('大荒到须弥', () => {
         it(`出生`, async ()=>{
             await actors.connect(operator1).approve(xumi.address, testActor);
             await xumi.connect(operator1).bornActor(testActor);
-            await xumiTalents.talentActor(testActor);
-            await actorXumiAttributes.pointActor(testActor);
 
             await assetEnergy.approveActor(testActor, await xumi.operator(), BigInt(1000e18));
 

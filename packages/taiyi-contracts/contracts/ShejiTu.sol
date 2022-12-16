@@ -149,7 +149,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyCurrentTimeline(_actor)
     {
         require(operator > 0, "operator not initialized");
-        require(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0, "actor dead!");
+        if(attributes.characterPointsInitiated(_actor))
+            require(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0, "actor dead!");
 
         events.grow(operator, _actor);
 
@@ -213,7 +214,13 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 1);
             if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                 branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 2);
-                require(branchEvtId == 0, "only support two level branchs");
+                if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
+                    branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 3);
+                    if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
+                        branchEvtId = _processActiveEvent(_actor, _age, branchEvtId, _uintParams, _stringParams, 4);
+                        require(branchEvtId == 0, "only support 4 level branchs");
+                    }
+                }
             }
         }
     }
@@ -372,7 +379,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
                         branchEvtId = _processEvent(_actor, _age, branchEvtId, 2);
                         if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
                             branchEvtId = _processEvent(_actor, _age, branchEvtId, 3);
-                            require(branchEvtId == 0, "only support 3 level branchs");
+                            if(branchEvtId > 0 && events.canOccurred(_actor, branchEvtId, _age)) {
+                                branchEvtId = _processEvent(_actor, _age, branchEvtId, 4);
+                                require(branchEvtId == 0, "only support 4 level branchs");
+                            }
                         }
                     }
                 }
