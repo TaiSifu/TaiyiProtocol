@@ -22,6 +22,8 @@
     "task:pangu-daoli": "npx hardhat pangu-daoli",
     "task:advance-timestamp": "npx hardhat advance-timestamp",
     "task:make-utf8": "npx hardhat make-utf8",
+    "task:verify-etherscan": "npx hardhat verify-etherscan",
+    "flatten": "hardhat flatten ./contracts/${npm_config_name}.sol > ./contracts_flattened/${npm_config_name}.sol",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
@@ -29,6 +31,8 @@
   "devDependencies": {
     "@ethersproject/abstract-provider": "*",
     "@float-capital/solidity-coverage": "^0.7.17",
+    "@matterlabs/hardhat-zksync-deploy": "^0.6.0",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.12",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -55,7 +59,8 @@
     "prompt": "^1.1.0",
     "shx": "^0.3.3",
     "solmate": "^6.6.1",
-    "ts-node": "^10.0.0"
+    "ts-node": "^10.0.0",
+    "zksync-web3": "^0.12.2"
   },
   "dependencies": {
     "ethers": "^5.4.7"

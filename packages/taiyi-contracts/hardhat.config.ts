@@ -9,6 +9,8 @@ import 'hardhat-abi-exporter';
 import "hardhat-change-network";
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-gas-reporter';
+// import '@matterlabs/hardhat-zksync-deploy';
+// import '@matterlabs/hardhat-zksync-solc';
 import './tasks';
 
 dotenv.config();
@@ -23,6 +25,11 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  // zksolc: {
+  //   version: "1.2.1",
+  //   compilerSource: "binary",
+  //   settings: {},
+  // },
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -34,6 +41,24 @@ const config: HardhatUserConfig = {
         ? { mnemonic: process.env.MNEMONIC }
         : [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
+    scrolll2: {
+      url: `https://prealpha.scroll.io/l2`,
+      accounts: [
+      ]
+    },
+    polygonzkevm: {
+      url: `https://rpc.public.zkevm-test.net`,
+      chainId: 1422,
+      accounts: [
+      ]
+    },
+    // zksync2test: {
+    //   url: `https://zksync2-testnet.zksync.dev`,
+    //   ethNetwork: "goerli", // Can also be the RPC URL of the network (e.g. `https://goerli.infura.io/v3/<API_KEY>`)
+    //   zksync: true,
+    //   accounts: [
+    //   ]
+    // },
     hardhat: {
       initialBaseFeePerGas: 0,
     },
@@ -43,7 +68,19 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      polygonzkevm: "IGB5T6EHDPSGFK5J921CHDZZUY3I5489DC" //just fake key
+    },
+    customChains: [
+      {
+        network: "polygonzkevm",
+        chainId: 1422,
+        urls: {
+          apiURL: "https://explorer.public.zkevm-test.net/api",
+          browserURL: "https://explorer.public.zkevm-test.net/"
+        }
+      }
+    ]  
   },
   abiExporter: {
     path: './abi',

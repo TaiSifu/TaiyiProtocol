@@ -69,16 +69,16 @@ task('deploy', '部署太乙基础合约')
         });
 
         //DEPLOY TaiyiDAOExecutor with pre-computed Delegator address
-        const timelock = await new TaiyiDaoExecutor__factory(deployer).deploy(
+        const timelock = await (await new TaiyiDaoExecutor__factory(deployer).deploy(
             expectedTaiyiDAOProxyAddress,
             args.timelockDelay,
-        );
+        )).deployed();
 
         //DEPLOY Delegate
-        const govDelegate = await new TaiyiDaoLogicV1__factory(deployer).deploy();
+        const govDelegate = await (await new TaiyiDaoLogicV1__factory(deployer).deploy()).deployed();
 
         //DEPLOY Delegator
-        const taiyiDAOProxy = await new TaiyiDaoProxy__factory(deployer).deploy(
+        const taiyiDAOProxy = await (await new TaiyiDaoProxy__factory(deployer).deploy(
             timelock.address,
             worldContracts.SifusToken.instance.address,
             taisifu.address,
@@ -88,7 +88,7 @@ task('deploy', '部署太乙基础合约')
             args.votingDelay,
             args.proposalThresholdBps,
             args.quorumVotesBps,
-        );
+        )).deployed();
 
         const contracts: Record<ContractName, WorldContract> = {
             MultiPartRLEToSVG : { instance : multiPartRLEToSVG },

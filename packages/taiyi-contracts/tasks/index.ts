@@ -6,3 +6,4 @@ export * from './deploy-ci';
 export * from './pangu-daoli';
 export * from './advance-timestamp';
 export * from './make-utf8';
+export * from './verify-etherscan';
