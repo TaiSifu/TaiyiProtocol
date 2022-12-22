@@ -207,64 +207,64 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
 
     if(verbose) console.log("Deploy Actors...");
     let actors = await deployActors(operatorDAO.address, actorMintStart, assetDaoli.address, worldContractRoute, deployer);
-    await worldContractRoute.registerActors(actors.address);
+    await (await worldContractRoute.registerActors(actors.address)).wait();
 
     //PanGu should be mint at first, or you can not register any module
     if(verbose) console.log(`Mint PanGu as actor#${await actors.nextActor()}.`);
     //await actors.nextActor() == await worldConstants.ACTOR_PANGU()
-    await actors.connect(operatorDAO).mintActor(0);
+    await (await actors.connect(operatorDAO).mintActor(0)).wait();
 
     //Register Daoli
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_COIN(), assetDaoli.address)).wait();
 
     if(verbose) console.log("Deploy SifusToken...");
     let sifusDescriptor = await deploySifusDescriptor(deployer);
     let sifusSeeder = await deploySifusSeeder(deployer);
     let sifusToken = await deploySifusToken(worldContractRoute, operatorDAO.address, sifusDescriptor.address, sifusSeeder.address, deployer);
-    await populateDescriptor(sifusDescriptor);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIFUS(), sifusToken.address);
+    //await populateDescriptor(sifusDescriptor);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIFUS(), sifusToken.address)).wait();
 
     if(verbose) console.log("Deploy WorldRandom...");
     let worldRandom = await deployWorldRandom(deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address)).wait();
 
     if(verbose) console.log("Deploy ActorNames...");
     let actorNames = await deployActorNames(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_NAMES(), actorNames.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_NAMES(), actorNames.address)).wait();
 
     if(verbose) console.log("Deploy WorldItems...");
     let worldItems = await deployWorldItems(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ITEMS(), worldItems.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ITEMS(), worldItems.address)).wait();
 
     if(verbose) console.log("Deploy ActorSocialIdentity...");
     let actorSIDs = await deployActorSocialIdentity(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIDS(), actorSIDs.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_SIDS(), actorSIDs.address)).wait();
 
     if(verbose) console.log("Deploy WorldZones...");
     let worldZones = await deployWorldZones(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ZONES(), worldZones.address)).wait();
 
     if(verbose) console.log("Deploy WorldYemings...");
     let worldYemings = await deployWorldYemings(operatorDAO.address, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_YEMINGS(), worldYemings.address)).wait();
 
     if(verbose) console.log("Deploy Actor Attributes...");
     let actorAttributes = await deployActorAttributes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ATTRIBUTES(), actorAttributes.address)).wait();
 
     if(verbose) console.log("Deploy ActorLocations...");
     let actorLocations = await deployActorLocations(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_ACTOR_LOCATIONS(), actorLocations.address)).wait();
 
     if(verbose) console.log("Deploy Prelifes...");
     let actorPrelifes = await deployActorPrelifes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_PRELIFES(), actorPrelifes.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_PRELIFES(), actorPrelifes.address)).wait();
 
     if(verbose) console.log("Deploy Trigrams...");
     let trigrams = await deployTrigrams(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address)).wait();
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address);
+    await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address)).wait();
 
     //render modules
     await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address);
