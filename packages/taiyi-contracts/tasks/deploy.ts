@@ -6,7 +6,7 @@ import { task, types } from 'hardhat/config';
 import { deployTaiyiWorld, WorldContract } from '../utils/deployWorld';
 import { Actors__factory, TaiyiDaoExecutor__factory, TaiyiDaoLogicV1__factory, TaiyiDaoProxy__factory } from '../typechain';
 import { BigNumber } from 'ethers';
-import { getAddressBookShareFilePath } from '../utils/addressConfig';
+import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
@@ -73,6 +73,7 @@ task('deploy', '部署太乙基础合约')
             expectedTaiyiDAOProxyAddress,
             args.timelockDelay,
         )).deployed();
+        const timelockArgs = [expectedTaiyiDAOProxyAddress, args.timelockDelay];
 
         //DEPLOY Delegate
         const govDelegate = await (await new TaiyiDaoLogicV1__factory(deployer).deploy()).deployed();
@@ -89,15 +90,24 @@ task('deploy', '部署太乙基础合约')
             args.proposalThresholdBps,
             args.quorumVotesBps,
         )).deployed();
+        const taiyiDAOProxyArgs = [timelock.address,
+            worldContracts.SifusToken.instance.address,
+            taisifu.address,
+            timelock.address,
+            govDelegate.address,
+            args.votingPeriod,
+            args.votingDelay,
+            args.proposalThresholdBps,
+            args.quorumVotesBps];
 
         const contracts: Record<ContractName, WorldContract> = {
             MultiPartRLEToSVG : { instance : multiPartRLEToSVG },
             SifusDescriptor : worldContracts.SifusDescriptor,
             SifusSeeder : worldContracts.SifusSeeder,
             SifusToken : worldContracts.SifusToken,
-            TaiyiDAOExecutor: { instance : timelock },
+            TaiyiDAOExecutor: { instance : timelock, constructorArguments: timelockArgs },
             TaiyiDAOLogicV1: { instance : govDelegate },
-            TaiyiDAOProxy: { instance : taiyiDAOProxy },
+            TaiyiDAOProxy: { instance : taiyiDAOProxy, constructorArguments: taiyiDAOProxyArgs },
         };
 
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
@@ -112,6 +122,17 @@ task('deploy', '部署太乙基础合约')
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
+
+        //constructor arguments
+        const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
+        let argsBook:{[index: string]:any} = {};
+        for (const [name, contract] of Object.entries(worldContracts)) 
+            argsBook[name] = contract.constructorArguments;
+        for (const [name, contract] of Object.entries(contracts)) 
+            argsBook[name] = contract.constructorArguments;
+        await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
+        console.log(`contract constructor arguments book:`);
+        console.log(JSON.stringify(argsBook, null, 2));
 
         return contracts;
     });
