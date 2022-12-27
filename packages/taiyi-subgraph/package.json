@@ -1,0 +1,29 @@
+{
+  "name": "@taiyi/subgraph",
+  "version": "0.0.1",
+  "description": "A subgraph that indexes taiyi events",
+  "author": "Taiyi",
+  "homepage": "https://taiyi.world",
+  "license": "GPL-3.0",
+  "main": "build/index.js",
+  "directories": {
+    "src": "src"
+  },
+  "scripts": {
+    "clean": "rimraf ./src/types ./build subgraph.yaml",
+    "codegen": "graph codegen --output-dir src/types/",
+    "deploy": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "deploy_local": "graph deploy --debug --node http://localhost:8020 --ipfs http://localhost:5001",
+    "prepare:hard": "mustache config/hard.json subgraph.yaml.mustache > subgraph.yaml",
+    "prepare:rinkeby": "mustache config/rinkeby.json subgraph.yaml.mustache > subgraph.yaml",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.yaml.mustache > subgraph.yaml",
+    "deploy:rinkeby": "yarn clean && yarn prepare:rinkeby && yarn codegen && yarn deploy taiyi/sifus-subgraph-rinkeby",
+    "deploy:mainnet": "yarn clean && yarn prepare:mainnet && yarn codegen && yarn deploy taiyi/sifus-subgraph",
+    "deploy:hard": "yarn clean && yarn prepare:hard && yarn codegen && yarn deploy_local taiyi"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.20.1",
+    "@graphprotocol/graph-ts": "^0.20.0",
+    "mustache": "^4.2.0"
+  }
+}
