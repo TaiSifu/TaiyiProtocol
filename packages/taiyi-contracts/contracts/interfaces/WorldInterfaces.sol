@@ -67,20 +67,6 @@ interface IWorldTimeline is IWorldModule {
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
 }
 
-interface IActorNames is IERC721Enumerable, IWorldModule {
-
-    event NameClaimed(address indexed owner, uint256 indexed actor, uint256 indexed nameId, string name, string firstName, string lastName);
-    event NameUpdated(uint256 indexed nameId, string oldName, string newName);
-    event NameAssigned(uint256 indexed nameId, uint256 indexed previousActor, uint256 indexed newActor);
-
-    function nextName() external view returns (uint256);
-    function actorName(uint256 _actor) external view returns (string memory _name, string memory _firstName, string memory _lastName);
-
-    function claim(string memory _firstName, string memory _lastName, uint256 _actor) external returns (uint256 _nameId);
-    function assignName(uint256 _nameId, uint256 _actor) external;
-    function withdraw(uint256 _operator, uint256 _actor) external;
-}
-
 interface IActorAttributes is IWorldModule {
 
     event Created(address indexed creator, uint256 indexed actor, uint256[] attributes);
@@ -180,7 +166,42 @@ interface IWorldFungible is IWorldModule {
     function withdraw(uint256 _operator, uint256 _actor, uint256 _amount) external;
 }
 
-interface IWorldZones is IERC721Enumerable, IWorldModule {
+interface IWorldNonfungible {
+    event NonfungibleTransfer(uint256 indexed from, uint256 indexed to, uint256 indexed tokenId);
+    event NonfungibleApproval(uint256 indexed owner, uint256 indexed approved, uint256 indexed tokenId);
+    event NonfungibleApprovalForAll(uint256 indexed owner, uint256 indexed operator, bool approved);
+
+    function tokenOfActorByIndex(uint256 _owner, uint256 _index) external view returns (uint256);
+    function balanceOfActor(uint256 _owner) external view returns (uint256);
+    function ownerActorOf(uint256 _tokenId) external view returns (uint256);
+    function getApprovedActor(uint256 _tokenId) external view returns (uint256);
+    function isApprovedForAllActor(uint256 _owner, uint256 _operator) external view returns (bool);
+
+    function approveActor(uint256 _from, uint256 _to, uint256 _tokenId) external;
+    function setApprovalForAllActor(uint256 _from, uint256 _operator, bool _approved) external;
+    function safeTransferActor(uint256 _from, uint256 _to, uint256 _tokenId, bytes calldata _data) external;
+    function safeTransferActor(uint256 _from, uint256 _to, uint256 _tokenId) external;
+    function transferActor(uint256 _from, uint256 _to, uint256 _tokenId) external;
+    function safeTransferFromActor(uint256 _executor, uint256 _from, uint256 _to, uint256 _tokenId, bytes calldata _data) external;
+    function safeTransferFromActor(uint256 _executor, uint256 _from, uint256 _to, uint256 _tokenId) external;
+    function transferFromActor(uint256 _executor, uint256 _from, uint256 _to, uint256 _tokenId) external;
+}
+
+interface IActorNames is IWorldNonfungible, IERC721Enumerable, IWorldModule {
+
+    event NameClaimed(address indexed owner, uint256 indexed actor, uint256 indexed nameId, string name, string firstName, string lastName);
+    event NameUpdated(uint256 indexed nameId, string oldName, string newName);
+    event NameAssigned(uint256 indexed nameId, uint256 indexed previousActor, uint256 indexed newActor);
+
+    function nextName() external view returns (uint256);
+    function actorName(uint256 _actor) external view returns (string memory _name, string memory _firstName, string memory _lastName);
+
+    function claim(string memory _firstName, string memory _lastName, uint256 _actor) external returns (uint256 _nameId);
+    function assignName(uint256 _nameId, uint256 _actor) external;
+    function withdraw(uint256 _operator, uint256 _actor) external;
+}
+
+interface IWorldZones is IWorldNonfungible, IERC721Enumerable, IWorldModule {
 
     event ZoneClaimed(uint256 indexed actor, uint256 indexed zoneId, string name);
     event ZoneUpdated(uint256 indexed zoneId, string oldName, string newName);
@@ -199,7 +220,7 @@ interface IActorBornPlaces is IWorldModule {
     function bornActor(uint256 _operator, uint256 _actor, uint256 _zoneId) external;
 }
 
-interface IActorSocialIdentity is IERC721Enumerable, IWorldModule {
+interface IActorSocialIdentity is IWorldNonfungible, IERC721Enumerable, IWorldModule {
     event SIDClaimed(uint256 indexed actor, uint256 indexed sid, string name);
     event SIDDestroyed(uint256 indexed actor, uint256 indexed sid, string name);
 
@@ -237,7 +258,7 @@ struct SItem
     uint256 wear;
 }
 
-interface IWorldItems is IERC721Enumerable, IWorldModule {
+interface IWorldItems is IWorldNonfungible, IERC721Enumerable, IWorldModule {
     event ItemCreated(uint256 indexed actor, uint256 indexed item, uint256 indexed typeId, string typeName, uint256 wear, uint256 shape, string shapeName);
     event ItemChanged(uint256 indexed actor, uint256 indexed item, uint256 indexed typeId, string typeName, uint256 wear, uint256 shape, string shapeName);
     event ItemDestroyed(uint256 indexed item, uint256 indexed typeId, string typeName);

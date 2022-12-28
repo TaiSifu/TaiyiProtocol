@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../interfaces/WorldInterfaces.sol";
 import "../libs/Base64.sol";
-import "../base/ERC721Enumerable.sol";
-import "./WorldConfigurable.sol";
+import "./WorldNonfungible.sol";
 
-contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldConfigurable {
+contract ActorSocialIdentity is IActorSocialIdentity, WorldNonFungible {
 
     /* *******
      * Globals
@@ -28,7 +26,7 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
      * ****************
      */
 
-    constructor(WorldContractRoute _route) ERC721("Taiyi Social Identity", "TYSID") WorldConfigurable(_route) {
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Social Identity", "TYSID", _route) {
     }     
 
     // @dev Claim a sid for a actor. actor must hold the required gold.
@@ -89,19 +87,19 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
     }
 
     // @dev Converts the string to lowercase
-    function toLower(string memory str) public pure returns (string memory) {
-        bytes memory b_str = bytes(str);
-        bytes memory b_lower = new bytes(b_str.length);
-        for (uint256 i = 0; i < b_str.length; i++) {
-            // Uppercase character
-            if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
-                b_lower[i] = bytes1(uint8(b_str[i]) + 32);
-            } else {
-                b_lower[i] = b_str[i];
-            }
-        }
-        return string(b_lower);
-    }
+    // function toLower(string memory str) public pure returns (string memory) {
+    //     bytes memory b_str = bytes(str);
+    //     bytes memory b_lower = new bytes(b_str.length);
+    //     for (uint256 i = 0; i < b_str.length; i++) {
+    //         // Uppercase character
+    //         if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
+    //             b_lower[i] = bytes1(uint8(b_str[i]) + 32);
+    //         } else {
+    //             b_lower[i] = b_str[i];
+    //         }
+    //     }
+    //     return string(b_lower);
+    // }
 
     /* *****************
      * Internal Functions

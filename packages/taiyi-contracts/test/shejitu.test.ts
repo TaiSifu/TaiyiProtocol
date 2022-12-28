@@ -213,15 +213,8 @@ describe('社稷图全局时间线测试', () => {
                 expect(uriObj.data.m_102.base.name).to.eq("测试");
             });
 
-            it('角色生长-未注册角色基础属性情况', async () => {
-                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
-            });
-
-            it('角色生长-注册角色基础属性但未初始化情况', async () => {
-                //register actor attribute to timeline
-                expect((await shejiTu.connect(deployer).registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
-
-                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
+            it('角色生长-未配置事件', async () => {
+                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("not exist any event in this age!");
             });
         });
     });

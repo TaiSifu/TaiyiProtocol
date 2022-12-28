@@ -29,6 +29,10 @@ contract WorldEventProcessor60504 is DefaultWorldEventProcessor, ERC721Holder {
         require(eventOperator == 0, "event operator already initialized");
         IERC721(worldRoute.actorsAddress()).transferFrom(_msgSender(), address(this), _eventOperator);
         eventOperator = _eventOperator;
+
+        //事件经手人掌握的Gold授权给噎明
+        uint256 _yeming = IWorldTimeline(worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE)).operator();
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_GOLD)).approveActor(eventOperator, _yeming, 1e29);
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {

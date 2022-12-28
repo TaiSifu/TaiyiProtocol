@@ -85,19 +85,19 @@ contract WorldBuildings is IWorldBuildings, WorldConfigurable {
     }
 
     // @dev Converts the string to lowercase
-    function toLower(string memory str) public pure returns (string memory) {
-        bytes memory b_str = bytes(str);
-        bytes memory b_lower = new bytes(b_str.length);
-        for (uint256 i = 0; i < b_str.length; i++) {
-            // Uppercase character
-            if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
-                b_lower[i] = bytes1(uint8(b_str[i]) + 32);
-            } else {
-                b_lower[i] = b_str[i];
-            }
-        }
-        return string(b_lower);
-    }
+    // function toLower(string memory str) public pure returns (string memory) {
+    //     bytes memory b_str = bytes(str);
+    //     bytes memory b_lower = new bytes(b_str.length);
+    //     for (uint256 i = 0; i < b_str.length; i++) {
+    //         // Uppercase character
+    //         if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
+    //             b_lower[i] = bytes1(uint8(b_str[i]) + 32);
+    //         } else {
+    //             b_lower[i] = b_str[i];
+    //         }
+    //     }
+    //     return string(b_lower);
+    // }
 
     /* **************
      * View Functions

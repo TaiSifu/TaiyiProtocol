@@ -395,9 +395,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _process(uint256 _actor, uint256 _age) internal
         onlyApprovedOrOwner(_actor)
     {
-        require(events.actorBorn(_actor), "WorldTimeline: actor have not born!");
-        //require(_actorEvents[_actor][_age] == 0, "WorldTimeline: actor already have event!");
-        require(_eventIDs[_age].length > 0, "WorldTimeline: not exist any event in this age!");
+        require(events.actorBorn(_actor), "actor have not born!");
+        //require(_actorEvents[_actor][_age] == 0, "actor already have event!");
+        require(_eventIDs[_age].length > 0, "not exist any event in this age!");
 
         _processTalents(_actor, _age);
         _processEvents(_actor, _age);

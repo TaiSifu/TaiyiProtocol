@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../base/ERC721Enumerable.sol";
-import "../interfaces/WorldInterfaces.sol";
-import "./WorldConfigurable.sol";
+import "./WorldNonfungible.sol";
 import "../libs/Base64.sol";
 
-contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
+contract WorldZones is IWorldZones, WorldNonFungible {
 
     /* *******
      * Globals
@@ -27,7 +25,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
      * ****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Zone", "TYZONE") {
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Zone", "TYZONE", _route) {
     }     
 
     // @dev Claim a zone for a actor.

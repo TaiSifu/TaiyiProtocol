@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../base/ERC721Enumerable.sol";
-import "../interfaces/WorldInterfaces.sol";
-import "./WorldConfigurable.sol";
 import "../libs/Base64.sol";
+import "./WorldNonfungible.sol";
 
-contract ActorNames is IActorNames, WorldConfigurable, ERC721Enumerable 
+contract ActorNames is IActorNames, WorldNonFungible 
 {
     /* *******
      * Globals
@@ -147,7 +145,7 @@ contract ActorNames is IActorNames, WorldConfigurable, ERC721Enumerable
      * *****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Actor Names", "TYNAMES") {
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Actor Names", "TYNAMES", _route) {
     }
 
     /* *****************

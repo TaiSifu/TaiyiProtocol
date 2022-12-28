@@ -92,10 +92,6 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
     //采集资源
     function _collectAsset(uint256 _actor, uint256 _zoneId, uint256 _assetModuleId, uint256 _seed, uint256 _growQuantity, uint256 _ACTOR_YEMING) internal returns (uint256) {
         require(_growQuantity != 0, "grow asset quantity can not be ZERO!");
-        IWorldFungible asset = IWorldFungible(worldRoute.modules(_assetModuleId));
-
-        //授权关公的资源给时间线
-        asset.approveActor(ACTOR_GUANGONG, _ACTOR_YEMING, 10000e18);
 
         //计算采集量
         IWorldRandom random = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM));
@@ -103,6 +99,9 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
         if(collection_asset > zoneAssets[_zoneId][_assetModuleId])
             collection_asset = zoneAssets[_zoneId][_assetModuleId];
         if(collection_asset > 0) {
+            IWorldFungible asset = IWorldFungible(worldRoute.modules(_assetModuleId));
+            if(asset.allowanceActor(ACTOR_GUANGONG, _ACTOR_YEMING) < 1e29)
+                asset.approveActor(ACTOR_GUANGONG, _ACTOR_YEMING, 1e29);
             asset.transferFromActor(_ACTOR_YEMING, ACTOR_GUANGONG, _actor, collection_asset);
             zoneAssets[_zoneId][_assetModuleId] -= collection_asset;
         }
@@ -134,6 +133,14 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
         require(ACTOR_GUANGONG == 0, "operator already initialized");
         IActors(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTORS)).transferFrom(_msgSender(), address(this), _operator);
         ACTOR_GUANGONG = _operator;
+
+        //授权关公的资源给时间线（一千亿）
+        uint256 _yeming = IWorldTimeline(worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE)).operator();
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_GOLD)).approveActor(ACTOR_GUANGONG, _yeming, 1e29);
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_FOOD)).approveActor(ACTOR_GUANGONG, _yeming, 1e29);
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_HERB)).approveActor(ACTOR_GUANGONG, _yeming, 1e29);
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_WOOD)).approveActor(ACTOR_GUANGONG, _yeming, 1e29);
+        IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_FABRIC)).approveActor(ACTOR_GUANGONG, _yeming, 1e29);
     }
 
     function growAssets(uint256 _operator, uint256 _zoneId) external override
