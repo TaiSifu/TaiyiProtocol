@@ -9,7 +9,7 @@ import {
     WorldEvents, WorldFungible, ActorNames, ActorTalents, ActorSocialIdentity, WorldZones, Actors__factory, 
     ActorNames__factory, WorldConstants__factory, WorldFungible__factory, SifusToken__factory, ShejiTu__factory,
     WorldZones__factory, ActorAttributes__factory, ActorSocialIdentity__factory, WorldYemings, WorldYemings__factory, 
-    WorldRandom, WorldRandom__factory, ActorLocations, ActorLocations__factory, Trigrams, Trigrams__factory,
+    WorldRandom, WorldRandom__factory, ActorLocations, ActorLocations__factory, Trigrams, Trigrams__factory, ShejiTuProxy,
 } from '../../typechain';
 import {
     blockNumber,
@@ -134,8 +134,8 @@ describe('角色属性测试', () => {
             
         let shejiTuPkg = await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
-        shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
-        shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
+        shejiTu = ShejiTu__factory.connect((shejiTuPkg[0] as ShejiTuProxy).address, deployer);
+        shejiTuImpl = ShejiTu__factory.connect((shejiTuPkg[2] as ShejiTu).address, deployer);
         await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         //set timeline YeMing

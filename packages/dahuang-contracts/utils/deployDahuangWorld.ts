@@ -103,9 +103,9 @@ export const deployWorldZoneBaseResources = async (zoneResourceGrowTimeDay: numb
 
 export type DahuangContractName =
     | 'DahuangConstants'
-    | 'Shejitu'
-    | 'ShejituProxy'
-    | 'ShejituProxyAdmin'
+    | 'ShejiTu'
+    | 'ShejiTuProxy'
+    | 'ShejiTuProxyAdmin'
     | 'WorldEvents'
     | 'AssetFood'
     | 'AssetWood'
@@ -127,6 +127,7 @@ export type DahuangContractName =
 
 export interface WorldContract {
     instance: EthersContract;
+    constructorArguments?: (string | number)[];
     libraries?: () => Record<string, string>;
 };
 
@@ -157,75 +158,105 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let dahuangConstants = await deployDahuangConstants(deployer);
 
     if(verbose) console.log("Deploy WorldEvents...");
-    let worldEvents = await deployWorldEvents(oneAgeVSecond, await dahuangConstants.WORLD_MODULE_EVENTS(), routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_EVENTS(), worldEvents.address);
+    let moduleId = await dahuangConstants.WORLD_MODULE_EVENTS();
+    let worldEvents = await deployWorldEvents(oneAgeVSecond, moduleId, routeByPanGu, deployer);
+    let worldEventsArgs = [oneAgeVSecond, route.address, Number(moduleId)];
+    await (await routeByPanGu.registerModule(moduleId, worldEvents.address)).wait();
 
     if(verbose) console.log("Deploy ActorTalents...");
-    let actorTalents = await deployActorTalents(await dahuangConstants.WORLD_MODULE_TALENTS(), routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_TALENTS(), actorTalents.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_TALENTS();
+    let actorTalents = await deployActorTalents(moduleId, routeByPanGu, deployer);
+    let actorTalentsArgs = [route.address, Number(moduleId)];
+    await (await routeByPanGu.registerModule(moduleId, actorTalents.address)).wait();
 
     if(verbose) console.log("Deploy Shejitu...");
-    let shejiTuPkg = await deployShejiTu("大荒", "所在时间线：大荒", await dahuangConstants.WORLD_MODULE_TIMELINE(),
+    moduleId = await dahuangConstants.WORLD_MODULE_TIMELINE();
+    let shejiTuPkg = await deployShejiTu("大荒", "所在时间线：大荒", moduleId,
         actors, locations, zones, attributes, worldEvents, actorTalents, trigrams, random, deployer);
+    let shejiTuProxyArgs = shejiTuPkg[3];
     let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_TIMELINE(), shejiTu.address);
+    await (await routeByPanGu.registerModule(moduleId, shejiTu.address)).wait();
 
     let shejiTuOperator = await actors.nextActor();
-    await actors.connect(deployer).mintActor(0);
-    await actors.connect(deployer).approve(shejiTu.address, shejiTuOperator);
-    await shejiTu.initOperator(shejiTuOperator);
-    await yemings.connect(operatorDAO).setYeMing(shejiTuOperator, shejiTu.address);
+    await (await actors.connect(deployer).mintActor(0)).wait();
+    await (await actors.connect(deployer).approve(shejiTu.address, shejiTuOperator)).wait();
+    await (await shejiTu.initOperator(shejiTuOperator)).wait();
+    await (await yemings.connect(operatorDAO).setYeMing(shejiTuOperator, shejiTu.address)).wait();
     if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
 
     //deploy actor attributes
     if(verbose) console.log("Deploy Actor Attributes...");
-    await shejiTu.registerAttributeModule(attributes.address);
+    await (await shejiTu.registerAttributeModule(attributes.address)).wait();
     let actorCharmAttributes = await deployActorCharmAttributes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CHARM_ATTRIBUTES(), actorCharmAttributes.address);
-    await shejiTu.registerAttributeModule(actorCharmAttributes.address);
+    let actorCharmAttributesArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CHARM_ATTRIBUTES(), actorCharmAttributes.address)).wait();
+    await (await shejiTu.registerAttributeModule(actorCharmAttributes.address)).wait();
     let actorCoreAttributes = await deployActorCoreAttributes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CORE_ATTRIBUTES(), actorCoreAttributes.address);
-    await shejiTu.registerAttributeModule(actorCoreAttributes.address);
+    let actorCoreAttributesArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CORE_ATTRIBUTES(), actorCoreAttributes.address)).wait();
+    await (await shejiTu.registerAttributeModule(actorCoreAttributes.address)).wait();
     let actorMoodAttributes = await deployActorMoodAttributes(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_MOOD_ATTRIBUTES(), actorMoodAttributes.address);
-    await shejiTu.registerAttributeModule(actorMoodAttributes.address);
+    let actorMoodAttributesArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_MOOD_ATTRIBUTES(), actorMoodAttributes.address)).wait();
+    await (await shejiTu.registerAttributeModule(actorMoodAttributes.address)).wait();
     let actorBehaviorAttributes = await deployActorBehaviorAttributes(actRecoverTimeDay, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES(), actorBehaviorAttributes.address);
-    await shejiTu.registerAttributeModule(actorBehaviorAttributes.address);
+    let actorBehaviorAttributesArgs = [actRecoverTimeDay, route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES(), actorBehaviorAttributes.address)).wait();
+    await (await shejiTu.registerAttributeModule(actorBehaviorAttributes.address)).wait();
 
     //deploy assets
     if(verbose) console.log("Deploy Assets...");
     let assetFood = await deployAssetFood(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_FOOD(), assetFood.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_FOOD();
+    let assetFoodArgs = ["Taiyi Food", "TYFOOD", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetFood.address)).wait();
     let assetWood = await deployAssetWood(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_WOOD(), assetWood.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_WOOD();
+    let assetWoodArgs = ["Taiyi Wood", "TYWOOD", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetWood.address)).wait();
     let assetGold = await deployAssetGold(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_GOLD(), assetGold.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_GOLD();
+    let assetGoldArgs = ["Taiyi Gold", "TYGOLD", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetGold.address)).wait();
     let assetFabric = await deployAssetFabric(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_FABRIC(), assetFabric.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_FABRIC();
+    let assetFabricArgs = ["Taiyi Fabric", "TYFABRIC", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetFabric.address)).wait();
     let assetHerb = await deployAssetHerb(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_HERB(), assetHerb.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_HERB();
+    let assetHerbArgs = ["Taiyi Herb", "TYHERB", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetHerb.address)).wait();
     let assetPrestige = await deployAssetPrestige(dahuangConstants, routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_PRESTIGE(), assetPrestige.address);
+    moduleId = await dahuangConstants.WORLD_MODULE_PRESTIGE();
+    let assetPrestigeArgs = ["Taiyi Prestige", "TYPRESTIGE", Number(moduleId), route.address];
+    await (await routeByPanGu.registerModule(moduleId, assetPrestige.address)).wait();
 
     if(verbose) console.log("Deploy Other World Modules...");
     let worldSeasons = await deployWorldSeasons(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_SEASONS(), worldSeasons.address);
-    let actorBornPlaces = await deployActorBornPlaces(await dahuangConstants.WORLD_MODULE_BORN_PLACES(), routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BORN_PLACES(), actorBornPlaces.address);
+    let worldSeasonsArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_SEASONS(), worldSeasons.address)).wait();
+    moduleId = await dahuangConstants.WORLD_MODULE_BORN_PLACES();
+    let actorBornPlaces = await deployActorBornPlaces(moduleId, routeByPanGu, deployer);
+    let actorBornPlacesArgs = [route.address, Number(moduleId)];
+    await (await routeByPanGu.registerModule(moduleId, actorBornPlaces.address)).wait();
     let worldVillages = await deployWorldVillages(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_VILLAGES(), worldVillages.address);
+    let worldVillagesArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_VILLAGES(), worldVillages.address)).wait();
     let worldBuildings = await deployWorldBuildings(routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BUILDINGS(), worldBuildings.address);
-    let actorRelationships = await deployActorRelationship(await dahuangConstants.WORLD_MODULE_RELATIONSHIP(), routeByPanGu, deployer);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_RELATIONSHIP(), actorRelationships.address);
+    let worldBuildingsArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BUILDINGS(), worldBuildings.address)).wait();
+    moduleId = await dahuangConstants.WORLD_MODULE_RELATIONSHIP();
+    let actorRelationships = await deployActorRelationship(moduleId, routeByPanGu, deployer);
+    let actorRelationshipsArgs = [route.address, Number(moduleId)];
+    await (await routeByPanGu.registerModule(moduleId, actorRelationships.address)).wait();
     let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer);
+    let worldZoneBaseResourcesArgs = [zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, route.address];
     let worldZoneBaseResourceOperator = await actors.nextActor();
-    await actors.connect(deployer).mintActor(0);
-    await actors.connect(deployer).approve(worldZoneBaseResources.address, worldZoneBaseResourceOperator);
-    await worldZoneBaseResources.initOperator(worldZoneBaseResourceOperator);
+    await (await actors.connect(deployer).mintActor(0)).wait();
+    await (await actors.connect(deployer).approve(worldZoneBaseResources.address, worldZoneBaseResourceOperator)).wait();
+    await (await worldZoneBaseResources.initOperator(worldZoneBaseResourceOperator)).wait();
     if(verbose) console.log(`Mint GuanGong as actor#${await worldZoneBaseResources.ACTOR_GUANGONG()}.`);
-    await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address);
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address)).wait();
 
     //init SocialIdentity Names
     if(flags?.noSIDNames)
@@ -299,15 +330,15 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         if(verbose) console.log("Initialize Zones...");
         let actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing
-        await yemings.connect(operatorDAO).setYeMing(actorPanGu, operatorDAO.address); //fake address for PanGu
+        await (await yemings.connect(operatorDAO).setYeMing(actorPanGu, operatorDAO.address)).wait(); //fake address for PanGu
         //bind timeline to a zone
         let dahuangZone = await zones.nextZone();
-        await zones.connect(operatorDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu);
-        await shejiTu.setStartZone(dahuangZone);
+        await (await zones.connect(operatorDAO).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu)).wait();
+        await (await shejiTu.setStartZone(dahuangZone)).wait();
 
         //born PanGu
-        await actors.connect(operatorDAO).approve(shejiTu.address, actorPanGu);
-        await shejiTu.connect(operatorDAO).bornActor(actorPanGu);
+        await (await actors.connect(operatorDAO).approve(shejiTu.address, actorPanGu)).wait();
+        await (await shejiTu.connect(operatorDAO).bornActor(actorPanGu)).wait();
         
         //init zones by PanGu
         await initZones(worldConstants, shejiTu.address, operatorDAO);
@@ -315,27 +346,27 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
 
     let contracts: Record<DahuangContractName, WorldContract> = {        
         DahuangConstants: {instance: dahuangConstants},
-        ShejituProxy: {instance: shejiTuPkg[0]},
-        ShejituProxyAdmin: {instance: shejiTuPkg[1]},
-        Shejitu: {instance: shejiTuPkg[2]},
-        WorldEvents: {instance: worldEvents},
-        AssetFood: {instance: assetFood},
-        AssetWood: {instance: assetWood},
-        AssetGold: {instance: assetGold},
-        AssetFabric: {instance: assetFabric},
-        AssetHerb: {instance: assetHerb},
-        AssetPrestige: {instance: assetPrestige},
-        ActorTalents: {instance: actorTalents},
-        ActorCharmAttributes: {instance: actorCharmAttributes},
-        ActorCoreAttributes: {instance: actorCoreAttributes},
-        ActorMoodAttributes: {instance: actorMoodAttributes},
-        ActorBehaviorAttributes: {instance: actorBehaviorAttributes},
-        WorldSeasons: {instance: worldSeasons},
-        ActorBornPlaces: {instance: actorBornPlaces},
-        WorldVillages: {instance: worldVillages},
-        WorldBuildings: {instance: worldBuildings},
-        WorldZoneBaseResources: {instance: worldZoneBaseResources},
-        ActorRelationship: {instance: actorRelationships},        
+        ShejiTuProxy: {instance: shejiTuPkg[0], constructorArguments: shejiTuProxyArgs},
+        ShejiTuProxyAdmin: {instance: shejiTuPkg[1]},
+        ShejiTu: {instance: shejiTuPkg[2]},
+        WorldEvents: {instance: worldEvents, constructorArguments: worldEventsArgs},
+        AssetFood: {instance: assetFood, constructorArguments: assetFoodArgs},
+        AssetWood: {instance: assetWood, constructorArguments: assetWoodArgs},
+        AssetGold: {instance: assetGold, constructorArguments: assetGoldArgs},
+        AssetFabric: {instance: assetFabric, constructorArguments: assetFabricArgs},
+        AssetHerb: {instance: assetHerb, constructorArguments: assetHerbArgs},
+        AssetPrestige: {instance: assetPrestige, constructorArguments: assetPrestigeArgs},
+        ActorTalents: {instance: actorTalents, constructorArguments: actorTalentsArgs},
+        ActorCharmAttributes: {instance: actorCharmAttributes, constructorArguments: actorCharmAttributesArgs},
+        ActorCoreAttributes: {instance: actorCoreAttributes, constructorArguments: actorCoreAttributesArgs},
+        ActorMoodAttributes: {instance: actorMoodAttributes, constructorArguments: actorMoodAttributesArgs},
+        ActorBehaviorAttributes: {instance: actorBehaviorAttributes, constructorArguments: actorBehaviorAttributesArgs},
+        WorldSeasons: {instance: worldSeasons, constructorArguments: worldSeasonsArgs},
+        ActorBornPlaces: {instance: actorBornPlaces, constructorArguments: actorBornPlacesArgs},
+        WorldVillages: {instance: worldVillages, constructorArguments: worldVillagesArgs},
+        WorldBuildings: {instance: worldBuildings, constructorArguments: worldBuildingsArgs},
+        WorldZoneBaseResources: {instance: worldZoneBaseResources, constructorArguments: worldZoneBaseResourcesArgs},
+        ActorRelationship: {instance: actorRelationships, constructorArguments: actorRelationshipsArgs},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

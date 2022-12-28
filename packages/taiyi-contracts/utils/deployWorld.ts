@@ -8,7 +8,7 @@ import {
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -43,7 +43,7 @@ export const deployShejiTu = async (name: string, desc: string, moduleID: BigNum
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
     let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
-    let shejituProxy = await shejituProxyFactory.deploy(
+    let shejituProxyArgs = [
         shejituImpl.address,
         shejituProxyAdmin.address,
         new Interface(ShejiTuABI).encodeFunctionData('initialize', [
@@ -55,8 +55,9 @@ export const deployShejiTu = async (name: string, desc: string, moduleID: BigNum
             evts.address,
             talents.address,
             trigrams.address,
-            random.address]));
-    return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl];
+            random.address])];
+    let shejituProxy = await shejituProxyFactory.deploy(shejituProxyArgs[0], shejituProxyArgs[1], shejituProxyArgs[2]);
+    return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl, shejituProxyArgs];
 }
 
 export const deployWorldRandom = async (deployer: SignerWithAddress): Promise<WorldRandom> => {

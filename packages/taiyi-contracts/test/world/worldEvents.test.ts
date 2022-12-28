@@ -10,7 +10,7 @@ import {
     WorldConstants,
     WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, ActorAttributes, SifusToken,
     SifusDescriptor__factory, WorldEvents, DefaultWorldEventProcessor__factory, DefaultWorldEventProcessor,
-     WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams, AssetDaoli,
+     WorldYemings, WorldRandom, WorldZones, ActorLocations, ActorTalents, Trigrams, AssetDaoli, ShejiTuProxy,
 } from '../../typechain';
 import {
     blockNumber,
@@ -135,9 +135,9 @@ describe('世界事件集测试', () => {
         trigrams = await deployTrigrams(routeByPanGu, deployer);
         await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address);
 
-        shejiTu = ShejiTu__factory.connect((await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE,
+        shejiTu = ShejiTu__factory.connect(((await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE,
             actors, actorLocations, worldZones, actorAttributes,
-            worldEvents, actorTalents, trigrams, worldRandom, deployer))[0].address, deployer);
+            worldEvents, actorTalents, trigrams, worldRandom, deployer))[0] as ShejiTuProxy).address, deployer);
         await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         let shejiTuOperator = await actors.nextActor();

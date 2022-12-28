@@ -7,7 +7,7 @@ export async function addZones(timeline: ShejiTu, _zones: any) {
     for(var i=0; i<_zones.length; i++) {
         process.stdout.write(`\u001B[1000Dzone ${Math.round(i*100.0/_zones.length)}%`);
         let tx = await timeline.activeTrigger(70000, 0, [_zones[i].parentZone], [_zones[i].name]);        
-        await tx.wait(); //必须要等待某些父zone创建好
+        //await tx.wait(); //必须要等待某些父zone创建好
     }
 
     process.stdout.write(`\u001B[1000Dzone 100%`);

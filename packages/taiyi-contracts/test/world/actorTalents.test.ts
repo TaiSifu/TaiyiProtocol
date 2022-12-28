@@ -7,7 +7,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, 
     ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldZones, WorldYemings, 
-    WorldRandom, ActorLocations, ActorTalents, Trigrams, ActorNames, AssetDaoli,
+    WorldRandom, ActorLocations, ActorTalents, Trigrams, ActorNames, AssetDaoli, ShejiTuProxy,
 } from '../../typechain';
 import {
     blockNumber,
@@ -162,8 +162,8 @@ describe('角色天赋测试', () => {
             
         let shejiTuPkg = await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
-        shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
-        shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
+        shejiTu = ShejiTu__factory.connect((shejiTuPkg[0] as ShejiTuProxy).address, deployer);
+        shejiTuImpl = ShejiTu__factory.connect((shejiTuPkg[2] as ShejiTu).address, deployer);
         await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         //set timeline YeMing

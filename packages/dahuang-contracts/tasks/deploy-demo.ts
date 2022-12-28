@@ -9,7 +9,7 @@ import {
     WorldItems__factory,
 } from '@taiyi/contracts/dist/typechain';
 import { BigNumber } from 'ethers';
-import { getAddressBookShareFilePath } from '../utils/addressConfig';
+import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
 import { deployDahuangWorld, WorldContract } from '../utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -80,12 +80,12 @@ task('deploy-demo', '部署全套大荒合约开发用例')
         let dahuangContracts = worldDeployed.worldContracts;
 
         //register actors uri modules
-        await actors.registerURIPartModule(dahuangContracts.ShejituProxy.instance.address);
+        await actors.registerURIPartModule(dahuangContracts.ShejiTuProxy.instance.address);
         
         const contracts: Record<ContractName, WorldContract> = {
-            ShejiTu : dahuangContracts.Shejitu,
-            ShejiTuProxyAdmin : dahuangContracts.ShejituProxyAdmin,
-            ShejiTuProxy : dahuangContracts.ShejituProxy,
+            ShejiTu : dahuangContracts.ShejiTu,
+            ShejiTuProxyAdmin : dahuangContracts.ShejiTuProxyAdmin,
+            ShejiTuProxy : dahuangContracts.ShejiTuProxy,
         };
 
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
@@ -100,6 +100,17 @@ task('deploy-demo', '部署全套大荒合约开发用例')
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
+
+        //constructor arguments
+        const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
+        let argsBook:{[index: string]:any} = {};
+        for (const [name, contract] of Object.entries(dahuangContracts)) 
+            argsBook[name] = contract.constructorArguments;
+        for (const [name, contract] of Object.entries(contracts)) 
+            argsBook[name] = contract.constructorArguments;
+        await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
+        console.log(`contract constructor arguments book:`);
+        console.log(JSON.stringify(argsBook, null, 2));
 
         return contracts;
     });
