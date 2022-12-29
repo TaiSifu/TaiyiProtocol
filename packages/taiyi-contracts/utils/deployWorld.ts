@@ -278,12 +278,14 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
     let trigrams = await deployTrigrams(routeByPanGu, deployer);
     let trigramsArg = [routeByPanGu.address];
     await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS(), trigrams.address)).wait();
+    if(verbose) console.log("Deploy TrigramsRender...");
     let trigramsRender = await deployTrigramsRender(routeByPanGu, deployer);
     let trigramsRenderArg = [routeByPanGu.address];
     await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address)).wait();
 
     //render modules
-    await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address);
+    await (await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address)).wait();
+    if(verbose) console.log("Taiyi Base Contracts Deployment Done.");
 
     let contracts: Record<TaiyiContractName, WorldContract> = {        
         WorldConstants: {instance: worldConstants},

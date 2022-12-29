@@ -185,70 +185,86 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     if(verbose) console.log(`Mint Shejitu YeMing as actor#${await shejiTu.operator()}.`);
 
     //deploy actor attributes
-    if(verbose) console.log("Deploy Actor Attributes...");
+    if(verbose) console.log("--------- Acotr Attributes ---------");
     await (await shejiTu.registerAttributeModule(attributes.address)).wait();
+    if(verbose) console.log("Deploy ActorCharmAttributes...");
     let actorCharmAttributes = await deployActorCharmAttributes(routeByPanGu, deployer);
     let actorCharmAttributesArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CHARM_ATTRIBUTES(), actorCharmAttributes.address)).wait();
     await (await shejiTu.registerAttributeModule(actorCharmAttributes.address)).wait();
+    if(verbose) console.log("Deploy ActorCoreAttributes...");
     let actorCoreAttributes = await deployActorCoreAttributes(routeByPanGu, deployer);
     let actorCoreAttributesArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_CORE_ATTRIBUTES(), actorCoreAttributes.address)).wait();
     await (await shejiTu.registerAttributeModule(actorCoreAttributes.address)).wait();
+    if(verbose) console.log("Deploy ActorMoodAttributes...");
     let actorMoodAttributes = await deployActorMoodAttributes(routeByPanGu, deployer);
     let actorMoodAttributesArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_MOOD_ATTRIBUTES(), actorMoodAttributes.address)).wait();
     await (await shejiTu.registerAttributeModule(actorMoodAttributes.address)).wait();
+    if(verbose) console.log("Deploy ActorBehaviorAttributes...");
     let actorBehaviorAttributes = await deployActorBehaviorAttributes(actRecoverTimeDay, routeByPanGu, deployer);
     let actorBehaviorAttributesArgs = [actRecoverTimeDay, route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES(), actorBehaviorAttributes.address)).wait();
     await (await shejiTu.registerAttributeModule(actorBehaviorAttributes.address)).wait();
 
     //deploy assets
-    if(verbose) console.log("Deploy Assets...");
+    if(verbose) console.log("--------- Assets ---------");
+    if(verbose) console.log("Deploy AssetsFood...");
     let assetFood = await deployAssetFood(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_FOOD();
     let assetFoodArgs = ["Taiyi Food", "TYFOOD", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetFood.address)).wait();
+    if(verbose) console.log("Deploy AssetsWood...");
     let assetWood = await deployAssetWood(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_WOOD();
     let assetWoodArgs = ["Taiyi Wood", "TYWOOD", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetWood.address)).wait();
+    if(verbose) console.log("Deploy AssetsGold...");
     let assetGold = await deployAssetGold(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_GOLD();
     let assetGoldArgs = ["Taiyi Gold", "TYGOLD", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetGold.address)).wait();
+    if(verbose) console.log("Deploy AssetsFabric...");
     let assetFabric = await deployAssetFabric(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_FABRIC();
     let assetFabricArgs = ["Taiyi Fabric", "TYFABRIC", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetFabric.address)).wait();
+    if(verbose) console.log("Deploy AssetsHerb...");
     let assetHerb = await deployAssetHerb(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_HERB();
     let assetHerbArgs = ["Taiyi Herb", "TYHERB", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetHerb.address)).wait();
+    if(verbose) console.log("Deploy AssetsPrestige...");
     let assetPrestige = await deployAssetPrestige(dahuangConstants, routeByPanGu, deployer);
     moduleId = await dahuangConstants.WORLD_MODULE_PRESTIGE();
     let assetPrestigeArgs = ["Taiyi Prestige", "TYPRESTIGE", Number(moduleId), route.address];
     await (await routeByPanGu.registerModule(moduleId, assetPrestige.address)).wait();
 
-    if(verbose) console.log("Deploy Other World Modules...");
+    if(verbose) console.log("--------- Datasets ---------");
+    if(verbose) console.log("Deploy WorldSeasons...");
     let worldSeasons = await deployWorldSeasons(routeByPanGu, deployer);
     let worldSeasonsArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_SEASONS(), worldSeasons.address)).wait();
+    if(verbose) console.log("Deploy ActorBornPlaces...");
     moduleId = await dahuangConstants.WORLD_MODULE_BORN_PLACES();
     let actorBornPlaces = await deployActorBornPlaces(moduleId, routeByPanGu, deployer);
     let actorBornPlacesArgs = [route.address, Number(moduleId)];
     await (await routeByPanGu.registerModule(moduleId, actorBornPlaces.address)).wait();
+    if(verbose) console.log("Deploy WorldVillages...");
     let worldVillages = await deployWorldVillages(routeByPanGu, deployer);
     let worldVillagesArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_VILLAGES(), worldVillages.address)).wait();
+    if(verbose) console.log("Deploy WorldBuildings...");
     let worldBuildings = await deployWorldBuildings(routeByPanGu, deployer);
     let worldBuildingsArgs = [route.address];
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_BUILDINGS(), worldBuildings.address)).wait();
+    if(verbose) console.log("Deploy ActorRelationship...");
     moduleId = await dahuangConstants.WORLD_MODULE_RELATIONSHIP();
     let actorRelationships = await deployActorRelationship(moduleId, routeByPanGu, deployer);
     let actorRelationshipsArgs = [route.address, Number(moduleId)];
     await (await routeByPanGu.registerModule(moduleId, actorRelationships.address)).wait();
+    if(verbose) console.log("Deploy WorldZoneBaseResources...");
     let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer);
     let worldZoneBaseResourcesArgs = [zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, route.address];
     let worldZoneBaseResourceOperator = await actors.nextActor();
@@ -343,6 +359,8 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         //init zones by PanGu
         await initZones(worldConstants, shejiTu.address, operatorDAO);
     }
+
+    if(verbose) console.log("Dahuang Contracts Deployment Done.");
 
     let contracts: Record<DahuangContractName, WorldContract> = {        
         DahuangConstants: {instance: dahuangConstants},

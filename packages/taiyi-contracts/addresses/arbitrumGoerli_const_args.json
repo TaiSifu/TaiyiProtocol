@@ -1,0 +1,64 @@
+{
+  "Actors": [
+    "0xFEC629c661Ad070bB0811Ec36F0720D6838033ce",
+    1672293754,
+    "0x1c28fe3A46e3E2dd5a924107FECd0A2f605c7E54"
+  ],
+  "ActorNames": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldYemings": [
+    "0xFEC629c661Ad070bB0811Ec36F0720D6838033ce"
+  ],
+  "WorldItems": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorSocialIdentity": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldZones": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "AssetDaoli": [
+    "Taiyi Daoli",
+    "DAOLI",
+    3,
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorAttributes": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorPrelifes": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorLocations": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "Trigrams": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "SifusToken": [
+    "0xFEC629c661Ad070bB0811Ec36F0720D6838033ce",
+    "0x0Ac5cfB8907499Dd1b74A4A069feCb549F98fc0b",
+    "0x384E52e2F97e514f7E18fBcbFbB0AA806214ef38",
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "TrigramsRender": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "TaiyiDAOExecutor": [
+    "0x2ADA6db5d0e19a781bd767b11825Fa4237FB36E9",
+    172800
+  ],
+  "TaiyiDAOProxy": [
+    "0xfF65362622491D775B342868DD608C5e1ce1861A",
+    "0x98DD0aC41D322059c531a6088aC100fa859Ea0FB",
+    "0xFEC629c661Ad070bB0811Ec36F0720D6838033ce",
+    "0xfF65362622491D775B342868DD608C5e1ce1861A",
+    "0x87236397eBd6aAB0882F5199d51f350643764475",
+    17280,
+    1,
+    500,
+    1000
+  ]
+}

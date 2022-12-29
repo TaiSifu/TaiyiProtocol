@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@taiyi/contracts": "^0.1.0",
+    "@taiyi/dahuang-contracts": "^0.1.0",
     "ethers": "^5.4.7"
   }
 }

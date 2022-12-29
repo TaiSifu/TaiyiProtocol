@@ -58,8 +58,8 @@ task('deploy', '部署太乙基础合约')
 
         //register actors uri modules
         const actors = Actors__factory.connect(worldContracts.Actors.instance.address, taisifu);
-        await actors.registerURIPartModule(worldContracts.ActorNames.instance.address);
-        await actors.registerURIPartModule(worldContracts.ActorSocialIdentity.instance.address);
+        await (await actors.registerURIPartModule(worldContracts.ActorNames.instance.address)).wait();
+        await (await actors.registerURIPartModule(worldContracts.ActorSocialIdentity.instance.address)).wait();
         
     
         //CALCULATE Gov Delegate, takes place after 2 transactions
@@ -69,6 +69,7 @@ task('deploy', '部署太乙基础合约')
         });
 
         //DEPLOY TaiyiDAOExecutor with pre-computed Delegator address
+        console.log("Deploy TaiyiDaoExecutor...");
         const timelock = await (await new TaiyiDaoExecutor__factory(deployer).deploy(
             expectedTaiyiDAOProxyAddress,
             args.timelockDelay,
@@ -76,9 +77,11 @@ task('deploy', '部署太乙基础合约')
         const timelockArgs = [expectedTaiyiDAOProxyAddress, args.timelockDelay];
 
         //DEPLOY Delegate
+        console.log("Deploy TaiyiDaoLogicV1...");
         const govDelegate = await (await new TaiyiDaoLogicV1__factory(deployer).deploy()).deployed();
 
         //DEPLOY Delegator
+        console.log("Deploy TaiyiDaoProxy...");
         const taiyiDAOProxy = await (await new TaiyiDaoProxy__factory(deployer).deploy(
             timelock.address,
             worldContracts.SifusToken.instance.address,
