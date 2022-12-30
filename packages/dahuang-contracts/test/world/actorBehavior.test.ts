@@ -158,6 +158,7 @@ describe('主动事件角色行为测试', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,

@@ -213,6 +213,7 @@ describe('大荒到须弥', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,

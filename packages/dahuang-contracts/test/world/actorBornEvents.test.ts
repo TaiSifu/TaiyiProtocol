@@ -161,6 +161,7 @@ describe('角色出生序列事件测试', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,

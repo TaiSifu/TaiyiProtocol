@@ -6,7 +6,7 @@ import {
     ActorCharmAttributes, ActorCharmAttributes__factory, ActorCoreAttributes, ActorCoreAttributes__factory, 
     ActorMoodAttributes, ActorMoodAttributes__factory, ActorBehaviorAttributes, ActorBehaviorAttributes__factory, WorldSeasons, 
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
-    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory
+    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory
 } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
@@ -20,7 +20,7 @@ import { initZones } from './initZones';
 import {
     WorldConstants, WorldContractRoute, WorldFungible, WorldFungible__factory, Actors, ActorLocations, Trigrams, WorldRandom,
     WorldZones, ActorAttributes, WorldItems, ShejiTu__factory, WorldNontransferableFungible__factory, 
-    WorldNontransferableFungible, WorldYemings, ActorSocialIdentity
+    WorldNontransferableFungible, WorldYemings, ActorSocialIdentity, ShejiTuProxy, ShejiTuProxyAdmin, ShejiTu
 } from '@taiyi/contracts/dist/typechain';
 import { deployShejiTu } from '@taiyi/contracts/dist/utils';
 
@@ -95,9 +95,9 @@ export const deployWorldBuildings = async (route: WorldContractRoute, deployer: 
     return (await factory.deploy(route.address)).deployed();
 };
 
-export const deployWorldZoneBaseResources = async (zoneResourceGrowTimeDay: number, zoneResourceGrowQuantityScale: number, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldZoneBaseResources> => {
+export const deployWorldZoneBaseResources = async (zoneResourceGrowTimeDay: number, zoneResourceGrowQuantityScale: number, route: WorldContractRoute, deployer: SignerWithAddress, isTest?: boolean): Promise<WorldZoneBaseResources> => {
     console.log(`deploy WorldZoneBaseResources with zoneResourceGrowTimeDay=${zoneResourceGrowTimeDay}, zoneResourceGrowQuantityScale=${zoneResourceGrowQuantityScale}`);
-    const factory = new WorldZoneBaseResources__factory(deployer);
+    const factory = isTest?(new WorldZoneBaseResourcesTest__factory(deployer)) : (new WorldZoneBaseResourcesRandom__factory(deployer));
     return (await factory.deploy(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, route.address)).deployed();
 };
 
@@ -141,6 +141,7 @@ export interface WorldDeployFlag {
     noEventProcessors? : boolean;
     noTimelineEvents? : boolean;
     noZones? : boolean;
+    isTest?: boolean;
 };
     
 export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeDay: number, zoneResourceGrowTimeDay : number, zoneResourceGrowQuantityScale: number,
@@ -174,7 +175,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let shejiTuPkg = await deployShejiTu("大荒", "所在时间线：大荒", moduleId,
         actors, locations, zones, attributes, worldEvents, actorTalents, trigrams, random, deployer);
     let shejiTuProxyArgs = shejiTuPkg[3];
-    let shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer); //CAST proxy as ShejiTu
+    let shejiTu = ShejiTu__factory.connect((shejiTuPkg[0] as ShejiTuProxy).address, deployer); //CAST proxy as ShejiTu
     await (await routeByPanGu.registerModule(moduleId, shejiTu.address)).wait();
 
     let shejiTuOperator = await actors.nextActor();
@@ -265,7 +266,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let actorRelationshipsArgs = [route.address, Number(moduleId)];
     await (await routeByPanGu.registerModule(moduleId, actorRelationships.address)).wait();
     if(verbose) console.log("Deploy WorldZoneBaseResources...");
-    let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer);
+    let worldZoneBaseResources = await deployWorldZoneBaseResources(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, routeByPanGu, deployer, flags?.isTest);
     let worldZoneBaseResourcesArgs = [zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, route.address];
     let worldZoneBaseResourceOperator = await actors.nextActor();
     await (await actors.connect(deployer).mintActor(0)).wait();
@@ -364,9 +365,9 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
 
     let contracts: Record<DahuangContractName, WorldContract> = {        
         DahuangConstants: {instance: dahuangConstants},
-        ShejiTuProxy: {instance: shejiTuPkg[0], constructorArguments: shejiTuProxyArgs},
-        ShejiTuProxyAdmin: {instance: shejiTuPkg[1]},
-        ShejiTu: {instance: shejiTuPkg[2]},
+        ShejiTuProxy: {instance: shejiTuPkg[0] as ShejiTuProxy, constructorArguments: shejiTuProxyArgs as string[]},
+        ShejiTuProxyAdmin: {instance: shejiTuPkg[1] as ShejiTuProxyAdmin},
+        ShejiTu: {instance: shejiTuPkg[2] as ShejiTu},
         WorldEvents: {instance: worldEvents, constructorArguments: worldEventsArgs},
         AssetFood: {instance: assetFood, constructorArguments: assetFoodArgs},
         AssetWood: {instance: assetWood, constructorArguments: assetWoodArgs},

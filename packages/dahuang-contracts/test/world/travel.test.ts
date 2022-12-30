@@ -165,6 +165,7 @@ describe('基本移动测试', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,

@@ -20,11 +20,11 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
     uint256 public override ACTOR_GUANGONG; //武财神之一：关公
     uint256 public immutable GROW_TIME_DAY; //资源生长周期（秒）
     uint256 public immutable GROW_QUANTITY_SCALE; //资源生长倍率(3位精度, 1000=1.0)
-    uint256 public immutable GOLD_GROW_QUANTITY = 100e18;
-    uint256 public immutable FOOD_GROW_QUANTITY = 1000e18;
-    uint256 public immutable WOOD_GROW_QUANTITY = 1000e18;
-    uint256 public immutable FABRIC_GROW_QUANTITY = 100e18;
-    uint256 public immutable HERB_GROW_QUANTITY = 100e18;
+    uint256 public GOLD_GROW_QUANTITY;
+    uint256 public FOOD_GROW_QUANTITY;
+    uint256 public WOOD_GROW_QUANTITY;
+    uint256 public FABRIC_GROW_QUANTITY;
+    uint256 public HERB_GROW_QUANTITY;
 
     mapping(uint256 => uint256) public lastGrowTimeStamps; //各地区资产生长时间戳
     mapping(uint256 => mapping(uint256 => uint256)) public zoneAssets; //各地区资产存量(zoneid => (asset module id => amount))
@@ -147,6 +147,11 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
         onlyYeMing(_operator)
     {
         require(ACTOR_GUANGONG > 0, "operator not initialized");
+
+        //check zone is in Dahuang
+        require(IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES)).timelines(_zoneId) == 
+            worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE), "can not grow assets outside Dahuang.");
+
         if(lastGrowTimeStamps[_zoneId] == 0)
             lastGrowTimeStamps[_zoneId] = (block.timestamp / GROW_TIME_DAY) * GROW_TIME_DAY;
 
@@ -160,6 +165,10 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
         onlyYeMing(_operator)
     {
         require(ACTOR_GUANGONG > 0, "operator not initialized");
+        //check zone is in Dahuang
+        require(IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES)).timelines(_zoneId) == 
+            worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE), "can not collect assets outside Dahuang.");
+
         _collectAssets(_operator, _actor, _zoneId);
     }
 
