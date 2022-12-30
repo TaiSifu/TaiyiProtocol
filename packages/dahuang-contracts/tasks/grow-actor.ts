@@ -36,7 +36,7 @@ task('grow-actor', '成长角色')
         let actors = Actors__factory.connect(addressBook.Actors, operator1);
         let names = ActorNames__factory.connect(addressBook.ActorNames, operator1);
         let talents = ActorTalents__factory.connect(addressBook.ActorTalents, operator1);
-        let dahuang = ShejiTu__factory.connect(addressBook.ShejituProxy, operator1);
+        let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let events = WorldEvents__factory.connect(addressBook.WorldEvents, operator1);
         let golds = WorldFungible__factory.connect(addressBook.AssetGold, operator1);
         let zones = WorldZones__factory.connect(addressBook.WorldZones, operator1);

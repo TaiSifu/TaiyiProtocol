@@ -44,6 +44,9 @@
 ### 大荒世界
 [大荒合约](packages/dahuang-contracts)是一套扩展太乙世界的智能合约示例，以Solidity语言编写。
 
+### 大荒机器人
+[大荒机器人](packages/dahuang-bots)项目内含各种机器人服务。有些机器人实时监控大荒世界状态的改变情况，并自动在Twitter和Discord上通知大家。人们也可以通过机器人用来和各种太乙世界活动交互。
+
 ### 须弥世界
 [须弥合约](packages/xumi-contracts)是一套扩展太乙世界的智能合约示例，以Solidity语言编写。
 

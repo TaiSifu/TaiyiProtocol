@@ -80,7 +80,7 @@ task('deploy-demo', '部署全套大荒合约开发用例')
         let dahuangContracts = worldDeployed.worldContracts;
 
         //register actors uri modules
-        await actors.registerURIPartModule(dahuangContracts.ShejiTuProxy.instance.address);
+        await (await actors.registerURIPartModule(dahuangContracts.ShejiTuProxy.instance.address)).wait();
         
         const contracts: Record<ContractName, WorldContract> = {
             ShejiTu : dahuangContracts.ShejiTu,

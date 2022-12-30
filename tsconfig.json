@@ -1,7 +1,9 @@
 {
     "references": [
         { "path": "packages/taiyi-contracts" },
+        { "path": "packages/taiyi-subgraph" },
         { "path": "packages/xumi-contracts" },
         { "path": "packages/dahuang-contracts" },
+        { "path": "packages/dahuang-bots" },
     ]
 }

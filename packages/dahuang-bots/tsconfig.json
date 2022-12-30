@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "importHelpers": true,
+    "moduleResolution": "Node", // required
+    "esModuleInterop": true, // required
+    /* Experimental Options */
+    "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
+    "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
+  },
+  "files": ["./hardhat.config.ts"],
+  "references": [
+    {"path": "../taiyi-contracts/tsconfig.build.json"},
+    {"path": "../dahuang-contracts/tsconfig.build.json"},
+  ],
+  "exclude": ["node_modules"]
+}
