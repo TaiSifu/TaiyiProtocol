@@ -421,7 +421,7 @@ async function startSyncMain(startBlockNum: number) {
                     let shapeName = itemCreated_event[e].args.shapeName;
                     let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`>**${name == "" ? "无名氏" : name}**创建了${shapeName}的**${typeName}**(耐久=${wear.toNumber()})。`);
+                    await sendChannelMessage(`>**${name == "" ? "无名氏" : name}**获得了${shapeName}的**${typeName}**(耐久=${wear.toNumber()})。`);
                 }
             }
 
