@@ -34,6 +34,11 @@ const config: HardhatUserConfig = {
         ? { mnemonic: process.env.MNEMONIC }
         : [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
+    polygonzkevm: {
+      url: `https://rpc.public.zkevm-test.net`,
+      chainId: 1422,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
     hardhat: {
       initialBaseFeePerGas: 0,
     },

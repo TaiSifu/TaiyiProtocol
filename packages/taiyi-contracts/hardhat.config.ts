@@ -43,21 +43,23 @@ const config: HardhatUserConfig = {
     },
     scrolll2: {
       url: `https://prealpha.scroll.io/l2`,
-      accounts: [
-      ]
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
     polygonzkevm: {
       url: `https://rpc.public.zkevm-test.net`,
       chainId: 1422,
-      accounts: [
-      ]
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
+    arbitrumGoerli: {
+      url: `https://goerli-rollup.arbitrum.io/rpc`,
+      chainId: 421613,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
     // zksync2test: {
     //   url: `https://zksync2-testnet.zksync.dev`,
     //   ethNetwork: "goerli", // Can also be the RPC URL of the network (e.g. `https://goerli.infura.io/v3/<API_KEY>`)
     //   zksync: true,
-    //   accounts: [
-    //   ]
+    //   accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     // },
     hardhat: {
       initialBaseFeePerGas: 0,
@@ -69,7 +71,8 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      polygonzkevm: "IGB5T6EHDPSGFK5J921CHDZZUY3I5489DC" //just fake key
+      polygonzkevm: `${process.env.ETHERSCAN_API_KEY}`,
+      arbitrumGoerli: `${process.env.ETHERSCAN_API_KEY}`
     },
     customChains: [
       {
@@ -79,7 +82,15 @@ const config: HardhatUserConfig = {
           apiURL: "https://explorer.public.zkevm-test.net/api",
           browserURL: "https://explorer.public.zkevm-test.net/"
         }
-      }
+      },
+      // {
+      //   network: "arbitrumGoerli",
+      //   chainId: 421613,
+      //   urls: {
+      //     apiURL: "https://api-goerli.arbiscan.io/",
+      //     browserURL: "https://goerli.arbiscan.io"
+      //   }
+      // },
     ]  
   },
   abiExporter: {

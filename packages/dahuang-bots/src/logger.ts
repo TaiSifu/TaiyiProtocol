@@ -19,13 +19,10 @@ import {
     WorldEventProcessor10000__factory, WorldEventProcessor10001__factory,
     WorldEventProcessor10002__factory, WorldEventProcessor10009__factory, WorldEventProcessor10010__factory,
     WorldEventProcessor10011__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory,
-    WorldZoneBaseResources__factory,
-    DahuangConstants,
-    DahuangConstants__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
-import chalk from 'chalk';
 import { getAddressBookShareFilePath } from '@taiyi/dahuang-contracts/dist/utils/addressConfig';
-import { Intents, Interaction, Message, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,28 +94,31 @@ async function startSyncMain(startBlockNum: number) {
     const actors = Actors__factory.connect(addressBook.Actors, wallet);
     const actorPrelifes = ActorPrelifes__factory.connect(addressBook.ActorPrelifes, wallet);
     const assetDaoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, wallet); 
+    const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    const actorLocations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
+    const actorRelationship = ActorRelationship__factory.connect(addressBook.ActorRelationship, wallet);
+    const worldItems = WorldItems__factory.connect(addressBook.WorldItems, wallet);
+    const actorSID = ActorSocialIdentity__factory.connect(addressBook.ActorSocialIdentity, wallet);
+    const trigrams = Trigrams__factory.connect(addressBook.Trigrams, wallet);
+    const actorBaseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, wallet);
+
+    const dahuangConstants = DahuangConstants__factory.connect(addressBook.DahuangConstants, wallet);
+    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
+    const actorTalents = ActorTalents__factory.connect(addressBook.ActorTalents, wallet);
+    const shejitu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
     const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);
     const assetFood = WorldFungible__factory.connect(addressBook.AssetFood, wallet);
     const assetWood = WorldFungible__factory.connect(addressBook.AssetWood, wallet);
     const assetFabric = WorldFungible__factory.connect(addressBook.AssetFabric, wallet);
     const assetHerb = WorldFungible__factory.connect(addressBook.AssetHerb, wallet);
     const assetPrestige = WorldNontransferableFungible__factory.connect(addressBook.AssetPrestige, wallet);
-    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
-    const actorTalents = ActorTalents__factory.connect(addressBook.ActorTalents, wallet);
-    const shejitu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
-    const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
-    const actorLocations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
-    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
     const worldZoneBaseResources = WorldZoneBaseResources__factory.connect(addressBook.WorldZoneBaseResources, wallet);
-    const actorRelationship = ActorRelationship__factory.connect(addressBook.ActorRelationship, wallet);
-    const worldItems = WorldItems__factory.connect(addressBook.WorldItems, wallet);
-    const actorSID = ActorSocialIdentity__factory.connect(addressBook.ActorSocialIdentity, wallet);
-    const trigrams = Trigrams__factory.connect(addressBook.Trigrams, wallet);
-    const actorBaseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, wallet);
     const actorCharmAttributes = ActorCharmAttributes__factory.connect(addressBook.ActorCharmAttributes, wallet);
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+
     const eventProcessor10000 = WorldEventProcessor10000__factory.connect(addressBook.WorldEventProcessor10000, wallet);
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
     const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);
@@ -127,7 +127,6 @@ async function startSyncMain(startBlockNum: number) {
     const eventProcessor10009 = WorldEventProcessor10009__factory.connect(addressBook.WorldEventProcessor10009, wallet);
     const eventProcessor10010 = WorldEventProcessor10010__factory.connect(addressBook.WorldEventProcessor10010, wallet);
     const eventProcessor10011 = WorldEventProcessor10011__factory.connect(addressBook.WorldEventProcessor10011, wallet);
-    const dahuangConstants = DahuangConstants__factory.connect(addressBook.DahuangConstants, wallet);
 
     let blockNum = await provider.getBlockNumber();
     //console.log(startBlockNum, blockNum);
