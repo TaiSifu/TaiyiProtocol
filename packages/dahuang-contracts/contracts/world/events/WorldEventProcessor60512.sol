@@ -24,8 +24,8 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
-        //你开始建造木工房。
-        return "\xE4\xBD\xA0\xE5\xBC\x80\xE5\xA7\x8B\xE5\xBB\xBA\xE9\x80\xA0\xE6\x9C\xA8\xE5\xB7\xA5\xE6\x88\xBF\xE3\x80\x82";
+        //你开始建造基础建筑。
+        return "\xE4\xBD\xA0\xE5\x85\xB7\xE5\xA4\x87\xE4\xBA\x86\xE7\xBB\x93\xE6\x9E\x84\xE3\x80\x82";
     }
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
@@ -102,7 +102,7 @@ contract WorldEventProcessor60512 is DefaultWorldEventProcessor {
         //消耗道具
         uint256 buildingType = _consume_items(_operator, _actor, _uintParams[0]);
 
-        //创建木工房区域
+        //创建建筑区域
         IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
         uint256[] memory lc = locations.actorLocations(_actor);
         require(lc.length == 2 && lc[0] == lc[1] && locations.isActorUnlocked(_actor), "actor is not at one location and freely");
