@@ -57,12 +57,14 @@ contract WorldItemsHelpers {
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
         if (_itemId > 0) {
             SItem memory _item = _items.item(_itemId);
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">Item #', Strings.toString(_itemId), '</text>'));
+            //物品 #
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE7\x89\xA9\xE5\x93\x81\x20\x23', Strings.toString(_itemId), '</text>'));
             parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', _item.typeName, '</text>'));
             parts[3] = string(abi.encodePacked('<text x="10" y="60" class="base">', _item.shapeName, '</text>'));
             parts[4] = string(abi.encodePacked('<text x="10" y="80" class="base">', '\xE8\x80\x90\xE4\xB9\x85', '=', Strings.toString(_item.wear), '</text>'));
             uint256 actor = _route.actors().getActorByHolder(_items.ownerOf(_itemId)).actorId;
-            parts[5] = string(abi.encodePacked('<text x="10" y="100" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
+            //属于角色#
+            parts[5] = string(abi.encodePacked('<text x="10" y="100" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
         }
         //end svg
         parts[6] = string(abi.encodePacked('</svg>'));

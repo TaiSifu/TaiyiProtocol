@@ -71,8 +71,8 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      polygonzkevm: `${process.env.ETHERSCAN_API_KEY}`,
-      arbitrumGoerli: `${process.env.ETHERSCAN_API_KEY}`
+      polygonzkevm: process.env.ETHERSCAN_API_KEY as string, //just fake key
+      arbitrumGoerli: process.env.ETHERSCAN_API_KEY as string //from https://arbiscan.io/
     },
     customChains: [
       {

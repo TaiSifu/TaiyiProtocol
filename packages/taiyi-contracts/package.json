@@ -23,6 +23,7 @@
     "task:advance-timestamp": "npx hardhat advance-timestamp",
     "task:make-utf8": "npx hardhat make-utf8",
     "task:verify-etherscan": "npx hardhat verify-etherscan",
+    "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
     "flatten": "hardhat flatten ./contracts/${npm_config_name}.sol > ./contracts_flattened/${npm_config_name}.sol",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",

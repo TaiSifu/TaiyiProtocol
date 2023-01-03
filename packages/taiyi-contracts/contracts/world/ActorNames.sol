@@ -221,8 +221,10 @@ contract ActorNames is IActorNames, WorldNonFungible
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
         uint256 actor = nameIDToActors[_nameId];
         if (actor > 0) {
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">Name #', Strings.toString(_nameId), ':', names[_nameId], '</text>'));
-            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
+            //姓名 #
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE5\xA7\x93\xE5\x90\x8D',' #', Strings.toString(_nameId), ':', names[_nameId], '</text>'));
+            //属于角色#
+            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
         }
         //end svg
         parts[3] = string(abi.encodePacked('</svg>'));

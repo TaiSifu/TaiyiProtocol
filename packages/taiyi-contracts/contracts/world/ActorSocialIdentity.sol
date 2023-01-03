@@ -188,9 +188,11 @@ contract ActorSocialIdentity is IActorSocialIdentity, WorldNonFungible {
         //start svg
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
         if (_sid > 0) {
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">SID #', Strings.toString(_sid), ':', _sidName(_sid), '</text>'));
+            //身份 #
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE8\xBA\xAB\xE4\xBB\xBD\x20\x23', Strings.toString(_sid), ':', _sidName(_sid), '</text>'));
             uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_sid)).actorId;
-            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
+            //属于角色#
+            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
         }
         //end svg
         parts[3] = string(abi.encodePacked('</svg>'));

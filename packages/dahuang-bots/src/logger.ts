@@ -731,10 +731,10 @@ async function startSyncMain(startBlockNum: number) {
         }
     }
 
-    // again in 1 second
+    // again in 3 second
     setTimeout(function () {
         startSyncMain(startBlockNum);
-    }, 1000);
+    }, 3000);
 }
 
 export function startLogger() {

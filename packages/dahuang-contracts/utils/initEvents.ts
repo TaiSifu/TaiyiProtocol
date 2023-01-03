@@ -15,18 +15,24 @@ export async function deployEvents(evtMaps:{[index: string]:any}, route: WorldCo
         let deployParams = evtMaps[eventId] || [];
 
         if(eventId != undefined) {
-            let factoryFuncStrs = [
-                `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(rlAddress); }`,
-                `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], rlAddress); }`,
-                `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], params[1], rlAddress); }`,
-                `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], params[1], params[2], rlAddress); }`
-            ];
-            let factoryFun = new Function('return ' + factoryFuncStrs[deployParams.length]);
-            const deployTx = await (await factoryFun()(deployer, factory, deployParams, route.address)).deployed();
-            addressBook[`WorldEventProcessor${eventId}`] = deployTx.address;
+            let processorAddress = await events.eventProcessors(eventId);
+            if(processorAddress == "0x0000000000000000000000000000000000000000") {
+                let factoryFuncStrs = [
+                    `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(rlAddress); }`,
+                    `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], rlAddress); }`,
+                    `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], params[1], rlAddress); }`,
+                    `function gen_factory(deployer, factory, params, rlAddress) { return new factory.WorldEventProcessor${eventId}__factory(deployer).deploy(params[0], params[1], params[2], rlAddress); }`
+                ];
+                let factoryFun = new Function('return ' + factoryFuncStrs[deployParams.length]);
+                const deployTx = await (await factoryFun()(deployer, factory, deployParams, route.address)).deployed();
+                addressBook[`WorldEventProcessor${eventId}`] = deployTx.address;
 
-            let tx = await events.setEventProcessor(eventId, deployTx.address);
-            //await tx.wait();
+                let tx = await events.setEventProcessor(eventId, deployTx.address);
+                await tx.wait();
+            }
+            else {
+                addressBook[`WorldEventProcessor${eventId}`] = processorAddress;
+            }
         }
     }
     process.stdout.write(`\u001B[1000D`);

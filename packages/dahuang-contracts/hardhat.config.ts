@@ -39,6 +39,11 @@ const config: HardhatUserConfig = {
       chainId: 1422,
       accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
+    arbitrumGoerli: {
+      url: `https://goerli-rollup.arbitrum.io/rpc`,
+      chainId: 421613,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
     hardhat: {
       initialBaseFeePerGas: 0,
     },
@@ -48,7 +53,27 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      arbitrumGoerli: process.env.ETHERSCAN_API_KEY as string //from https://arbiscan.io/
+    },
+    customChains: [
+      {
+        network: "polygonzkevm",
+        chainId: 1422,
+        urls: {
+          apiURL: "https://explorer.public.zkevm-test.net/api",
+          browserURL: "https://explorer.public.zkevm-test.net/"
+        }
+      },
+      // {
+      //   network: "arbitrumGoerli",
+      //   chainId: 421613,
+      //   urls: {
+      //     apiURL: "https://api-goerli.arbiscan.io/",
+      //     browserURL: "https://goerli.arbiscan.io"
+      //   }
+      // },
+    ]  
   },
   abiExporter: {
     path: './abi',

@@ -50,7 +50,11 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
         await daoli.claim(actorPanGu, actorPanGu, amount);
 
         let address = args.address;
-        if(address != "0x") {
+        if(address != "0x") { 
+            console.log("盘古提币中...");
+            if(!(await worldYemings.isYeMing(actorPanGu)))
+                await worldYemings.setYeMing(actorPanGu, taisifu.address); //fake address
+
             await daoli.withdraw(actorPanGu, actorPanGu, amount);
             await daoli.transfer(address, amount);
             console.log(`${ethers.utils.formatEther(amount)}道理已经转给地址${address}。`);
