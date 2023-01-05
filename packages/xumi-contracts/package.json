@@ -48,10 +48,11 @@
     "prompt": "^1.1.0",
     "shx": "^0.3.3",
     "solmate": "^6.6.1",
-    "ts-node": "^10.0.0"
+    "ts-node": "^10.9.1"
   },
   "dependencies": {
     "@taiyi/contracts": "^0.1.0",
+    "@taiyi/dahuang-contracts": "^0.1.0",
     "ethers": "^5.4.7"
   }
 }

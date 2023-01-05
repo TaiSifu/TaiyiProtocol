@@ -231,7 +231,7 @@ describe('太乙岛提案、投票并执行对太乙世界的设计和合约组�
         console.log(`投票前冷静期为${VOTING_DELAY}秒`);
     });
 
-    it('社稷图颁发师傅令牌（需要事件，待实现）', async () => {
+    it('噎明颁发师傅令牌', async () => {
         //PagGu mint first two sifus as YeMing for test
         await worldYemings.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
 

@@ -52,8 +52,8 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     uint256 public startZone; //actors in this timeline born in this zone
 
     //map age to event pool ids
-    mapping(uint256 => uint256[]) private _eventIDs; //age to id list
-    mapping(uint256 => uint256[]) private _eventProbs; //age to prob list
+    mapping(uint256 => uint256[]) public eventIDs; //age to id list
+    mapping(uint256 => uint256[]) public eventProbs; //age to prob list
 
     EnumerableSet.AddressSet private _attributeModules;
 
@@ -179,19 +179,19 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
-        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
-        _eventIDs[_age].push(_eventId);
-        _eventProbs[_age].push(_eventProb);
+        require(eventIDs[_age].length == eventProbs[_age].length, "internal ids not match probs");
+        eventIDs[_age].push(_eventId);
+        eventProbs[_age].push(_eventProb);
     }
 
     function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
         onlyOwner
     {
         require(_eventId > 0, "event id must not zero");
-        require(_eventIDs[_age].length == _eventProbs[_age].length, "internal ids not match probs");
-        for(uint256 i=0; i<_eventIDs[_age].length; i++) {
-            if(_eventIDs[_age][i] == _eventId) {
-                _eventProbs[_age][i] = _eventProb;
+        require(eventIDs[_age].length == eventProbs[_age].length, "internal ids not match probs");
+        for(uint256 i=0; i<eventIDs[_age].length; i++) {
+            if(eventIDs[_age][i] == _eventId) {
+                eventProbs[_age][i] = _eventProb;
                 return;
             }
         }
@@ -348,10 +348,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         onlyApprovedOrOwner(_actor)
     {
         //filter events for occurrence
-        uint256[] memory _eventsFiltered = new uint256[](_eventIDs[_age].length);
+        uint256[] memory _eventsFiltered = new uint256[](eventIDs[_age].length);
         uint256 _eventsFilteredNum = 0;
-        for(uint256 i=0; i<_eventIDs[_age].length; i++) {
-            if(events.canOccurred(_actor, _eventIDs[_age][i], _age)) {
+        for(uint256 i=0; i<eventIDs[_age].length; i++) {
+            if(events.canOccurred(_actor, eventIDs[_age][i], _age)) {
                 _eventsFiltered[_eventsFilteredNum] = i;
                 _eventsFilteredNum++;
             }
@@ -359,7 +359,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
 
         uint256 pCt = 0;
         for(uint256 i=0; i<_eventsFilteredNum; i++) {
-            pCt += _eventProbs[_age][_eventsFiltered[i]];
+            pCt += eventProbs[_age][_eventsFiltered[i]];
         }
         uint256 prob = 0;
         if(pCt > 0)
@@ -367,9 +367,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         
         pCt = 0;
         for(uint256 i=0; i<_eventsFilteredNum; i++) {
-            pCt += _eventProbs[_age][_eventsFiltered[i]];
+            pCt += eventProbs[_age][_eventsFiltered[i]];
             if(pCt >= prob) {
-                uint256 _eventId = _eventIDs[_age][_eventsFiltered[i]];
+                uint256 _eventId = eventIDs[_age][_eventsFiltered[i]];
                 uint256 branchEvtId = _processEvent(_actor, _age, _eventId, 0);
 
                 //only support 3 level branchs
@@ -395,9 +395,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
     function _process(uint256 _actor, uint256 _age) internal
         onlyApprovedOrOwner(_actor)
     {
-        require(events.actorBorn(_actor), "WorldTimeline: actor have not born!");
-        //require(_actorEvents[_actor][_age] == 0, "WorldTimeline: actor already have event!");
-        require(_eventIDs[_age].length > 0, "WorldTimeline: not exist any event in this age!");
+        require(events.actorBorn(_actor), "actor have not born!");
+        //require(_actorEvents[_actor][_age] == 0, "actor already have event!");
+        require(eventIDs[_age].length > 0, "not exist any event in this age!");
 
         _processTalents(_actor, _age);
         _processEvents(_actor, _age);

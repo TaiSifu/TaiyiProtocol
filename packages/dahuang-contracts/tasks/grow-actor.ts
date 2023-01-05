@@ -36,7 +36,7 @@ task('grow-actor', '成长角色')
         let actors = Actors__factory.connect(addressBook.Actors, operator1);
         let names = ActorNames__factory.connect(addressBook.ActorNames, operator1);
         let talents = ActorTalents__factory.connect(addressBook.ActorTalents, operator1);
-        let dahuang = ShejiTu__factory.connect(addressBook.ShejituProxy, operator1);
+        let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let events = WorldEvents__factory.connect(addressBook.WorldEvents, operator1);
         let golds = WorldFungible__factory.connect(addressBook.AssetGold, operator1);
         let zones = WorldZones__factory.connect(addressBook.WorldZones, operator1);
@@ -49,27 +49,27 @@ task('grow-actor', '成长角色')
         let actor = args.actor;
         
         let _age = (await events.ages(actor)).toNumber();
-        console.log(`wait and try grow to age${_age+1} ...`);
+        console.log(`wait and try grow to age ${_age+1} ...`);
         //授权时间线
         console.log(`approve actor#${actor.toString()} to Shejitu`);
         await (await actors.approve(dahuang.address, actor)).wait();
         //授权actor的gold给时间线
-        await golds.approveActor(actor, await dahuang.operator(), BigInt(1000e18));
+        await (await golds.approveActor(actor, await dahuang.operator(), BigInt(1000e18))).wait();
         
-        let res = await dahuang.grow(actor, { gasLimit: 5000000 });
+        let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
 
-        console.log(`Taiyi actor #${actor.toString()} age${_age} uri by render mode 1:`);
+        console.log(`Taiyi actor #${actor.toString()} age ${_age} uri by render mode 1:`);
         let uri = await actors.tokenURIByMode(actor, 1);
         logURI(uri);
 
         console.log(`switch to render mode 0...`);
-        await actors.changeActorRenderMode(actor, 0);
+        await (await actors.changeActorRenderMode(actor, 0)).wait();
         uri = await actors.tokenURI(actor);
         console.log(`Taiyi actor #${actor.toString()} age${_age} uri:`);
         logURI(uri);
         
         console.log(`switch to render mode 1...`);
-        await actors.changeActorRenderMode(actor, 1);
+        await (await actors.changeActorRenderMode(actor, 1)).wait();
         uri = await actors.tokenURI(actor);
         logURI(uri);
    });

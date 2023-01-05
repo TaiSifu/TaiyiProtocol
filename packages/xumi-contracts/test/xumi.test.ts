@@ -12,7 +12,7 @@ import {
     SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, 
     ActorSocialIdentity__factory, ActorRelationship__factory, WorldRandom, 
     ActorLocations, Trigrams, WorldRandom__factory, ActorLocations__factory, Trigrams__factory, WorldItems, WorldItems__factory, 
-    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory,
+    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, ShejiTuProxy,
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -185,9 +185,9 @@ describe('须弥时间线基础', () => {
         });
 
         it(`部署须弥时间线`, async ()=>{
-            xumi = ShejiTu__factory.connect((await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_TIMELINE(),
+            xumi = ShejiTu__factory.connect(((await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_TIMELINE(),
                 actors, actorLocations, zones, baseAttributes, worldEvents, talents, trigrams, worldRandom,
-                operator1))[0].address, operator1);
+                operator1))[0] as ShejiTuProxy).address, operator1);
             await worldContractRoute.connect(taiyiDAO).registerModule(await xumiConstants.WORLD_MODULE_TIMELINE(), xumi.address);
         });
 

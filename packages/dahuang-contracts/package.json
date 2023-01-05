@@ -18,9 +18,12 @@
     "task:make-utf8": "npx hardhat make-utf8",
     "task:deploy": "npx hardhat deploy",
     "task:deploy-demo": "npx hardhat deploy-demo",
+    "task:deploy-single": "npx hardhat deploy-single",
     "task:new-actor": "npx hardhat new-actor",
     "task:grow-actor": "npx hardhat grow-actor",
+    "task:collect-assets": "npx hardhat collect-assets",
     "task:run-log": "npx hardhat run-log",
+    "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
   },
@@ -53,10 +56,10 @@
     "prompt": "^1.1.0",
     "shx": "^0.3.3",
     "solmate": "^6.6.1",
-    "ts-node": "^10.0.0"
+    "ts-node": "^10.9.1",
+    "@taiyi/contracts": "^0.1.0"
   },
   "dependencies": {
-    "@taiyi/contracts": "^0.1.0",
     "ethers": "^5.4.7"
   }
 }

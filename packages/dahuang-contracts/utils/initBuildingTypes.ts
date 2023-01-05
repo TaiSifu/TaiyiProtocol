@@ -7,7 +7,7 @@ export async function addBuildingTypes(buildings: WorldBuildings, _types: any) {
     for(var i=0; i<_types.length; i++) {
         process.stdout.write(`\u001B[1000DBuildingTypes ${Math.round(i*100.0/_types.length)}%`);
         let tx = await buildings.setTypeName(_types[i].id, _types[i].name);
-        //await tx.wait();
+        await tx.wait();
     }
 
     process.stdout.write(`\u001B[1000DitemTypes 100%`);

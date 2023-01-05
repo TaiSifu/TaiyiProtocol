@@ -6,8 +6,10 @@ export async function setSIDNames(sids: ActorSocialIdentity, names: any) {
 
     for(var i=0; i<names.length; i++) {
         process.stdout.write(`\u001B[1000DSIDName ${Math.round(i*100.0/names.length)}%`);
-        let tx = await sids.setSIDName(names[i].id, names[i].name);
-        //await tx.wait();
+        if((await sids.names(names[i].id)) == "") {
+            let tx = await sids.setSIDName(names[i].id, names[i].name);
+            //await tx.wait();
+        }
     }
 
     process.stdout.write(`\u001B[1000DSIDName 100%`);

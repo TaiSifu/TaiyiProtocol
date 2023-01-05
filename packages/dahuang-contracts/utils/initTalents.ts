@@ -70,25 +70,37 @@ export const initTalents = async (talentsAddress: string, operator: Signer, taiy
         let attr_point_modifiers = [W_MODULE_CORE_ATTRIBUTES, attr_modifyer];
 
         if (tlt.id != undefined) {
-            let tx = await talents.setTalent(tlt.id, name, description, modifiers, attr_point_modifiers);
-            //await tx.wait();
-            tx = await talents.setTalentExclusive(tlt.id, exclusive);
-            //await tx.wait();
+            if((await talents.talentNames(tlt.id)) == "") {
+                let tx = await talents.setTalent(tlt.id, name, description, modifiers, attr_point_modifiers);
+                await tx.wait();
+                process.stdout.write(`${name}`);
+                if(exclusive.length > 0) {
+                    tx = await talents.setTalentExclusive(tlt.id, exclusive);
+                    await tx.wait();
+                }
+                process.stdout.write(`..exclusive             `);
+            }
         }
     }
     process.stdout.write(`\u001B[1000D`);
 }
 
-export const deployTalentProcessors = async (talentsAddress: string, operator: Signer, route: WorldContractRoute, deployer: SignerWithAddress): Promise<void> => {
+export const deployTalentProcessors = async (talentsAddress: string, operator: Signer, route: WorldContractRoute, deployer: SignerWithAddress) => {
     let talents = ActorTalents__factory.connect(talentsAddress, operator);
     let processor: any;
+    let addressBook :{[index: string]:any} = {};
 
     processor = await (await (new ActorTalentProcessor1010__factory(deployer)).deploy(route.address)).deployed();
-    await talents.setTalentProcessor(1010, processor.address);
+    addressBook.ActorTalentProcessor1010 = processor.address;
+    await (await talents.setTalentProcessor(1010, processor.address)).wait();
 
     processor = await (await (new ActorTalentProcessor1049__factory(deployer)).deploy(route.address)).deployed();
-    await talents.setTalentProcessor(1049, processor.address);
+    addressBook.ActorTalentProcessor1049 = processor.address;
+    await (await talents.setTalentProcessor(1049, processor.address)).wait();
 
     processor = await (await (new ActorTalentProcessor1050__factory(deployer)).deploy(route.address)).deployed();
-    await talents.setTalentProcessor(1050, processor.address);
+    addressBook.ActorTalentProcessor1050 = processor.address;
+    await (await talents.setTalentProcessor(1050, processor.address)).wait();
+
+    return addressBook;
 };

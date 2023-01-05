@@ -161,6 +161,7 @@ describe('角色出生序列事件测试', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,
@@ -177,7 +178,7 @@ describe('角色出生序列事件测试', () => {
         dahuangConstants = DahuangConstants__factory.connect(contracts.DahuangConstants.instance.address, operator1);
         talents = ActorTalents__factory.connect(contracts.ActorTalents.instance.address, operator1);
         worldEvents = WorldEvents__factory.connect(contracts.WorldEvents.instance.address, operator1);
-        shejiTu = ShejiTu__factory.connect(contracts.ShejituProxy.instance.address, operator1);
+        shejiTu = ShejiTu__factory.connect(contracts.ShejiTuProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(contracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(contracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(contracts.AssetFabric.instance.address, operator1);

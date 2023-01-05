@@ -31,7 +31,7 @@ task('new-actor', 'Mint an actor')
         let actors = Actors__factory.connect(addressBook.Actors, operator1);
         let names = ActorNames__factory.connect(addressBook.ActorNames, operator1);
         let talents = ActorTalents__factory.connect(addressBook.ActorTalents, operator1);
-        let dahuang = ShejiTu__factory.connect(addressBook.ShejituProxy, operator1);
+        let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, operator1);
         let zones = WorldZones__factory.connect(addressBook.WorldZones, operator1);
         let baseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, operator1);        
@@ -42,17 +42,22 @@ task('new-actor', 'Mint an actor')
         
         let actor = await actors.nextActor();
         console.log("授权道理扣费权给角色合约...");
-        await daoli.approve(actors.address, BigInt(1000e18));
+        await (await daoli.approve(actors.address, BigInt(1000e18))).wait();
         console.log("铸造角色...");
-        await actors.mintActor(BigInt(1000e18));
+        await (await actors.mintActor(BigInt(1000e18))).wait();
         console.log("角色出生在大荒...");
-        await actors.approve(dahuang.address, actor);
-        await dahuang.bornActor(actor);
+        await (await actors.approve(dahuang.address, actor)).wait();
+        await (await dahuang.bornActor(actor)).wait();
 
-        console.log("角色随机取名...");
-        let actorNameId = await names.nextName();
-        let firstName = `小拼${Math.round(Math.random()*100)}`;
-        await names.claim(firstName, "李", actor);
+        console.log("角色取名...");
+        if(0) {
+            let actorNameId = await names.nextName();
+            let firstName = `小拼${Math.round(Math.random()*100)}`;
+            await (await names.claim(firstName, "李", actor)).wait();
+        }
+        else {
+            await (await names.claim("耀", "李", actor)).wait();
+        }
 
         console.log(`Actor#${actor} has been minted with name \"${(await names.actorName(actor))._name}\" to address ${await actors.ownerOf(actor)}.`);
         console.log(`Taiyi actor #${actor.toString()} uri:`);

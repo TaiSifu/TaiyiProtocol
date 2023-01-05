@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../base/ERC721Enumerable.sol";
-import "../interfaces/WorldInterfaces.sol";
-import "./WorldConfigurable.sol";
+import "./WorldNonfungible.sol";
 import "../libs/Base64.sol";
 
-contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
+contract WorldZones is IWorldZones, WorldNonFungible {
 
     /* *******
      * Globals
@@ -27,7 +25,7 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
      * ****************
      */
 
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Zone", "TYZONE") {
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Zone", "TYZONE", _route) {
     }     
 
     // @dev Claim a zone for a actor.
@@ -171,9 +169,11 @@ contract WorldZones is IWorldZones, WorldConfigurable, ERC721Enumerable {
         //start svg
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
         if (_zoneId > 0) {
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">Name #', Strings.toString(_zoneId), ':', names[_zoneId], '</text>'));
+            //区域 #ID：
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE5\x8C\xBA\xE5\x9F\x9F\x20\x23', Strings.toString(_zoneId), '\xEF\xBC\x9A', names[_zoneId], '</text>'));
             uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_zoneId)).actorId;
-            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
+            //属于角色#
+            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
         }
         //end svg
         parts[3] = string(abi.encodePacked('</svg>'));

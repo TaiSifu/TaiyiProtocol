@@ -12677,6 +12677,50 @@
         "branch": [
         ]
     },
+    "60002": {
+        "id": 60002,
+        "event": "百岁礼",
+        "postEvent": "初始化角色各项属性和天赋",
+        "effect": {
+        },
+       "include": "",
+        "exclude": "",
+        "branch": [
+        ]
+    },
+    "60003": {
+        "id": 60003,
+        "event": "你在某个节气出生",
+        "postEvent": "随机出生节气",
+        "effect": {
+        },
+       "include": "",
+        "exclude": "",
+        "branch": [
+        ]
+    },
+    "60004": {
+        "id": 60004,
+        "event": "你在某个地点出生",
+        "postEvent": "确定出生地点",
+        "effect": {
+        },
+       "include": "",
+        "exclude": "",
+        "branch": [
+        ]
+    },
+    "60005": {
+        "id": 60005,
+        "event": "赋予太乙百子身份",
+        "postEvent": "确定是否是太乙百子身份",
+        "effect": {
+        },
+       "include": "",
+        "exclude": "",
+        "branch": [
+        ]
+    },
     "60504": {
         "id": 60504,
         "event": "花钱课外补习。",
@@ -12704,6 +12748,69 @@
         },
         "include": "",
         "exclude": ""
+    },
+    "60507": {
+        "id": 60507,
+        "event": "你申请了一个初级商会资格。",
+        "postEvent": "消耗威望，申领资格",
+        "effect": {
+        },
+        "include": "",
+        "exclude": ""
+    },
+    "60508": {
+        "id": 60508,
+        "event": "你转世投胎了。",
+        "postEvent": "待认领的新角色",
+        "effect": {
+        },
+        "include": "时间线具备足量道理",
+        "exclude": ""
+    },
+    "60509": {
+        "id": 60509,
+        "event": "你步行前往另外地区",
+        "postEvent": "开始去到另外区域的途中",
+        "effect": {
+            "Location":"位置锁定一段时间"
+        },
+        "include": "",
+        "exclude": "ACT<15"
+    },
+    "60510": {
+        "id": 60510,
+        "event": "村民为你制作了简陋的工具。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60511": {
+        "id": 60511,
+        "event": "创世下九品建筑图纸。",
+        "postEvent": "获得建筑设计图纸",
+        "effect": {
+            "威望": -5e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60512": {
+        "id": 60512,
+        "event": "建造基础建筑。",
+        "postEvent": "消耗图纸开始建设新建筑",
+        "effect": {
+            "威望": -150e18,
+            "gold": -95e18,
+            "wood": -350e18,
+            "fabric": -120e18,
+            "Location": "位置锁定一段时间"
+        },
+        "include": "",
+        "exclude": "ACT<15"
     },
     "60513": {
         "id": 60513,

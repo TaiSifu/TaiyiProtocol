@@ -1,0 +1,144 @@
+specVersion: 0.0.3
+description: >-
+  Taiyi's protocol.
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: WorldEvents
+    network: {{network}}
+    source:
+      address: '{{worldEvents.address}}'
+      abi: WorldEvents
+      startBlock: {{worldEvents.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/worldEvents.ts
+      entities:
+        - Actor
+      abis:
+        - name: WorldEvents
+          file: ../taiyi-contracts/abi/contracts/world/dataset/WorldEvents.sol/WorldEvents.json
+      eventHandlers:
+        - event: Born(indexed uint256)
+          handler: handleBorn
+
+  - kind: ethereum/contract
+    name: ShejiTu
+    network: {{network}}
+    source:
+      address: '{{shejitu.address}}'
+      abi: ShejiTu
+      startBlock: {{shejitu.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/shejitu.ts
+      entities:
+        - Actor
+        - Grow
+        - Active
+        - Event
+      abis:
+        - name: ShejiTu
+          file: ../taiyi-contracts/abi/contracts/ShejiTu.sol/ShejiTu.json
+      eventHandlers:
+        - event: AgeEvent(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleAgeEvent
+        - event: BranchEvent(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleBranchEvent
+        - event: ActiveEvent(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleActiveEvent
+
+  - kind: ethereum/contract
+    name: SifusToken
+    network: {{network}}
+    source:
+      address: '{{sifusToken.address}}'
+      abi: SifusToken
+      startBlock: {{sifusToken.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/sifus-erc-721.ts
+      entities:
+        - Sifu
+        - Seed
+        - Account
+        - Delegate
+        - Governance
+      abis:
+        - name: SifusToken
+          file: ../taiyi-contracts/abi/contracts/SifusToken.sol/SifusToken.json
+      eventHandlers:
+        - event: SifuCreated(indexed address,indexed uint256,(uint48,uint48,uint48,uint48,uint48))
+          handler: handleSifuCreated
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256)
+          handler: handleDelegateVotesChanged
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+          
+  - kind: ethereum/contract
+    name: Actors
+    network: {{network}}
+    source:
+      address: '{{actors.address}}'
+      abi: Actors
+      startBlock: {{actors.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/actors-erc-721.ts
+      entities:
+        - Actor
+        - Account
+      abis:
+        - name: Actors
+          file: ../taiyi-contracts/abi/contracts/Actors.sol/Actors.json
+      eventHandlers:
+        - event: ActorMinted(indexed address,indexed uint256,indexed uint256)
+          handler: handleActorMinted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+          
+  - kind: ethereum/contract
+    name: TaiyiDAO
+    network: {{network}}
+    source:
+      address: '{{taiyiDAO.address}}'
+      abi: TaiyiDAO
+      startBlock: {{taiyiDAO.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/taiyidao.ts
+      entities:
+        - Account
+        - Delegate
+        - Proposal
+        - Vote
+        - Governance
+      abis:
+        - name: TaiyiDAO
+          file: ../taiyi-contracts/abi/contracts/governance/TaiyiDAOLogicV1.sol/TaiyiDAOLogicV1.json
+      eventHandlers:
+        - event: ProposalCreatedWithRequirements(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,uint256,uint256,string)
+          handler: handleProposalCreatedWithRequirements
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+        - event: ProposalVetoed(uint256)
+          handler: handleProposalVetoed
+        - event: ProposalQueued(uint256,uint256)
+          handler: handleProposalQueued
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: VoteCast(indexed address,uint256,uint8,uint256,string)
+          handler: handleVoteCast

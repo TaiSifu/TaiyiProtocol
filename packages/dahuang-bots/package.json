@@ -1,0 +1,63 @@
+{
+  "name": "@taiyi/dahuang-bots",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Taiyi Dahuang backend bots",
+  "author": "Taiyi",
+  "homepage": "https://taiyi.world",
+  "license": "GPL-3.0",
+  "main": "src/index.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "nodemon src/index.ts",
+    "format": "prettier 'src/**/*.ts' --write"
+  },
+  "devDependencies": {
+    "@ethersproject/keccak256": "^5.4.0",
+    "@nomiclabs/buidler": "^1.999.0",
+    "@nomiclabs/buidler-ethers": "^2.0.2",
+    "@nomiclabs/buidler-waffle": "^2.1.0",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@typechain/ethers-v5": "^7.1.0",
+    "@typechain/hardhat": "^2.3.0",
+    "@types/ioredis": "^4.26.4",
+    "@types/node": "^18.11.18",
+    "@types/tmp": "^0.2.1",
+    "ethereum-waffle": "^3.4.0",
+    "ethereumjs-util": "^7.1.0",
+    "fs-extra": "^10.0.0",
+    "hardhat": "^2.6.4",
+    "nodemon": "^2.0.7",
+    "prettier": "^2.1.2",
+    "ts-generator": "^0.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@discordx/importer": "^1.1.2",
+    "@discordx/utilities": "^3.1.5",
+    "@taiyi/contracts": "^0.1.0",
+    "@taiyi/dahuang-contracts": "^0.1.0",
+    "discord.js": "^13.3.1",
+    "discordx": "^9.0.1",
+    "dotenv": "^8.2.0",
+    "ethers": "^5.4.6",
+    "graphql": "^15.3.0",
+    "graphql-request": "^3.1.0",
+    "hardhat-change-network": "^0.0.7",
+    "ioredis": "^4.27.6",
+    "reflect-metadata": "^0.1.13",
+    "sharp": "^0.28.3",
+    "tmp": "^0.2.1",
+    "ts-try": "^0.2.0",
+    "twitter-api-v2": "^1.1.1"
+  }
+}

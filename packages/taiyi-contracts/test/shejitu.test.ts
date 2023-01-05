@@ -9,7 +9,7 @@ import { solidity } from 'ethereum-waffle';
 import {
     WorldConstants, WorldContractRoute, WorldContractRoute__factory, Actors, ShejiTu, ShejiTu__factory, 
     ActorAttributes, SifusToken, SifusDescriptor__factory, WorldEvents, WorldFungible, WorldZones, WorldYemings, 
-    WorldRandom, ActorLocations, ActorTalents, Trigrams,
+    WorldRandom, ActorLocations, ActorTalents, Trigrams, ShejiTuProxy,
 } from '../typechain';
 import {
     blockNumber,
@@ -121,8 +121,8 @@ describe('社稷图全局时间线测试', () => {
             
         let shejiTuPkg = await deployShejiTu("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors, actorLocations, worldZones, actorAttributes,
             worldEvents, actorTalents, trigrams, worldRandom, deployer);
-        shejiTu = ShejiTu__factory.connect(shejiTuPkg[0].address, deployer);
-        shejiTuImpl = ShejiTu__factory.connect(shejiTuPkg[2].address, deployer);
+        shejiTu = ShejiTu__factory.connect((shejiTuPkg[0] as ShejiTuProxy).address, deployer);
+        shejiTuImpl = ShejiTu__factory.connect((shejiTuPkg[2] as ShejiTu).address, deployer);
         await routeByPanGu.registerModule(FAKE_MODULE_TIMELINE, shejiTu.address);
 
         //set PanGu as YeMing for test
@@ -213,15 +213,8 @@ describe('社稷图全局时间线测试', () => {
                 expect(uriObj.data.m_102.base.name).to.eq("测试");
             });
 
-            it('角色生长-未注册角色基础属性情况', async () => {
-                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
-            });
-
-            it('角色生长-注册角色基础属性但未初始化情况', async () => {
-                //register actor attribute to timeline
-                expect((await shejiTu.connect(deployer).registerAttributeModule(actorAttributes.address)).wait()).eventually.fulfilled;
-
-                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("actor dead!");
+            it('角色生长-未配置事件', async () => {
+                await expect(shejiTu.connect(taiyiDAO).grow(actorPanGu)).to.be.revertedWith("not exist any event in this age!");
             });
         });
     });

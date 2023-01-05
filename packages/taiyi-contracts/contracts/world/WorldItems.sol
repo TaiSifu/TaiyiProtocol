@@ -1,21 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../base/ERC721Enumerable.sol";
-import "../interfaces/WorldInterfaces.sol";
-import "./WorldConfigurable.sol";
+import "./WorldNonfungible.sol";
 import "../libs/Base64.sol";
 
-contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
+contract WorldItemsHelpers {
 
-    /* *******
-     * Globals
-     * *******
-     */
-
-    uint256 public override nextItemId = 1;
-
-    string[] public override shapeNames = [
+    string[] public shapeNames = [
         "\xE4\xB8\x8B\xC2\xB7\xE4\xB9\x9D\xE5\x93\x81", //0.下·九品
         "\xE4\xB8\xAD\xC2\xB7\xE5\x85\xAB\xE5\x93\x81", //1.中·八品
         "\xE4\xB8\x8A\xC2\xB7\xE4\xB8\x83\xE5\x93\x81", //2.上·七品
@@ -26,55 +17,6 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
         "\xE7\xBB\x9D\xC2\xB7\xE4\xBA\x8C\xE5\x93\x81", //7.绝·二品
         "\xE7\xA5\x9E\xC2\xB7\xE4\xB8\x80\xE5\x93\x81"  //8.神·一品
     ];
-
-    mapping(uint256 => string) public override typeNames; //typeId => typeName
-    mapping(uint256 => uint256) public override itemTypes;  // item => typeId
-    mapping(uint256 => uint256) public override itemWears;
-    mapping(uint256 => uint256) public override itemShapes;
-
-    /* *********
-     * Modifiers
-     * *********
-     */
-
-    /* ****************
-     * Public Functions
-     * ****************
-     */
-
-    constructor(WorldContractRoute _route) WorldConfigurable(_route) ERC721("Taiyi Items", "TYITEM") {
-    }     
-
-    function mint(uint256 _operator, uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) public override 
-        onlyYeMing(_operator)
-        returns (uint256)
-    {
-        require(_shape <= 8, "invalid shape");
-        //require(keccak256(abi.encodePacked(typeNames[typeId])) == keccak256(abi.encodePacked("")), "typeId invalid");
-        //IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
-        //require(timeline.characterBorn(_actor), 'character have not born in timeline');
-
-        uint256 itemId = nextItemId;
-        _mint(address(0), worldRoute.actors().getActor(_actor).account, itemId);
-        nextItemId++;
-
-        itemTypes[itemId] = _typeId;
-        itemWears[itemId] = _wear;
-        itemShapes[itemId] = _shape;
-        
-        emit ItemCreated(_actor, itemId, _typeId, typeNames[_typeId], _wear, _shape, shapeNames[_shape]);
-
-        return itemId;
-    }
-
-    function setTypeName(uint256 _typeId, string memory _typeName) public
-        onlyPanGu
-    {
-        require(_typeId > 0, "type id can not be zero");
-        require(validateName(_typeName), 'invalid type name');
-
-        typeNames[_typeId] = _typeName;
-    }
 
     // @dev Check if the name string is valid (Alphanumeric and spaces without leading or trailing space)
     function validateName(string memory str) public pure returns (bool) {
@@ -109,6 +51,104 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
         return string(b_lower);
     }
 
+    function tokenURI(uint256 _itemId, WorldItems _items, WorldContractRoute _route) public view returns (string memory) {
+        string[7] memory parts;
+        //start svg
+        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
+        if (_itemId > 0) {
+            SItem memory _item = _items.item(_itemId);
+            //物品 #
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE7\x89\xA9\xE5\x93\x81\x20\x23', Strings.toString(_itemId), '</text>'));
+            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', _item.typeName, '</text>'));
+            parts[3] = string(abi.encodePacked('<text x="10" y="60" class="base">', _item.shapeName, '</text>'));
+            parts[4] = string(abi.encodePacked('<text x="10" y="80" class="base">', '\xE8\x80\x90\xE4\xB9\x85', '=', Strings.toString(_item.wear), '</text>'));
+            uint256 actor = _route.actors().getActorByHolder(_items.ownerOf(_itemId)).actorId;
+            //属于角色#
+            parts[5] = string(abi.encodePacked('<text x="10" y="100" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
+        }
+        //end svg
+        parts[6] = string(abi.encodePacked('</svg>'));
+        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]));
+
+        //start json
+        parts[0] = string(abi.encodePacked('{"name": "Taiyi Items #', Strings.toString(_itemId), '"'));
+        parts[1] = ', "description": "This is not a game."';
+        parts[2] = string(abi.encodePacked(', "data": { '));
+        parts[2] = string(abi.encodePacked(parts[2], '"type":', Strings.toString(_items.itemTypes(_itemId)),','));
+        parts[2] = string(abi.encodePacked(parts[2], '"shape":', Strings.toString(_items.itemShapes(_itemId)),','));
+        parts[2] = string(abi.encodePacked(parts[2], '"wear":', Strings.toString(_items.itemWears(_itemId)),''));
+        parts[2] = string(abi.encodePacked(parts[2], '}'));
+
+        //end json with svg
+        parts[3] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]))));
+
+        //final output
+        return string(abi.encodePacked('data:application/json;base64,', json));
+    }
+}
+
+contract WorldItems is IWorldItems, WorldNonFungible {
+
+    /* *******
+     * Globals
+     * *******
+     */
+
+    uint256 public override nextItemId = 1;
+
+    mapping(uint256 => string) public override typeNames; //typeId => typeName
+    mapping(uint256 => uint256) public override itemTypes;  // item => typeId
+    mapping(uint256 => uint256) public override itemWears;
+    mapping(uint256 => uint256) public override itemShapes;
+
+    WorldItemsHelpers internal _helpers;
+
+    /* *********
+     * Modifiers
+     * *********
+     */
+
+    /* ****************
+     * Public Functions
+     * ****************
+     */
+
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Items", "TYITEM", _route) {
+        _helpers = new WorldItemsHelpers();
+    }     
+
+    function mint(uint256 _operator, uint256 _typeId, uint256 _wear, uint256 _shape, uint256 _actor) public override 
+        onlyYeMing(_operator)
+        returns (uint256)
+    {
+        require(_shape <= 8, "invalid shape");
+        //require(keccak256(abi.encodePacked(typeNames[typeId])) == keccak256(abi.encodePacked("")), "typeId invalid");
+        //IWorldTimeline timeline = IWorldTimeline(worldRoute.modules(WorldConstants.WORLD_MODULE_TIMELINE));
+        //require(timeline.characterBorn(_actor), 'character have not born in timeline');
+
+        uint256 itemId = nextItemId;
+        _mint(address(0), worldRoute.actors().getActor(_actor).account, itemId);
+        nextItemId++;
+
+        itemTypes[itemId] = _typeId;
+        itemWears[itemId] = _wear;
+        itemShapes[itemId] = _shape;
+        
+        emit ItemCreated(_actor, itemId, _typeId, typeNames[_typeId], _wear, _shape, shapeNames(_shape));
+
+        return itemId;
+    }
+
+    function setTypeName(uint256 _typeId, string memory _typeName) public
+        onlyPanGu
+    {
+        require(_typeId > 0, "type id can not be zero");
+        require(_helpers.validateName(_typeName), 'invalid type name');
+
+        typeNames[_typeId] = _typeName;
+    }
+
     /* *****************
      * External Functions
      * *****************
@@ -129,7 +169,7 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
 
         IActors.Actor memory actor = worldRoute.actors().getActorByHolder(itemOwner);
         uint256 shape = itemShapes[_itemId];
-        emit ItemChanged(actor.actorId, _itemId, typeId, typeNames[typeId], _wear, shape, shapeNames[shape]);
+        emit ItemChanged(actor.actorId, _itemId, typeId, typeNames[typeId], _wear, shape, shapeNames(shape));
     }
 
     function burn(uint256 _operator, uint256 _itemId) external override
@@ -210,11 +250,15 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
      * **************
      */
 
+    function shapeNames(uint256 _shapeId) public override virtual view returns (string memory) {
+        return _helpers.shapeNames(_shapeId);
+    }
+
     function item(uint256 _itemId) public override view returns (SItem memory _itemInfo) {
         _itemInfo.typeId = itemTypes[_itemId];
         _itemInfo.typeName = typeNames[_itemInfo.typeId];
         _itemInfo.shapeId = itemShapes[_itemId];
-        _itemInfo.shapeName = shapeNames[_itemInfo.shapeId];
+        _itemInfo.shapeName = shapeNames(_itemInfo.shapeId);
         _itemInfo.wear = itemWears[_itemId];
     }
 
@@ -227,36 +271,6 @@ contract WorldItems is IWorldItems, WorldConfigurable, ERC721Enumerable {
     }
 
     function tokenURI(uint256 _itemId) public override view returns (string memory) {
-        string[7] memory parts;
-        //start svg
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
-        if (_itemId > 0) {
-            SItem memory _item = item(_itemId);
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">Item #', Strings.toString(_itemId), '</text>'));
-            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', _item.typeName, '</text>'));
-            parts[3] = string(abi.encodePacked('<text x="10" y="60" class="base">', _item.shapeName, '</text>'));
-            parts[4] = string(abi.encodePacked('<text x="10" y="80" class="base">', '\xE8\x80\x90\xE4\xB9\x85', '=', Strings.toString(_item.wear), '</text>'));
-            uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_itemId)).actorId;
-            parts[5] = string(abi.encodePacked('<text x="10" y="100" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
-        }
-        //end svg
-        parts[6] = string(abi.encodePacked('</svg>'));
-        string memory svg = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]));
-
-        //start json
-        parts[0] = string(abi.encodePacked('{"name": "Taiyi Items #', Strings.toString(_itemId), '"'));
-        parts[1] = ', "description": "This is not a game."';
-        parts[2] = string(abi.encodePacked(', "data": { '));
-        parts[2] = string(abi.encodePacked(parts[2], '"type":', Strings.toString(itemTypes[_itemId]),','));
-        parts[2] = string(abi.encodePacked(parts[2], '"shape":', Strings.toString(itemShapes[_itemId]),','));
-        parts[2] = string(abi.encodePacked(parts[2], '"wear":', Strings.toString(itemWears[_itemId]),''));
-        parts[2] = string(abi.encodePacked(parts[2], '}'));
-
-        //end json with svg
-        parts[3] = string(abi.encodePacked(', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'));
-        string memory json = Base64.encode(bytes(string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]))));
-
-        //final output
-        return string(abi.encodePacked('data:application/json;base64,', json));
+        return _helpers.tokenURI(_itemId, this, worldRoute);
     }
 }

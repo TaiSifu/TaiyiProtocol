@@ -80,11 +80,11 @@ contract WorldFungible is IWorldFungible, ERC20, WorldConfigurable {
      * View Functions
      * **************
      */
-    function balanceOfActor(uint256 _owner) external override view returns (uint) {
+    function balanceOfActor(uint256 _owner) external override view returns (uint256) {
         return balanceOf(worldRoute.actors().getActor(_owner).account);
     }
 
-    function allowanceActor(uint256 _owner, uint256 _spender) external override view returns (uint) {
+    function allowanceActor(uint256 _owner, uint256 _spender) external override view returns (uint256) {
         return allowance(worldRoute.actors().getActor(_owner).account, worldRoute.actors().getActor(_spender).account);
     }
 

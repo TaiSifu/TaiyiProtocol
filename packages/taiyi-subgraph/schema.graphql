@@ -1,0 +1,269 @@
+type Seed @entity {
+  "The Sifu's ERC721 token id"
+  id: ID!
+
+  "The background index"
+  background: BigInt!
+
+  "The part1 index"
+  part1: BigInt!
+
+  "The part2 index"
+  part2: BigInt!
+
+  "The part3 index"
+  part3: BigInt!
+
+  "The part4 index"
+  part4: BigInt!
+}
+
+type Sifu @entity {
+  "The Sifu's ERC721 token id"
+  id: ID!
+
+  "The seed used to determine the Sifu's traits"
+  seed: Seed
+
+  "The owner of the Sifu"
+  owner: Account!
+
+  "Historical votes for the Sifu"
+  votes: [Vote!]! @derivedFrom(field: "sifus")
+}
+
+type Actor @entity {
+  "The Actor's ERC721 token id"
+  id: ID!
+
+  "The owner of the Actor"
+  owner: Account!
+
+  "born or not"
+  born: Boolean
+}
+
+type Grow @entity {
+  "Grow transaction hash"
+  id: ID!
+
+  "The Actor being grown"
+  actor: Actor!
+
+  "Age"
+  age: BigInt!
+
+  "Block number of the grown"
+  blockNumber: BigInt!
+
+  "Index of transaction within block"
+  txIndex: BigInt!
+
+  "The timestamp of the block the bid is in"
+  blockTimestamp: BigInt!
+
+  "events in this grown"
+  events: [Event!]!
+}
+
+type Active @entity {
+  "Active Trigger transaction hash"
+  id: ID!
+
+  "The Actor being trigger"
+  actor: Actor!
+
+  "Age"
+  age: BigInt!
+
+  "Block number of the grown"
+  blockNumber: BigInt!
+
+  "Index of transaction within block"
+  txIndex: BigInt!
+
+  "The timestamp of the block the bid is in"
+  blockTimestamp: BigInt!
+
+  "events in this active trigger"
+  events: [Event!]!
+}
+
+type Event @entity {
+  "Unique entity used to keep track of common aggregated data"
+  id: ID!
+
+  "event id in shejitu"
+  evtId: BigInt!
+
+  "The Actor"
+  actor: Actor!
+
+  "Age"
+  age: BigInt!
+}
+
+enum ProposalStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  VETOED
+  QUEUED
+  EXECUTED
+}
+
+type Account @entity {
+  "An Account is any address that holds any amount of Sifus or Actors, the id used is the blockchain address."
+  id: ID!
+
+  "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
+  delegate: Delegate
+
+  "Sifu balance of this address expressed in the smallest unit of the Sifus ERC721 Token"
+  tokenBalanceRaw: BigInt!
+
+  "Sifu balance of this address expressed as a BigInt normalized value for the Sifus ERC721 Token"
+  tokenBalance: BigInt!
+
+  "Total amount of Sifus ever held by this address expressed in the smallest unit of the Sifus ERC721 Token"
+  totalTokensHeldRaw: BigInt!
+
+  "Total amount of Sifus ever held by this address expressed as a BigInt normalized value for the Sifus ERC721 Token"
+  totalTokensHeld: BigInt!
+
+  "The Sifus owned by this account"
+  sifus: [Sifu!]!
+
+  "The Actors owned by this account"
+  actors: [Actor!]!
+}
+
+type Delegate @entity {
+  "A Delegate is any address that has been delegated with voting tokens by a token holder, id is the blockchain address of said delegate"
+  id: ID!
+
+  "Amount of votes delegated to this delegate to be used on proposal votings expressed in the smallest unit of the Sifus ERC721 Token"
+  delegatedVotesRaw: BigInt!
+
+  "Amount of votes delegated to this delegate to be used on proposal votings expressed as a BigInt normalized value for the Sifus ERC721 Token"
+  delegatedVotes: BigInt!
+
+  tokenHoldersRepresentedAmount: Int!
+
+  "Token holders that this delegate represents"
+  tokenHoldersRepresented: [Account!]! @derivedFrom(field: "delegate")
+
+  "Sifus that this delegate represents"
+  sifusRepresented: [Sifu!]!
+
+  "Votes that a delegate has made in different proposals"
+  votes: [Vote!]! @derivedFrom(field: "voter")
+
+  "Proposals that the delegate has created"
+  proposals: [Proposal!]! @derivedFrom(field: "proposer")
+}
+
+type Proposal @entity {
+  "Internal proposal ID, in this implementation it seems to be a autoincremental id"
+  id: ID!
+
+  "Delegate that proposed the change"
+  proposer: Delegate!
+
+  "Targets data for the change"
+  targets: [Bytes!]
+
+  "Values data for the change"
+  values: [BigInt!]
+
+  "Signature data for the change"
+  signatures: [String!]
+
+  "Call data for the change"
+  calldatas: [Bytes!]
+
+  "The proposal creation timestamp"
+  createdTimestamp: BigInt!
+
+  "Block number from where the voting starts"
+  startBlock: BigInt!
+
+  "Block number from where the voting ends"
+  endBlock: BigInt!
+
+  "The proposal threshold at the time of proposal creation"
+  proposalThreshold: BigInt!
+
+  "The required number of votes for quorum at the time of proposal creation"
+  quorumVotes: BigInt!
+
+  "String description of the change"
+  description: String!
+
+  "Status of the proposal"
+  status: ProposalStatus!
+
+  "Once the proposal is queued for execution it will have an ETA of the execution"
+  executionETA: BigInt
+
+  "Votes associated to this proposal"
+  votes: [Vote!]! @derivedFrom(field: "proposal")
+}
+
+type Vote @entity {
+  "Delegate ID + Proposal ID"
+  id: ID!
+
+  "Whether the vote is in favour of the proposal"
+  support: Boolean!
+
+  "The integer support value: against (0), for (1), or abstain (2)"
+  supportDetailed: Int!
+
+  "Amount of votes in favour or against expressed in the smallest unit of the Sifus ERC721 Token"
+  votesRaw: BigInt!
+
+  "Amount of votes in favour or against expressed as a BigInt normalized value for the Sifus ERC721 Token"
+  votes: BigInt!
+
+  "The optional vote reason"
+  reason: String
+
+  "Delegate that emitted the vote"
+  voter: Delegate!
+
+  "The Sifus used to vote"
+  sifus: [Sifu!]
+
+  "Proposal that is being voted on"
+  proposal: Proposal!
+}
+
+type Governance @entity {
+  "Unique entity used to keep track of common aggregated data"
+  id: ID!
+
+  "Number of proposals created"
+  proposals: BigInt!
+
+  "Total number of token holders currently"
+  currentTokenHolders: BigInt!
+
+  "Total number of delegates participating on the governance currently"
+  currentDelegates: BigInt!
+
+  "Total number of token holders"
+  totalTokenHolders: BigInt!
+
+  "Total number of delegates that held delegated votes"
+  totalDelegates: BigInt!
+
+  "Total number of votes delegated expressed in the smallest unit of the Sifus ERC721 Token"
+  delegatedVotesRaw: BigInt!
+
+  "Total number of votes delegated expressed as a BigInt normalized value for the Sifus ERC721 Token"
+  delegatedVotes: BigInt!
+
+  "Number of proposals currently queued for execution"
+  proposalsQueued: BigInt!
+}

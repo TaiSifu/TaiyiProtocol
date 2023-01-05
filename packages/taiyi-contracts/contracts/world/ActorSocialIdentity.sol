@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "../interfaces/WorldInterfaces.sol";
 import "../libs/Base64.sol";
-import "../base/ERC721Enumerable.sol";
-import "./WorldConfigurable.sol";
+import "./WorldNonfungible.sol";
 
-contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldConfigurable {
+contract ActorSocialIdentity is IActorSocialIdentity, WorldNonFungible {
 
     /* *******
      * Globals
@@ -28,7 +26,7 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
      * ****************
      */
 
-    constructor(WorldContractRoute _route) ERC721("Taiyi Social Identity", "TYSID") WorldConfigurable(_route) {
+    constructor(WorldContractRoute _route) WorldNonFungible("Taiyi Social Identity", "TYSID", _route) {
     }     
 
     // @dev Claim a sid for a actor. actor must hold the required gold.
@@ -89,19 +87,19 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
     }
 
     // @dev Converts the string to lowercase
-    function toLower(string memory str) public pure returns (string memory) {
-        bytes memory b_str = bytes(str);
-        bytes memory b_lower = new bytes(b_str.length);
-        for (uint256 i = 0; i < b_str.length; i++) {
-            // Uppercase character
-            if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
-                b_lower[i] = bytes1(uint8(b_str[i]) + 32);
-            } else {
-                b_lower[i] = b_str[i];
-            }
-        }
-        return string(b_lower);
-    }
+    // function toLower(string memory str) public pure returns (string memory) {
+    //     bytes memory b_str = bytes(str);
+    //     bytes memory b_lower = new bytes(b_str.length);
+    //     for (uint256 i = 0; i < b_str.length; i++) {
+    //         // Uppercase character
+    //         if ((uint8(b_str[i]) >= 65) && (uint8(b_str[i]) <= 90)) {
+    //             b_lower[i] = bytes1(uint8(b_str[i]) + 32);
+    //         } else {
+    //             b_lower[i] = b_str[i];
+    //         }
+    //     }
+    //     return string(b_lower);
+    // }
 
     /* *****************
      * Internal Functions
@@ -190,9 +188,11 @@ contract ActorSocialIdentity is IActorSocialIdentity, ERC721Enumerable, WorldCon
         //start svg
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" />';
         if (_sid > 0) {
-            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">SID #', Strings.toString(_sid), ':', _sidName(_sid), '</text>'));
+            //身份 #
+            parts[1] = string(abi.encodePacked('<text x="10" y="20" class="base">', '\xE8\xBA\xAB\xE4\xBB\xBD\x20\x23', Strings.toString(_sid), ':', _sidName(_sid), '</text>'));
             uint256 actor = worldRoute.actors().getActorByHolder(ownerOf(_sid)).actorId;
-            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">Belongs to actor#', Strings.toString(actor), '</text>'));
+            //属于角色#
+            parts[2] = string(abi.encodePacked('<text x="10" y="40" class="base">', '\xE5\xB1\x9E\xE4\xBA\x8E\xE8\xA7\x92\xE8\x89\xB2\x23', Strings.toString(actor), '</text>'));
         }
         //end svg
         parts[3] = string(abi.encodePacked('</svg>'));

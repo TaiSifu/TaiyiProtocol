@@ -1,0 +1,23 @@
+{
+  "network": "mainnet",
+  "sifusToken": {
+    "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+    "startBlock": 1
+  },
+  "actors": {
+    "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    "startBlock": 1
+  },
+  "shejitu": {
+    "address": "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+    "startBlock": 1
+  },
+  "taiyiDAO": {
+    "address": "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+    "startBlock": 1
+  },
+  "worldEvents": {
+    "address": "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+    "startBlock": 1
+  }
+}

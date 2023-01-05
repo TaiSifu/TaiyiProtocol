@@ -12,5 +12,6 @@
   ],
   "files": ["./hardhat.config.ts"],
   "references": [
+    {"path": "../taiyi-contracts"},
   ]
 }

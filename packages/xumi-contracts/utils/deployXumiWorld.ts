@@ -15,7 +15,7 @@ import { initTimeline } from './initTimeline';
 import {
     WorldConstants, WorldContractRoute, WorldFungible, 
     WorldFungible__factory, Actors, ActorLocations, Trigrams, WorldRandom, WorldYemings, WorldZones,
-    ActorTalents, ActorAttributes, WorldItems, WorldEvents, ShejiTu__factory
+    ActorTalents, ActorAttributes, WorldItems, WorldEvents, ShejiTu__factory, ShejiTuProxy, ShejiTuProxyAdmin, ShejiTu
 } from '@taiyi/contracts/dist/typechain';
 import { deployShejiTu } from '@taiyi/contracts/dist/utils';
 
@@ -98,7 +98,7 @@ export const deployXumiWorld = async (oneAgeVSecond : number, route: WorldContra
     if(verbose) console.log("Deploy Xumi...");
     let xumiPkg = await deployShejiTu("须弥", "所在时间线：须弥", await xumiConstants.WORLD_MODULE_TIMELINE(), 
         actors, locations, zones, attributes, worldEvents, actorTalents, trigrams, random, deployer);
-    let xumi = ShejiTu__factory.connect(xumiPkg[0].address, deployer); //CAST proxy as ShejiTu
+    let xumi = ShejiTu__factory.connect((xumiPkg[0] as ShejiTuProxy).address, deployer); //CAST proxy as ShejiTu
     await route.connect(operatorDAO).registerModule(await xumiConstants.WORLD_MODULE_TIMELINE(), xumi.address);
     await xumi.registerAttributeModule(actorXumiAttributes.address);
 
@@ -153,9 +153,9 @@ export const deployXumiWorld = async (oneAgeVSecond : number, route: WorldContra
 
     let contracts: Record<XumiContractName, WorldContract> = {        
         XumiConstants: {instance: xumiConstants},
-        XumiProxy: {instance: xumiPkg[0]},
-        XumiProxyAdmin: {instance: xumiPkg[1]},
-        Xumi: {instance: xumiPkg[2]},
+        XumiProxy: {instance: xumiPkg[0] as ShejiTuProxy},
+        XumiProxyAdmin: {instance: xumiPkg[1] as ShejiTuProxyAdmin},
+        Xumi: {instance: xumiPkg[2] as ShejiTu},
         AssetEnergy: {instance: assetEnergy},
         AssetElementH: {instance: assetElementH},
         ActorXumiAttributes: {instance: actorXumiAttributes},

@@ -213,6 +213,7 @@ describe('大荒到须弥', () => {
             worldRandom, worldItems, actorSIDs, 
             deployer, taiyiDAO, 
             {
+                isTest: true,
                 noSIDNames : true,
                 noTalents : true,
                 noTalentProcessors : true,
@@ -229,7 +230,7 @@ describe('大荒到须弥', () => {
         dahuangConstants = DahuangConstants__factory.connect(dahuangContracts.DahuangConstants.instance.address, operator1);
         dahuangTalents = ActorTalents__factory.connect(dahuangContracts.ActorTalents.instance.address, operator1);
         dahuangWorldEvents = WorldEvents__factory.connect(dahuangContracts.WorldEvents.instance.address, operator1);
-        dahuang = ShejiTu__factory.connect(dahuangContracts.ShejituProxy.instance.address, operator1);
+        dahuang = ShejiTu__factory.connect(dahuangContracts.ShejiTuProxy.instance.address, operator1);
         golds = WorldFungible__factory.connect(dahuangContracts.AssetGold.instance.address, operator1);
         woods = WorldFungible__factory.connect(dahuangContracts.AssetWood.instance.address, operator1);
         fabrics = WorldFungible__factory.connect(dahuangContracts.AssetFabric.instance.address, operator1);

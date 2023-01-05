@@ -7,7 +7,7 @@ export async function addRelations(relationship: ActorRelationship, _relations: 
     for(var i=0; i<_relations.length; i++) {
         process.stdout.write(`\u001B[1000DRelations ${Math.round(i*100.0/_relations.length)}%`);
         let tx = await relationship.setRelation(_relations[i].id, _relations[i].name);
-        //await tx.wait();
+        await tx.wait();
     }
 
     process.stdout.write(`\u001B[1000DRelations 100%`);

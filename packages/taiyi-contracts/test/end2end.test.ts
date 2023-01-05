@@ -222,7 +222,7 @@ describe('太乙岛和社稷图端对端测试（合约部署，颁发师傅令�
         expect(await worldYemings.isYeMing(await shejiTu.operator())).to.eq(true);
     });
 
-    it('社稷图颁发师傅令牌（需要事件，待实现）', async () => {
+    it('噎明颁发师傅令牌', async () => {
         //PagGu mint first two sifus as YeMing for test
         await worldYemings.connect(taiyiDAO).setYeMing(await worldConstants.ACTOR_PANGU(), taiyiDAO.address);
 

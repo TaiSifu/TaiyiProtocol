@@ -46,9 +46,13 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor {
     {
         require(_uintParams.length>0, "params is invalid");
         uint256 zoneId = _uintParams[0];
-        require(zoneId >=1 && zoneId <=135, "collect zone is not valid");
+        require(zoneId >=1, "collect zone is not valid");
         //IWorldZones zones = IWorldZones(worldRoute.modules(WorldConstants.WORLD_MODULE_ZONES));
         //require(bytes(zones.names(zoneId)).length > 0, "zone is not exist");
+
+        IActorLocations lcs = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
+        uint256[] memory lc = lcs.actorLocations(_actor);
+        require(zoneId == lc[1], "must collect at actor located zone");
 
         //approve zone res module the authority of timeline operator
         address zoneResAddress = worldRoute.modules(DahuangConstants.WORLD_MODULE_ZONE_BASE_RESOURCES);

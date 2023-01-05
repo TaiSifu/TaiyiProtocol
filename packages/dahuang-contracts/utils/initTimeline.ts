@@ -7,7 +7,7 @@ export async function addTimeline(timeline: ShejiTu, age: BigNumber, ageEvts: an
     for(var i=0; i<ageEvts.length; i++) {
         process.stdout.write(`\u001B[1000Dage ${age} ${Math.round(i*100.0/ageEvts.length)}%`);
         let tx = await timeline.addAgeEvent(age, ageEvts[i][0], `${ageEvts[i][1]}`);
-        //await tx.wait();
+        await tx.wait();
     }
 
     process.stdout.write(`\u001B[1000Dage ${age} 100%`);
@@ -20,6 +20,8 @@ export async function initTimeline(timelineAddress: string, operator: Signer) {
     let ages = Object.keys(events);
     for(var ageId=0; ageId<ages.length; ageId++) {
         let age = ages[ageId];
+        if(age == "999999999") //no need to add this age's events which are just for event deployment
+            continue;
         let ageEvts = events[age].event;
         if(ageEvts != undefined) {
             let ageEvtsKeys = Object.keys(ageEvts);
@@ -31,9 +33,9 @@ export async function initTimeline(timelineAddress: string, operator: Signer) {
             });
 
             for(var i=0; i<evtIds.length; i++) {
-                process.stdout.write(`\u001B[1000Dage ${age} ${Math.round(i*100.0/evtIds.length)}%`);
                 let tx = await timeline.addAgeEvent(age, evtIds[i][0], `${evtIds[i][1]}`);
-                //await tx.wait();
+                await tx.wait();
+                process.stdout.write(`\u001B[1000Dage ${age} ${Math.round(i*100.0/evtIds.length)}%`);
             }
         }
     }

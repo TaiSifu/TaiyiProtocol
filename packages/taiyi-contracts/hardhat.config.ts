@@ -9,6 +9,8 @@ import 'hardhat-abi-exporter';
 import "hardhat-change-network";
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-gas-reporter';
+// import '@matterlabs/hardhat-zksync-deploy';
+// import '@matterlabs/hardhat-zksync-solc';
 import './tasks';
 
 dotenv.config();
@@ -23,6 +25,11 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  // zksolc: {
+  //   version: "1.2.1",
+  //   compilerSource: "binary",
+  //   settings: {},
+  // },
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -34,6 +41,26 @@ const config: HardhatUserConfig = {
         ? { mnemonic: process.env.MNEMONIC }
         : [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
+    scrolll2: {
+      url: `https://prealpha.scroll.io/l2`,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
+    polygonzkevm: {
+      url: `https://rpc.public.zkevm-test.net`,
+      chainId: 1422,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
+    arbitrumGoerli: {
+      url: `https://goerli-rollup.arbitrum.io/rpc`,
+      chainId: 421613,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
+    // zksync2test: {
+    //   url: `https://zksync2-testnet.zksync.dev`,
+    //   ethNetwork: "goerli", // Can also be the RPC URL of the network (e.g. `https://goerli.infura.io/v3/<API_KEY>`)
+    //   zksync: true,
+    //   accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    // },
     hardhat: {
       initialBaseFeePerGas: 0,
     },
@@ -43,7 +70,28 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      polygonzkevm: process.env.ETHERSCAN_API_KEY as string, //just fake key
+      arbitrumGoerli: process.env.ETHERSCAN_API_KEY as string //from https://arbiscan.io/
+    },
+    customChains: [
+      {
+        network: "polygonzkevm",
+        chainId: 1422,
+        urls: {
+          apiURL: "https://explorer.public.zkevm-test.net/api",
+          browserURL: "https://explorer.public.zkevm-test.net/"
+        }
+      },
+      // {
+      //   network: "arbitrumGoerli",
+      //   chainId: 421613,
+      //   urls: {
+      //     apiURL: "https://api-goerli.arbiscan.io/",
+      //     browserURL: "https://goerli.arbiscan.io"
+      //   }
+      // },
+    ]  
   },
   abiExporter: {
     path: './abi',
