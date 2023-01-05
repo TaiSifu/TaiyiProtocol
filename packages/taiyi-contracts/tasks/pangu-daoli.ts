@@ -47,22 +47,22 @@ task('pangu-daoli', '盘古铸造一些道理给指定角色')
         
         console.log("盘古铸币中...");
         let amount = ethers.utils.parseEther(args.amount);
-        await daoli.claim(actorPanGu, actorPanGu, amount);
+        await (await daoli.claim(actorPanGu, actorPanGu, amount)).wait();
 
         let address = args.address;
         if(address != "0x") { 
             console.log("盘古提币中...");
             if(!(await worldYemings.isYeMing(actorPanGu)))
-                await worldYemings.setYeMing(actorPanGu, taisifu.address); //fake address
+                await (await worldYemings.setYeMing(actorPanGu, taisifu.address)).wait(); //fake address
 
-            await daoli.withdraw(actorPanGu, actorPanGu, amount);
-            await daoli.transfer(address, amount);
+            await (await daoli.withdraw(actorPanGu, actorPanGu, amount)).wait();
+            await (await daoli.transfer(address, amount)).wait();
             console.log(`${ethers.utils.formatEther(amount)}道理已经转给地址${address}。`);
             return;
         }
 
         let actor = args.actor || actorPanGu;
         if(actor != actorPanGu)
-            await daoli.transferFromActor(actorPanGu, actorPanGu, actor, amount);
+            await (await daoli.transferFromActor(actorPanGu, actorPanGu, actor, amount)).wait();
         console.log(`${ethers.utils.formatEther(amount)}道理已经转给角色#${actor}。`);
     });

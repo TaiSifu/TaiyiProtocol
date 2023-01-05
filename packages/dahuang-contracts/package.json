@@ -21,6 +21,7 @@
     "task:deploy-single": "npx hardhat deploy-single",
     "task:new-actor": "npx hardhat new-actor",
     "task:grow-actor": "npx hardhat grow-actor",
+    "task:collect-assets": "npx hardhat collect-assets",
     "task:run-log": "npx hardhat run-log",
     "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
     "coverage": "npx hardhat coverage",

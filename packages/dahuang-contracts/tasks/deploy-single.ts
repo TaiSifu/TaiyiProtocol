@@ -15,7 +15,7 @@ import {
     deployActorBehaviorAttributes, deployActorCharmAttributes, deployActorCoreAttributes, deployActorMoodAttributes, 
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldSeasons, 
-    deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initZones, WorldContract } from '../utils';
+    deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
 import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
@@ -86,17 +86,6 @@ task('deploy-single', '部署单一大荒合约')
         // console.log(`contract constructor arguments book:`);
         // console.log(JSON.stringify(argsBook, null, 2));
 
-        console.log("Initialize Zones...");
-        let actorPanGu = await worldConstants.ACTOR_PANGU();
-        //bind timeline to a zone
-        //let dahuangZone = await zones.nextZone();
-        //await (await zones.connect(taisifu).claim(actorPanGu, "大荒", shejiTu.address, actorPanGu)).wait();
-        //await (await shejiTu.connect(deployer).setStartZone(dahuangZone.sub(1))).wait();
-
-        //born PanGu
-        // await (await actors.connect(taisifu).approve(shejiTu.address, actorPanGu)).wait();
-        // await (await shejiTu.connect(taisifu).bornActor(actorPanGu)).wait();
-        
-        //init zones by PanGu
-        await initZones(worldConstants, shejiTu.address, taisifu);
+        console.log("Initialize Dahuang Timeline...");
+        await initTimeline(shejiTu.address, deployer);
     });

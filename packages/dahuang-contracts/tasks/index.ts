@@ -1,6 +1,7 @@
 export * from './make-utf8';
 export * from './new-actor';
 export * from './grow-actor';
+export * from './collect-assets';
 export * from './deploy';
 export * from './deploy-demo';
 export * from './deploy-single';

@@ -84,6 +84,18 @@ export function addChannel(channel: TextChannel) {
     channels.push(channel);
 }
 
+let _RL_ATTRIBUTE_BASE : BigNumber;
+let _RL_ATTRIBUTE_CHARM_BASE : BigNumber;
+let _RL_ATTRIBUTE_CORE_BASE : BigNumber;
+let _RL_ATTRIBUTE_MOOD_BASE : BigNumber;
+let _RL_ATTRIBUTE_BEHAVIOR_BASE : BigNumber;
+
+let RL_ATTRIBUTE_ACT : BigNumber;
+
+let ACTOR_GUANGONG : BigNumber;
+let IsConstInitialized = false;
+
+
 async function startSyncMain(startBlockNum: number) {
     if (addressBook["WorldConstants"] == undefined) {
         await initAddress();
@@ -128,11 +140,25 @@ async function startSyncMain(startBlockNum: number) {
     const eventProcessor10010 = WorldEventProcessor10010__factory.connect(addressBook.WorldEventProcessor10010, wallet);
     const eventProcessor10011 = WorldEventProcessor10011__factory.connect(addressBook.WorldEventProcessor10011, wallet);
 
+    if(!IsConstInitialized) {
+        _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
+        _RL_ATTRIBUTE_CHARM_BASE = await dahuangConstants.ATTR_BASE_CHARM();
+        _RL_ATTRIBUTE_CORE_BASE = await dahuangConstants.ATTR_BASE_CORE();
+        _RL_ATTRIBUTE_MOOD_BASE = await dahuangConstants.ATTR_BASE_MOOD();
+        _RL_ATTRIBUTE_BEHAVIOR_BASE = await dahuangConstants.ATTR_BASE_BEHAVIOR();
+    
+        RL_ATTRIBUTE_ACT = await dahuangConstants.ATTR_ACT();
+    
+        ACTOR_GUANGONG = await worldZoneBaseResources.ACTOR_GUANGONG();    
+    
+        IsConstInitialized = true;
+    }
+    
     let blockNum = await provider.getBlockNumber();
     //console.log(startBlockNum, blockNum);
 
     let actorMinted_filter = actors.filters.ActorMinted(null, null, null);
-    let actorBorn_filter = worldEvents.filters.Born(null);
+    let eventBorn_filter = worldEvents.filters.Born(null);
     let timeline_ageEvent_filter = shejitu.filters.AgeEvent(null, null, null);
     let timeline_branchEvent_filter = shejitu.filters.BranchEvent(null, null, null);
     let timeline_activeEvent_filter = shejitu.filters.ActiveEvent(null, null, null);
@@ -163,578 +189,645 @@ async function startSyncMain(startBlockNum: number) {
     let reincarnation_filter = actorPrelifes.filters.Reincarnation(null, null);
     let actorLoacationChanged_filter = actorLocations.filters.ActorLocationChanged(null, null, null, null, null);
 
-    let _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
-    let _RL_ATTRIBUTE_CHARM_BASE = await dahuangConstants.ATTR_BASE_CHARM();
-    let _RL_ATTRIBUTE_CORE_BASE = await dahuangConstants.ATTR_BASE_CORE();
-    let _RL_ATTRIBUTE_MOOD_BASE = await dahuangConstants.ATTR_BASE_MOOD();
-    let _RL_ATTRIBUTE_BEHAVIOR_BASE = await dahuangConstants.ATTR_BASE_BEHAVIOR();
-
-    let RL_ATTRIBUTE_ACT = await dahuangConstants.ATTR_ACT();
-
-    let ACTOR_GUANGONG = await worldZoneBaseResources.ACTOR_GUANGONG();
-
     if (channels.length > 0 && startBlockNum <= blockNum) {
         while (true) {
-            //console.log(startBlockNum);
-            let block = await provider.getBlock(startBlockNum);
+            console.log(startBlockNum);
+            //let block = await provider.getBlock(startBlockNum);
+            let endBlockNum = Math.min(blockNum, startBlockNum + 100);
+            //let endBlock = await provider.getBlock(endBlockNum);
+
+            let event_promises:Promise<void>[] = [];
 
             //Create actor events
-            let actorMinted_event = await actors.queryFilter(actorMinted_filter, block.hash);
-            if (actorMinted_event.length > 0) {
-                //console.log(actorMinted_event);
-                for (var e = 0; e < actorMinted_event.length; e++) {
-                    let owner = actorMinted_event[e].args.owner;
-                    let actor = actorMinted_event[e].args.actorId.toNumber();
-                    let time = actorMinted_event[e].args.time.toNumber();
-                    let timeInfo = formatTime(time);
-
-                    await sendChannelMessage(`\`\`\`diff\r\n- [${timeInfo.M}月${timeInfo.D}日] 角色#${actor}由神秘实体创生 -\r\n\`\`\``);
-                }
-            }
-
-            //timeline born character events
-            let actorBorn_event = await shejitu.queryFilter(actorBorn_filter, block.hash);
-            if (actorBorn_event.length > 0) {
-                for (var e = 0; e < actorBorn_event.length; e++) {
-                    let actor = actorBorn_event[e].args.actor.toNumber();
-
-                    await sendChannelMessage(`**角色#${actor}**出生了。`);
-
-                    let preActor = (await actorPrelifes.preLifes(actor)).toNumber();
-                    if (preActor > 0) {
-                        let preActorName = (await actorNames.actorName(preActor))._name;
-                        await sendChannelMessage(`**角色#${actor}**的前世是**${preActorName}(#${preActor})**。`);
+            event_promises.push((async ():Promise<void>=> {
+                let actorMinted_event = await actors.queryFilter(actorMinted_filter, startBlockNum, endBlockNum);
+                if (actorMinted_event.length > 0) {
+                    //console.log(actorMinted_event);
+                    for (var e = 0; e < actorMinted_event.length; e++) {
+                        let owner = actorMinted_event[e].args.owner;
+                        let actor = actorMinted_event[e].args.actorId.toNumber();
+                        let time = actorMinted_event[e].args.time.toNumber();
+                        let timeInfo = formatTime(time);
+    
+                        await sendChannelMessage(`\`\`\`diff\r\n- [${timeInfo.M}月${timeInfo.D}日] 角色#${actor}由神秘实体创生 -\r\n\`\`\``);
                     }
+                }    
+            })());
 
-                    //统计
-                    await sendChannelMessage(`***资源总量***：`);
-                    await sendChannelMessage(`\`\`\`fix\r\n` +
-                        `金石（${ethers.utils.formatEther(await assetGold.totalSupply())}),` +
-                        `食材（${ethers.utils.formatEther(await assetFood.totalSupply())}),` +
-                        `木材（${ethers.utils.formatEther(await assetWood.totalSupply())}),` +
-                        `织物（${ethers.utils.formatEther(await assetFabric.totalSupply())}),` +
-                        `药材（${ethers.utils.formatEther(await assetHerb.totalSupply())})` +
-                        `\`\`\``);
-                    await sendChannelMessage(`***统计信息***：`);
-                    await sendChannelMessage(`\`\`\`fix\r\n` +
-                        `出生男性：${await eventProcessor10001.maleNum()}人。\r\n` +
-                        `出生女性：${await eventProcessor10002.femaleNum()}人。\r\n` +
-                        `出生无性：${await eventProcessor10110.asexualNum()}人。\r\n` +
-                        `出生双性：${await eventProcessor10111.bisexualNum()}人。\r\n` +
-                        `农村：${await eventProcessor10009.actorNum()}人。\r\n` +
-                        `城镇：${await eventProcessor10010.actorNum()}人。\r\n` +
-                        `门派中人：${await eventProcessor10011.actorNum()}人。\r\n` +
-                        `死亡：${await eventProcessor10000.deadNum()}人。\r\n` +
-                        `\`\`\``);
+            //worldEvent born character events
+            event_promises.push((async ():Promise<void>=> {
+                let eventBorn_event = await shejitu.queryFilter(eventBorn_filter, startBlockNum, endBlockNum);
+                if (eventBorn_event.length > 0) {
+                    for (var e = 0; e < eventBorn_event.length; e++) {
+                        let actor = eventBorn_event[e].args.actor.toNumber();
+
+                        await sendChannelMessage(`**角色#${actor}**出生了。`);
+
+                        let preActor = (await actorPrelifes.preLifes(actor)).toNumber();
+                        if (preActor > 0) {
+                            let preActorName = (await actorNames.actorName(preActor))._name;
+                            await sendChannelMessage(`**角色#${actor}**的前世是**${preActorName}(#${preActor})**。`);
+                        }
+
+                        //统计
+                        await sendChannelMessage(`***资源总量***：`);
+                        await sendChannelMessage(`\`\`\`fix\r\n` +
+                            `金石（${ethers.utils.formatEther(await assetGold.totalSupply())}),` +
+                            `食材（${ethers.utils.formatEther(await assetFood.totalSupply())}),` +
+                            `木材（${ethers.utils.formatEther(await assetWood.totalSupply())}),` +
+                            `织物（${ethers.utils.formatEther(await assetFabric.totalSupply())}),` +
+                            `药材（${ethers.utils.formatEther(await assetHerb.totalSupply())})` +
+                            `\`\`\``);
+                        await sendChannelMessage(`***统计信息***：`);
+                        await sendChannelMessage(`\`\`\`fix\r\n` +
+                            `出生男性：${await eventProcessor10001.maleNum()}人。\r\n` +
+                            `出生女性：${await eventProcessor10002.femaleNum()}人。\r\n` +
+                            `出生无性：${await eventProcessor10110.asexualNum()}人。\r\n` +
+                            `出生双性：${await eventProcessor10111.bisexualNum()}人。\r\n` +
+                            `农村：${await eventProcessor10009.actorNum()}人。\r\n` +
+                            `城镇：${await eventProcessor10010.actorNum()}人。\r\n` +
+                            `门派中人：${await eventProcessor10011.actorNum()}人。\r\n` +
+                            `死亡：${await eventProcessor10000.deadNum()}人。\r\n` +
+                            `\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //timeline age events
-            let timeline_ageEvent_event = await shejitu.queryFilter(timeline_ageEvent_filter, block.hash);
-            if (timeline_ageEvent_event.length > 0) {
-                for (var e = 0; e < timeline_ageEvent_event.length; e++) {
-                    let actor = timeline_ageEvent_event[e].args.actor;
-                    let age = timeline_ageEvent_event[e].args.age;
-                    let eventId = timeline_ageEvent_event[e].args.eventId;
-                    let eventInfo = await worldEvents.eventInfo(eventId, actor);
-                    let name = (await actorNames.actorName(actor))._name;
+            event_promises.push((async ():Promise<void>=> {
+                let timeline_ageEvent_event = await shejitu.queryFilter(timeline_ageEvent_filter, startBlockNum, endBlockNum);
+                if (timeline_ageEvent_event.length > 0) {
+                    for (var e = 0; e < timeline_ageEvent_event.length; e++) {
+                        let actor = timeline_ageEvent_event[e].args.actor;
+                        let age = timeline_ageEvent_event[e].args.age;
+                        let eventId = timeline_ageEvent_event[e].args.eventId;
+                        let eventInfo = await worldEvents.eventInfo(eventId, actor);
+                        let name = (await actorNames.actorName(actor))._name;
 
-                    await sendChannelMessage(`\`\`\`fix\r\n${name}已经${age}岁了\r\n` +
-                        `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`fix\r\n${name}已经${age}岁了\r\n` +
+                            `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //timeline active events
-            let timeline_activeEvent_event = await shejitu.queryFilter(timeline_activeEvent_filter, block.hash);
-            if (timeline_activeEvent_event.length > 0) {
-                for (var e = 0; e < timeline_activeEvent_event.length; e++) {
-                    let actor = timeline_activeEvent_event[e].args.actor;
-                    let age = timeline_activeEvent_event[e].args.age;
-                    let eventId = timeline_activeEvent_event[e].args.eventId;
-                    let eventInfo = await worldEvents.eventInfo(eventId, actor);
-                    let name = (await actorNames.actorName(actor))._name;
+            event_promises.push((async ():Promise<void>=> {
+                let timeline_activeEvent_event = await shejitu.queryFilter(timeline_activeEvent_filter, startBlockNum, endBlockNum);
+                if (timeline_activeEvent_event.length > 0) {
+                    for (var e = 0; e < timeline_activeEvent_event.length; e++) {
+                        let actor = timeline_activeEvent_event[e].args.actor;
+                        let age = timeline_activeEvent_event[e].args.age;
+                        let eventId = timeline_activeEvent_event[e].args.eventId;
+                        let eventInfo = await worldEvents.eventInfo(eventId, actor);
+                        //let name = (await actorNames.actorName(actor))._name;
 
-                    await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                        await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                    }
                 }
-            }
+            })());
 
             //timeline branch events
-            let timeline_branchEvent_event = await shejitu.queryFilter(timeline_branchEvent_filter, block.hash);
-            if (timeline_branchEvent_event.length > 0) {
-                for (var e = 0; e < timeline_branchEvent_event.length; e++) {
-                    let actor = timeline_branchEvent_event[e].args.actor;
-                    let age = timeline_branchEvent_event[e].args.age;
-                    let eventId = timeline_branchEvent_event[e].args.eventId;
-                    let eventInfo = await worldEvents.eventInfo(eventId, actor);
-                    let name = (await actorNames.actorName(actor))._name;
+            event_promises.push((async ():Promise<void>=> {
+                let timeline_branchEvent_event = await shejitu.queryFilter(timeline_branchEvent_filter, startBlockNum, endBlockNum);
+                if (timeline_branchEvent_event.length > 0) {
+                    for (var e = 0; e < timeline_branchEvent_event.length; e++) {
+                        let actor = timeline_branchEvent_event[e].args.actor;
+                        let age = timeline_branchEvent_event[e].args.age;
+                        let eventId = timeline_branchEvent_event[e].args.eventId;
+                        let eventInfo = await worldEvents.eventInfo(eventId, actor);
+                        //let name = (await actorNames.actorName(actor))._name;
 
-                    await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                        await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                    }
                 }
-            }
+            })());
 
             //name claimed events
-            let NameClaimed_event = await actorNames.queryFilter(NameClaimed_filter, block.hash);
-            if (NameClaimed_event.length > 0) {
-                for (var e = 0; e < NameClaimed_event.length; e++) {
-                    let owner = NameClaimed_event[e].args.owner;
-                    let actor = NameClaimed_event[e].args.actor.toNumber();
-                    let name_id = NameClaimed_event[e].args.nameId;
-                    let first_name = NameClaimed_event[e].args.firstName;
-                    let last_name = NameClaimed_event[e].args.lastName;
-                    let name = NameClaimed_event[e].args.name;
+            event_promises.push((async ():Promise<void>=> {
+                let NameClaimed_event = await actorNames.queryFilter(NameClaimed_filter, startBlockNum, endBlockNum);
+                if (NameClaimed_event.length > 0) {
+                    for (var e = 0; e < NameClaimed_event.length; e++) {
+                        let owner = NameClaimed_event[e].args.owner;
+                        let actor = NameClaimed_event[e].args.actor.toNumber();
+                        let name_id = NameClaimed_event[e].args.nameId;
+                        let first_name = NameClaimed_event[e].args.firstName;
+                        let last_name = NameClaimed_event[e].args.lastName;
+                        let name = NameClaimed_event[e].args.name;
 
-                    await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //zone claimed events
-            let ZoneClaimed_event = await worldZones.queryFilter(ZoneClaimed_filter, block.hash);
-            if (ZoneClaimed_event.length > 0) {
-                for (var e = 0; e < ZoneClaimed_event.length; e++) {
-                    let actor = ZoneClaimed_event[e].args.actor.toNumber();
-                    let zone_id = ZoneClaimed_event[e].args.zoneId;
-                    let name = ZoneClaimed_event[e].args.name;
+            event_promises.push((async ():Promise<void>=> {
+                let ZoneClaimed_event = await worldZones.queryFilter(ZoneClaimed_filter, startBlockNum, endBlockNum);
+                if (ZoneClaimed_event.length > 0) {
+                    for (var e = 0; e < ZoneClaimed_event.length; e++) {
+                        let actor = ZoneClaimed_event[e].args.actor.toNumber();
+                        let zone_id = ZoneClaimed_event[e].args.zoneId;
+                        let name = ZoneClaimed_event[e].args.name;
 
-                    await sendChannelMessage(`\`\`\`css\r\n名为\"${name}\"的地区出现。\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`css\r\n名为\"${name}\"的地区出现。\r\n\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //actor location changed events
-            let actorLoacationChanged_event = await actorLocations.queryFilter(actorLoacationChanged_filter, block.hash);
-            if (actorLoacationChanged_event.length > 0) {
-                for (var e = 0; e < actorLoacationChanged_event.length; e++) {
-                    let actor = actorLoacationChanged_event[e].args.actor.toNumber();
-                    let oldA = actorLoacationChanged_event[e].args.oldA;
-                    let oldZoneNameA = await worldZones.names(oldA);
-                    let oldB = actorLoacationChanged_event[e].args.oldB;
-                    let oldZoneNameB = await worldZones.names(oldB);
-                    let newA = actorLoacationChanged_event[e].args.newA;
-                    let newZoneNameA = await worldZones.names(newA);
-                    let newB = actorLoacationChanged_event[e].args.newB;
-                    let newZoneNameB = await worldZones.names(newB);
+            event_promises.push((async ():Promise<void>=> {
+                let actorLoacationChanged_event = await actorLocations.queryFilter(actorLoacationChanged_filter, startBlockNum, endBlockNum);
+                if (actorLoacationChanged_event.length > 0) {
+                    for (var e = 0; e < actorLoacationChanged_event.length; e++) {
+                        let actor = actorLoacationChanged_event[e].args.actor.toNumber();
+                        let oldA = actorLoacationChanged_event[e].args.oldA;
+                        //let oldZoneNameA = await worldZones.names(oldA);
+                        let oldB = actorLoacationChanged_event[e].args.oldB;
+                        //let oldZoneNameB = await worldZones.names(oldB);
+                        let newA = actorLoacationChanged_event[e].args.newA;
+                        let newZoneNameA = await worldZones.names(newA);
+                        let newB = actorLoacationChanged_event[e].args.newB;
+                        let newZoneNameB = await worldZones.names(newB);
 
-                    let name = (await actorNames.actorName(actor))._name;
-                    name = (name==""?"无名氏":name);
+                        let name = (await actorNames.actorName(actor))._name;
+                        name = (name==""?"无名氏":name);
 
-                    if(oldA.eq(newA) && oldB.eq(newB)) {
-                        if(newA.eq(newB))
-                            await sendChannelMessage(`**${name}**出现在**${newZoneNameA}**。`);
-                        else
-                            await sendChannelMessage(`**${name}**出现在**${newZoneNameA}**和**${newZoneNameB}**之间的地区。`);
-                    }
-                    else {
-                        if(newA.eq(newB))
-                            await sendChannelMessage(`**${name}**来到了**${newZoneNameA}**。`);
-                        else
-                            await sendChannelMessage(`**${name}**来到了**${newZoneNameA}**和**${newZoneNameB}**之间的地区。`);
+                        if(oldA.eq(newA) && oldB.eq(newB)) {
+                            if(newA.eq(newB))
+                                await sendChannelMessage(`**${name}**出现在**${newZoneNameA}**。`);
+                            else
+                                await sendChannelMessage(`**${name}**出现在**${newZoneNameA}**和**${newZoneNameB}**之间的地区。`);
+                        }
+                        else {
+                            if(newA.eq(newB))
+                                await sendChannelMessage(`**${name}**来到了**${newZoneNameA}**。`);
+                            else
+                                await sendChannelMessage(`**${name}**来到了**${newZoneNameA}**和**${newZoneNameB}**之间的地区。`);
+                        }
                     }
                 }
-            }
+            })());
 
             //sid claimed events
-            let SIDClaimed_event = await actorSID.queryFilter(SIDClaimed_filter, block.hash);
-            if (SIDClaimed_event.length > 0) {
-                for (var e = 0; e < SIDClaimed_event.length; e++) {
-                    let actor = SIDClaimed_event[e].args.actor.toNumber();
-                    let sid = SIDClaimed_event[e].args.sid;
-                    let sidName = SIDClaimed_event[e].args.name;
-                    let name = (await actorNames.actorName(actor))._name;
-                    name = (name==""?"无名氏":name);
+            event_promises.push((async ():Promise<void>=> {
+                let SIDClaimed_event = await actorSID.queryFilter(SIDClaimed_filter, startBlockNum, endBlockNum);
+                if (SIDClaimed_event.length > 0) {
+                    for (var e = 0; e < SIDClaimed_event.length; e++) {
+                        let actor = SIDClaimed_event[e].args.actor.toNumber();
+                        let sid = SIDClaimed_event[e].args.sid;
+                        let sidName = SIDClaimed_event[e].args.name;
+                        let name = (await actorNames.actorName(actor))._name;
+                        name = (name==""?"无名氏":name);
 
-                    await sendChannelMessage(`**${name}**身份包含\"**${sidName}**\"。`);
+                        await sendChannelMessage(`**${name}**身份包含\"**${sidName}**\"。`);
+                    }
                 }
-            }
+            })());
             
             //generate new trigram
-            let TrigramOut_event = await trigrams.queryFilter(TrigramOut_filter, block.hash);
-            if (TrigramOut_event.length > 0) {
-                for (var e = 0; e < TrigramOut_event.length; e++) {
-                    let actor = TrigramOut_event[e].args.actor.toNumber();
-                    let tri = TrigramOut_event[e].args.trigram.toNumber();
-                    let name = (await actorNames.actorName(actor))._name;
-                    name = (name==""?"无名氏":name);
+            event_promises.push((async ():Promise<void>=> {
+                let TrigramOut_event = await trigrams.queryFilter(TrigramOut_filter, startBlockNum, endBlockNum);
+                if (TrigramOut_event.length > 0) {
+                    for (var e = 0; e < TrigramOut_event.length; e++) {
+                        let actor = TrigramOut_event[e].args.actor.toNumber();
+                        let tri = TrigramOut_event[e].args.trigram.toNumber();
+                        let name = (await actorNames.actorName(actor))._name;
+                        name = (name==""?"无名氏":name);
 
-                    await sendChannelMessage(`**${name}**卦象增加\"**${getTrigramUnicodeString(tri)}**\"。`);
+                        await sendChannelMessage(`**${name}**卦象增加\"**${getTrigramUnicodeString(tri)}**\"。`);
+                    }
                 }
-            }
+            })());
 
             //talents init events
-            let talentsInit_event = await actorTalents.queryFilter(talent_init_filter, block.hash);
-            if (talentsInit_event.length > 0) {
-                for (var e = 0; e < talentsInit_event.length; e++) {
-                    let actor = talentsInit_event[e].args.actor;
-                    let tlts = talentsInit_event[e].args.ids;
-                    let name = (await actorNames.actorName(actor))._name;
+            event_promises.push((async ():Promise<void>=> {
+                let talentsInit_event = await actorTalents.queryFilter(talent_init_filter, startBlockNum, endBlockNum);
+                if (talentsInit_event.length > 0) {
+                    for (var e = 0; e < talentsInit_event.length; e++) {
+                        let actor = talentsInit_event[e].args.actor;
+                        let tlts = talentsInit_event[e].args.ids;
+                        let name = (await actorNames.actorName(actor))._name;
 
-                    await sendChannelMessage(`**${name}**拥有的天赋：`);
-                    let msg = `\`\`\`diff\r\n`;
-                    for (var t = 0; t < tlts.length; t++) {
-                        msg += `+  ${await actorTalents.talentNames(tlts[t])}(${await actorTalents.talentDescriptions(tlts[t])})\r\n`;
+                        await sendChannelMessage(`**${name}**拥有的天赋：`);
+                        let msg = `\`\`\`diff\r\n`;
+                        for (var t = 0; t < tlts.length; t++) {
+                            msg += `+  ${await actorTalents.talentNames(tlts[t])}(${await actorTalents.talentDescriptions(tlts[t])})\r\n`;
+                        }
+                        msg += `\`\`\``;
+                        await sendChannelMessage(msg);
                     }
-                    msg += `\`\`\``;
-                    await sendChannelMessage(msg);
                 }
-            }
+            })());
 
             //relationship update events
-            let relationUpdated_event = await actorRelationship.queryFilter(relationUpdated_filter, block.hash);
-            if (relationUpdated_event.length > 0) {
-                for (var e = 0; e < relationUpdated_event.length; e++) {
-                    let actor = relationUpdated_event[e].args.actor;
-                    let name = (await actorNames.actorName(actor))._name;
-                    let target = relationUpdated_event[e].args.target;
-                    let target_name = (await actorNames.actorName(target))._name;
-                    let rsid = relationUpdated_event[e].args.rsid;
-                    let rsname = relationUpdated_event[e].args.rsname
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let relationUpdated_event = await actorRelationship.queryFilter(relationUpdated_filter, startBlockNum, endBlockNum);
+                if (relationUpdated_event.length > 0) {
+                    for (var e = 0; e < relationUpdated_event.length; e++) {
+                        let actor = relationUpdated_event[e].args.actor;
+                        let name = (await actorNames.actorName(actor))._name;
+                        let target = relationUpdated_event[e].args.target;
+                        let target_name = (await actorNames.actorName(target))._name;
+                        let rsid = relationUpdated_event[e].args.rsid;
+                        let rsname = relationUpdated_event[e].args.rsname
+                        //let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`**${name == "" ? "无名氏" : name}**和**${target_name == "" ? "无名氏" : target_name}**关系变为***${rsname}***。`);
+                        await sendChannelMessage(`**${name == "" ? "无名氏" : name}**和**${target_name == "" ? "无名氏" : target_name}**关系变为***${rsname}***。`);
+                    }
                 }
-            }
+            })());
 
             //prelife update events
-            let reincarnation_event = await actorPrelifes.queryFilter(reincarnation_filter, block.hash);
-            if (reincarnation_event.length > 0) {
-                for (var e = 0; e < reincarnation_event.length; e++) {
-                    let actor = reincarnation_event[e].args.actor;
-                    let name = (await actorNames.actorName(actor))._name;
-                    let postLife = reincarnation_event[e].args.postLife;
-                    let post_name = (await actorNames.actorName(postLife))._name;
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let reincarnation_event = await actorPrelifes.queryFilter(reincarnation_filter, startBlockNum, endBlockNum);
+                if (reincarnation_event.length > 0) {
+                    for (var e = 0; e < reincarnation_event.length; e++) {
+                        let actor = reincarnation_event[e].args.actor;
+                        let name = (await actorNames.actorName(actor))._name;
+                        let postLife = reincarnation_event[e].args.postLife;
+                        let post_name = (await actorNames.actorName(postLife))._name;
+                        //let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`**${name == "" ? "无名氏" : name}(角色#${actor})**转世为**${post_name == "" ? "无名氏" : post_name}(角色#${actor})**。`);
+                        await sendChannelMessage(`**${name == "" ? "无名氏" : name}(角色#${actor})**转世为**${post_name == "" ? "无名氏" : post_name}(角色#${actor})**。`);
+                    }
                 }
-            }
+            })());
 
             //item created events
-            let itemCreated_event = await worldItems.queryFilter(itemCreated_filter, block.hash);
-            if (itemCreated_event.length > 0) {
-                for (var e = 0; e < itemCreated_event.length; e++) {
-                    let actor = itemCreated_event[e].args.actor;
-                    let name = (await actorNames.actorName(actor))._name;
-                    let item = itemCreated_event[e].args.item;
-                    let typeId = itemCreated_event[e].args.typeId;
-                    let typeName = itemCreated_event[e].args.typeName;
-                    let wear = itemCreated_event[e].args.wear;
-                    let shape = itemCreated_event[e].args.shape;
-                    let shapeName = itemCreated_event[e].args.shapeName;
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let itemCreated_event = await worldItems.queryFilter(itemCreated_filter, startBlockNum, endBlockNum);
+                if (itemCreated_event.length > 0) {
+                    for (var e = 0; e < itemCreated_event.length; e++) {
+                        let actor = itemCreated_event[e].args.actor;
+                        let name = (await actorNames.actorName(actor))._name;
+                        let item = itemCreated_event[e].args.item;
+                        let typeId = itemCreated_event[e].args.typeId;
+                        let typeName = itemCreated_event[e].args.typeName;
+                        let wear = itemCreated_event[e].args.wear;
+                        let shape = itemCreated_event[e].args.shape;
+                        let shapeName = itemCreated_event[e].args.shapeName;
+                        //let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`>**${name == "" ? "无名氏" : name}**获得了${shapeName}的**${typeName}**(耐久=${wear.toNumber()})。`);
+                        await sendChannelMessage(`>**${name == "" ? "无名氏" : name}**获得了${shapeName}的**${typeName}**(耐久=${wear.toNumber()})。`);
+                    }
                 }
-            }
+            })());
 
             //item changed events
-            let itemChanged_event = await worldItems.queryFilter(itemChanged_filter, block.hash);
-            if (itemChanged_event.length > 0) {
-                for (var e = 0; e < itemChanged_event.length; e++) {
-                    let actor = itemChanged_event[e].args.actor;
-                    let name = (await actorNames.actorName(actor))._name;
-                    let item = itemChanged_event[e].args.item;
-                    let typeId = itemChanged_event[e].args.typeId;
-                    let typeName = itemChanged_event[e].args.typeName;
-                    let wear = itemChanged_event[e].args.wear;
-                    let shape = itemChanged_event[e].args.shape;
-                    let shapeName = itemChanged_event[e].args.shapeName;
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let itemChanged_event = await worldItems.queryFilter(itemChanged_filter, startBlockNum, endBlockNum);
+                if (itemChanged_event.length > 0) {
+                    for (var e = 0; e < itemChanged_event.length; e++) {
+                        let actor = itemChanged_event[e].args.actor;
+                        let name = (await actorNames.actorName(actor))._name;
+                        let item = itemChanged_event[e].args.item;
+                        let typeId = itemChanged_event[e].args.typeId;
+                        let typeName = itemChanged_event[e].args.typeName;
+                        let wear = itemChanged_event[e].args.wear;
+                        let shape = itemChanged_event[e].args.shape;
+                        let shapeName = itemChanged_event[e].args.shapeName;
+                        //let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`**${name == "" ? "无名氏" : name}**的**${typeName}发生变化：耐久=${wear.toNumber()}。`);
+                        await sendChannelMessage(`**${name == "" ? "无名氏" : name}**的**${typeName}发生变化：耐久=${wear.toNumber()}。`);
+                    }
                 }
-            }
+            })());
 
             //item destroyed events
-            let itemDestroyed_event = await worldItems.queryFilter(itemDestroyed_filter, block.hash);
-            if (itemDestroyed_event.length > 0) {
-                for (var e = 0; e < itemDestroyed_event.length; e++) {
-                    let item = itemDestroyed_event[e].args.item;
-                    let typeId = itemDestroyed_event[e].args.typeId;
-                    let typeName = itemDestroyed_event[e].args.typeName;
+            event_promises.push((async ():Promise<void>=> {
+                let itemDestroyed_event = await worldItems.queryFilter(itemDestroyed_filter, startBlockNum, endBlockNum);
+                if (itemDestroyed_event.length > 0) {
+                    for (var e = 0; e < itemDestroyed_event.length; e++) {
+                        let item = itemDestroyed_event[e].args.item;
+                        let typeId = itemDestroyed_event[e].args.typeId;
+                        let typeName = itemDestroyed_event[e].args.typeName;
 
-                    await sendChannelMessage(`>一件**${typeName}**销毁了。`);
+                        await sendChannelMessage(`>一件**${typeName}**销毁了。`);
+                    }
                 }
-            }
+            })());
 
             //attribute update events
-            let attriUpdate_event = await actorBaseAttributes.queryFilter(attrBaseUpdate_filter, block.hash);
-            if (attriUpdate_event.length > 0) {
-                for (var e = 0; e < attriUpdate_event.length; e++) {
-                    let actor = attriUpdate_event[e].args.actor;
-                    let attrStr = "";
-                    for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
-                        attrStr += `${await actorBaseAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
-                    }
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let attriUpdate_event = await actorBaseAttributes.queryFilter(attrBaseUpdate_filter, startBlockNum, endBlockNum);
+                if (attriUpdate_event.length > 0) {
+                    for (var e = 0; e < attriUpdate_event.length; e++) {
+                        let actor = attriUpdate_event[e].args.actor;
+                        let attrStr = "";
+                        for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
+                            attrStr += `${await actorBaseAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        }
+                        let name = (await actorNames.actorName(actor))._name;
+                        //let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`\`\`\`diff\r\n+ ${name}基本属性发生了变化：` + attrStr + `\r\n\`\`\``);
-                }
-            }
-            attriUpdate_event = await actorCharmAttributes.queryFilter(attrCharmUpdate_filter, block.hash);
-            if (attriUpdate_event.length > 0) {
-                for (var e = 0; e < attriUpdate_event.length; e++) {
-                    let actor = attriUpdate_event[e].args.actor;
-                    let attrStr = "";
-                    for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
-                        attrStr += `${await actorCharmAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_CHARM_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}基本属性发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
-
-                    await sendChannelMessage(`\`\`\`diff\r\n+ ${name}外貌发生了变化：` + attrStr + `\r\n\`\`\``);
                 }
-            }
-            attriUpdate_event = await actorMoodAttributes.queryFilter(attrMoodUpdate_filter, block.hash);
-            if (attriUpdate_event.length > 0) {
-                for (var e = 0; e < attriUpdate_event.length; e++) {
-                    let actor = attriUpdate_event[e].args.actor;
-                    let attrStr = "";
-                    for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
-                        attrStr += `${await actorMoodAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_MOOD_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let attriUpdate_event = await actorCharmAttributes.queryFilter(attrCharmUpdate_filter, startBlockNum, endBlockNum);
+                if (attriUpdate_event.length > 0) {
+                    for (var e = 0; e < attriUpdate_event.length; e++) {
+                        let actor = attriUpdate_event[e].args.actor;
+                        let attrStr = "";
+                        for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
+                            attrStr += `${await actorCharmAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_CHARM_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        }
+                        let name = (await actorNames.actorName(actor))._name;
+                        //let age = await worldEvents.ages(actor);
+
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}外貌发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
-
-                    await sendChannelMessage(`\`\`\`diff\r\n+ ${name}情绪发生了变化：` + attrStr + `\r\n\`\`\``);
                 }
-            }
-            attriUpdate_event = await actorCoreAttributes.queryFilter(attrCoreUpdate_filter, block.hash);
-            if (attriUpdate_event.length > 0) {
-                for (var e = 0; e < attriUpdate_event.length; e++) {
-                    let actor = attriUpdate_event[e].args.actor;
-                    let attrStr = "";
-                    for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
-                        attrStr += `${await actorCoreAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_CORE_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let attriUpdate_event = await actorMoodAttributes.queryFilter(attrMoodUpdate_filter, startBlockNum, endBlockNum);
+                if (attriUpdate_event.length > 0) {
+                    for (var e = 0; e < attriUpdate_event.length; e++) {
+                        let actor = attriUpdate_event[e].args.actor;
+                        let attrStr = "";
+                        for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
+                            attrStr += `${await actorMoodAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_MOOD_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        }
+                        let name = (await actorNames.actorName(actor))._name;
+                        //let age = await worldEvents.ages(actor);
+
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}情绪发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
-
-                    await sendChannelMessage(`\`\`\`diff\r\n+ ${name}身体发生了变化：` + attrStr + `\r\n\`\`\``);
                 }
-            }
-            attriUpdate_event = await actorBehaviorAttributes.queryFilter(attrBehaviorUpdate_filter, block.hash);
-            if (attriUpdate_event.length > 0) {
-                for (var e = 0; e < attriUpdate_event.length; e++) {
-                    let actor = attriUpdate_event[e].args.actor;
-                    let attrStr = "";
-                    for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
-                        attrStr += `${await actorBehaviorAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_BEHAVIOR_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let attriUpdate_event = await actorCoreAttributes.queryFilter(attrCoreUpdate_filter, startBlockNum, endBlockNum);
+                if (attriUpdate_event.length > 0) {
+                    for (var e = 0; e < attriUpdate_event.length; e++) {
+                        let actor = attriUpdate_event[e].args.actor;
+                        let attrStr = "";
+                        for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
+                            attrStr += `${await actorCoreAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_CORE_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        }
+                        let name = (await actorNames.actorName(actor))._name;
+                        //let age = await worldEvents.ages(actor);
+
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}身体发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
-
-                    await sendChannelMessage(`\`\`\`diff\r\n+ ${name}行动力发生了变化：` + attrStr + `\r\n\`\`\``);
                 }
-            }
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let attriUpdate_event = await actorBehaviorAttributes.queryFilter(attrBehaviorUpdate_filter, startBlockNum, endBlockNum);
+                if (attriUpdate_event.length > 0) {
+                    for (var e = 0; e < attriUpdate_event.length; e++) {
+                        let actor = attriUpdate_event[e].args.actor;
+                        let attrStr = "";
+                        for (var a = 0; a < attriUpdate_event[e].args.attributes.length; a += 2) {
+                            attrStr += `${await actorBehaviorAttributes.attributeLabels(attriUpdate_event[e].args.attributes[a].sub(_RL_ATTRIBUTE_BEHAVIOR_BASE))}=${attriUpdate_event[e].args.attributes[a + 1]},`;
+                        }
+                        let name = (await actorNames.actorName(actor))._name;
+                        //let age = await worldEvents.ages(actor);
+
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}行动力发生了变化：` + attrStr + `\r\n\`\`\``);
+                    }
+                }
+            })());
 
             //behavior special events
-            let actRecover_event = await actorBehaviorAttributes.queryFilter(actRecover_filter, block.hash);
-            if (actRecover_event.length > 0) {
-                for (var e = 0; e < actRecover_event.length; e++) {
-                    let actor = actRecover_event[e].args.actor;
-                    let name = (await actorNames.actorName(actor))._name;
-                    let age = await worldEvents.ages(actor);
+            event_promises.push((async ():Promise<void>=> {
+                let actRecover_event = await actorBehaviorAttributes.queryFilter(actRecover_filter, startBlockNum, endBlockNum);
+                if (actRecover_event.length > 0) {
+                    for (var e = 0; e < actRecover_event.length; e++) {
+                        let actor = actRecover_event[e].args.actor;
+                        let name = (await actorNames.actorName(actor))._name;
+                        // let age = await worldEvents.ages(actor);
 
-                    await sendChannelMessage(`\`\`\`diff\r\n+ 恢复了行动力（${actRecover_event[e].args.act}）。\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`diff\r\n+ ${name}恢复了行动力（${actRecover_event[e].args.act}）。\r\n\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //zone assets grown events
-            let zone_asset_grown_event = await worldZoneBaseResources.queryFilter(ZoneAssetGrown_filter, block.hash);
-            if (zone_asset_grown_event.length > 0) {
-                for (var e = 0; e < zone_asset_grown_event.length; e++) {
-                    let zone_id = zone_asset_grown_event[e].args.zone.toNumber();
-                    let zoneName = await worldZones.names(zone_id);
-                    let gold = zone_asset_grown_event[e].args.gold;
-                    let goldText = assetQuantityDescription(gold);
-                    let food = zone_asset_grown_event[e].args.food;
-                    let foodText = assetQuantityDescription(food);
-                    let herb = zone_asset_grown_event[e].args.herb;
-                    let herbText = assetQuantityDescription(herb);
-                    let fabric = zone_asset_grown_event[e].args.fabric;
-                    let fabricText = assetQuantityDescription(fabric);
-                    let wood = zone_asset_grown_event[e].args.wood;
-                    let woodText = assetQuantityDescription(wood);
+            event_promises.push((async ():Promise<void>=> {
+                let zone_asset_grown_event = await worldZoneBaseResources.queryFilter(ZoneAssetGrown_filter, startBlockNum, endBlockNum);
+                if (zone_asset_grown_event.length > 0) {
+                    for (var e = 0; e < zone_asset_grown_event.length; e++) {
+                        let zone_id = zone_asset_grown_event[e].args.zone.toNumber();
+                        let zoneName = await worldZones.names(zone_id);
+                        let gold = zone_asset_grown_event[e].args.gold;
+                        let goldText = assetQuantityDescription(gold);
+                        let food = zone_asset_grown_event[e].args.food;
+                        let foodText = assetQuantityDescription(food);
+                        let herb = zone_asset_grown_event[e].args.herb;
+                        let herbText = assetQuantityDescription(herb);
+                        let fabric = zone_asset_grown_event[e].args.fabric;
+                        let fabricText = assetQuantityDescription(fabric);
+                        let wood = zone_asset_grown_event[e].args.wood;
+                        let woodText = assetQuantityDescription(wood);
 
-                    await sendChannelMessage(`\`\`\`fix\r\n${zoneName}地区产生了：` +
-                        `金石（${ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                        `食材（${ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                        `木材（${ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                        `织物（${ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                        `药材（${ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17)))})` +
-                        `\`\`\``);
+                        await sendChannelMessage(`\`\`\`fix\r\n${zoneName}地区产生了：` +
+                            `金石（${ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `食材（${ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `木材（${ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `织物（${ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `药材（${ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17)))})` +
+                            `\`\`\``);
+                    }
                 }
-            }
+            })());
 
             //actor assets collection events
-            let actor_asset_collected_event = await worldZoneBaseResources.queryFilter(ActorAssetCollected_filter, block.hash);
-            if (actor_asset_collected_event.length > 0) {
-                for (var e = 0; e < actor_asset_collected_event.length; e++) {
-                    let actor_id = actor_asset_collected_event[e].args.actor.toNumber();
-                    let actorName = (await actorNames.actorName(actor_id))._name;
-                    let gold = actor_asset_collected_event[e].args.gold;
-                    let goldText = assetQuantityDescription(gold);
-                    let food = actor_asset_collected_event[e].args.food;
-                    let foodText = assetQuantityDescription(food);
-                    let herb = actor_asset_collected_event[e].args.herb;
-                    let herbText = assetQuantityDescription(herb);
-                    let fabric = actor_asset_collected_event[e].args.fabric;
-                    let fabricText = assetQuantityDescription(fabric);
-                    let wood = actor_asset_collected_event[e].args.wood;
-                    let woodText = assetQuantityDescription(wood);
+            event_promises.push((async ():Promise<void>=> {
+                let actor_asset_collected_event = await worldZoneBaseResources.queryFilter(ActorAssetCollected_filter, startBlockNum, endBlockNum);
+                if (actor_asset_collected_event.length > 0) {
+                    for (var e = 0; e < actor_asset_collected_event.length; e++) {
+                        let actor_id = actor_asset_collected_event[e].args.actor.toNumber();
+                        let actorName = (await actorNames.actorName(actor_id))._name;
+                        let gold = actor_asset_collected_event[e].args.gold;
+                        let goldText = assetQuantityDescription(gold);
+                        let food = actor_asset_collected_event[e].args.food;
+                        let foodText = assetQuantityDescription(food);
+                        let herb = actor_asset_collected_event[e].args.herb;
+                        let herbText = assetQuantityDescription(herb);
+                        let fabric = actor_asset_collected_event[e].args.fabric;
+                        let fabricText = assetQuantityDescription(fabric);
+                        let wood = actor_asset_collected_event[e].args.wood;
+                        let woodText = assetQuantityDescription(wood);
 
-                    await sendChannelMessage(`**${actorName}**获得了` +
-                        (gold.isZero() ? `` : `${goldText + "**金石**（" + ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                        (food.isZero() ? `` : `${foodText + "**食材**（" + ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                        (wood.isZero() ? `` : `${woodText + "**木材**（" + ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                        (fabric.isZero() ? `` : `${fabricText + "**织物**（" + ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                        (herb.isZero() ? `` : `${herbText + "**药材**（" + ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
+                        await sendChannelMessage(`**${actorName}**获得了` +
+                            (gold.isZero() ? `` : `${goldText + "**金石**（" + ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (food.isZero() ? `` : `${foodText + "**食材**（" + ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (wood.isZero() ? `` : `${woodText + "**木材**（" + ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (fabric.isZero() ? `` : `${fabricText + "**织物**（" + ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (herb.isZero() ? `` : `${herbText + "**药材**（" + ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
+                    }
                 }
-            }
+            })());
 
             //assets transfer events
-            let daoli_transfer_event = await assetDaoli.queryFilter(daoli_transfer_filter, block.hash);
-            if (daoli_transfer_event.length > 0) {
-                for (var e = 0; e < daoli_transfer_event.length; e++) {
-                    let from = daoli_transfer_event[e].args.from.toNumber();
-                    let to = daoli_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = daoli_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
+            event_promises.push((async ():Promise<void>=> {
+                let daoli_transfer_event = await assetDaoli.queryFilter(daoli_transfer_filter, startBlockNum, endBlockNum);
+                if (daoli_transfer_event.length > 0) {
+                    for (var e = 0; e < daoli_transfer_event.length; e++) {
+                        let from = daoli_transfer_event[e].args.from.toNumber();
+                        let to = daoli_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = daoli_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
 
-                    if(fromName == "")
-                        fromName = `角色#${from}`;
-                    if(toName == "")
-                        toName = `角色#${to}`;
-                    if (from == to)
-                        await sendChannelMessage(`**${toName}**获得了` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                    else
-                        await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                }
-            }
-
-            let gold_transfer_event = await assetGold.queryFilter(gold_transfer_filter, block.hash);
-            if (gold_transfer_event.length > 0) {
-                for (var e = 0; e < gold_transfer_event.length; e++) {
-                    let from = gold_transfer_event[e].args.from.toNumber();
-                    let to = gold_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = gold_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
-
-                    if (from != ACTOR_GUANGONG.toNumber()) {
-                        if (from == to)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        if(fromName == "")
+                            fromName = `角色#${from}`;
+                        if(toName == "")
+                            toName = `角色#${to}`;
+                        if (from == 0)
+                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        else if (to == 0)
+                            await sendChannelMessage(`**${toName}**提取了` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                    }
+                }
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let gold_transfer_event = await assetGold.queryFilter(gold_transfer_filter, startBlockNum, endBlockNum);
+                if (gold_transfer_event.length > 0) {
+                    for (var e = 0; e < gold_transfer_event.length; e++) {
+                        let from = gold_transfer_event[e].args.from.toNumber();
+                        let to = gold_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = gold_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
+
+                        if (from != ACTOR_GUANGONG.toNumber()) {
+                            if (from == to)
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            else
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            }
+                    }
+                }
+            })());
+
+            event_promises.push((async ():Promise<void>=> {
+                let food_transfer_event = await assetFood.queryFilter(food_transfer_filter, startBlockNum, endBlockNum);
+                if (food_transfer_event.length > 0) {
+                    for (var e = 0; e < food_transfer_event.length; e++) {
+                        let from = food_transfer_event[e].args.from.toNumber();
+                        let to = food_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = food_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
+
+                        if (from != ACTOR_GUANGONG.toNumber()) {
+                            if (from == to)
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            else
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         }
-                }
-            }
-
-            let food_transfer_event = await assetFood.queryFilter(food_transfer_filter, block.hash);
-            if (food_transfer_event.length > 0) {
-                for (var e = 0; e < food_transfer_event.length; e++) {
-                    let from = food_transfer_event[e].args.from.toNumber();
-                    let to = food_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = food_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
-
-                    if (from != ACTOR_GUANGONG.toNumber()) {
-                        if (from == to)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                        else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
                 }
-            }
+            })());
 
-            let wood_transfer_event = await assetWood.queryFilter(wood_transfer_filter, block.hash);
-            if (wood_transfer_event.length > 0) {
-                for (var e = 0; e < wood_transfer_event.length; e++) {
-                    let from = wood_transfer_event[e].args.from.toNumber();
-                    let to = wood_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = wood_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
+            event_promises.push((async ():Promise<void>=> {
+                let wood_transfer_event = await assetWood.queryFilter(wood_transfer_filter, startBlockNum, endBlockNum);
+                if (wood_transfer_event.length > 0) {
+                    for (var e = 0; e < wood_transfer_event.length; e++) {
+                        let from = wood_transfer_event[e].args.from.toNumber();
+                        let to = wood_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = wood_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
 
-                    if (from != ACTOR_GUANGONG.toNumber()) {
-                        if (from == to)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                        else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        if (from != ACTOR_GUANGONG.toNumber()) {
+                            if (from == to)
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            else
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        }
                     }
                 }
-            }
+            })());
 
-            let fabric_transfer_event = await assetFabric.queryFilter(fabric_transfer_filter, block.hash);
-            if (fabric_transfer_event.length > 0) {
-                for (var e = 0; e < fabric_transfer_event.length; e++) {
-                    let from = fabric_transfer_event[e].args.from.toNumber();
-                    let to = fabric_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = fabric_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
+            event_promises.push((async ():Promise<void>=> {
+                let fabric_transfer_event = await assetFabric.queryFilter(fabric_transfer_filter, startBlockNum, endBlockNum);
+                if (fabric_transfer_event.length > 0) {
+                    for (var e = 0; e < fabric_transfer_event.length; e++) {
+                        let from = fabric_transfer_event[e].args.from.toNumber();
+                        let to = fabric_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = fabric_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
 
-                    if (from != ACTOR_GUANGONG.toNumber()) {
-                        if (from == to)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                        else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        if (from != ACTOR_GUANGONG.toNumber()) {
+                            if (from == to)
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            else
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        }
                     }
                 }
-            }
+            })());
 
-            let herb_transfer_event = await assetHerb.queryFilter(herb_transfer_filter, block.hash);
-            if (herb_transfer_event.length > 0) {
-                for (var e = 0; e < herb_transfer_event.length; e++) {
-                    let from = herb_transfer_event[e].args.from.toNumber();
-                    let to = herb_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = herb_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
+            event_promises.push((async ():Promise<void>=> {
+                let herb_transfer_event = await assetHerb.queryFilter(herb_transfer_filter, startBlockNum, endBlockNum);
+                if (herb_transfer_event.length > 0) {
+                    for (var e = 0; e < herb_transfer_event.length; e++) {
+                        let from = herb_transfer_event[e].args.from.toNumber();
+                        let to = herb_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = herb_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
 
-                    if (from != ACTOR_GUANGONG.toNumber()) {
-                        if (from == to)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                        else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        if (from != ACTOR_GUANGONG.toNumber()) {
+                            if (from == to)
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            else
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        }
                     }
                 }
-            }
+            })());
 
-            let prestige_transfer_event = await assetPrestige.queryFilter(prestige_transfer_filter, block.hash);
-            if (prestige_transfer_event.length > 0) {
-                for (var e = 0; e < prestige_transfer_event.length; e++) {
-                    let from = prestige_transfer_event[e].args.from.toNumber();
-                    let to = prestige_transfer_event[e].args.to.toNumber();
-                    let fromName = (await actorNames.actorName(from))._name;
-                    let toName = (await actorNames.actorName(to))._name;
-                    let amount = prestige_transfer_event[e].args.amount;
-                    let amountText = assetQuantityDescription(amount);
+            event_promises.push((async ():Promise<void>=> {
+                let prestige_transfer_event = await assetPrestige.queryFilter(prestige_transfer_filter, startBlockNum, endBlockNum);
+                if (prestige_transfer_event.length > 0) {
+                    for (var e = 0; e < prestige_transfer_event.length; e++) {
+                        let from = prestige_transfer_event[e].args.from.toNumber();
+                        let to = prestige_transfer_event[e].args.to.toNumber();
+                        let fromName = (await actorNames.actorName(from))._name;
+                        let toName = (await actorNames.actorName(to))._name;
+                        let amount = prestige_transfer_event[e].args.amount;
+                        let amountText = assetQuantityDescription(amount);
 
-                    if (from == to)
-                        await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                    else
-                        await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        if (from == to)
+                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                        else
+                            await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                    }
                 }
-            }
+            })());
 
-            startBlockNum++;
+            await Promise.all(event_promises);
+
+            startBlockNum = endBlockNum + 1;
             if (startBlockNum > blockNum)
                 break;
+            // if (startBlockNum%10 == 0)
+            //     break;
         }
     }
 
-    // again in 3 second
+    // again in 90 second
     setTimeout(function () {
+        console.log(`start-->`+`${startBlockNum}`);
         startSyncMain(startBlockNum);
-    }, 3000);
+    }, 90000);
 }
 
 export function startLogger() {

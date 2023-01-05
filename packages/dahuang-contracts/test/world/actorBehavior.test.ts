@@ -269,9 +269,16 @@ describe('主动事件角色行为测试', () => {
             expect(await behaviorAttributes.attributesScores(await dahuangConstants.ATTR_ACT(), testActor)).to.eq(10);
         });
 
-        it(`采集资源`, async ()=>{
+        it(`角色不在的区域采集资源`, async ()=>{
             expect(await evt60505.checkOccurrence(testActor, 0)).to.eq(true);
-            await shejiTu.activeTrigger(60505, testActor, [newZone], []);
+            await expect(shejiTu.activeTrigger(60505, testActor, [newZone], [])).to.be.revertedWith("must collect at actor located zone");
+            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
+        });
+
+        it(`角色在当前所在区域采集资源`, async ()=>{
+            expect(await evt60505.checkOccurrence(testActor, 0)).to.eq(true);
+            let lcs = await actorLocations.actorLocations(testActor);
+            await shejiTu.activeTrigger(60505, testActor, [lcs[1]], []);
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
     });
@@ -321,7 +328,8 @@ describe('主动事件角色行为测试', () => {
                 console.log("make assets...");
                 await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
                 await behaviorAttributes.recoverAct(testActor);
-                await shejiTu.activeTrigger(60505, testActor, [newZone], []);
+                let lcs = await actorLocations.actorLocations(testActor);
+                await shejiTu.activeTrigger(60505, testActor, [lcs[1]], []);
             }
         });
 
@@ -583,7 +591,8 @@ describe('主动事件角色行为测试', () => {
                 console.log("make assets...");
                 await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
                 await behaviorAttributes.recoverAct(testActor);
-                await shejiTu.activeTrigger(60505, testActor, [newZone], []);
+                let lcs = await actorLocations.actorLocations(testActor);
+                await shejiTu.activeTrigger(60505, testActor, [lcs[1]], []);
             }
         });
 
