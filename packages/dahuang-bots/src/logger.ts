@@ -700,8 +700,8 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = gold_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from != ACTOR_GUANGONG.toNumber()) {
-                            if (from == to)
+                        if (to != ACTOR_GUANGONG.toNumber()) {
+                            if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -721,8 +721,8 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = food_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from != ACTOR_GUANGONG.toNumber()) {
-                            if (from == to)
+                        if (to != ACTOR_GUANGONG.toNumber()) {
+                            if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -742,8 +742,8 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = wood_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from != ACTOR_GUANGONG.toNumber()) {
-                            if (from == to)
+                        if (to != ACTOR_GUANGONG.toNumber()) {
+                            if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -763,8 +763,8 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = fabric_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from != ACTOR_GUANGONG.toNumber()) {
-                            if (from == to)
+                        if (to != ACTOR_GUANGONG.toNumber()) {
+                            if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -784,8 +784,8 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = herb_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from != ACTOR_GUANGONG.toNumber()) {
-                            if (from == to)
+                        if (to != ACTOR_GUANGONG.toNumber()) {
+                            if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -805,7 +805,7 @@ async function startSyncMain(startBlockNum: number) {
                         let amount = prestige_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
-                        if (from == to)
+                        if (from == 0)
                             await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else
                             await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
