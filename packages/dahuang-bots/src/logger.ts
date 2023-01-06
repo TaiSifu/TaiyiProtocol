@@ -195,10 +195,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
             let endBlockNum = Math.min(blockNum, startBlockNum + 100);
             //let endBlock = await provider.getBlock(endBlockNum);
 
-            let event_promises:Promise<void>[] = [];
+            //let event_promises:Promise<void>[] = [];
 
             //Create actor events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let actorMinted_event = await actors.queryFilter(actorMinted_filter, startBlockNum, endBlockNum);
                 if (actorMinted_event.length > 0) {
                     //console.log(actorMinted_event);
@@ -211,10 +211,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n- [${timeInfo.M}月${timeInfo.D}日] 角色#${actor}由神秘实体创生 -\r\n\`\`\``);
                     }
                 }    
-            })());
+            //})());
 
             //worldEvent born character events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let eventBorn_event = await worldEvents.queryFilter(eventBorn_filter, startBlockNum, endBlockNum);
                 if (eventBorn_event.length > 0) {
                     for (var e = 0; e < eventBorn_event.length; e++) {
@@ -250,10 +250,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             `\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //timeline age events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let timeline_ageEvent_event = await shejitu.queryFilter(timeline_ageEvent_filter, startBlockNum, endBlockNum);
                 if (timeline_ageEvent_event.length > 0) {
                     for (var e = 0; e < timeline_ageEvent_event.length; e++) {
@@ -267,10 +267,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //timeline active events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let timeline_activeEvent_event = await shejitu.queryFilter(timeline_activeEvent_filter, startBlockNum, endBlockNum);
                 if (timeline_activeEvent_event.length > 0) {
                     for (var e = 0; e < timeline_activeEvent_event.length; e++) {
@@ -283,10 +283,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
                     }
                 }
-            })());
+            //})());
 
             //timeline branch events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let timeline_branchEvent_event = await shejitu.queryFilter(timeline_branchEvent_filter, startBlockNum, endBlockNum);
                 if (timeline_branchEvent_event.length > 0) {
                     for (var e = 0; e < timeline_branchEvent_event.length; e++) {
@@ -299,10 +299,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
                     }
                 }
-            })());
+            //})());
 
             //name claimed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let NameClaimed_event = await actorNames.queryFilter(NameClaimed_filter, startBlockNum, endBlockNum);
                 if (NameClaimed_event.length > 0) {
                     for (var e = 0; e < NameClaimed_event.length; e++) {
@@ -316,10 +316,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //zone claimed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let ZoneClaimed_event = await worldZones.queryFilter(ZoneClaimed_filter, startBlockNum, endBlockNum);
                 if (ZoneClaimed_event.length > 0) {
                     for (var e = 0; e < ZoneClaimed_event.length; e++) {
@@ -330,10 +330,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`css\r\n名为\"${name}\"的地区出现。\r\n\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //actor location changed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let actorLoacationChanged_event = await actorLocations.queryFilter(actorLoacationChanged_filter, startBlockNum, endBlockNum);
                 if (actorLoacationChanged_event.length > 0) {
                     for (var e = 0; e < actorLoacationChanged_event.length; e++) {
@@ -364,10 +364,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         }
                     }
                 }
-            })());
+            //})());
 
             //sid claimed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let SIDClaimed_event = await actorSID.queryFilter(SIDClaimed_filter, startBlockNum, endBlockNum);
                 if (SIDClaimed_event.length > 0) {
                     for (var e = 0; e < SIDClaimed_event.length; e++) {
@@ -380,10 +380,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`**${name}**身份包含\"**${sidName}**\"。`);
                     }
                 }
-            })());
+            //})());
             
             //generate new trigram
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let TrigramOut_event = await trigrams.queryFilter(TrigramOut_filter, startBlockNum, endBlockNum);
                 if (TrigramOut_event.length > 0) {
                     for (var e = 0; e < TrigramOut_event.length; e++) {
@@ -395,10 +395,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`**${name}**卦象增加\"**${getTrigramUnicodeString(tri)}**\"。`);
                     }
                 }
-            })());
+            //})());
 
             //talents init events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let talentsInit_event = await actorTalents.queryFilter(talent_init_filter, startBlockNum, endBlockNum);
                 if (talentsInit_event.length > 0) {
                     for (var e = 0; e < talentsInit_event.length; e++) {
@@ -415,10 +415,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(msg);
                     }
                 }
-            })());
+            //})());
 
             //relationship update events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let relationUpdated_event = await actorRelationship.queryFilter(relationUpdated_filter, startBlockNum, endBlockNum);
                 if (relationUpdated_event.length > 0) {
                     for (var e = 0; e < relationUpdated_event.length; e++) {
@@ -433,10 +433,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`**${name == "" ? "无名氏" : name}**和**${target_name == "" ? "无名氏" : target_name}**关系变为***${rsname}***。`);
                     }
                 }
-            })());
+            //})());
 
             //prelife update events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let reincarnation_event = await actorPrelifes.queryFilter(reincarnation_filter, startBlockNum, endBlockNum);
                 if (reincarnation_event.length > 0) {
                     for (var e = 0; e < reincarnation_event.length; e++) {
@@ -449,10 +449,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`**${name == "" ? "无名氏" : name}(角色#${actor})**转世为**${post_name == "" ? "无名氏" : post_name}(角色#${actor})**。`);
                     }
                 }
-            })());
+            //})());
 
             //item created events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let itemCreated_event = await worldItems.queryFilter(itemCreated_filter, startBlockNum, endBlockNum);
                 if (itemCreated_event.length > 0) {
                     for (var e = 0; e < itemCreated_event.length; e++) {
@@ -469,10 +469,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`>**${name == "" ? "无名氏" : name}**获得了${shapeName}的**${typeName}**(耐久=${wear.toNumber()})。`);
                     }
                 }
-            })());
+            //})());
 
             //item changed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let itemChanged_event = await worldItems.queryFilter(itemChanged_filter, startBlockNum, endBlockNum);
                 if (itemChanged_event.length > 0) {
                     for (var e = 0; e < itemChanged_event.length; e++) {
@@ -489,10 +489,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`**${name == "" ? "无名氏" : name}**的**${typeName}发生变化：耐久=${wear.toNumber()}。`);
                     }
                 }
-            })());
+            //})());
 
             //item destroyed events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let itemDestroyed_event = await worldItems.queryFilter(itemDestroyed_filter, startBlockNum, endBlockNum);
                 if (itemDestroyed_event.length > 0) {
                     for (var e = 0; e < itemDestroyed_event.length; e++) {
@@ -503,10 +503,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`>一件**${typeName}**销毁了。`);
                     }
                 }
-            })());
+            //})());
 
             //attribute update events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> 
+            {
                 let attriUpdate_event = await actorBaseAttributes.queryFilter(attrBaseUpdate_filter, startBlockNum, endBlockNum);
                 if (attriUpdate_event.length > 0) {
                     for (var e = 0; e < attriUpdate_event.length; e++) {
@@ -521,9 +522,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}基本属性发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
                 }
-            })());
+            }
+            //)());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> 
+            {
                 let attriUpdate_event = await actorCharmAttributes.queryFilter(attrCharmUpdate_filter, startBlockNum, endBlockNum);
                 if (attriUpdate_event.length > 0) {
                     for (var e = 0; e < attriUpdate_event.length; e++) {
@@ -538,9 +541,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}外貌发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
                 }
-            })());
+            }
+            //)());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> 
+            {
                 let attriUpdate_event = await actorMoodAttributes.queryFilter(attrMoodUpdate_filter, startBlockNum, endBlockNum);
                 if (attriUpdate_event.length > 0) {
                     for (var e = 0; e < attriUpdate_event.length; e++) {
@@ -555,9 +560,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}情绪发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
                 }
-            })());
+            }
+            //)());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> 
+            {
                 let attriUpdate_event = await actorCoreAttributes.queryFilter(attrCoreUpdate_filter, startBlockNum, endBlockNum);
                 if (attriUpdate_event.length > 0) {
                     for (var e = 0; e < attriUpdate_event.length; e++) {
@@ -572,9 +579,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}身体发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
                 }
-            })());
+            }
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> 
+            {
                 let attriUpdate_event = await actorBehaviorAttributes.queryFilter(attrBehaviorUpdate_filter, startBlockNum, endBlockNum);
                 if (attriUpdate_event.length > 0) {
                     for (var e = 0; e < attriUpdate_event.length; e++) {
@@ -589,10 +598,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}行动力发生了变化：` + attrStr + `\r\n\`\`\``);
                     }
                 }
-            })());
+            }
+            //)());
 
             //behavior special events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let actRecover_event = await actorBehaviorAttributes.queryFilter(actRecover_filter, startBlockNum, endBlockNum);
                 if (actRecover_event.length > 0) {
                     for (var e = 0; e < actRecover_event.length; e++) {
@@ -603,10 +613,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         await sendChannelMessage(`\`\`\`diff\r\n+ ${name}恢复了行动力（${actRecover_event[e].args.act}）。\r\n\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //zone assets grown events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let zone_asset_grown_event = await worldZoneBaseResources.queryFilter(ZoneAssetGrown_filter, startBlockNum, endBlockNum);
                 if (zone_asset_grown_event.length > 0) {
                     for (var e = 0; e < zone_asset_grown_event.length; e++) {
@@ -632,10 +642,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             `\`\`\``);
                     }
                 }
-            })());
+            //})());
 
             //actor assets collection events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let actor_asset_collected_event = await worldZoneBaseResources.queryFilter(ActorAssetCollected_filter, startBlockNum, endBlockNum);
                 if (actor_asset_collected_event.length > 0) {
                     for (var e = 0; e < actor_asset_collected_event.length; e++) {
@@ -660,10 +670,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             (herb.isZero() ? `` : `${herbText + "**药材**（" + utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
                     }
                 }
-            })());
+            //})());
 
             //assets transfer events
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let daoli_transfer_event = await assetDaoli.queryFilter(daoli_transfer_filter, startBlockNum, endBlockNum);
                 if (daoli_transfer_event.length > 0) {
                     for (var e = 0; e < daoli_transfer_event.length; e++) {
@@ -686,9 +696,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let gold_transfer_event = await assetGold.queryFilter(gold_transfer_filter, startBlockNum, endBlockNum);
                 if (gold_transfer_event.length > 0) {
                     for (var e = 0; e < gold_transfer_event.length; e++) {
@@ -707,9 +717,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             }
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let food_transfer_event = await assetFood.queryFilter(food_transfer_filter, startBlockNum, endBlockNum);
                 if (food_transfer_event.length > 0) {
                     for (var e = 0; e < food_transfer_event.length; e++) {
@@ -728,9 +738,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         }
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let wood_transfer_event = await assetWood.queryFilter(wood_transfer_filter, startBlockNum, endBlockNum);
                 if (wood_transfer_event.length > 0) {
                     for (var e = 0; e < wood_transfer_event.length; e++) {
@@ -749,9 +759,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         }
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let fabric_transfer_event = await assetFabric.queryFilter(fabric_transfer_filter, startBlockNum, endBlockNum);
                 if (fabric_transfer_event.length > 0) {
                     for (var e = 0; e < fabric_transfer_event.length; e++) {
@@ -770,9 +780,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         }
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let herb_transfer_event = await assetHerb.queryFilter(herb_transfer_filter, startBlockNum, endBlockNum);
                 if (herb_transfer_event.length > 0) {
                     for (var e = 0; e < herb_transfer_event.length; e++) {
@@ -791,9 +801,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         }
                     }
                 }
-            })());
+            //})());
 
-            event_promises.push((async ():Promise<void>=> {
+            //event_promises.push((async ():Promise<void>=> {
                 let prestige_transfer_event = await assetPrestige.queryFilter(prestige_transfer_filter, startBlockNum, endBlockNum);
                 if (prestige_transfer_event.length > 0) {
                     for (var e = 0; e < prestige_transfer_event.length; e++) {
@@ -810,9 +820,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
                 }
-            })());
+            //})());
 
-            await Promise.all(event_promises);
+            //await Promise.all(event_promises);
 
             startBlockNum = endBlockNum + 1;
             if (startBlockNum > blockNum)

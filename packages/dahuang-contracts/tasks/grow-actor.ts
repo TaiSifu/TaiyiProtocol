@@ -62,14 +62,15 @@ task('grow-actor', '成长角色')
         let uri = await actors.tokenURIByMode(actor, 1);
         logURI(uri);
 
-        console.log(`switch to render mode 0...`);
-        await (await actors.changeActorRenderMode(actor, 0)).wait();
-        uri = await actors.tokenURI(actor);
-        console.log(`Taiyi actor #${actor.toString()} age${_age} uri:`);
-        logURI(uri);
-        
         console.log(`switch to render mode 1...`);
         await (await actors.changeActorRenderMode(actor, 1)).wait();
+        console.log(`Taiyi actor #${actor.toString()} age${_age} uri:`);
         uri = await actors.tokenURI(actor);
         logURI(uri);
-   });
+
+        console.log(`switch to render mode 0...`);
+        await (await actors.changeActorRenderMode(actor, 0)).wait();
+        console.log(`Taiyi actor #${actor.toString()} age${_age} uri:`);
+        uri = await actors.tokenURI(actor);
+        logURI(uri);
+});
