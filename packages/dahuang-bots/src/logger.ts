@@ -215,7 +215,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
 
             //worldEvent born character events
             event_promises.push((async ():Promise<void>=> {
-                let eventBorn_event = await shejitu.queryFilter(eventBorn_filter, startBlockNum, endBlockNum);
+                let eventBorn_event = await worldEvents.queryFilter(eventBorn_filter, startBlockNum, endBlockNum);
                 if (eventBorn_event.length > 0) {
                     for (var e = 0; e < eventBorn_event.length; e++) {
                         let actor = eventBorn_event[e].args.actor.toNumber();
@@ -231,11 +231,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         //统计
                         await sendChannelMessage(`***资源总量***：`);
                         await sendChannelMessage(`\`\`\`fix\r\n` +
-                            `金石（${utils.formatEther(await assetGold.totalSupply())}),` +
-                            `食材（${utils.formatEther(await assetFood.totalSupply())}),` +
-                            `木材（${utils.formatEther(await assetWood.totalSupply())}),` +
-                            `织物（${utils.formatEther(await assetFabric.totalSupply())}),` +
-                            `药材（${utils.formatEther(await assetHerb.totalSupply())})` +
+                            `金石：${utils.formatEther(await assetGold.totalSupply())}\r\n` +
+                            `食材：${utils.formatEther(await assetFood.totalSupply())}\r\n` +
+                            `木材：${utils.formatEther(await assetWood.totalSupply())}\r\n` +
+                            `织物：${utils.formatEther(await assetFabric.totalSupply())}\r\n` +
+                            `药材：${utils.formatEther(await assetHerb.totalSupply())}\r\n` +
                             `\`\`\``);
                         await sendChannelMessage(`***统计信息***：`);
                         await sendChannelMessage(`\`\`\`fix\r\n` +
