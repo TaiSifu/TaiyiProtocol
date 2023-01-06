@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 /*

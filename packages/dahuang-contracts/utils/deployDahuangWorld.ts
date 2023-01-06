@@ -6,7 +6,7 @@ import {
     ActorCharmAttributes, ActorCharmAttributes__factory, ActorCoreAttributes, ActorCoreAttributes__factory, 
     ActorMoodAttributes, ActorMoodAttributes__factory, ActorBehaviorAttributes, ActorBehaviorAttributes__factory, WorldSeasons, 
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
-    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory
+    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory
 } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
@@ -101,6 +101,11 @@ export const deployWorldZoneBaseResources = async (zoneResourceGrowTimeDay: numb
     return (await factory.deploy(zoneResourceGrowTimeDay, zoneResourceGrowQuantityScale, route.address)).deployed();
 };
 
+export const deployWorldDeadActors = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldDeadActors> => {
+    const factory = new WorldDeadActors__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
 export type DahuangContractName =
     | 'DahuangConstants'
     | 'ShejiTu'
@@ -123,7 +128,8 @@ export type DahuangContractName =
     | 'WorldVillages'
     | 'WorldZoneBaseResources'
     | 'WorldBuildings'
-    | 'ActorRelationship';
+    | 'ActorRelationship'
+    | 'WorldDeadActors';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -274,6 +280,10 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     await (await worldZoneBaseResources.initOperator(worldZoneBaseResourceOperator)).wait();
     if(verbose) console.log(`Mint GuanGong as actor#${await worldZoneBaseResources.ACTOR_GUANGONG()}.`);
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address)).wait();
+    if(verbose) console.log("Deploy WorldDeadActors...");
+    let worldDeadActors = await deployWorldDeadActors(routeByPanGu, deployer);
+    let worldDeadActorsArgs = [route.address];
+    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_DEADACTORS(), worldDeadActors.address)).wait();
 
     //init SocialIdentity Names
     if(flags?.noSIDNames)
@@ -386,6 +396,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         WorldBuildings: {instance: worldBuildings, constructorArguments: worldBuildingsArgs},
         WorldZoneBaseResources: {instance: worldZoneBaseResources, constructorArguments: worldZoneBaseResourcesArgs},
         ActorRelationship: {instance: actorRelationships, constructorArguments: actorRelationshipsArgs},
+        WorldDeadActors: {instance: worldDeadActors, constructorArguments: worldDeadActorsArgs},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

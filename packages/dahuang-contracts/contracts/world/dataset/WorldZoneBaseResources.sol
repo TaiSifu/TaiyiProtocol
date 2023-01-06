@@ -8,6 +8,7 @@ import '@taiyi/contracts/contracts/world/WorldConfigurable.sol';
 import "@taiyi/contracts/contracts/base/DateTimeLibrary.sol";
 import "@taiyi/contracts/contracts/base/Ownable.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, Ownable {

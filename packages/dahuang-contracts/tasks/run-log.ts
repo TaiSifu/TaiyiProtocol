@@ -18,6 +18,7 @@ import {
     WorldZoneBaseResources__factory, 
     DahuangConstants,
     DahuangConstants__factory,
+    WorldDeadActors__factory,
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -103,7 +104,8 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
-    const eventProcessor10000 = WorldEventProcessor10000__factory.connect(addressBook.WorldEventProcessor10000, wallet);
+    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.worldDeadActors, wallet);
+
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
     const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);
     const eventProcessor10110 = WorldEventProcessor10110__factory.connect(addressBook.WorldEventProcessor10110, wallet);
@@ -206,7 +208,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                     console.log(`农村：` + chalk.green(`${await eventProcessor10009.actorNum()}`) + `人。`);
                     console.log(`城镇：` + chalk.green(`${await eventProcessor10010.actorNum()}`) + `人。`);
                     console.log(`门派中人：` + chalk.green(`${await eventProcessor10011.actorNum()}`) + `人。`);
-                    console.log(`死亡：` + chalk.red(`${await eventProcessor10000.deadNum()}`) + `人。`);
+                    console.log(`死亡：` + chalk.red(`${await worldDeadActors.deadNum()}`) + `人。`);
                 }
             }
 

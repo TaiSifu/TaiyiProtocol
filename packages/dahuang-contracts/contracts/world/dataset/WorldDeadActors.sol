@@ -9,14 +9,15 @@ import '../../libs/DahuangConstants.sol';
 import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
-contract WorldVillages is IWorldVillages, WorldConfigurable {
+contract WorldDeadActors is IWorldDeadActors, WorldConfigurable {
 
     /* *******
      * Globals
      * *******
      */
 
-    mapping(uint256 => uint256) public override villageCreators; //zoneid -> actor
+    uint256 public override deadNum = 0;
+    mapping(uint256 => bool) public deadActors; //actor -> dead or not
     
     /* *********
      * Modifiers
@@ -45,15 +46,17 @@ contract WorldVillages is IWorldVillages, WorldConfigurable {
      * ****************
      */
 
-    function moduleID() external override pure returns (uint256) { return DahuangConstants.WORLD_MODULE_VILLAGES; }
+    function moduleID() external override pure returns (uint256) { return DahuangConstants.WORLD_MODULE_DEADACTORS; }
 
-    function createVillage(uint256 _operator, uint256 _actor, uint256 _zoneId) external override
+    function addDead(uint256 _operator, uint256 _actor) external override
         onlyYeMing(_operator)
     {
-        require(villageCreators[_zoneId] == 0, "zone already created!");
-        require(_zoneId >=1, "zone id invalid");
+        require(_actor > 0, "actor id invalid");
+        require(deadActors[_actor] == false, "already added dead actor");
+        //require(keccak256(abi.encodePacked(typeNames[typeId])) == keccak256(abi.encodePacked("")), "typeId invalid");
 
-        villageCreators[_zoneId] = _actor;
+        deadActors[_actor] = true;
+        deadNum += 1;
     }
 
     /* **************
@@ -61,12 +64,8 @@ contract WorldVillages is IWorldVillages, WorldConfigurable {
      * **************
      */
 
-    function isZoneVillage(uint256 _zoneId) public override view returns (bool) {
-        return villageCreators[_zoneId] > 0;        
-    }
-
-    function tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) virtual external override view returns (string memory, uint256 _endY) {
-        return ("", _startY);
+    function tokenSVG(uint256 /*_actor*/, uint256 startY, uint256 /*lineHeight*/) virtual external override view returns (string memory, uint256 endY) {
+        return ("", startY);
     }
 
     function tokenJSON(uint256 /*_actor*/) virtual external override view returns (string memory) {

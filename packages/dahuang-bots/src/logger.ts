@@ -17,7 +17,7 @@ import {
     WorldEventProcessor10000__factory, WorldEventProcessor10001__factory,
     WorldEventProcessor10002__factory, WorldEventProcessor10009__factory, WorldEventProcessor10010__factory,
     WorldEventProcessor10011__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory,
-    WorldZoneBaseResources__factory, DahuangConstants__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { getAddressBookShareFilePath } from '@taiyi/dahuang-contracts/dist/utils/addressConfig';
 import { TextChannel } from "discord.js";
@@ -129,8 +129,8 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.worldDeadActors, wallet);
 
-    const eventProcessor10000 = WorldEventProcessor10000__factory.connect(addressBook.WorldEventProcessor10000, wallet);
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
     const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);
     const eventProcessor10110 = WorldEventProcessor10110__factory.connect(addressBook.WorldEventProcessor10110, wallet);
@@ -246,7 +246,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             `农村：${await eventProcessor10009.actorNum()}人。\r\n` +
                             `城镇：${await eventProcessor10010.actorNum()}人。\r\n` +
                             `门派中人：${await eventProcessor10011.actorNum()}人。\r\n` +
-                            `死亡：${await eventProcessor10000.deadNum()}人。\r\n` +
+                            `死亡：${await worldDeadActors.deadNum()}人。\r\n` +
                             `\`\`\``);
                     }
                 }

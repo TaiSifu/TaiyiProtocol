@@ -6,6 +6,7 @@ import "@taiyi/contracts/contracts/interfaces/WorldInterfaces.sol";
 import '@taiyi/contracts/contracts/libs/Base64.sol';
 import '@taiyi/contracts/contracts/world/WorldConfigurable.sol';
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 contract WorldBuildings is IWorldBuildings, WorldConfigurable {
