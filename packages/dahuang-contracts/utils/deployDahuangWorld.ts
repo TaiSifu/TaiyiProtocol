@@ -280,10 +280,11 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     await (await worldZoneBaseResources.initOperator(worldZoneBaseResourceOperator)).wait();
     if(verbose) console.log(`Mint GuanGong as actor#${await worldZoneBaseResources.ACTOR_GUANGONG()}.`);
     await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_ZONE_BASE_RESOURCES(), worldZoneBaseResources.address)).wait();
+
     if(verbose) console.log("Deploy WorldDeadActors...");
     let worldDeadActors = await deployWorldDeadActors(routeByPanGu, deployer);
     let worldDeadActorsArgs = [route.address];
-    await (await routeByPanGu.registerModule(await dahuangConstants.WORLD_MODULE_DEADACTORS(), worldDeadActors.address)).wait();
+    await (await routeByPanGu.registerModule(219, worldDeadActors.address)).wait();
 
     //init SocialIdentity Names
     if(flags?.noSIDNames)

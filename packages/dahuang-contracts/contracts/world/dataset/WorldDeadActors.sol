@@ -46,7 +46,7 @@ contract WorldDeadActors is IWorldDeadActors, WorldConfigurable {
      * ****************
      */
 
-    function moduleID() external override pure returns (uint256) { return DahuangConstants.WORLD_MODULE_DEADACTORS; }
+    function moduleID() external override pure returns (uint256) { return 219; }
 
     function addDead(uint256 _operator, uint256 _actor) external override
         onlyYeMing(_operator)

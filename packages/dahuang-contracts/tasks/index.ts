@@ -5,5 +5,6 @@ export * from './collect-assets';
 export * from './deploy';
 export * from './deploy-demo';
 export * from './deploy-single';
+export * from './deploy-event-processors';
 export * from './run-log';
 export * from './verify-etherscan-single';

@@ -30,11 +30,9 @@ task('verify-etherscan-single', 'Verify the Solidity contracts on Etherscan').se
     let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
 
     let contracts: Record<string, VerifyArgs> = {
-        "WorldZoneBaseResources": {
-            address: "0xB4b1f8d51d2A0CbE8569A17e49984d07949aa077",
+        "WorldDeadActors": {
+            address: "0x2fD2671e8CA03448A40205dDf36262d27e886B27",
             constructorArguments:  [
-                3600,
-                1000,
                 "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
               ]
         },

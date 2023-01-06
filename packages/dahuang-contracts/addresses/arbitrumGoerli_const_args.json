@@ -84,5 +84,11 @@
     3600,
     1000,
     "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldDeadActors": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10000": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
   ]
 }

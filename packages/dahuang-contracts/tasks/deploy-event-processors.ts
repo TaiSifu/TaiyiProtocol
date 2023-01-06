@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -33,7 +33,7 @@ async function getContractConstructArgs(net: string): Promise<{ [index: string]:
     return JSON.parse(fs.readFileSync(sharedAddressPath, { encoding: "ascii" }));
 }
 
-task('deploy-single', '部署单一大荒合约')
+task('deploy-event-processors', '部署大荒事件合约')
     .setAction(async (args, { ethers }) => {
         let addressBook:{[index: string]:any} = await getContractAddress(process_args.network?process_args.network:"hard");
         let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
@@ -60,21 +60,22 @@ task('deploy-single', '部署单一大荒合约')
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
         //Deploy dahuang contracts
-        console.log("Deploy WorldDeadActors...");
-        let worldDeadActors = await deployWorldDeadActors(worldContractRoute, deployer);
-        let worldDeadActorsArgs = [worldContractRoute.address];
-        let moduleId = 219;
-        await (await worldContractRoute.registerModule(moduleId, worldDeadActors.address)).wait();
+        let evt10000 = await (await (new WorldEventProcessor10000__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10000Args = [worldContractRoute.address];
+        await worldEvents.setEventProcessor(10000, evt10000.address);
                     
+        //配置时间线事件
+        //await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
+
         //save contract address
-        addressBook.WorldDeadActors = worldDeadActors.address;
+        addressBook.WorldEventProcessor10000 = evt10000.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldDeadActors = worldDeadActorsArgs;
+        argsBook.WorldEventProcessor10000 = evt10000Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);

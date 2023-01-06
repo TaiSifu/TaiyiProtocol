@@ -46,7 +46,7 @@ contract WorldEventProcessor10000 is DefaultWorldEventProcessor {
     function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override 
         onlyYeMing(_operator)
     {
-        IWorldDeadActors deads = IWorldDeadActors(worldRoute.modules(DahuangConstants.WORLD_MODULE_DEADACTORS));
+        IWorldDeadActors deads = IWorldDeadActors(worldRoute.modules(219));
         deads.addDead(_operator, _actor);
     }
 }

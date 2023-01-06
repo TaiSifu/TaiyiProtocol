@@ -42,6 +42,4 @@ library DahuangConstants {
     uint256 public constant WORLD_MODULE_ZONE_BASE_RESOURCES    = 216; //地区基本资源
     uint256 public constant WORLD_MODULE_VILLAGES     = 217; //聚居区（村庄）
     uint256 public constant WORLD_MODULE_BUILDINGS    = 218; //建筑物
-
-    uint256 public constant WORLD_MODULE_DEADACTORS   = 219; //死亡统计
 }

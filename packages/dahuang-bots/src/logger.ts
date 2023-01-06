@@ -129,7 +129,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
-    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.worldDeadActors, wallet);
+    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.WorldDeadActors, wallet);
 
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
     const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);

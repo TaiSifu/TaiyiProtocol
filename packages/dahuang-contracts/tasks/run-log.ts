@@ -90,7 +90,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const assetPrestige = WorldNontransferableFungible__factory.connect(addressBook.AssetPrestige, wallet);
     const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
     const actorTalents = ActorTalents__factory.connect(addressBook.ActorTalents, wallet);
-    const shejitu = ShejiTu__factory.connect(addressBook.ShejituProxy, wallet);
+    const shejitu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
     const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
     const actorLocations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
     const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
@@ -104,7 +104,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorCoreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, wallet);
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
-    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.worldDeadActors, wallet);
+    const worldDeadActors = WorldDeadActors__factory.connect(addressBook.WorldDeadActors, wallet);
 
     const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
     const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);
@@ -180,7 +180,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
             }
 
             //timeline born character events
-            let actorBorn_event = await shejitu.queryFilter(actorBorn_filter, block.hash);
+            let actorBorn_event = await worldEvents.queryFilter(actorBorn_filter, block.hash);
             if (actorBorn_event.length > 0) {
                 for (var e = 0; e < actorBorn_event.length; e++) {
                     let actor = actorBorn_event[e].args.actor.toNumber();
