@@ -278,9 +278,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let age = timeline_activeEvent_event[e].args.age;
                         let eventId = timeline_activeEvent_event[e].args.eventId;
                         let eventInfo = await worldEvents.eventInfo(eventId, actor);
-                        //let name = (await actorNames.actorName(actor))._name;
+                        let name = (await actorNames.actorName(actor))._name;
 
-                        await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                        await sendChannelMessage(`\`\`\`fix\r\n${name}在${age}岁干了一些事\r\n` +
+                            `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
                     }
                 }
             //})());
@@ -294,9 +295,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let age = timeline_branchEvent_event[e].args.age;
                         let eventId = timeline_branchEvent_event[e].args.eventId;
                         let eventInfo = await worldEvents.eventInfo(eventId, actor);
-                        //let name = (await actorNames.actorName(actor))._name;
+                        let name = (await actorNames.actorName(actor))._name;
 
-                        await sendChannelMessage(`[${eventId.toString()}]` + eventInfo);
+                        await sendChannelMessage(`\`\`\`fix\r\n${name}，${age}岁，` +
+                            `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
                     }
                 }
             //})());
@@ -406,13 +408,17 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let tlts = talentsInit_event[e].args.ids;
                         let name = (await actorNames.actorName(actor))._name;
 
-                        await sendChannelMessage(`**${name}**拥有的天赋：`);
-                        let msg = `\`\`\`diff\r\n`;
-                        for (var t = 0; t < tlts.length; t++) {
-                            msg += `+  ${await actorTalents.talentNames(tlts[t])}(${await actorTalents.talentDescriptions(tlts[t])})\r\n`;
+                        if(tlts.length == 0)
+                            await sendChannelMessage(`**${name}**没有拥有任何天赋。`);
+                        else {
+                            await sendChannelMessage(`**${name}**拥有的天赋：`);
+                            let msg = `\`\`\`diff\r\n`;
+                            for (var t = 0; t < tlts.length; t++) {
+                                msg += `+  ${await actorTalents.talentNames(tlts[t])}(${await actorTalents.talentDescriptions(tlts[t])})\r\n`;
+                            }
+                            msg += `\`\`\``;
+                            await sendChannelMessage(msg);
                         }
-                        msg += `\`\`\``;
-                        await sendChannelMessage(msg);
                     }
                 }
             //})());
