@@ -53,9 +53,14 @@ task('collect-assets', '采集资源')
         let actor = args.actor;
         
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
-        let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, operator1);
+        let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, operator1);        
+
+        //恢复体力
+        console.log("恢复体力...");
+        await (await behaviorAttributes.recoverAct(actor)).wait();
 
         if(await evt60505.checkOccurrence(actor, 0)) {
+            console.log("采集资源...");
             let zoneId = args.zoneId;
             if(zoneId == 0) {
                 let lcs = await locations.actorLocations(actor);

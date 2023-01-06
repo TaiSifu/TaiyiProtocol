@@ -652,30 +652,30 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
 
             //actor assets collection events
             //event_promises.push((async ():Promise<void>=> {
-                let actor_asset_collected_event = await worldZoneBaseResources.queryFilter(ActorAssetCollected_filter, startBlockNum, endBlockNum);
-                if (actor_asset_collected_event.length > 0) {
-                    for (var e = 0; e < actor_asset_collected_event.length; e++) {
-                        let actor_id = actor_asset_collected_event[e].args.actor.toNumber();
-                        let actorName = (await actorNames.actorName(actor_id))._name;
-                        let gold = actor_asset_collected_event[e].args.gold;
-                        let goldText = assetQuantityDescription(gold);
-                        let food = actor_asset_collected_event[e].args.food;
-                        let foodText = assetQuantityDescription(food);
-                        let herb = actor_asset_collected_event[e].args.herb;
-                        let herbText = assetQuantityDescription(herb);
-                        let fabric = actor_asset_collected_event[e].args.fabric;
-                        let fabricText = assetQuantityDescription(fabric);
-                        let wood = actor_asset_collected_event[e].args.wood;
-                        let woodText = assetQuantityDescription(wood);
+                // let actor_asset_collected_event = await worldZoneBaseResources.queryFilter(ActorAssetCollected_filter, startBlockNum, endBlockNum);
+                // if (actor_asset_collected_event.length > 0) {
+                //     for (var e = 0; e < actor_asset_collected_event.length; e++) {
+                //         let actor_id = actor_asset_collected_event[e].args.actor.toNumber();
+                //         let actorName = (await actorNames.actorName(actor_id))._name;
+                //         let gold = actor_asset_collected_event[e].args.gold;
+                //         let goldText = assetQuantityDescription(gold);
+                //         let food = actor_asset_collected_event[e].args.food;
+                //         let foodText = assetQuantityDescription(food);
+                //         let herb = actor_asset_collected_event[e].args.herb;
+                //         let herbText = assetQuantityDescription(herb);
+                //         let fabric = actor_asset_collected_event[e].args.fabric;
+                //         let fabricText = assetQuantityDescription(fabric);
+                //         let wood = actor_asset_collected_event[e].args.wood;
+                //         let woodText = assetQuantityDescription(wood);
 
-                        await sendChannelMessage(`**${actorName}**获得了` +
-                            (gold.isZero() ? `` : `${goldText + "**金石**（" + utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (food.isZero() ? `` : `${foodText + "**食材**（" + utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (wood.isZero() ? `` : `${woodText + "**木材**（" + utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (fabric.isZero() ? `` : `${fabricText + "**织物**（" + utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (herb.isZero() ? `` : `${herbText + "**药材**（" + utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
-                    }
-                }
+                //         await sendChannelMessage(`**${actorName}**获得了` +
+                //             (gold.isZero() ? `` : `${goldText + "**金石**（" + utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                //             (food.isZero() ? `` : `${foodText + "**食材**（" + utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                //             (wood.isZero() ? `` : `${woodText + "**木材**（" + utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                //             (fabric.isZero() ? `` : `${fabricText + "**织物**（" + utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                //             (herb.isZero() ? `` : `${herbText + "**药材**（" + utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
+                //     }
+                // }
             //})());
 
             //assets transfer events
