@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
-    "rootDir": "src",
+    "rootDirs": ["src", "tasks"],
     "outDir": "dist",
     "importHelpers": true,
     "moduleResolution": "Node", // required
@@ -16,5 +16,6 @@
     {"path": "../taiyi-contracts/tsconfig.build.json"},
     {"path": "../dahuang-contracts/tsconfig.build.json"},
   ],
+  "include": ["./src", "./tasks"],
   "exclude": ["node_modules"]
 }

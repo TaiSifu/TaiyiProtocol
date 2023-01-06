@@ -1,15 +1,12 @@
-//use hardhat network to debug
-//npx hardhat node
-//npx hardhat run index.ts --network hard
-
-//use ts-node
-//TS_NODE_FILES=1 ts-node index.ts --network hard --start 10
-
 import "reflect-metadata";
 import { Intents, Interaction, Message, TextChannel } from "discord.js";
 import { Client } from "discordx";
 import { dirname, importx } from "@discordx/importer";
 import { startLogger, addChannel } from "./logger";
+import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
+
+let startBlockNum: number;
+let ethersHelper: HardhatEthersHelpers;
 
 const client = new Client({
     simpleCommand: {
@@ -41,7 +38,7 @@ client.once("ready", async () => {
     addChannel(channel);
     channel.send("开始播报大荒事件.....");
 
-    startLogger();
+    startLogger(startBlockNum, ethersHelper);
 });
 
 client.on("interactionCreate", (interaction: Interaction) => {
@@ -52,12 +49,13 @@ client.on("messageCreate", (message: Message) => {
     client.executeCommand(message);
 });
 
-async function run() {
+export async function run_bot(_startBlockNum: number, _ethersHelper: HardhatEthersHelpers) {
+    startBlockNum = _startBlockNum;
+    ethersHelper = _ethersHelper;
+
     // with cjs
     await importx(__dirname + "/{events,commands}/**/*.{ts,js}");
     // with ems
     //await importx(dirname(import.meta.url) + "/{events,commands}/**/*.{ts,js}");
     client.login(process.env.BOT_TOKEN ?? ""); // provide your bot token
 }
-
-run();

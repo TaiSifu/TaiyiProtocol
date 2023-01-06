@@ -1,8 +1,9 @@
 import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-ethers'
 import '@typechain/hardhat';
 import "hardhat-change-network";
 import {HardhatUserConfig, NetworkUserConfig} from 'hardhat/types';
-//import 'hardhat-deploy';
+import './tasks';
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -44,10 +45,12 @@ const config: HardhatUserConfig = {
     polygonzkevm: {
       url: `https://rpc.public.zkevm-test.net`,
       chainId: 1422,
-      accounts: [
-        '0x986ad5a63c8fbb38fe3fcfa27948bb05828584b14a491cc7e411a606832eba22', //0xed09032D79125258147D703c5223816Dee5EEcDE
-        '0x413f7eb19448c124059f7361b56c5e956630ff53155d468001390faaece29384' //0xFEC629c661Ad070bB0811Ec36F0720D6838033ce
-      ]
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
+    arbitrumGoerli: {
+      url: `https://arbitrum-goerli.infura.io/v3/31fb185b55a74a46adb9be33ee696820`,
+      chainId: 421613,
+      accounts: [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
     hard: {
       initialBaseFeePerGas: 0,

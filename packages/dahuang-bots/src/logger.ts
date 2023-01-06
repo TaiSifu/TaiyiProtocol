@@ -2,9 +2,7 @@
 //https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
 
 import fs from 'fs-extra';
-import * as env from "hardhat";
-import { ethers } from "hardhat";
-import { BigNumber } from 'ethers'; //https://docs.ethers.io/v5/
+import { BigNumber, utils } from 'ethers'; //https://docs.ethers.io/v5/
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from '@ethersproject/wallet';
 import {
@@ -23,6 +21,7 @@ import {
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { getAddressBookShareFilePath } from '@taiyi/dahuang-contracts/dist/utils/addressConfig';
 import { TextChannel } from "discord.js";
+import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,12 +95,12 @@ let ACTOR_GUANGONG : BigNumber;
 let IsConstInitialized = false;
 
 
-async function startSyncMain(startBlockNum: number) {
+async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {
     if (addressBook["WorldConstants"] == undefined) {
         await initAddress();
     }
-    let provider = await ethers.provider;
-    const [wallet] = await ethers.getSigners();
+    let provider = await ethersHelper.provider;
+    const [wallet] = await ethersHelper.getSigners();
     const worldConstants = WorldConstants__factory.connect(addressBook.WorldConstants, wallet);
     const actors = Actors__factory.connect(addressBook.Actors, wallet);
     const actorPrelifes = ActorPrelifes__factory.connect(addressBook.ActorPrelifes, wallet);
@@ -232,11 +231,11 @@ async function startSyncMain(startBlockNum: number) {
                         //统计
                         await sendChannelMessage(`***资源总量***：`);
                         await sendChannelMessage(`\`\`\`fix\r\n` +
-                            `金石（${ethers.utils.formatEther(await assetGold.totalSupply())}),` +
-                            `食材（${ethers.utils.formatEther(await assetFood.totalSupply())}),` +
-                            `木材（${ethers.utils.formatEther(await assetWood.totalSupply())}),` +
-                            `织物（${ethers.utils.formatEther(await assetFabric.totalSupply())}),` +
-                            `药材（${ethers.utils.formatEther(await assetHerb.totalSupply())})` +
+                            `金石（${utils.formatEther(await assetGold.totalSupply())}),` +
+                            `食材（${utils.formatEther(await assetFood.totalSupply())}),` +
+                            `木材（${utils.formatEther(await assetWood.totalSupply())}),` +
+                            `织物（${utils.formatEther(await assetFabric.totalSupply())}),` +
+                            `药材（${utils.formatEther(await assetHerb.totalSupply())})` +
                             `\`\`\``);
                         await sendChannelMessage(`***统计信息***：`);
                         await sendChannelMessage(`\`\`\`fix\r\n` +
@@ -625,11 +624,11 @@ async function startSyncMain(startBlockNum: number) {
                         let woodText = assetQuantityDescription(wood);
 
                         await sendChannelMessage(`\`\`\`fix\r\n${zoneName}地区产生了：` +
-                            `金石（${ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                            `食材（${ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                            `木材（${ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                            `织物（${ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
-                            `药材（${ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17)))})` +
+                            `金石（${utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `食材（${utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `木材（${utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `织物（${utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17)))}),` +
+                            `药材（${utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17)))})` +
                             `\`\`\``);
                     }
                 }
@@ -654,11 +653,11 @@ async function startSyncMain(startBlockNum: number) {
                         let woodText = assetQuantityDescription(wood);
 
                         await sendChannelMessage(`**${actorName}**获得了` +
-                            (gold.isZero() ? `` : `${goldText + "**金石**（" + ethers.utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (food.isZero() ? `` : `${foodText + "**食材**（" + ethers.utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (wood.isZero() ? `` : `${woodText + "**木材**（" + ethers.utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (fabric.isZero() ? `` : `${fabricText + "**织物**（" + ethers.utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
-                            (herb.isZero() ? `` : `${herbText + "**药材**（" + ethers.utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
+                            (gold.isZero() ? `` : `${goldText + "**金石**（" + utils.formatEther(gold.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (food.isZero() ? `` : `${foodText + "**食材**（" + utils.formatEther(food.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (wood.isZero() ? `` : `${woodText + "**木材**（" + utils.formatEther(wood.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (fabric.isZero() ? `` : `${fabricText + "**织物**（" + utils.formatEther(fabric.div(BigInt(1e17)).mul(BigInt(1e17))) + "），"}`) +
+                            (herb.isZero() ? `` : `${herbText + "**药材**（" + utils.formatEther(herb.div(BigInt(1e17)).mul(BigInt(1e17))) + "）。"}`));
                     }
                 }
             })());
@@ -680,11 +679,11 @@ async function startSyncMain(startBlockNum: number) {
                         if(toName == "")
                             toName = `角色#${to}`;
                         if (from == 0)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else if (to == 0)
-                            await sendChannelMessage(`**${toName}**提取了` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${toName}**提取了` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else
-                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
                 }
             })());
@@ -702,9 +701,9 @@ async function startSyncMain(startBlockNum: number) {
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
-                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
-                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             }
                     }
                 }
@@ -723,9 +722,9 @@ async function startSyncMain(startBlockNum: number) {
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
-                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**食材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
-                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**食材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**食材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         }
                     }
                 }
@@ -744,9 +743,9 @@ async function startSyncMain(startBlockNum: number) {
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
-                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
-                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**木材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**木材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         }
                     }
                 }
@@ -765,9 +764,9 @@ async function startSyncMain(startBlockNum: number) {
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
-                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**织物**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
-                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**织物**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**织物**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         }
                     }
                 }
@@ -786,9 +785,9 @@ async function startSyncMain(startBlockNum: number) {
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
-                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
-                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**药材**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                                await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**药材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         }
                     }
                 }
@@ -806,9 +805,9 @@ async function startSyncMain(startBlockNum: number) {
                         let amountText = assetQuantityDescription(amount);
 
                         if (from == 0)
-                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else
-                            await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${ethers.utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${fromName}**消耗了` + amountText + `**威望**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
                 }
             })());
@@ -826,19 +825,10 @@ async function startSyncMain(startBlockNum: number) {
     // again in 90 second
     setTimeout(function () {
         console.log(`start-->`+`${startBlockNum}`);
-        startSyncMain(startBlockNum);
+        startSyncMain(startBlockNum, ethersHelper);
     }, 90000);
 }
 
-export function startLogger() {
-    const args = require('minimist')(process.argv.slice(2));
-
-    if (args.network) {
-        env.changeNetwork(args.network);
-    }
-
-    if (args.start)
-        startSyncMain(args.start);
-    else
-        startSyncMain(0);
+export function startLogger(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {
+    startSyncMain(startBlockNum, ethersHelper);
 }
