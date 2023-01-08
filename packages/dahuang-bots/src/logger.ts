@@ -314,7 +314,13 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         //let name_id = NameClaimed_event[e].args.nameId;
                         // let first_name = NameClaimed_event[e].args.firstName;
                         // let last_name = NameClaimed_event[e].args.lastName;
-                        let name = NameClaimed_event[e].args.name;
+                        let name:string = "";
+                        try {
+                            name = NameClaimed_event[e].args.name;
+                        }
+                        catch(e) {
+                            ; //某些浏览器上直接铸造中文名字会编码错误
+                        }
 
                         if(actor > 0)
                             await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
