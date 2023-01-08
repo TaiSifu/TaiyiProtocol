@@ -168,6 +168,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     let attrBehaviorUpdate_filter = actorBehaviorAttributes.filters.Updated(null, null, null);
     let actRecover_filter = actorBehaviorAttributes.filters.ActRecovered(null, null);
     let NameClaimed_filter = actorNames.filters.NameClaimed(null, null, null, null, null, null);
+    let NameAssigned_filter = actorNames.filters.NameAssigned(null, null, null);
     let ZoneClaimed_filter = worldZones.filters.ZoneClaimed(null, null, null);
     let TrigramOut_filter = trigrams.filters.TrigramsOut(null, null);
     let relationUpdated_filter = actorRelationship.filters.RelationUpdated(null, null, null, null);
@@ -308,14 +309,15 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                 let NameClaimed_event = await actorNames.queryFilter(NameClaimed_filter, startBlockNum, endBlockNum);
                 if (NameClaimed_event.length > 0) {
                     for (var e = 0; e < NameClaimed_event.length; e++) {
-                        let owner = NameClaimed_event[e].args.owner;
+                        //let owner = NameClaimed_event[e].args.owner;
                         let actor = NameClaimed_event[e].args.actor.toNumber();
-                        let name_id = NameClaimed_event[e].args.nameId;
-                        let first_name = NameClaimed_event[e].args.firstName;
-                        let last_name = NameClaimed_event[e].args.lastName;
+                        //let name_id = NameClaimed_event[e].args.nameId;
+                        // let first_name = NameClaimed_event[e].args.firstName;
+                        // let last_name = NameClaimed_event[e].args.lastName;
                         let name = NameClaimed_event[e].args.name;
 
-                        await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
+                        if(actor > 0)
+                            await sendChannelMessage(`\`\`\`css\r\n角色#${actor}取名为\"${name}\"\r\n\`\`\``);
                     }
                 }
             //})());
