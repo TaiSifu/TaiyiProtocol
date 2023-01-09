@@ -12,13 +12,9 @@ import {
 } from '@taiyi/contracts/dist/typechain';
 import { 
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory, 
-    WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, 
-    WorldEventProcessor10002__factory, WorldEventProcessor10009__factory, WorldEventProcessor10010__factory, 
-    WorldEventProcessor10011__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, 
-    WorldZoneBaseResources__factory, 
-    DahuangConstants,
-    DahuangConstants__factory,
-    WorldDeadActors__factory,
+    WorldEventProcessor10009__factory, WorldEventProcessor10010__factory, WorldEventProcessor10011__factory, 
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory,
+    ActorsGender__factory,
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -105,11 +101,8 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
     const worldDeadActors = WorldDeadActors__factory.connect(addressBook.WorldDeadActors, wallet);
+    const actorsGender = ActorsGender__factory.connect(addressBook.ActorsGender, wallet);
 
-    const eventProcessor10001 = WorldEventProcessor10001__factory.connect(addressBook.WorldEventProcessor10001, wallet);
-    const eventProcessor10002 = WorldEventProcessor10002__factory.connect(addressBook.WorldEventProcessor10002, wallet);
-    const eventProcessor10110 = WorldEventProcessor10110__factory.connect(addressBook.WorldEventProcessor10110, wallet);
-    const eventProcessor10111 = WorldEventProcessor10111__factory.connect(addressBook.WorldEventProcessor10111, wallet);
     const eventProcessor10009 = WorldEventProcessor10009__factory.connect(addressBook.WorldEventProcessor10009, wallet);
     const eventProcessor10010 = WorldEventProcessor10010__factory.connect(addressBook.WorldEventProcessor10010, wallet);
     const eventProcessor10011 = WorldEventProcessor10011__factory.connect(addressBook.WorldEventProcessor10011, wallet);
@@ -201,10 +194,10 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         `织物（` + chalk.yellowBright(`${utils.formatEther(await assetFabric.totalSupply())}`) + `),` +
                         `药材（` + chalk.yellowBright(`${utils.formatEther(await assetHerb.totalSupply())}`) + `)`
                     );
-                    console.log(`出生男性：` + chalk.green(`${await eventProcessor10001.maleNum()}`) + `人。`);
-                    console.log(`出生女性：` + chalk.green(`${await eventProcessor10002.femaleNum()}`) + `人。`);
-                    console.log(`出生无性：` + chalk.green(`${await eventProcessor10110.asexualNum()}`) + `人。`);
-                    console.log(`出生双性：` + chalk.green(`${await eventProcessor10111.bisexualNum()}`) + `人。`);
+                    console.log(`出生男性：` + chalk.green(`${await actorsGender.maleNum()}`) + `人。`);
+                    console.log(`出生女性：` + chalk.green(`${await actorsGender.femaleNum()}`) + `人。`);
+                    console.log(`出生无性：` + chalk.green(`${await actorsGender.asexualNum()}`) + `人。`);
+                    console.log(`出生双性：` + chalk.green(`${await actorsGender.bisexualNum()}`) + `人。`);
                     console.log(`农村：` + chalk.green(`${await eventProcessor10009.actorNum()}`) + `人。`);
                     console.log(`城镇：` + chalk.green(`${await eventProcessor10010.actorNum()}`) + `人。`);
                     console.log(`门派中人：` + chalk.green(`${await eventProcessor10011.actorNum()}`) + `人。`);

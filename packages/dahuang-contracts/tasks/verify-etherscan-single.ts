@@ -1,3 +1,4 @@
+//yarn task:verify-etherscan-single --network arbitrumGoerli
 import { task } from 'hardhat/config';
 import fs from 'fs-extra';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils';
@@ -30,8 +31,8 @@ task('verify-etherscan-single', 'Verify the Solidity contracts on Etherscan').se
     let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
 
     let contracts: Record<string, VerifyArgs> = {
-        "WorldDeadActors": {
-            address: "0x2fD2671e8CA03448A40205dDf36262d27e886B27",
+        "ActorsGender": {
+            address: "0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5",
             constructorArguments:  [
                 "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
               ]

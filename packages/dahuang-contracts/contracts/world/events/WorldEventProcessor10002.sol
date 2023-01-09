@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 /*
@@ -16,15 +17,14 @@ check order:
 */
 
 contract WorldEventProcessor10002 is DefaultWorldEventProcessor {
-    uint256[] public femaleActors;
 
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60002) {        
-    }
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60002) {}
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出生了，是个女孩。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x94\x9F\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE4\xB8\xAA\xE5\xA5\xB3\xE5\xAD\xA9\xE3\x80\x82";
     }
+    
     //坤
     function trigrams(uint256 /*_actor*/) virtual external override view returns (uint256[] memory) {
         uint256[] memory _t = new uint256[](6);
@@ -53,9 +53,7 @@ contract WorldEventProcessor10002 is DefaultWorldEventProcessor {
     function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override
         onlyYeMing(_operator)
     {
-        femaleActors.push(_actor);
-    }
-    function femaleNum() external view returns (uint256) {
-        return femaleActors.length;
+        IActorsGender gender = IActorsGender(worldRoute.modules(220));
+        gender.addFemale(_operator, _actor);
     }
 }

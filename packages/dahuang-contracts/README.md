@@ -33,7 +33,8 @@
 | WORLD_MODULE_SEASONS | [WorldSeasons](./contracts/world/dataset/WorldSeasons.sol) | 这是大荒世界角色的出身时节集合，除了用于二十四节气的定义，也用于记录角色出身在哪个时节。| [0x7ad8953ea4bb366922dE46331fD3fb673743546e](https://goerli.arbiscan.io/address/address/0x7ad8953ea4bb366922dE46331fD3fb673743546e) |
 | WORLD_MODULE_VILLAGES | [WorldVillages](./contracts/world/dataset/WorldVillages.sol) | 这是大荒世界的村落（太乙村）集合，记录了角色们自己创建的一些村落。| [0x232481BBCF26c45644eA040A1B939D6Ec1016DDc](https://goerli.arbiscan.io/address/address/0x232481BBCF26c45644eA040A1B939D6Ec1016DDc) |
 | WORLD_MODULE_ZONE_BASE_RESOURCES | [WorldZoneBaseResources](./contracts/world/dataset/WorldZoneBaseResources.sol) | 这是大荒世界的区域中基础资源生长的记录数据，用于记录一个区域的基础资源的生成和可采集量。| [0xB4b1f8d51d2A0CbE8569A17e49984d07949aa077](https://goerli.arbiscan.io/address/address/0xB4b1f8d51d2A0CbE8569A17e49984d07949aa077) |
-| 219 | [WorldDeadActors](./contracts/world/dataset/WorldDeadActors.sol) | 这是大荒世界的死亡角色记录数据。| [0x????](https://goerli.arbiscan.io/address/address/0x????) |
+| 219 | [WorldDeadActors](./contracts/world/dataset/WorldDeadActors.sol) | 这是大荒世界的死亡角色记录数据。| [0x2fD2671e8CA03448A40205dDf36262d27e886B27](https://goerli.arbiscan.io/address/address/0x2fD2671e8CA03448A40205dDf36262d27e886B27) |
+| 220 | [ActorsGender](./contracts/world/dataset/ActorsGender.sol) | 这是大荒世界的角色性别记录数据。| [0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5](https://goerli.arbiscan.io/address/address/0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5) |
 
 
 

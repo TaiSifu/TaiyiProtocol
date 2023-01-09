@@ -13,6 +13,7 @@ import { BigNumber } from 'ethers';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
 import { 
     deployActorBehaviorAttributes, deployActorCharmAttributes, deployActorCoreAttributes, deployActorMoodAttributes, 
+    deployActorsGender, 
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
@@ -60,21 +61,20 @@ task('deploy-single', '部署单一大荒合约')
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
         //Deploy dahuang contracts
-        console.log("Deploy WorldDeadActors...");
-        let worldDeadActors = await deployWorldDeadActors(worldContractRoute, deployer);
-        let worldDeadActorsArgs = [worldContractRoute.address];
-        let moduleId = 219;
-        await (await worldContractRoute.registerModule(moduleId, worldDeadActors.address)).wait();
+        console.log("Deploy ActorsGender...");
+        let actorsGender = await deployActorsGender(worldContractRoute, deployer);
+        let actorsGenderArgs = [worldContractRoute.address];
+        await (await worldContractRoute.registerModule(220, actorsGender.address)).wait();
                     
         //save contract address
-        addressBook.WorldDeadActors = worldDeadActors.address;
+        addressBook.ActorsGender = actorsGender.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldDeadActors = worldDeadActorsArgs;
+        argsBook.ActorsGender = actorsGenderArgs;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);

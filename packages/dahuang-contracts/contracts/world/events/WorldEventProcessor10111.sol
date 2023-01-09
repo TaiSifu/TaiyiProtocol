@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 /*
@@ -16,15 +17,14 @@ check order:
 */
 
 contract WorldEventProcessor10111 is DefaultWorldEventProcessor {
-    uint256[] public bisexualActors;
 
-    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60002) {        
-    }
+    constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 60002) {}
     
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你出生了，是极为罕见的双性人。
         return "\xE4\xBD\xA0\xE5\x87\xBA\xE7\x94\x9F\xE4\xBA\x86\xEF\xBC\x8C\xE6\x98\xAF\xE6\x9E\x81\xE4\xB8\xBA\xE7\xBD\x95\xE8\xA7\x81\xE7\x9A\x84\xE5\x8F\x8C\xE6\x80\xA7\xE4\xBA\xBA\xE3\x80\x82";
     }
+
     //泽风大过（大过卦）非常行动
     function trigrams(uint256 /*_actor*/) virtual external override view returns (uint256[] memory) {
         uint256[] memory _t = new uint256[](6);
@@ -53,9 +53,7 @@ contract WorldEventProcessor10111 is DefaultWorldEventProcessor {
     function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override
         onlyYeMing(_operator)
     {
-        bisexualActors.push(_actor);
-    }
-    function bisexualNum() external view returns (uint256) {
-        return bisexualActors.length;
+        IActorsGender gender = IActorsGender(worldRoute.modules(220));
+        gender.addBisexual(_operator, _actor);
     }
 }

@@ -53,7 +53,6 @@ contract WorldDeadActors is IWorldDeadActors, WorldConfigurable {
     {
         require(_actor > 0, "actor id invalid");
         require(deadActors[_actor] == false, "already added dead actor");
-        //require(keccak256(abi.encodePacked(typeNames[typeId])) == keccak256(abi.encodePacked("")), "typeId invalid");
 
         deadActors[_actor] = true;
         deadNum += 1;

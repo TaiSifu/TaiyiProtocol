@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:deploy-single --network hard
+//yarn task:deploy-event-processors --network hard
 import fs from 'fs-extra';
 import { Block } from '@ethersproject/abstract-provider';
 import { task, types } from 'hardhat/config';
@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -60,22 +60,37 @@ task('deploy-event-processors', '部署大荒事件合约')
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
         //Deploy dahuang contracts
-        let evt10000 = await (await (new WorldEventProcessor10000__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10000Args = [worldContractRoute.address];
-        await worldEvents.setEventProcessor(10000, evt10000.address);
+        let evt10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10001Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10001, evt10001.address)).wait();
+        let evt10002 = await (await (new WorldEventProcessor10002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10002Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10002, evt10002.address)).wait();
+        let evt10110 = await (await (new WorldEventProcessor10110__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10110Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10110, evt10110.address)).wait();
+        let evt10111 = await (await (new WorldEventProcessor10111__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10111Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10111, evt10111.address)).wait();
                     
         //配置时间线事件
         //await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
 
         //save contract address
-        addressBook.WorldEventProcessor10000 = evt10000.address;
+        addressBook.WorldEventProcessor10001 = evt10001.address;
+        addressBook.WorldEventProcessor10002 = evt10002.address;
+        addressBook.WorldEventProcessor10110 = evt10110.address;
+        addressBook.WorldEventProcessor10111 = evt10111.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor10000 = evt10000Args;
+        argsBook.WorldEventProcessor10001 = evt10001Args;
+        argsBook.WorldEventProcessor10002 = evt10002Args;
+        argsBook.WorldEventProcessor10110 = evt10110Args;
+        argsBook.WorldEventProcessor10111 = evt10111Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);

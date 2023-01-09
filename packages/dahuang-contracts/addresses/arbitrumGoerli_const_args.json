@@ -90,5 +90,20 @@
   ],
   "WorldEventProcessor10000": [
     "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorsGender": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10001": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10002": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10110": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10111": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
   ]
 }

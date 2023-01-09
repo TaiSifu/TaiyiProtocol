@@ -44,3 +44,16 @@ interface IWorldDeadActors is  IWorldModule {
 
     function addDead(uint256 _operator, uint256 _actor) external;
 }
+
+interface IActorsGender is  IWorldModule {
+    function maleNum() external view returns (uint256);
+    function femaleNum() external view returns (uint256);
+    function asexualNum() external view returns (uint256);
+    function bisexualNum() external view returns (uint256);
+
+    function addMale(uint256 _operator, uint256 _actor) external;
+    function addFemale(uint256 _operator, uint256 _actor) external;
+    function addAsexual(uint256 _operator, uint256 _actor) external;
+    function addBisexual(uint256 _operator, uint256 _actor) external;
+}
+
