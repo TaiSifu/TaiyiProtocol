@@ -439,6 +439,19 @@ describe('角色出生序列事件测试', () => {
             }
         });
 
+        it('10012事件的新人出生', async () => {
+            if(should10009) {
+                expect((await actors.connect(operator1).approve(shejiTu.address, girl)).wait()).eventually.fulfilled;
+                expect((await shejiTu.connect(operator1).bornActor(girl)).wait()).eventually.fulfilled;
+            }
+        });
+
+        it('10012事件的新人成长', async () => {
+            if(should10009) {
+                expect((await shejiTu.connect(operator1).grow(girl, { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+            }
+        });
+
         it('角色URI', async () => {
             //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
         });
@@ -586,6 +599,19 @@ describe('角色出生序列事件测试', () => {
                 expect(await actorRelationship.actorRelations(girl, testActor)).to.eq(3);
                 expect((await actorRelationship.actorRelationPeople(girl, 3)).length).to.eq(1);
                 expect((await actorRelationship.actorRelationPeople(girl, 3))[0]).to.eq(testActor);
+            }
+        });
+
+        it('10014事件的新人出生', async () => {
+            if(should10009) {
+                expect((await actors.connect(operator1).approve(shejiTu.address, girl)).wait()).eventually.fulfilled;
+                expect((await shejiTu.connect(operator1).bornActor(girl)).wait()).eventually.fulfilled;
+            }
+        });
+
+        it('10014事件的新人成长', async () => {
+            if(should10009) {
+                expect((await shejiTu.connect(operator1).grow(girl, { gasLimit: 5000000 })).wait()).eventually.fulfilled;
             }
         });
 

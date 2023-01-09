@@ -70,27 +70,22 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
 
     function _tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
-        if(actorTalentsInitiated[_actor]) {
-            if(_actorTalents[_actor].length > 0) {
-                string[7] memory parts;
-                //Talents:
-                parts[0] = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\xA4\xA9\xE8\xB5\x8B\xEF\xBC\x9A', '</text>'));
-                for(uint256 i=0; i<_actorTalents[_actor].length; i++) {
-                    uint256 tlt = _actorTalents[_actor][i];
-                    _endY += _lineHeight;
-                    parts[1] = string(abi.encodePacked(parts[1], string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base_nocolor" fill="yellow">', talentNames[tlt], '</text>'))));
-                    _endY += _lineHeight;
-                    parts[1] = string(abi.encodePacked(parts[1], string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', talentDescriptions[tlt], '</text>'))));
-                }
-                return (string(abi.encodePacked(parts[0], parts[1])), _endY);
+        if(_actorTalents[_actor].length > 0) {
+            string[7] memory parts;
+            //Talents:
+            parts[0] = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\xA4\xA9\xE8\xB5\x8B\xEF\xBC\x9A', '</text>'));
+            for(uint256 i=0; i<_actorTalents[_actor].length; i++) {
+                uint256 tlt = _actorTalents[_actor][i];
+                _endY += _lineHeight;
+                parts[1] = string(abi.encodePacked(parts[1], string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base_nocolor" fill="yellow">', talentNames[tlt], '</text>'))));
+                _endY += _lineHeight;
+                parts[1] = string(abi.encodePacked(parts[1], string(abi.encodePacked('<text x="20" y="', Strings.toString(_endY), '" class="base">', talentDescriptions[tlt], '</text>'))));
             }
-            else
-                //No Talents. 无天赋。
-                return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE6\xB2\xA1\xE6\x9C\x89\xE5\xA4\xA9\xE8\xB5\x8B\xE3\x80\x82', '</text>')), _endY);
+            return (string(abi.encodePacked(parts[0], parts[1])), _endY);
         }
         else
-            //Talents have not been initiated. 天赋未初始化。
-            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE5\xA4\xA9\xE8\xB5\x8B\xE6\x9C\xAA\xE5\x88\x9D\xE5\xA7\x8B\xE5\x8C\x96\xE3\x80\x82', '</text>')), _endY);
+            //No Talents. 无天赋。
+            return (string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE6\xB2\xA1\xE6\x9C\x89\xE5\xA4\xA9\xE8\xB5\x8B\xE3\x80\x82', '</text>')), _endY);
     }
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
@@ -232,7 +227,6 @@ contract ActorTalents is IActorTalents, WorldConfigurable {
     }
 
     function canOccurred(uint256 _actor, uint256 _id, uint256 _age) external view override
-        onlyTalentsInitiated(_actor)
         returns (bool)
     {
         //REVIEW: check exclusivity at first

@@ -20,6 +20,7 @@
     "task:deploy-demo": "npx hardhat deploy-demo",
     "task:deploy-single": "npx hardhat deploy-single",
     "task:deploy-event-processors": "npx hardhat deploy-event-processors",
+    "task:new-name": "npx hardhat new-name",
     "task:new-actor": "npx hardhat new-actor",
     "task:grow-actor": "npx hardhat grow-actor",
     "task:collect-assets": "npx hardhat collect-assets",
