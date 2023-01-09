@@ -700,7 +700,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         if (from == 0)
                             await sendChannelMessage(`**${toName}**获得了` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else if (to == 0)
-                            await sendChannelMessage(`**${toName}**提取了` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
+                            await sendChannelMessage(`**${fromName}**提取了` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                         else
                             await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**道理**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                     }
