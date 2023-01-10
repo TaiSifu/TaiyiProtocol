@@ -26,6 +26,7 @@
     "task:collect-assets": "npx hardhat collect-assets",
     "task:run-log": "npx hardhat run-log",
     "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
+    "task:do": "npx hardhat do",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
   },

@@ -9,3 +9,4 @@ export * from './deploy-single';
 export * from './deploy-event-processors';
 export * from './run-log';
 export * from './verify-etherscan-single';
+export * from './do';
