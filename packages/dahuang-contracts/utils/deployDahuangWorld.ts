@@ -6,7 +6,7 @@ import {
     ActorCharmAttributes, ActorCharmAttributes__factory, ActorCoreAttributes, ActorCoreAttributes__factory, 
     ActorMoodAttributes, ActorMoodAttributes__factory, ActorBehaviorAttributes, ActorBehaviorAttributes__factory, WorldSeasons, 
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
-    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory, ActorsGender, ActorsGender__factory
+    WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory, ActorsGender, ActorsGender__factory, ActorBornFamilies, ActorBornFamilies__factory
 } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
@@ -111,6 +111,11 @@ export const deployActorsGender = async (route: WorldContractRoute, deployer: Si
     return (await factory.deploy(route.address)).deployed();
 };
 
+export const deployActorBornFamilies = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<ActorBornFamilies> => {
+    const factory = new ActorBornFamilies__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
 export type DahuangContractName =
     | 'DahuangConstants'
     | 'ShejiTu'
@@ -135,7 +140,8 @@ export type DahuangContractName =
     | 'WorldBuildings'
     | 'ActorRelationship'
     | 'WorldDeadActors'
-    | 'ActorsGender';
+    | 'ActorsGender'
+    | 'ActorBornFamilies';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -297,6 +303,11 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let actorsGenderArgs = [route.address];
     await (await routeByPanGu.registerModule(220, actorsGender.address)).wait();
 
+    if(verbose) console.log("Deploy ActorBornFamilies...");
+    let actorBornFamilies = await deployActorBornFamilies(routeByPanGu, deployer);
+    let actorBornFamiliesArgs = [route.address];
+    await (await routeByPanGu.registerModule(221, actorBornFamilies.address)).wait();
+
     //init SocialIdentity Names
     if(flags?.noSIDNames)
         null;
@@ -410,6 +421,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         ActorRelationship: {instance: actorRelationships, constructorArguments: actorRelationshipsArgs},
         WorldDeadActors: {instance: worldDeadActors, constructorArguments: worldDeadActorsArgs},
         ActorsGender: {instance: actorsGender, constructorArguments: actorsGenderArgs},
+        ActorBornFamilies: {instance: actorBornFamilies, constructorArguments: actorBornFamiliesArgs},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

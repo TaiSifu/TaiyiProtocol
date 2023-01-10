@@ -11,23 +11,22 @@
     "type": "constructor"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
       }
     ],
-    "name": "OwnershipTransferred",
-    "type": "event"
+    "name": "addCity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -38,21 +37,29 @@
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
+        "type": "uint256"
+      }
+    ],
+    "name": "addCountry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "string[]",
-        "name": "",
-        "type": "string[]"
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
       }
     ],
-    "name": "activeTrigger",
+    "name": "addSectarian",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -63,38 +70,9 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
-    "name": "checkBranch",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "checkOccurrence",
+    "name": "cityActors",
     "outputs": [
       {
         "internalType": "bool",
@@ -107,7 +85,7 @@
   },
   {
     "inputs": [],
-    "name": "defaultBranchEvent",
+    "name": "cityNum",
     "outputs": [
       {
         "internalType": "uint256",
@@ -126,12 +104,70 @@
         "type": "uint256"
       }
     ],
-    "name": "eventAttributeModifiers",
+    "name": "countryActors",
     "outputs": [
       {
-        "internalType": "int256[]",
+        "internalType": "bool",
         "name": "",
-        "type": "int256[]"
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "countryNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "moduleID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "sectarianActors",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sectarianNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -145,7 +181,7 @@
         "type": "uint256"
       }
     ],
-    "name": "eventInfo",
+    "name": "tokenJSON",
     "outputs": [
       {
         "internalType": "string",
@@ -157,28 +193,15 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_operator",
+        "name": "",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "startY",
         "type": "uint256"
       },
       {
@@ -187,58 +210,17 @@
         "type": "uint256"
       }
     ],
-    "name": "process",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_enentId",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDefaultBranch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "trigrams",
+    "name": "tokenSVG",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "string",
         "name": "",
-        "type": "uint256[]"
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endY",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

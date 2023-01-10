@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 /*
@@ -16,7 +17,6 @@ check order:
 */
 
 contract WorldEventProcessor10010 is DefaultWorldEventProcessor {
-    uint256 public actorNum;
 
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {        
     }
@@ -25,6 +25,7 @@ contract WorldEventProcessor10010 is DefaultWorldEventProcessor {
         //你从小生活在城市
         return "\xE4\xBD\xA0\xE4\xBB\x8E\xE5\xB0\x8F\xE7\x94\x9F\xE6\xB4\xBB\xE5\x9C\xA8\xE5\x9F\x8E\xE5\xB8\x82";
     }
+
     //风天小畜（小畜卦）蓄养待进
     function trigrams(uint256 /*_actor*/) virtual external override view returns (uint256[] memory) {
         uint256[] memory _t = new uint256[](6);
@@ -50,9 +51,11 @@ contract WorldEventProcessor10010 is DefaultWorldEventProcessor {
 
         return defaultRt;
     }
-    function process(uint256 _operator, uint256 /*_actor*/, uint256 /*_age*/) external override 
+
+    function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override 
         onlyYeMing(_operator)
     {
-        actorNum += 1;
+        IActorBornFamilies bornFamilies = IActorBornFamilies(worldRoute.modules(221));
+        bornFamilies.addCity(_operator, _actor);
     }
 }

@@ -35,6 +35,7 @@
 | WORLD_MODULE_ZONE_BASE_RESOURCES | [WorldZoneBaseResources](./contracts/world/dataset/WorldZoneBaseResources.sol) | 这是大荒世界的区域中基础资源生长的记录数据，用于记录一个区域的基础资源的生成和可采集量。| [0xB4b1f8d51d2A0CbE8569A17e49984d07949aa077](https://goerli.arbiscan.io/address/address/0xB4b1f8d51d2A0CbE8569A17e49984d07949aa077) |
 | 219 | [WorldDeadActors](./contracts/world/dataset/WorldDeadActors.sol) | 这是大荒世界的死亡角色记录数据。| [0x2fD2671e8CA03448A40205dDf36262d27e886B27](https://goerli.arbiscan.io/address/address/0x2fD2671e8CA03448A40205dDf36262d27e886B27) |
 | 220 | [ActorsGender](./contracts/world/dataset/ActorsGender.sol) | 这是大荒世界的角色性别记录数据。| [0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5](https://goerli.arbiscan.io/address/address/0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5) |
+| 221 | [ActorBornFamilies](./contracts/world/dataset/ActorBornFamilies.sol) | 这是大荒世界的角色出身记录数据。| [0x????](https://goerli.arbiscan.io/address/address/0x????) |
 
 
 

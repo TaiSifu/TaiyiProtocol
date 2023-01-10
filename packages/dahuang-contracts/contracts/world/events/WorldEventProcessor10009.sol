@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
+import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
 
 /*
@@ -16,12 +17,13 @@ check order:
 */
 
 contract WorldEventProcessor10009 is DefaultWorldEventProcessor {
-    uint256 public actorNum;
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
+
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
         //你从小生活在农村
         return "\xE4\xBD\xA0\xE4\xBB\x8E\xE5\xB0\x8F\xE7\x94\x9F\xE6\xB4\xBB\xE5\x9C\xA8\xE5\x86\x9C\xE6\x9D\x91";
     }
+
     //水雷屯（屯卦）起始维艰
     function trigrams(uint256 /*_actor*/) virtual external override view returns (uint256[] memory) {
         uint256[] memory _t = new uint256[](6);
@@ -33,6 +35,7 @@ contract WorldEventProcessor10009 is DefaultWorldEventProcessor {
         _t[5] = 1;
         return _t;
     }
+
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
@@ -46,9 +49,11 @@ contract WorldEventProcessor10009 is DefaultWorldEventProcessor {
 
         return defaultRt;
     }
-    function process(uint256 _operator, uint256 /*_actor*/, uint256 /*_age*/) external override 
+
+    function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override 
         onlyYeMing(_operator)
     {
-        actorNum += 1;
+        IActorBornFamilies bornFamilies = IActorBornFamilies(worldRoute.modules(221));
+        bornFamilies.addCountry(_operator, _actor);
     }
 }

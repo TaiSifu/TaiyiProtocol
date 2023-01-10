@@ -14,8 +14,7 @@ import {
 } from '@taiyi/contracts/dist/typechain';
 import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
-    WorldEventProcessor10009__factory, WorldEventProcessor10010__factory, WorldEventProcessor10011__factory,
-    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { getAddressBookShareFilePath } from '@taiyi/dahuang-contracts/dist/utils/addressConfig';
 import { TextChannel } from "discord.js";
@@ -129,10 +128,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
     const worldDeadActors = WorldDeadActors__factory.connect(addressBook.WorldDeadActors, wallet);
     const actorsGender = ActorsGender__factory.connect(addressBook.ActorsGender, wallet);
-
-    const eventProcessor10009 = WorldEventProcessor10009__factory.connect(addressBook.WorldEventProcessor10009, wallet);
-    const eventProcessor10010 = WorldEventProcessor10010__factory.connect(addressBook.WorldEventProcessor10010, wallet);
-    const eventProcessor10011 = WorldEventProcessor10011__factory.connect(addressBook.WorldEventProcessor10011, wallet);
+    const actorBornFamilies = ActorBornFamilies__factory.connect(addressBook.ActorBornFamilies, wallet);
 
     if(!IsConstInitialized) {
         _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
@@ -239,9 +235,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             `出生女性：${await actorsGender.femaleNum()}人。\r\n` +
                             `出生无性：${await actorsGender.asexualNum()}人。\r\n` +
                             `出生双性：${await actorsGender.bisexualNum()}人。\r\n` +
-                            `农村：${await eventProcessor10009.actorNum()}人。\r\n` +
-                            `城镇：${await eventProcessor10010.actorNum()}人。\r\n` +
-                            `门派中人：${await eventProcessor10011.actorNum()}人。\r\n` +
+                            `农村：${await actorBornFamilies.countryNum()}人。\r\n` +
+                            `城镇：${await actorBornFamilies.cityNum()}人。\r\n` +
+                            `门派中人：${await actorBornFamilies.sectarianNum()}人。\r\n` +
                             `死亡：${await worldDeadActors.deadNum()}人。\r\n` +
                             `\`\`\``);
                     }

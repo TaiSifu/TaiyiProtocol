@@ -57,3 +57,13 @@ interface IActorsGender is  IWorldModule {
     function addBisexual(uint256 _operator, uint256 _actor) external;
 }
 
+interface IActorBornFamilies is  IWorldModule {
+    function cityNum() external view returns (uint256);
+    function countryNum() external view returns (uint256);
+    function sectarianNum() external view returns (uint256);
+
+    function addCity(uint256 _operator, uint256 _actor) external;
+    function addCountry(uint256 _operator, uint256 _actor) external;
+    function addSectarian(uint256 _operator, uint256 _actor) external;
+}
+
