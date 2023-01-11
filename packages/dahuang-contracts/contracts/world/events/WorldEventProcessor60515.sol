@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-//该合约有Bug，但是在测试网大荒上已经成为历史事实，入驻的操作员无法取出，资金也全部在操作员身上
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
 import '../../interfaces/DahuangWorldInterfaces.sol';
+import './WorldEventProcessor60514.sol';
 //import "hardhat/console.sol";
 
 /*
@@ -17,13 +17,18 @@ check order:
     return default
 */
 
-contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
+contract WorldEventProcessor60515 is DefaultWorldEventProcessor {
+
+    uint256 public isFundInPosition = 0;
+    address public immutable evt60514Address;
+
 
     uint256 public immutable taiyiZone; //太乙村区域号
     uint256 public eventOperator;
 
-    constructor(uint256 _taiyiZone, WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
+    constructor(uint256 _taiyiZone, address _evt60514Address, WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {
         taiyiZone = _taiyiZone;
+        evt60514Address = _evt60514Address;
     }
 
     function initOperator(uint256 _eventOperator) external 
@@ -60,7 +65,7 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
             return false;
         uint256[] memory lc = lcs.actorLocations(_actor);
         
-        return (lc[1] != taiyiZone); //这里是bug，会导致角色位于太乙村时反而无法执行事件
+        return (lc[1] == taiyiZone);
     }
 
     //how many Daoli per 1e18 asset
@@ -91,6 +96,15 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
     {
         require(eventOperator > 0, "event operator not initialized");
         require(_uintParams.length>0 && _uintParams.length%2==0, "params is invalid");
+
+        //首次执行事件时从60514事件的经手人转移资金到新的经手人
+        if(isFundInPosition == 0) {
+            isFundInPosition = 1;
+            WorldEventProcessor60515 evt60514 = WorldEventProcessor60515(evt60514Address);
+            IWorldFungible assetDaoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
+            uint256 amount = assetDaoli.balanceOfActor(evt60514.eventOperator());
+            assetDaoli.transferFromActor(_operator, evt60514.eventOperator(), eventOperator, amount);
+        }
 
         uint256 daoli = 0;
         uint256 assetModuleId = 0; 

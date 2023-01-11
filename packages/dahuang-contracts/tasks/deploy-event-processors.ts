@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -38,9 +38,10 @@ task('deploy-event-processors', '部署大荒事件合约')
         let addressBook:{[index: string]:any} = await getContractAddress(process_args.network?process_args.network:"hard");
         let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
 
-        const [deployer, taisifu] = await ethers.getSigners();
+        const [deployer, taisifu, operator1] = await ethers.getSigners();
         console.log(`Deployer: ${deployer.address}`);
         console.log(`Taisifu: ${taisifu.address}`);
+        console.log(`Operator1: ${operator1.address}`);
 
         let worldConstants = WorldConstants__factory.connect(addressBook.WorldConstants, taisifu);
         let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, taisifu);
@@ -60,40 +61,34 @@ task('deploy-event-processors', '部署大荒事件合约')
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
         //Deploy dahuang contracts
-        let evt10001 = await (await (new WorldEventProcessor10001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10001Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10001, evt10001.address)).wait();
-        let evt10002 = await (await (new WorldEventProcessor10002__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10002Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10002, evt10002.address)).wait();
-        let evt10110 = await (await (new WorldEventProcessor10110__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10110Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10110, evt10110.address)).wait();
-        let evt10111 = await (await (new WorldEventProcessor10111__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10111Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10111, evt10111.address)).wait();
+        console.log(`部署事件`);
+        let evt60514 = WorldEventProcessor60514__factory.connect(addressBook.WorldEventProcessor60514, taisifu);
+        let evt60515 = await (await (new WorldEventProcessor60515__factory(deployer)).deploy(2, evt60514.address, worldContractRoute.address)).deployed();
+        let evt60515Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(60515, evt60515.address)).wait();
                     
         //配置时间线事件
+        //console.log(`配置时间线`);
         //await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
 
         //save contract address
-        addressBook.WorldEventProcessor10001 = evt10001.address;
-        addressBook.WorldEventProcessor10002 = evt10002.address;
-        addressBook.WorldEventProcessor10110 = evt10110.address;
-        addressBook.WorldEventProcessor10111 = evt10111.address;
+        addressBook.WorldEventProcessor60515 = evt60515.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor10001 = evt10001Args;
-        argsBook.WorldEventProcessor10002 = evt10002Args;
-        argsBook.WorldEventProcessor10110 = evt10110Args;
-        argsBook.WorldEventProcessor10111 = evt10111Args;
+        argsBook.WorldEventProcessor60515 = evt60515Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);
         console.log(JSON.stringify(argsBook, null, 2));
 
+        //入驻角色
+        let newOP = 21;
+        console.log(`入驻角色${newOP}`);
+        await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
+        await (await actors.connect(deployer).approve(evt60515.address, newOP)).wait();
+        await (await evt60515.initOperator(newOP)).wait();
     });
