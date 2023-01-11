@@ -49,6 +49,10 @@ contract WorldEventProcessor60508 is DefaultWorldEventProcessor, ERC721Holder {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {
         bool defaultRt = true;
 
+        //check event operator
+        if(eventOperator == 0)
+            return false;
+
         IActors rl = worldRoute.actors();
         uint256 mt; uint256 st;
         (mt , st) = rl.actor(_actor);
