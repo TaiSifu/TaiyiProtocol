@@ -62,6 +62,10 @@ function getTrigramUnicodeString(tri : number) {
 
 var addressBook:{[index: string]:any} = {};
 
+export function getDahuangAddressBook() : {[index: string]:any} {
+    return addressBook;
+}
+
 async function initAddress() {
     const args = require('minimist')(process.argv.slice(2));
     const sharedAddressPath = getAddressBookShareFilePath(args.network);
@@ -80,13 +84,22 @@ export function addChannel(channel: TextChannel) {
     channels.push(channel);
 }
 
-let _RL_ATTRIBUTE_BASE : BigNumber;
-let _RL_ATTRIBUTE_CHARM_BASE : BigNumber;
-let _RL_ATTRIBUTE_CORE_BASE : BigNumber;
-let _RL_ATTRIBUTE_MOOD_BASE : BigNumber;
-let _RL_ATTRIBUTE_BEHAVIOR_BASE : BigNumber;
-
-let RL_ATTRIBUTE_ACT : BigNumber;
+export let _RL_ATTRIBUTE_BASE = 0;
+export let ATTR_AGE = 0; // 年龄
+export let ATTR_HLH = 1; // 健康，生命
+export let _RL_ATTRIBUTE_CHARM_BASE = 10;
+export let ATTR_MEL = _RL_ATTRIBUTE_CHARM_BASE + 0; // 魅力
+export let _RL_ATTRIBUTE_MOOD_BASE = 20;
+export let ATTR_XIQ = _RL_ATTRIBUTE_MOOD_BASE + 0; // 心情
+export let _RL_ATTRIBUTE_CORE_BASE = 30;
+export let ATTR_LVL = _RL_ATTRIBUTE_CORE_BASE + 0; // 膂力
+export let ATTR_TIZ = _RL_ATTRIBUTE_CORE_BASE + 1; // 体质
+export let ATTR_LIM = _RL_ATTRIBUTE_CORE_BASE + 2; // 灵敏
+export let ATTR_GEG = _RL_ATTRIBUTE_CORE_BASE + 3; // 根骨
+export let ATTR_WUX = _RL_ATTRIBUTE_CORE_BASE + 4; // 悟性
+export let ATTR_DIL = _RL_ATTRIBUTE_CORE_BASE + 5; // 定力
+export let _RL_ATTRIBUTE_BEHAVIOR_BASE = 40;
+export let ATTR_ACT = _RL_ATTRIBUTE_BEHAVIOR_BASE + 0; // 行动力
 
 let ACTOR_GUANGONG : BigNumber;
 let IsConstInitialized = false;
@@ -130,15 +143,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
     const actorsGender = ActorsGender__factory.connect(addressBook.ActorsGender, wallet);
     const actorBornFamilies = ActorBornFamilies__factory.connect(addressBook.ActorBornFamilies, wallet);
 
-    if(!IsConstInitialized) {
-        _RL_ATTRIBUTE_BASE = await worldConstants.ATTR_BASE();
-        _RL_ATTRIBUTE_CHARM_BASE = await dahuangConstants.ATTR_BASE_CHARM();
-        _RL_ATTRIBUTE_CORE_BASE = await dahuangConstants.ATTR_BASE_CORE();
-        _RL_ATTRIBUTE_MOOD_BASE = await dahuangConstants.ATTR_BASE_MOOD();
-        _RL_ATTRIBUTE_BEHAVIOR_BASE = await dahuangConstants.ATTR_BASE_BEHAVIOR();
-    
-        RL_ATTRIBUTE_ACT = await dahuangConstants.ATTR_ACT();
-    
+    if(!IsConstInitialized) {    
         ACTOR_GUANGONG = await worldZoneBaseResources.ACTOR_GUANGONG();    
     
         IsConstInitialized = true;
@@ -219,27 +224,6 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                             let preActorName = (await actorNames.actorName(preActor))._name;
                             await sendChannelMessage(`**角色#${actor}**的前世是**${preActorName}(#${preActor})**。`);
                         }
-
-                        //统计
-                        await sendChannelMessage(`***资源总量***：`);
-                        await sendChannelMessage(`\`\`\`fix\r\n` +
-                            `金石：${utils.formatEther(await assetGold.totalSupply())}\r\n` +
-                            `食材：${utils.formatEther(await assetFood.totalSupply())}\r\n` +
-                            `木材：${utils.formatEther(await assetWood.totalSupply())}\r\n` +
-                            `织物：${utils.formatEther(await assetFabric.totalSupply())}\r\n` +
-                            `药材：${utils.formatEther(await assetHerb.totalSupply())}\r\n` +
-                            `\`\`\``);
-                        await sendChannelMessage(`***统计信息***：`);
-                        await sendChannelMessage(`\`\`\`fix\r\n` +
-                            `出生男性：${await actorsGender.maleNum()}人。\r\n` +
-                            `出生女性：${await actorsGender.femaleNum()}人。\r\n` +
-                            `出生无性：${await actorsGender.asexualNum()}人。\r\n` +
-                            `出生双性：${await actorsGender.bisexualNum()}人。\r\n` +
-                            `农村：${await actorBornFamilies.countryNum()}人。\r\n` +
-                            `城镇：${await actorBornFamilies.cityNum()}人。\r\n` +
-                            `门派中人：${await actorBornFamilies.sectarianNum()}人。\r\n` +
-                            `死亡：${await worldDeadActors.deadNum()}人。\r\n` +
-                            `\`\`\``);
                     }
                 }
             //})());

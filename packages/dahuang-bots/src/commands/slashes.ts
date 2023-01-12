@@ -1,24 +1,43 @@
 import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
-import { Discord, MetadataStorage, Slash } from "discordx";
+import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
+import { onShowActorHistory, onShowActorInfo, onShowWorld } from "../handlers";
 
 @Discord()
 export abstract class SlashYeMing {
-  // example: pagination for all slash command
-  @Slash("report", { description: "在本频道播报大荒事件" })
-  async report(interaction: CommandInteraction): Promise<void> {
 
-    //console.log(interaction.channelId);
-    let user = interaction.member as GuildMember;
-    //console.log(user);
-    let channel = interaction.channel as TextChannel;
-    if(channel.guild.ownerId == user.id) {
-      interaction.reply(`收到${interaction.member}的指令！`);
-      channel.send("🏃开始播报大荒世界事件……");
-      addChannel(channel);
+    @Slash("show-world", { description: "显示大荒世界统计信息" })
+    async showWorld(interaction: CommandInteraction): Promise<void> {
+
+        //console.log(interaction.channelId);
+        let user = interaction.member as GuildMember;
+        //console.log(user);
+        let channel = interaction.channel as TextChannel;
+        //channel.send("🏃开始播报大荒世界事件……");
+        await onShowWorld(user, channel, interaction);
     }
-    else {
-      interaction.reply(`对不起，${interaction.member}，您无权命令我做这件事！`);
+
+    @Slash("show-actor-info", { description: "显示角色的信息" })
+    async showActorInfo(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onShowActorInfo(actor, user, channel, interaction);
     }
-  }
+
+    @Slash("show-actor-history", { description: "显示角色的成长经历" })
+    async showActorHistory(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onShowActorHistory(actor, user, channel, interaction);
+    }
 }

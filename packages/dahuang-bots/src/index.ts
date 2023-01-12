@@ -8,6 +8,10 @@ import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 let startBlockNum: number;
 let ethersHelper: HardhatEthersHelpers;
 
+export function getEthersHelper() : HardhatEthersHelpers {
+    return ethersHelper;
+}
+
 const client = new Client({
     simpleCommand: {
         prefix: "!",
