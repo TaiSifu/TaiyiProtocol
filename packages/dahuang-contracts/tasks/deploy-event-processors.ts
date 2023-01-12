@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -62,33 +62,32 @@ task('deploy-event-processors', '部署大荒事件合约')
 
         //Deploy dahuang contracts
         console.log(`部署事件`);
-        let evt60514 = WorldEventProcessor60514__factory.connect(addressBook.WorldEventProcessor60514, taisifu);
-        let evt60515 = await (await (new WorldEventProcessor60515__factory(deployer)).deploy(2, evt60514.address, worldContractRoute.address)).deployed();
-        let evt60515Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(60515, evt60515.address)).wait();
+        let evt10003 = await (await (new WorldEventProcessor10003__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10003Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10003, evt10003.address)).wait();
                     
         //配置时间线事件
-        //console.log(`配置时间线`);
-        //await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
+        console.log(`配置时间线`);
+        await shejiTu.connect(deployer).addAgeEvent(3, 10003, 1);
 
         //save contract address
-        addressBook.WorldEventProcessor60515 = evt60515.address;
+        addressBook.WorldEventProcessor10003 = evt10003.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor60515 = evt60515Args;
+        argsBook.WorldEventProcessor10003 = evt10003Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);
         console.log(JSON.stringify(argsBook, null, 2));
 
         //入驻角色
-        let newOP = 21;
-        console.log(`入驻角色${newOP}`);
-        await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
-        await (await actors.connect(deployer).approve(evt60515.address, newOP)).wait();
-        await (await evt60515.initOperator(newOP)).wait();
+        // let newOP = 21;
+        // console.log(`入驻角色${newOP}`);
+        // await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
+        // await (await actors.connect(deployer).approve(evt60515.address, newOP)).wait();
+        // await (await evt60515.initOperator(newOP)).wait();
     });

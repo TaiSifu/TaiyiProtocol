@@ -184,6 +184,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         eventProbs[_age].push(_eventProb);
     }
 
+    function getAgeEventIds(uint256 _age) public view returns (uint256[] memory) {
+        return eventIDs[_age];
+    }
+
     function setAgeEventProb(uint256 _age, uint256 _eventId, uint256 _eventProb) external 
         onlyOwner
     {
@@ -196,6 +200,10 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
             }
         }
         require(false, "can not find _eventId");
+    }
+
+    function getAgeEventProbs(uint256 _age) public view returns (uint256[] memory) {
+        return eventProbs[_age];
     }
 
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override

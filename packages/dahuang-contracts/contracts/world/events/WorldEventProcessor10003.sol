@@ -17,7 +17,7 @@ check order:
 
 contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
 
-    uint256 public immutable FEE = 5e18;
+    uint256 public immutable FEE = 1e17; //0.1
 
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
@@ -84,7 +84,6 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
     // ]
     function checkBranch(uint256 _actor, uint256 /*_age*/) external view override returns (uint256) {
         IActorTalents talents = IActorTalents(worldRoute.modules(DahuangConstants.WORLD_MODULE_TALENTS));
-        IActorAttributes core_attributes = IActorAttributes(worldRoute.modules(DahuangConstants.WORLD_MODULE_CORE_ATTRIBUTES));
 
         uint256[] memory tlts = talents.actorTalents(_actor);
         for(uint256 i=0; i<tlts.length; i++) {
@@ -92,8 +91,14 @@ contract WorldEventProcessor10003 is DefaultWorldEventProcessor {
                 return 10004;
         }
 
+        IActorAttributes core_attributes = IActorAttributes(worldRoute.modules(DahuangConstants.WORLD_MODULE_CORE_ATTRIBUTES));
         uint256 tiz = core_attributes.attributesScores(DahuangConstants.ATTR_TIZ, _actor);
         if(tiz < 10)
+            return 10000;
+
+        IActorAttributes base_attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
+        uint256 hlh = base_attributes.attributesScores(WorldConstants.ATTR_HLH, _actor);
+        if(hlh == 0)
             return 10000;
 
         return defaultBranchEvent;
