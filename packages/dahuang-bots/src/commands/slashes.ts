@@ -1,7 +1,7 @@
 import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
-import { onShowActorHistory, onShowActorInfo, onShowWorld } from "../handlers";
+import { onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart } from "../handlers";
 
 @Discord()
 export abstract class SlashYeMing {
@@ -39,5 +39,29 @@ export abstract class SlashYeMing {
         let user = interaction.member as GuildMember;
         let channel = interaction.channel as TextChannel;
         await onShowActorHistory(actor, user, channel, interaction);
+    }
+
+    @Slash("start", { description: "开始" })
+    async start(
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onStart(user, channel, interaction);
+    }
+
+    @Slash("new-actor", { description: "创建新角色" })
+    async newActor(
+        @SlashOption("last-name", { description: "姓", required: true })
+        lastName: string,
+        @SlashOption("first-name", { description: "名", required: true })
+        firstName: string,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onNewActor(firstName, lastName, user, channel, interaction);
     }
 }

@@ -1,6 +1,7 @@
 //https://www.writebots.com/discord-text-formatting/
 //https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
 
+import fs from 'fs-extra';
 import { BigNumber, utils } from 'ethers'; //https://docs.ethers.io/v5/
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from '@ethersproject/wallet';
@@ -228,4 +229,93 @@ export async function onShowActorHistory(actor: number, user: GuildMember, chann
     }
     historyStr += `\`\`\``;
     await channel.send(historyStr);
+}
+
+export function getAccountFilePath(id: string) {
+    return `${process.cwd()}/accounts/${id}.json`;
+}
+
+async function loadAccount(id: string) : Promise<{[index: string]:any}> {
+    // @ts-ignore
+    const sPath = getAccountFilePath(id);
+    if(fs.existsSync(sPath))
+        return JSON.parse(fs.readFileSync(sPath, { encoding: "ascii"}));
+    else
+        return {};
+}
+
+async function saveAccount(id: string, data:any) : Promise<void> {
+    // @ts-ignore
+    const sPath = getAccountFilePath(id);
+    await fs.writeFile(sPath, JSON.stringify(data, null, 2));
+}
+
+//just for test
+export async function onStart(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        accountInfo.discordId = user.id;
+
+        var acc = Wallet.createRandom();    
+        accountInfo.address = acc.address;
+        accountInfo.pk = acc.privateKey;
+        accountInfo.mnemonic = acc.mnemonic.phrase;
+
+        await saveAccount(user.id, accountInfo);
+        console.log(`New Account:`);
+        console.log(JSON.stringify(accountInfo, null, 2));
+
+        await interaction.reply(`正在为您创建托管Web3账号……`);
+
+        const [wallet] = await getEthersHelper().getSigners();
+        //transfer 0.02 eth
+        let eth = BigInt(2e16);
+        await (await wallet.sendTransaction({to: accountInfo.address, value: eth})).wait();
+        //transfer 0.5 daoli
+        let addressBook = getDahuangAddressBook();
+        let daoliAmount = BigInt(5e17);
+        const daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, wallet);
+        await (await daoli.transfer(accountInfo.address, daoliAmount)).wait();
+
+        await user.send(`已为您成功创建托管Web3账号，您可以创建新角色开始探索了。`);
+    }
+    else {
+        await interaction.reply(`您已经具备托管Web3账号。`);
+    }
+}
+
+export async function onNewActor(firstName:string, lastName:string, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    await interaction.reply(`请稍等，正在为您铸造新角色**${lastName}${firstName}**。`);
+
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    
+    let actor = await actors.nextActor();
+    await channel.send(`开始铸造新角色#${actor}……`);
+    //授权道理扣费权给角色合约
+    if((await daoli.allowance(accountInfo.address, actors.address)).lt(BigInt(100e18)))
+        await (await daoli.approve(actors.address, BigInt(1000e18))).wait();
+    //铸造角色
+    await (await actors.mintActor(BigInt(1000e18))).wait();
+
+    //角色取名
+    await channel.send(`开始铸造新名字**${lastName}${firstName}**……`);
+    //let actorNameId = await names.nextName();
+    await (await names.claim(firstName, lastName, actor)).wait();
+
+    //角色出生在大荒
+    await (await actors.approve(dahuang.address, actor)).wait();
+    await (await dahuang.bornActor(actor)).wait();
+
+    await channel.send(`**${lastName}${firstName}**已经在大荒出生。`);
 }
