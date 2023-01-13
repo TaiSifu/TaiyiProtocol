@@ -121,17 +121,44 @@ contract ActorCoreAttributes is IActorAttributes, WorldConfigurable {
         uint256 geg = 0;
         uint256 wux = 0;
         uint256 dil = 0;
-        if(_maxPointBuy > 0)
-            lvl = rand.dn(_actor, _maxPointBuy);
-        if((_maxPointBuy-lvl) > 0)
-            tiz = rand.dn(_actor+1, _maxPointBuy-lvl);
-        if((_maxPointBuy-lvl-tiz) > 0)
-            lim = rand.dn(_actor+2, _maxPointBuy-lvl-tiz);
-        if((_maxPointBuy-lvl-tiz-lim) > 0)
-            geg = rand.dn(_actor+2, _maxPointBuy-lvl-tiz-lim);
-        if((_maxPointBuy-lvl-tiz-lim-geg) > 0)
-            wux = rand.dn(_actor+2, _maxPointBuy-lvl-tiz-lim-geg);
-        dil = _maxPointBuy-lvl-tiz-lim-geg-wux;
+        if(rand.dn(_actor, 100) >= 50) {
+            //正序
+            if(_maxPointBuy > 0)
+                lvl = rand.dn(_actor, _maxPointBuy);
+            _maxPointBuy -= lvl;
+            if(_maxPointBuy > 0)
+                tiz = rand.dn(_actor+1, _maxPointBuy);
+            _maxPointBuy -= tiz;
+            if(_maxPointBuy > 0)
+                lim = rand.dn(_actor+2, _maxPointBuy);
+            _maxPointBuy -= lim;
+            if(_maxPointBuy > 0)
+                geg = rand.dn(_actor+3, _maxPointBuy);
+            _maxPointBuy -= geg;
+            if(_maxPointBuy > 0)
+                wux = rand.dn(_actor+4, _maxPointBuy);
+            _maxPointBuy -= wux;
+            dil = _maxPointBuy;
+        }
+        else {
+            //倒序
+            if(_maxPointBuy > 0)
+                dil = rand.dn(_actor, _maxPointBuy);
+            _maxPointBuy -= dil;
+            if(_maxPointBuy > 0)
+                wux = rand.dn(_actor+1, _maxPointBuy);
+            _maxPointBuy -= wux;
+            if(_maxPointBuy > 0)
+                geg = rand.dn(_actor+2, _maxPointBuy);
+            _maxPointBuy -= geg;
+            if(_maxPointBuy > 0)
+                lim = rand.dn(_actor+3, _maxPointBuy);
+            _maxPointBuy -= lim;
+            if(_maxPointBuy > 0)
+                tiz = rand.dn(_actor+4, _maxPointBuy);
+            _maxPointBuy -= tiz;
+            lvl = _maxPointBuy;
+        }
 
         attributesScores[DahuangConstants.ATTR_LVL][_actor] = lvl;
         attributesScores[DahuangConstants.ATTR_TIZ][_actor] = tiz;
