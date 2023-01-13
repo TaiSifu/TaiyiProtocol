@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -61,29 +61,30 @@ task('deploy-event-processors', '部署大荒事件合约')
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
         //Deploy dahuang contracts
-        // console.log(`部署事件`);
-        // let evt10003 = await (await (new WorldEventProcessor10003__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        // let evt10003Args = [worldContractRoute.address];
-        // await (await worldEvents.setEventProcessor(10003, evt10003.address)).wait();
+        console.log(`部署事件`);
+        let evt10008 = await (await (new WorldEventProcessor10008__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10008Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10008, evt10008.address)).wait();
                     
         //配置时间线事件
         console.log(`配置时间线`);
-        //await (await shejiTu.connect(deployer).addAgeEvent(5, 10003, 100)).wait();
-        await (await shejiTu.connect(deployer).setAgeEventProb(5, 10012, 200)).wait();
+        // await (await shejiTu.connect(deployer).addAgeEvent(6, 10008, 100)).wait();
+        // await (await shejiTu.connect(deployer).addAgeEvent(6, 60001, 100)).wait();
+        //await (await shejiTu.connect(deployer).setAgeEventProb(5, 10012, 200)).wait();
 
         //save contract address
-        // addressBook.WorldEventProcessor10003 = evt10003.address;
-        // const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
-        // await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
-        // console.log(`contract deployed book:`);
-        // console.log(JSON.stringify(addressBook, null, 2));
+        addressBook.WorldEventProcessor10008 = evt10008.address;
+        const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
+        await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
+        console.log(`contract deployed book:`);
+        console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        // argsBook.WorldEventProcessor10003 = evt10003Args;
-        // const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
-        // await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
-        // console.log(`contract constructor arguments book:`);
-        // console.log(JSON.stringify(argsBook, null, 2));
+        argsBook.WorldEventProcessor10008 = evt10008Args;
+        const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
+        await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
+        console.log(`contract constructor arguments book:`);
+        console.log(JSON.stringify(argsBook, null, 2));
 
         //入驻角色
         // let newOP = 21;

@@ -22,7 +22,7 @@ export function generateItemTypes() {
         "7": {
             "name": "公输坊资格"
         },
-        //下九品基础工具
+        //基础工具
         "8": {
             "name": "木工箱"
         },
@@ -60,7 +60,7 @@ export function generateItemTypes() {
         "19": {
             "name": "NC"
         },
-        //下九品的基本建筑图纸
+        //基本建筑图纸
         "20": {
             "name": "《木工房》"
         },
@@ -78,10 +78,12 @@ export function generateItemTypes() {
         },
         "25": {
             "name": "《药房》"
-        },
-        //须弥域入口物件
+        },        
         "50": {
-            "name": "紫金米"
-        }
+            "name": "紫金米" //须弥域入口物件
+        },
+        "51": {
+            "name": "《叕盾术》"
+        },        
     };
 }
