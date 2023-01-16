@@ -1,7 +1,7 @@
 import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
-import { onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart } from "../handlers";
+import { onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onListActors, onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart, onTravelActor } from "../handlers";
 
 @Discord()
 export abstract class SlashYeMing {
@@ -51,6 +51,16 @@ export abstract class SlashYeMing {
         await onStart(user, channel, interaction);
     }
 
+    @Slash("list-actors", { description: "列出拥有的角色" })
+    async listActors(
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onListActors(user, channel, interaction);
+    }
+
     @Slash("new-actor", { description: "创建新角色" })
     async newActor(
         @SlashOption("last-name", { description: "姓", required: true })
@@ -63,5 +73,71 @@ export abstract class SlashYeMing {
         let user = interaction.member as GuildMember;
         let channel = interaction.channel as TextChannel;
         await onNewActor(firstName, lastName, user, channel, interaction);
+    }
+
+    @Slash("grow-actor", { description: "角色成长一岁" })
+    async growActor(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onGrowActor(actor, user, channel, interaction);
+    }
+
+    @Slash("collect-assets", { description: "就地采集资源" })
+    async collectAssets(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onCollectAssets(actor, user, channel, interaction);
+    }
+
+    @Slash("travel-actor", { description: "角色步行到指定地点" })
+    async travelActor(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        @SlashOption("zone", { description: "目标地点", required: true })
+        zone: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onTravelActor(actor, zone, user, channel, interaction);
+    }
+
+    @Slash("finish-travel", { description: "角色完成旅行" })
+    async finishTravel(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onFinishTravel(actor, user, channel, interaction);
+    }
+
+    @Slash("exchange-daoli", { description: "角色兑换资源获得道理" })
+    async exchangeDaoli(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        @SlashOption("assect-id", { description: "资源ID", required: true })
+        assetId: number,
+        @SlashOption("assect-amount", { description: "资源数量", required: true })
+        amount: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onExchangeDaoli(actor, assetId, amount, user, channel, interaction);
     }
 }

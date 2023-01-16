@@ -11,10 +11,11 @@ import {
     WorldNontransferableFungible__factory, WorldEvents__factory, ActorTalents__factory, ShejiTu__factory, ActorNames__factory,
     ActorRelationship__factory,
     AssetDaoli__factory,
+    WorldContractRoute__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
-    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, WorldEventProcessor60515__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { CommandInteraction, GuildMember, TextChannel } from "discord.js";
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -64,6 +65,8 @@ function getTrigramUnicodeString(tri : number) {
 export async function onShowWorld(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
+
+    await interaction.deferReply();
     
     const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);
     const assetFood = WorldFungible__factory.connect(addressBook.AssetFood, wallet);
@@ -75,7 +78,7 @@ export async function onShowWorld(user: GuildMember, channel: TextChannel, inter
     const actorBornFamilies = ActorBornFamilies__factory.connect(addressBook.ActorBornFamilies, wallet);
     
     //统计
-    await interaction.reply(`稍等，即将播报大荒世界当前的情况。`);
+    await interaction.editReply(`稍等，即将播报大荒世界当前的情况。`);
     await channel.send(`***资源总量：***`);
     await channel.send(`\`\`\`fix\r\n` +
         `金石：${utils.formatEther(await assetGold.totalSupply())}\r\n` +
@@ -102,6 +105,7 @@ export async function onShowActorInfo(actor: number, user: GuildMember, channel:
     const [wallet] = await getEthersHelper().getSigners();
     
     const dahuangConstants = DahuangConstants__factory.connect(addressBook.DahuangConstants, wallet);
+    const actors = Actors__factory.connect(addressBook.Actors, wallet);
     const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
     const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
     const shejitu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
@@ -117,9 +121,16 @@ export async function onShowActorInfo(actor: number, user: GuildMember, channel:
     const actorMoodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, wallet);
     const actorBehaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
 
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
     let name = (await actorNames.actorName(actor))._name;
     name = (name==""?"无名氏":name);
-    await interaction.reply(`即将播报**${name}**(角色#${actor})的信息。`);
+    await interaction.editReply(`即将播报**${name}**(角色#${actor})的信息。`);
 
     let infoStr = `\`\`\`fix\r\n${name}(角色#${actor})的信息：\r\n`;
 
@@ -207,15 +218,23 @@ export async function onShowActorInfo(actor: number, user: GuildMember, channel:
 export async function onShowActorHistory(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
+
+    await interaction.deferReply();
     
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
     const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
     const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
     const shejitu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
 
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
     let currentAge = (await worldEvents.ages(actor)).toNumber();
     let name = (await actorNames.actorName(actor))._name;
     name = (name==""?"无名氏":name);
-    await interaction.reply(`即将播报**${name}**(角色#${actor})的成长经历。`);
+    await interaction.editReply(`即将播报**${name}**(角色#${actor})的成长经历。`);
 
     let historyStr = `\`\`\`fix\r\n${name}(角色#${actor})的成长经历：\r\n`;
     for (var a = 0; a <= currentAge; a++) {
@@ -256,6 +275,8 @@ export async function onStart(user: GuildMember, channel: TextChannel, interacti
     if(accountInfo.discordId != user.id) {
         accountInfo.discordId = user.id;
 
+        await interaction.deferReply();
+
         var acc = Wallet.createRandom();    
         accountInfo.address = acc.address;
         accountInfo.pk = acc.privateKey;
@@ -265,7 +286,7 @@ export async function onStart(user: GuildMember, channel: TextChannel, interacti
         console.log(`New Account:`);
         console.log(JSON.stringify(accountInfo, null, 2));
 
-        await interaction.reply(`正在为您创建托管Web3账号……`);
+        await interaction.editReply(`正在为您创建托管Web3账号……`);
 
         const [wallet] = await getEthersHelper().getSigners();
         //transfer 0.02 eth
@@ -277,7 +298,7 @@ export async function onStart(user: GuildMember, channel: TextChannel, interacti
         const daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, wallet);
         await (await daoli.transfer(accountInfo.address, daoliAmount)).wait();
 
-        await user.send(`已为您成功创建托管Web3账号，您可以创建新角色开始探索了。`);
+        await interaction.editReply(`已为您成功创建托管Web3账号，您可以创建新角色开始探索了。`);
     }
     else {
         await interaction.reply(`您已经具备托管Web3账号。`);
@@ -291,7 +312,7 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
         return;
     }
     
-    await interaction.reply(`请稍等，正在为您铸造新角色**${lastName}${firstName}**。`);
+    await interaction.deferReply();
 
     let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
     let addressBook = getDahuangAddressBook();
@@ -301,7 +322,7 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
     let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
     
     let actor = await actors.nextActor();
-    await channel.send(`开始铸造新角色#${actor}……`);
+    await interaction.editReply(`开始铸造新角色#${actor}……`);
     //授权道理扣费权给角色合约
     if((await daoli.allowance(accountInfo.address, actors.address)).lt(BigInt(100e18)))
         await (await daoli.approve(actors.address, BigInt(1000e18))).wait();
@@ -309,7 +330,7 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
     await (await actors.mintActor(BigInt(1000e18))).wait();
 
     //角色取名
-    await channel.send(`开始铸造新名字**${lastName}${firstName}**……`);
+    await interaction.editReply(`开始铸造新名字**${lastName}${firstName}**……`);
     //let actorNameId = await names.nextName();
     await (await names.claim(firstName, lastName, actor)).wait();
 
@@ -317,5 +338,309 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
     await (await actors.approve(dahuang.address, actor)).wait();
     await (await dahuang.bornActor(actor)).wait();
 
-    await channel.send(`**${lastName}${firstName}**已经在大荒出生。`);
+    await interaction.editReply(`**${lastName}${firstName}**已经在大荒出生。`);
+}
+
+export async function onGrowActor(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+    
+    await interaction.editReply(`请稍等，角色#${actor}正在成长……`);
+
+    //授权时间线
+    if((await actors.getApproved(actor)) != dahuang.address)
+        await (await actors.approve(dahuang.address, actor)).wait();
+    //授权actor的gold给时间线
+    let yeming = await dahuang.operator();
+    if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(100e18)))
+        await (await assetGold.approveActor(actor, yeming, BigInt(1000e18))).wait();
+    
+    let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
+
+    let name = (await names.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+    let currentAge = (await worldEvents.ages(actor)).toNumber();
+    if(currentAge == 0)
+        await interaction.editReply(`**${name}**度过了百日礼。`);
+    else
+        await interaction.editReply(`**${name}**已经成长到${currentAge}岁了。`);
+}
+
+export async function onCollectAssets(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, wallet);        
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+    
+    await interaction.editReply(`请稍等，角色#${actor}准备采集资源……`);
+
+    //恢复体力
+    await (await behaviorAttributes.recoverAct(actor)).wait();
+
+    if(await evt60505.checkOccurrence(actor, 0)) {
+        let lcs = await locations.actorLocations(actor);
+        await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [])).wait();
+        await interaction.editReply(`**角色#${actor}**采集了一些资源。`);
+    }
+    else {
+        await interaction.editReply(`**角色#${actor}**无法采集资源。`);
+    }
+}
+
+export async function onListActors(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+
+    await interaction.deferReply();
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+
+    let ct = (await actors.balanceOf(wallet.address)).toNumber();
+    if(ct == 0) {
+        await interaction.editReply(`您尚未拥有角色，请使用指令**\/new-actor**创建新角色。`);
+        return;
+    }
+
+    let actorsStr = `您拥有的角色号码有：`;
+    for(var i=0; i<ct; i++) {
+        if(i == (ct-1))
+            actorsStr += `#${(await actors.tokenOfOwnerByIndex(wallet.address, i)).toString()}。`;
+        else
+            actorsStr += `#${(await actors.tokenOfOwnerByIndex(wallet.address, i)).toString()}，`;
+    }
+
+    await interaction.editReply(actorsStr);
+}
+
+export async function onTravelActor(actor: number, zone: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let evt60509 = WorldEventProcessor60509__factory.connect(addressBook.WorldEventProcessor60505, wallet);        
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+
+    let name = (await names.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+
+    await interaction.editReply(`请稍等，**${name}(角色#${actor})**准备出发。`);
+
+    if(await locations.isActorLocked(actor)) {
+        await interaction.editReply(`**${name}(角色#${actor})**还不能移动。`);
+        return;
+    }
+    
+    let zoneName = await worldZones.names(zone);
+    if(zoneName == "") {
+        await interaction.editReply(`**${name}(角色#${actor})**移动的目标区域不存在。`);
+        return;
+    }
+
+    if((await locations.actorLocations(actor))[1].eq(zone)) {
+        await interaction.editReply(`**${name}(角色#${actor})**已经在目标地区了。`);
+        return;
+    }
+
+    //恢复体力
+    await (await behaviorAttributes.recoverAct(actor)).wait();
+    let act = await behaviorAttributes.attributesScores(ATTR_ACT, actor);
+    if(act.toNumber() < 15) {
+        await interaction.editReply(`**${name}(角色#${actor})**体力不足。`);
+        return;
+    }
+
+    if(await evt60509.checkOccurrence(actor, 0)) {
+        let lcs = await locations.actorLocations(actor);
+        await (await dahuang.activeTrigger(60509, actor, [lcs[1], zone], [])).wait();
+
+        await interaction.editReply(`**${name}(角色#${actor})**开始前往**${zoneName}**。`);
+    }
+    else {
+        await interaction.editReply(`**${name}(角色#${actor})**无法移动。`);
+    }
+}
+
+export async function onFinishTravel(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    let provider = getEthersHelper().provider;
+    let wallet = new Wallet(`${accountInfo.pk}`, provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+
+    let name = (await names.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+
+    let lcs = await locations.actorLocations(actor);
+    if(lcs[0]==lcs[1]) {
+        await interaction.editReply(`**${name}(角色#${actor})**未在旅行状态。`);
+        return;
+    }
+
+    let endTime = (await locations.actorFreeTimes(actor)).toNumber();
+    let block = await provider.getBlock(await provider.getBlockNumber());
+    if(block.timestamp < endTime) {
+        await interaction.editReply(`**${name}(角色#${actor})**的旅程仍在继续。`);
+        return;
+    }
+
+    await interaction.editReply(`正在结束**${name}(角色#${actor})**的旅行……`);
+
+    await (await locations.finishActorTravel(actor)).wait();
+
+    await interaction.editReply(`**${name}(角色#${actor})**旅行结束，到达目的地。`);
+}
+
+export async function onExchangeDaoli(actor: number, assetId: number, amount: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let evt60515 = WorldEventProcessor60515__factory.connect(addressBook.WorldEventProcessor60515, wallet);        
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+    let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+
+    if(assetId < 207 || assetId > 211) {
+        await interaction.editReply(`资源序号无效，必须在207到211之间。`);
+        return;
+    }
+
+    let name = (await names.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+
+    let asset = WorldFungible__factory.connect(await worldContractRoute.modules(assetId) ,wallet);
+
+    if(await evt60515.checkOccurrence(actor, 0)) {
+        let amountAsset = utils.parseEther(amount.toString());
+        await asset.approveActor(actor, await dahuang.operator(), amountAsset);
+        await (await dahuang.activeTrigger(60515, actor, [assetId, amountAsset], [])).wait();
+
+        await interaction.editReply(`**${name}(角色#${actor})**在村长处兑换出来一些道理。`);
+    }
+    else {
+        await interaction.editReply(`**${name}(角色#${actor})**无法在村长处兑换资源。`);
+    }
 }
