@@ -135,10 +135,10 @@
         "event": "你的母亲因病去世。",
         "postEvent": "家庭更加困难了。",
         "effect": {
-            "MNY": -1,
-            "SPR": -1
+            "daoli": -1e17,
+            "XIQ": -10
         },
-        "include": "(EVT?[10009])&(STR<3)&(SPR<3)&(MNY<3)",
+        "include": "(EVT?[10009])&(LVL<30)&(XIQ<30)&(daoli<3e17)",
         "exclude": "(EVT?[10016,10125,10126])|(TLT?[1029])",
         "branch": [
             "EVT?[10017]:10000"
@@ -149,10 +149,10 @@
         "event": "你的父亲因病去世。",
         "postEvent": "家庭更加困难了。",
         "effect": {
-            "MNY": -2,
-            "SPR": -1
+            "daoli": -1e17,
+            "XIQ": -10
         },
-        "include": "(EVT?[10009])&(STR<3)&(SPR<3)&(MNY<3)",
+        "include": "(EVT?[10009])&(LVL<30)&(XIQ<30)&(daoli<3e17)",
         "exclude": "(EVT?[10017,10125,10126])|(TLT?[1029])",
         "branch": [
             "EVT?[10016]:10000"
