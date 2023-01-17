@@ -46,8 +46,8 @@ contract WorldEventProcessor10017 is DefaultWorldEventProcessor {
         IActorTalents talents = IActorTalents(worldRoute.modules(DahuangConstants.WORLD_MODULE_TALENTS));
         IWorldEvents evts = IWorldEvents(worldRoute.modules(DahuangConstants.WORLD_MODULE_EVENTS));
 
-        //"exclude": "(EVT?[10016,10125,10126])|(TLT?[1029])"
-        if(evts.actorEventCount(_actor, 10016) > 0)
+        //"exclude": "(EVT?[10017,10125,10126])|(TLT?[1029])"
+        if(evts.actorEventCount(_actor, 10017) > 0)
             return false;
         if(evts.actorEventCount(_actor, 10125) > 0)
             return false;

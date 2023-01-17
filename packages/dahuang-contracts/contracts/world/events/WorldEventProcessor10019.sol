@@ -35,7 +35,7 @@ contract WorldEventProcessor10019 is DefaultWorldEventProcessor {
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
         //"LVL": 10,
         //"XIQ": 10
-        int256[] memory modifiers = new int256[](2);
+        int256[] memory modifiers = new int256[](4);
         modifiers[0] = int256(DahuangConstants.ATTR_XIQ);
         modifiers[1] = 10;
         modifiers[2] = int256(DahuangConstants.ATTR_LVL);
