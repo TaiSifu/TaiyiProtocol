@@ -1,7 +1,7 @@
 import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
-import { onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onListActors, onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart, onTravelActor } from "../handlers";
+import { onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onListActors, onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart, onTravelActor, onWithdrawDaoli } from "../handlers";
 
 @Discord()
 export abstract class SlashYeMing {
@@ -139,5 +139,21 @@ export abstract class SlashYeMing {
         let user = interaction.member as GuildMember;
         let channel = interaction.channel as TextChannel;
         await onExchangeDaoli(actor, assetId, amount, user, channel, interaction);
+    }
+
+    @Slash("withdraw-daoli", { description: "从角色提取一定量的道理" })
+    async withdrawDaoli(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        @SlashOption("amount", { description: "数量", required: true })
+        amount: number,
+        @SlashOption("to", { description: "提取到指定地址（默认为角色拥有者地址）", required: false })
+        to: string,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onWithdrawDaoli(actor, amount, to, user, channel, interaction);
     }
 }

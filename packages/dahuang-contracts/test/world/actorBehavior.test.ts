@@ -34,6 +34,8 @@ import {
     WorldEventProcessor60005__factory,
     WorldEventProcessor60514__factory,
     WorldEventProcessor60515__factory,
+    WorldEventProcessor60516__factory,
+    WorldEventProcessor60517__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -814,6 +816,57 @@ describe('主动事件角色行为测试', () => {
         it(`新建筑确认`, async ()=>{
             expect(await zones.ownerOf(newBuildingZone)).to.eq((await actors.getActor(testActor)).account);
             expect(await worldBuildings.buildingTypes(newBuildingZone)).to.eq(1);
+        });
+    });
+
+    describe('提取道理（60516）', () => {
+        let evt60516:any;
+        before(reset);
+
+        it(`部署相关事件`, async ()=>{
+            evt60516 = await (await (new WorldEventProcessor60516__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60516, evt60516.address);
+        });
+
+        it(`角色获得道理`, async ()=>{
+            await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(10e18));
+            await assetDaoli.connect(taiyiDAO).transferActor(actorPanGu, testActor, BigInt(1e18));
+            expect(await assetDaoli.balanceOfActor(testActor)).eq(BigInt(1e18));
+        });
+
+        it(`提取道理`, async ()=>{
+            expect(await evt60516.checkOccurrence(testActor, 0)).to.eq(true);
+            await actors.connect(operator1).approve(evt60516.address, testActor);
+            await shejiTu.connect(operator1).activeTrigger(60516, testActor, [BigInt(1e18)], []);
+            expect(await assetDaoli.balanceOf(operator1.address)).eq(BigInt(1e18));
+        });
+    });
+
+    describe('提取道理（60517）', () => {
+        let evt60517:any;
+        before(reset);
+
+        it(`部署相关事件`, async ()=>{
+            evt60517 = await (await (new WorldEventProcessor60517__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(60517, evt60517.address);
+            let evt60517Operator = await newActor(deployer);
+            await actors.connect(deployer).approve(evt60517.address, evt60517Operator);
+            await evt60517.initOperator(evt60517Operator);
+            expect(await evt60517.eventOperator()).to.eq(evt60517Operator);
+            expect(await actors.ownerOf(evt60517Operator)).to.eq(evt60517.address);
+        });
+
+        it(`角色获得道理`, async ()=>{
+            await assetDaoli.connect(taiyiDAO).claim(actorPanGu, actorPanGu, BigInt(10e18));
+            await assetDaoli.connect(taiyiDAO).transferActor(actorPanGu, testActor, BigInt(1e18));
+            expect(await assetDaoli.balanceOfActor(testActor)).eq(BigInt(1e18));
+        });
+
+        it(`提取道理`, async ()=>{
+            expect(await evt60517.checkOccurrence(testActor, 0)).to.eq(true);
+            await assetDaoli.connect(operator1).approveActor(testActor, await shejiTu.operator(), BigInt(1e18));
+            await shejiTu.connect(operator1).activeTrigger(60517, testActor, [BigInt(1e18)], []);
+            expect(await assetDaoli.balanceOf(operator1.address)).eq(BigInt(1e18));
         });
     });
 });

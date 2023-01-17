@@ -96,7 +96,6 @@ contract WorldEvents is IWorldEvents, WorldConfigurable {
 
     function addActorEvent(uint256 _operator, uint256 _actor, uint256 _age, uint256 _eventId) external override
         onlyYeMing(_operator)
-        onlyApprovedOrOwner(_actor)
     {
         _actorEvents[_actor][_age].push(_eventId);
         _actorEventsHistory[_actor][_eventId] += 1;

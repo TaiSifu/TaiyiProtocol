@@ -15,7 +15,7 @@ import {
 } from '@taiyi/contracts/dist/typechain';
 import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
-    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, WorldEventProcessor60515__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { CommandInteraction, GuildMember, TextChannel } from "discord.js";
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -643,4 +643,54 @@ export async function onExchangeDaoli(actor: number, assetId: number, amount: nu
     else {
         await interaction.editReply(`**${name}(角色#${actor})**无法在村长处兑换资源。`);
     }
+}
+
+export async function onWithdrawDaoli(actor: number, amount: number, to: string, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldZones = WorldZones__factory.connect(addressBook.WorldZones, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let evt60517 = WorldEventProcessor60517__factory.connect(addressBook.WorldEventProcessor60516, wallet);
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+    let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, wallet);
+    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+
+    let name = (await names.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+
+    let amountAsset = utils.parseEther(amount.toString());
+    if((await daoli.balanceOfActor(actor)).lt(amountAsset)) {
+        await interaction.editReply(`**${name}(角色#${actor})**资金不够。`);
+        return;
+    }
+
+    await interaction.editReply(`请稍等，正在授权提款……`);
+    await (await actors.approve(dahuang.address, actor)).wait();
+    await (await daoli.approveActor(actor, await dahuang.operator(), amountAsset)).wait();
+    await (await dahuang.activeTrigger(60517, actor, [amountAsset], [])).wait();
+
+    await interaction.editReply(`已经从**${name}(角色#${actor})**身上取款。`);
 }
