@@ -305,6 +305,16 @@ export async function onStart(user: GuildMember, channel: TextChannel, interacti
     }
 }
 
+export async function onInfo(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    await interaction.reply(`您的托管Web3地址是：${accountInfo.address}`);
+}
+
 export async function onNewActor(firstName:string, lastName:string, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
