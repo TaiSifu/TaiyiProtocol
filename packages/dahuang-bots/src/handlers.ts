@@ -384,10 +384,12 @@ export async function onGrowActor(actor: number, user: GuildMember, channel: Tex
     //授权时间线
     if((await actors.getApproved(actor)) != dahuang.address)
         await (await actors.approve(dahuang.address, actor)).wait();
-    //授权actor的gold给时间线
+    //授权actor的资源给时间线
     let yeming = await dahuang.operator();
-    if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(100e18)))
-        await (await assetGold.approveActor(actor, yeming, BigInt(1000e18))).wait();
+    if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+        await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+    if((await daoli.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+        await (await daoli.approveActor(actor, yeming, BigInt(1e29))).wait();    
     
     let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
 
@@ -645,7 +647,9 @@ export async function onExchangeDaoli(actor: number, assetId: number, amount: nu
 
     if(await evt60515.checkOccurrence(actor, 0)) {
         let amountAsset = utils.parseEther(amount.toString());
-        await asset.approveActor(actor, await dahuang.operator(), amountAsset);
+        let yeming = await dahuang.operator();
+        if((await asset.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+            await (await asset.approveActor(actor, yeming, BigInt(1e29))).wait();    
         await (await dahuang.activeTrigger(60515, actor, [assetId, amountAsset], [])).wait();
 
         await interaction.editReply(`**${name}(角色#${actor})**在村长处兑换出来一些道理。`);
@@ -699,7 +703,9 @@ export async function onWithdrawDaoli(actor: number, amount: number, to: string,
 
     await interaction.editReply(`请稍等，正在授权提款……`);
     await (await actors.approve(dahuang.address, actor)).wait();
-    await (await daoli.approveActor(actor, await dahuang.operator(), amountAsset)).wait();
+    let yeming = await dahuang.operator();
+    if((await daoli.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+        await (await daoli.approveActor(actor, yeming, BigInt(1e29))).wait();
     await (await dahuang.activeTrigger(60517, actor, [amountAsset], [])).wait();
 
     await interaction.editReply(`已经从**${name}(角色#${actor})**身上取款。`);
