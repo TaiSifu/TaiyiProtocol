@@ -15,7 +15,7 @@ export abstract class SlashYeMing {
         //console.log(interaction.channelId);
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         //console.log(user);
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         //channel.send("🏃开始播报大荒世界事件……");
         await onShowWorld(user, channel, interaction);
     }
@@ -28,7 +28,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onShowActorInfo(actor, user, channel, interaction);
     }
 
@@ -40,7 +40,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onShowActorAssets(actor, user, channel, interaction);
     }
 
@@ -52,7 +52,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onShowActorItems(actor, user, channel, interaction);
     }
 
@@ -64,7 +64,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onShowActorHistory(actor, user, channel, interaction);
     }
 
@@ -74,7 +74,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onStart(user, channel, interaction);
     }
 
@@ -84,7 +84,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
         
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onListActors(user, channel, interaction);
     }
 
@@ -94,7 +94,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onInfo(user, channel, interaction);
     }
 
@@ -108,7 +108,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onNewActor(firstName, lastName, user, channel, interaction);
     }
 
@@ -120,7 +120,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onGrowActor(actor, user, channel, interaction);
     }
 
@@ -132,7 +132,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onCollectAssets(actor, user, channel, interaction);
     }
 
@@ -146,7 +146,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onTravelActor(actor, zone, user, channel, interaction);
     }
 
@@ -158,7 +158,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onFinishTravel(actor, user, channel, interaction);
     }
 
@@ -174,7 +174,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onExchangeDaoli(actor, assetId, amount, user, channel, interaction);
     }
 
@@ -190,7 +190,7 @@ export abstract class SlashYeMing {
     ): Promise<void> {
 
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
-        let channel = interaction.channel as TextChannel;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onWithdrawDaoli(actor, amount, to, user, channel, interaction);
     }
 }
