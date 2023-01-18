@@ -727,10 +727,12 @@ export async function onExchangeDaoli(actor: number, assetId: number, amount: nu
         let amountAsset = utils.parseEther(amount.toString());
         let yeming = await dahuang.operator();
         if((await asset.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
-            await (await asset.approveActor(actor, yeming, BigInt(1e29))).wait();    
+            await (await asset.approveActor(actor, yeming, BigInt(1e29))).wait();
+        let daoliBefore = await daoli.balanceOfActor(actor);    
         await (await dahuang.activeTrigger(60515, actor, [assetId, amountAsset], [])).wait();
+        let out = (await daoli.balanceOfActor(actor)).sub(daoliBefore);
 
-        await interaction.editReply(`**${name}(角色#${actor})**在村长处兑换出来一些道理。`);
+        await interaction.editReply(`**${name}(角色#${actor})**在村长处兑换出来一些道理（${utils.formatEther(out)}）。`);
     }
     else {
         await interaction.editReply(`**${name}(角色#${actor})**无法在村长处兑换资源。`);
