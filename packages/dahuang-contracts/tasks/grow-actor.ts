@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldFungible__factory, 
-    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory,
+    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory, AssetDaoli__factory,
 } from '@taiyi/contracts/dist/typechain';
 import { 
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory,
@@ -40,12 +40,7 @@ task('grow-actor', '成长角色')
         let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let events = WorldEvents__factory.connect(addressBook.WorldEvents, operator1);
         let golds = WorldFungible__factory.connect(addressBook.AssetGold, operator1);
-        let zones = WorldZones__factory.connect(addressBook.WorldZones, operator1);
-        let baseAttributes = ActorAttributes__factory.connect(addressBook.ActorAttributes, operator1);        
-        let charmAttributes = ActorCharmAttributes__factory.connect(addressBook.ActorCharmAttributes, operator1);
-        let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, operator1);
-        let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, operator1);
-        let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, operator1);
+        let daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, operator1);
 
         let actor = args.actor;
         
@@ -57,9 +52,11 @@ task('grow-actor', '成长角色')
             await (await actors.approve(dahuang.address, actor)).wait();
         //授权actor的gold给时间线
         let yeming = await dahuang.operator();
-        if((await golds.allowanceActor(actor, yeming)).lt(BigInt(100e18)))
-            await (await golds.approveActor(actor, yeming, BigInt(1000e18))).wait();
-        
+        if((await golds.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+            await (await golds.approveActor(actor, yeming, BigInt(1e29))).wait();
+        if((await daoli.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+            await (await daoli.approveActor(actor, yeming, BigInt(1e29))).wait();    
+            
         let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
 
         // console.log(`Taiyi actor #${actor.toString()} age ${_age} uri by render mode 1:`);
