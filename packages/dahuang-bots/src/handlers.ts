@@ -215,6 +215,84 @@ export async function onShowActorInfo(actor: number, user: GuildMember, channel:
     await channel.send(infoStr);
 }
 
+export async function onShowActorAssets(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let addressBook = getDahuangAddressBook();
+    const [wallet] = await getEthersHelper().getSigners();
+    
+    const actors = Actors__factory.connect(addressBook.Actors, wallet);
+    const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);
+    const assetFood = WorldFungible__factory.connect(addressBook.AssetFood, wallet);
+    const assetWood = WorldFungible__factory.connect(addressBook.AssetWood, wallet);
+    const assetFabric = WorldFungible__factory.connect(addressBook.AssetFabric, wallet);
+    const assetHerb = WorldFungible__factory.connect(addressBook.AssetHerb, wallet);
+
+    const daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    let name = (await actorNames.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+    await interaction.editReply(`即将播报**${name}**(角色#${actor})的资源。`);
+
+    let infoStr = `\`\`\`fix\r\n${name}(角色#${actor})的资源：\r\n`;
+
+    infoStr +=
+        `  金石：${utils.formatEther(await assetGold.balanceOfActor(actor))}\r\n` +
+        `  食材：${utils.formatEther(await assetFood.balanceOfActor(actor))}\r\n` +
+        `  木材：${utils.formatEther(await assetWood.balanceOfActor(actor))}\r\n` +
+        `  织物：${utils.formatEther(await assetFabric.balanceOfActor(actor))}\r\n` +
+        `  药材：${utils.formatEther(await assetHerb.balanceOfActor(actor))}\r\n`;
+
+    infoStr += `  道理：${utils.formatEther(await daoli.balanceOfActor(actor))}\r\n`;
+
+    infoStr += `\`\`\``;
+    await channel.send(infoStr);
+}
+
+export async function onShowActorItems(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+    let addressBook = getDahuangAddressBook();
+    const [wallet] = await getEthersHelper().getSigners();
+    
+    const actors = Actors__factory.connect(addressBook.Actors, wallet);
+    const actorNames = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    const worldItems = WorldItems__factory.connect(addressBook.WorldItems, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    let name = (await actorNames.actorName(actor))._name;
+    name = (name==""?"无名氏":name);
+
+    let itemNum = (await worldItems.balanceOfActor(actor)).toNumber();
+    if(itemNum > 0) {
+        await interaction.editReply(`即将播报**${name}**(角色#${actor})的物品。`);
+
+        let infoStr = `\`\`\`fix\r\n${name}(角色#${actor})的物品：\r\n`;
+        for(var i=0; i<itemNum; i++) {
+            let itemId = await worldItems.tokenOfActorByIndex(actor, i);
+            let typeName = await worldItems.typeNames(await worldItems.itemTypes(itemId));
+            let shapeName = await worldItems.shapeNames(await worldItems.itemShapes(itemId));
+            infoStr += `+ ${typeName}，${shapeName}，耐久=${(await worldItems.itemWears(itemId)).toNumber()}\r\n`;
+        }
+        infoStr += `\`\`\``;
+        await channel.send(infoStr);
+    }
+    else {
+        await interaction.editReply(`**${name}**(角色#${actor})没有物品。`);
+    }
+}
+
 export async function onShowActorHistory(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();

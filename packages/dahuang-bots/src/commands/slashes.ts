@@ -1,7 +1,10 @@
 import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
-import { onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onInfo, onListActors, onNewActor, onShowActorHistory, onShowActorInfo, onShowWorld, onStart, onTravelActor, onWithdrawDaoli } from "../handlers";
+import { 
+    onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onInfo, onListActors, onNewActor, onShowActorAssets, 
+    onShowActorHistory, onShowActorInfo, onShowActorItems, onShowWorld, onStart, onTravelActor, onWithdrawDaoli
+ } from "../handlers";
 
 @Discord()
 export abstract class SlashYeMing {
@@ -27,6 +30,30 @@ export abstract class SlashYeMing {
         let user = interaction.member as GuildMember;
         let channel = interaction.channel as TextChannel;
         await onShowActorInfo(actor, user, channel, interaction);
+    }
+
+    @Slash("show-actor-assets", { description: "显示角色的资源" })
+    async showActorAssets(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onShowActorAssets(actor, user, channel, interaction);
+    }
+
+    @Slash("show-actor-items", { description: "显示角色的物品" })
+    async showActorItems(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member as GuildMember;
+        let channel = interaction.channel as TextChannel;
+        await onShowActorItems(actor, user, channel, interaction);
     }
 
     @Slash("show-actor-history", { description: "显示角色的成长经历" })
