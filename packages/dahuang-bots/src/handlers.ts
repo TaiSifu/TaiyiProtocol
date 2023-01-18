@@ -9,15 +9,15 @@ import {
     Actors__factory, WorldConstants__factory, WorldZones__factory, ActorAttributes__factory, ActorSocialIdentity__factory,
     ActorLocations__factory, Trigrams__factory, WorldItems__factory, ActorPrelifes__factory, WorldFungible__factory,
     WorldNontransferableFungible__factory, WorldEvents__factory, ActorTalents__factory, ShejiTu__factory, ActorNames__factory,
-    ActorRelationship__factory,
-    AssetDaoli__factory,
-    WorldContractRoute__factory,
+    ActorRelationship__factory, AssetDaoli__factory, WorldContractRoute__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
-    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory,
+    WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, 
+    ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, 
+    WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
-import { CommandInteraction, GuildMember, TextChannel } from "discord.js";
+import { CommandInteraction, GuildMember, TextChannel, User } from "discord.js";
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
 import { getEthersHelper } from '.';
 import { ATTR_ACT, ATTR_DIL, ATTR_GEG, ATTR_HLH, ATTR_LIM, ATTR_LVL, ATTR_MEL, ATTR_TIZ, ATTR_WUX, ATTR_XIQ, _RL_ATTRIBUTE_BASE, getDahuangAddressBook } from './logger';
@@ -62,7 +62,7 @@ function getTrigramUnicodeString(tri : number) {
     return String.fromCharCode(o+tri);
 }
 
-export async function onShowWorld(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onShowWorld(user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
 
@@ -100,7 +100,7 @@ export async function onShowWorld(user: GuildMember, channel: TextChannel, inter
         `\`\`\``);
 }
 
-export async function onShowActorInfo(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onShowActorInfo(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
     
@@ -215,7 +215,7 @@ export async function onShowActorInfo(actor: number, user: GuildMember, channel:
     await channel.send(infoStr);
 }
 
-export async function onShowActorAssets(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onShowActorAssets(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
     
@@ -256,7 +256,7 @@ export async function onShowActorAssets(actor: number, user: GuildMember, channe
     await channel.send(infoStr);
 }
 
-export async function onShowActorItems(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onShowActorItems(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
     
@@ -293,7 +293,7 @@ export async function onShowActorItems(actor: number, user: GuildMember, channel
     }
 }
 
-export async function onShowActorHistory(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onShowActorHistory(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
 
@@ -348,7 +348,7 @@ async function saveAccount(id: string, data:any) : Promise<void> {
 }
 
 //just for test
-export async function onStart(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onStart(user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         accountInfo.discordId = user.id;
@@ -383,7 +383,7 @@ export async function onStart(user: GuildMember, channel: TextChannel, interacti
     }
 }
 
-export async function onInfo(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onInfo(user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -393,7 +393,7 @@ export async function onInfo(user: GuildMember, channel: TextChannel, interactio
     await interaction.reply(`您的托管Web3地址是：${accountInfo.address}`);
 }
 
-export async function onNewActor(firstName:string, lastName:string, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onNewActor(firstName:string, lastName:string, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -429,7 +429,7 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
     await interaction.editReply(`**${lastName}${firstName}**已经在大荒出生。`);
 }
 
-export async function onGrowActor(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onGrowActor(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -480,7 +480,7 @@ export async function onGrowActor(actor: number, user: GuildMember, channel: Tex
         await interaction.editReply(`**${name}**已经成长到${currentAge}岁了。`);
 }
 
-export async function onCollectAssets(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onCollectAssets(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -526,7 +526,7 @@ export async function onCollectAssets(actor: number, user: GuildMember, channel:
     }
 }
 
-export async function onListActors(user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onListActors(user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -557,7 +557,7 @@ export async function onListActors(user: GuildMember, channel: TextChannel, inte
     await interaction.editReply(actorsStr);
 }
 
-export async function onTravelActor(actor: number, zone: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onTravelActor(actor: number, zone: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -628,7 +628,7 @@ export async function onTravelActor(actor: number, zone: number, user: GuildMemb
     }
 }
 
-export async function onFinishTravel(actor: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onFinishTravel(actor: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -681,7 +681,7 @@ export async function onFinishTravel(actor: number, user: GuildMember, channel: 
     await interaction.editReply(`**${name}(角色#${actor})**旅行结束，到达目的地。`);
 }
 
-export async function onExchangeDaoli(actor: number, assetId: number, amount: number, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onExchangeDaoli(actor: number, assetId: number, amount: number, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
@@ -739,7 +739,7 @@ export async function onExchangeDaoli(actor: number, assetId: number, amount: nu
     }
 }
 
-export async function onWithdrawDaoli(actor: number, amount: number, to: string, user: GuildMember, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
+export async function onWithdrawDaoli(actor: number, amount: number, to: string, user: GuildMember|User, channel: TextChannel, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
         await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);

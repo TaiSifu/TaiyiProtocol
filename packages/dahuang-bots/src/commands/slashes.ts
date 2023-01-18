@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, MessageEmbed, TextChannel } from "discord.js";
+import { CommandInteraction, GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
 import { 
@@ -13,7 +13,7 @@ export abstract class SlashYeMing {
     async showWorld(interaction: CommandInteraction): Promise<void> {
 
         //console.log(interaction.channelId);
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         //console.log(user);
         let channel = interaction.channel as TextChannel;
         //channel.send("🏃开始播报大荒世界事件……");
@@ -27,7 +27,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onShowActorInfo(actor, user, channel, interaction);
     }
@@ -39,7 +39,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onShowActorAssets(actor, user, channel, interaction);
     }
@@ -51,7 +51,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onShowActorItems(actor, user, channel, interaction);
     }
@@ -63,7 +63,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onShowActorHistory(actor, user, channel, interaction);
     }
@@ -73,7 +73,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onStart(user, channel, interaction);
     }
@@ -82,8 +82,8 @@ export abstract class SlashYeMing {
     async listActors(
         interaction: CommandInteraction
     ): Promise<void> {
-
-        let user = interaction.member as GuildMember;
+        
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onListActors(user, channel, interaction);
     }
@@ -93,7 +93,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onInfo(user, channel, interaction);
     }
@@ -107,7 +107,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onNewActor(firstName, lastName, user, channel, interaction);
     }
@@ -119,7 +119,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onGrowActor(actor, user, channel, interaction);
     }
@@ -131,7 +131,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onCollectAssets(actor, user, channel, interaction);
     }
@@ -145,7 +145,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onTravelActor(actor, zone, user, channel, interaction);
     }
@@ -157,7 +157,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onFinishTravel(actor, user, channel, interaction);
     }
@@ -173,7 +173,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onExchangeDaoli(actor, assetId, amount, user, channel, interaction);
     }
@@ -189,7 +189,7 @@ export abstract class SlashYeMing {
         interaction: CommandInteraction
     ): Promise<void> {
 
-        let user = interaction.member as GuildMember;
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel as TextChannel;
         await onWithdrawDaoli(actor, amount, to, user, channel, interaction);
     }
