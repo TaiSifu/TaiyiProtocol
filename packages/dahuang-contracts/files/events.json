@@ -201,7 +201,7 @@
         "event": "你什么事都要让着妹妹。",
         "postEvent": "不开心。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10012]",
         "exclude": "(EVT?[10022,10014])|(TLT?[1015])"
@@ -211,7 +211,7 @@
         "event": "你什么事都要让着弟弟。",
         "postEvent": "不开心。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10014]",
         "exclude": "(EVT?[10023])|(TLT?[1015])"
