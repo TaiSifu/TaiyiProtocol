@@ -218,10 +218,10 @@
     },
     "10024": {
         "id": 10024,
-        "event": "家人到城里务工。",
-        "postEvent": "你在农村留守。",
+        "event": "家人到村里务工。",
+        "postEvent": "你在山里留守。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10009]",
         "exclude": "EVT?[10016,10017,10024]",
@@ -231,10 +231,12 @@
     },
     "10025": {
         "id": 10025,
-        "event": "你和父母一同进了城。",
+        "event": "你和父母一同进了村。",
         "effect": {
-            "SPR": 1
+            "XIQ": 5,
+            "Location": "直接到达太乙村"
         },
+        "exclude": "(Location Locked)",
         "NoRandom": 1
     },
     "10026": {

@@ -27,22 +27,10 @@ import {
     ActorMoodAttributes, ActorCharmAttributes__factory, ActorBehaviorAttributes__factory, ActorCoreAttributes__factory,
     ActorMoodAttributes__factory, WorldBuildings, WorldBuildings__factory, 
     WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
-    WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, 
-    WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, 
-    WorldEventProcessor60507__factory, WorldEventProcessor60511__factory, WorldEventProcessor60512__factory,
-    WorldEventProcessor60510__factory,
-    WorldEventProcessor60005__factory,
-    WorldEventProcessor60514__factory,
-    WorldEventProcessor60515__factory,
-    WorldEventProcessor60516__factory,
-    WorldEventProcessor60517__factory,
-    WorldEventProcessor10000__factory,
-    WorldEventProcessor10016__factory,
-    WorldEventProcessor10009__factory,
-    WorldEventProcessor10017__factory,
-    WorldEventProcessor10019__factory,
-    WorldEventProcessor10020__factory,
-    WorldEventProcessor10021__factory,
+    WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor60005__factory,
+    WorldEventProcessor10000__factory, WorldEventProcessor10016__factory, WorldEventProcessor10009__factory,
+    WorldEventProcessor10017__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory,
+    WorldEventProcessor10021__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -398,6 +386,54 @@ describe('角色成长事件测试', () => {
             await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 2
             expect(await coreAttributes.attributesScores(await dahuangConstants.ATTR_WUX(), testActor)).eq(90);
         });
+    });
 
+    describe('事件10024-10025', () => {
+        let evt10024: any;
+        let evt10025: any;
+        let taiyiZone: any;
+        before(reset);
+
+        it(`部署相关事件`, async ()=>{
+            const evt10009 = await (await (new WorldEventProcessor10009__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(10009, evt10009.address);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10009, 1);
+
+            evt10024 = await (await (new WorldEventProcessor10024__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(10024, evt10024.address);
+            await shejiTu.connect(deployer).addAgeEvent(2, 10024, 1);
+
+            taiyiZone = await zones.nextZone();
+            await zones.connect(taiyiDAO).claim(actorPanGu, "太乙村", shejiTu.address, actorPanGu);
+
+            evt10025 = await (await (new WorldEventProcessor10025__factory(deployer)).deploy(taiyiZone, worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(10025, evt10025.address);
+        });
+
+        it(`成长到测试年龄之前`, async ()=>{
+            //授权时间线
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
+        });
+
+        it(`准备测试条件`, async ()=>{
+            await talents.connect(taiyiDAO).setTalent(1015, "Good Man", "Born as good man", [], []);
+            await talents.connect(taiyiDAO).setActorTalent(actorPanGu, testActor, 1015);
+
+            await moodAttributes.connect(taiyiDAO).setAttributes(actorPanGu, testActor, [await dahuangConstants.ATTR_XIQ(), 80]);
+        });
+
+        it(`成长测试10024`, async ()=>{
+            expect(await evt10024.checkOccurrence(testActor, 0)).eq(true);
+            expect(await evt10025.checkOccurrence(testActor, 0)).eq(true);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 2
+            expect(await moodAttributes.attributesScores(await dahuangConstants.ATTR_XIQ(), testActor)).eq(80);
+            expect(await worldEvents.actorEventCount(testActor, 10024)).eq(1);
+            expect(await worldEvents.actorEventCount(testActor, 10025)).eq(1);
+            let lcs = await actorLocations.actorLocations(testActor);
+            expect(lcs[0]).eq(2);
+            expect(lcs[0]).eq(lcs[1]);
+        });
     });
 });

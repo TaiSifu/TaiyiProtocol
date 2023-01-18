@@ -477,7 +477,7 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
     if(currentAge == 0)
         await interaction.editReply(`**${name}**度过了百日礼。`);
     else
-        await interaction.editReply(`**${name}**已经成长到${currentAge}岁了。`);
+        await interaction.editReply(`时光如梭，白驹过隙。**${name}**已经长大一岁。`);
 }
 
 export async function onCollectAssets(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
