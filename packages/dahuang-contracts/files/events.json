@@ -284,13 +284,13 @@
         "event": "你的脸意外被开水烫伤。",
         "postEvent": "毁容了。",
         "effect": {
-            "CHR": -3,
-            "SPR": -2
+            "MEL": -30,
+            "XIQ": -20
         },
-        "include": "(CHR>3)&(EVT?[10015])",
+        "include": "(MEL>30)&(EVT?[10015])",
         "exclude": "EVT?[10030]",
         "branch": [
-            "SPR<2:10062"
+            "XIQ<20:10062"
         ]
     },
     "10031": {
@@ -595,7 +595,7 @@
         "postEvent": "没有成功。",
         "NoRandom": 1,
         "branch": [
-            "SPR<1:10000"
+            "XIQ<2:10000"
         ]
     },
     "10063": {
