@@ -90,7 +90,7 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         require(eventOperator > 0, "event operator not initialized");
-        require(_uintParams.length>0 && _uintParams.length%2==0, "params is invalid");
+        require(_uintParams.length>1 && _uintParams.length%2==0, "params is invalid");
 
         uint256 daoli = 0;
         uint256 assetModuleId = 0; 

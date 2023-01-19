@@ -14,6 +14,7 @@ import {
     WorldEventProcessor60510__factory,
     WorldEventProcessor60514__factory,
     WorldEventProcessor60515__factory,
+    WorldEventProcessor60518__factory,
     WorldVillages__factory, 
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
@@ -58,9 +59,6 @@ task('do', '做一些事情')
         let worldVillages = WorldVillages__factory.connect(addressBook.WorldVillages, operator1);
         
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
-        let evt60515 = WorldEventProcessor60515__factory.connect(addressBook.WorldEventProcessor60515, operator1);        
-        let evt60509 = WorldEventProcessor60509__factory.connect(addressBook.WorldEventProcessor60509, operator1);        
-        let evt60510 = WorldEventProcessor60510__factory.connect(addressBook.WorldEventProcessor60510, operator1);        
 
         if(0) {
             console.log("兑换资源");
@@ -69,6 +67,7 @@ task('do', '做一些事情')
             console.log("恢复体力...");
             await (await behaviorAttributes.recoverAct(actor)).wait();
 
+            let evt60515 = WorldEventProcessor60515__factory.connect(addressBook.WorldEventProcessor60515, operator1);        
             if(await evt60515.checkOccurrence(actor, 0)) {
                 console.log("开始行动...");
                 let assetId = await woods.moduleID();
@@ -90,6 +89,7 @@ task('do', '做一些事情')
             console.log("恢复体力...");
             await (await behaviorAttributes.recoverAct(actor)).wait();
 
+            let evt60509 = WorldEventProcessor60509__factory.connect(addressBook.WorldEventProcessor60509, operator1);        
             if(await evt60509.checkOccurrence(actor, 0)) {
                 console.log("开始行动...");
                 let lcs = await locations.actorLocations(actor);
@@ -106,18 +106,33 @@ task('do', '做一些事情')
             await (await locations.finishActorTravel(actor)).wait();
         }
 
-        if(1) {
+        if(0) {
             console.log("制作简单工具");
             let actor = 25;
             //恢复体力
             console.log("恢复体力...");
             await (await behaviorAttributes.recoverAct(actor)).wait();
 
+            let evt60510 = WorldEventProcessor60510__factory.connect(addressBook.WorldEventProcessor60510, operator1);        
             if(await evt60510.checkOccurrence(actor, 0)) {
                 console.log("开始行动...");
                 await golds.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
                 await woods.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
                 await (await shejiTu.activeTrigger(60510, actor, [8], [])).wait();
+            }
+            else {
+                console.log("event check occurrence failed!");
+            }
+        }
+
+        if(1) {
+            console.log("要求村长捐款");
+            let fromActor = 21;
+            let assetId = 209; //金石
+            let evt60518 = WorldEventProcessor60518__factory.connect(addressBook.WorldEventProcessor60518, operator1);        
+            if(await evt60518.checkOccurrence(1, 0)) {
+                console.log("开始行动...");
+                await (await shejiTu.connect(taisifu).activeTrigger(60518, 1, [fromActor, assetId, BigInt(150e18)], [])).wait();
             }
             else {
                 console.log("event check occurrence failed!");
