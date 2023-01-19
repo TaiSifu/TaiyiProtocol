@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory, WorldEventProcessor10021__factory, WorldEventProcessor10022__factory, WorldEventProcessor10023__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10026__factory, WorldEventProcessor10027__factory, WorldEventProcessor10028__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor20028__factory, WorldEventProcessor20029__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory, WorldEventProcessor10021__factory, WorldEventProcessor10022__factory, WorldEventProcessor10023__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10026__factory, WorldEventProcessor10027__factory, WorldEventProcessor10028__factory, WorldEventProcessor10029__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor20028__factory, WorldEventProcessor20029__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -62,40 +62,35 @@ task('deploy-event-processors', '部署大荒事件合约')
 
         //Deploy dahuang contracts
         console.log(`部署事件`);
-        let evt20028 = await (await (new WorldEventProcessor20028__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt20028Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(20028, evt20028.address)).wait();
-        let evt20029 = await (await (new WorldEventProcessor20029__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt20029Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(20029, evt20029.address)).wait();
+        let evt10029 = await (await (new WorldEventProcessor10029__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt10029Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(10029, evt10029.address)).wait();
                     
         //save contract address
-        addressBook.WorldEventProcessor20028 = evt20028.address;
-        addressBook.WorldEventProcessor20029 = evt20029.address;
+        addressBook.WorldEventProcessor10029 = evt10029.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor20028 = evt20028Args;
-        argsBook.WorldEventProcessor20029 = evt20029Args;
+        argsBook.WorldEventProcessor10029 = evt10029Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);
         console.log(JSON.stringify(argsBook, null, 2));
 
         //配置时间线事件
-        // console.log(`配置时间线2岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(2, 10027, 1)).wait();
-        // console.log(`配置时间线3岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(3, 10028, 1)).wait();
-        // console.log(`配置时间线4岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(4, 10028, 1)).wait();
-        // console.log(`配置时间线5岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(5, 10028, 200)).wait();
-        // console.log(`配置时间线6岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(6, 10028, 200)).wait();
+        console.log(`配置时间线2岁`);
+        await (await shejiTu.connect(deployer).addAgeEvent(2, 10029, 1)).wait();
+        console.log(`配置时间线3岁`);
+        await (await shejiTu.connect(deployer).addAgeEvent(3, 10029, 1)).wait();
+        console.log(`配置时间线4岁`);
+        await (await shejiTu.connect(deployer).addAgeEvent(4, 10029, 1)).wait();
+        console.log(`配置时间线5岁`);
+        await (await shejiTu.connect(deployer).addAgeEvent(5, 10029, 200)).wait();
+        console.log(`配置时间线6岁`);
+        await (await shejiTu.connect(deployer).addAgeEvent(6, 10029, 200)).wait();
         // console.log(`配置时间线7岁`);
         // await (await shejiTu.connect(deployer).addAgeEvent(7, 10027, 100)).wait();
         // console.log(`配置时间线8岁`);

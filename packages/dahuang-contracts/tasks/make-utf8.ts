@@ -203,7 +203,7 @@ task('make-utf8', 'make utf')
         
         
         if(1) {
-            console.log(String2UTF8X("看在你长得可爱的份上家人不和你计较。"));
+            console.log(String2UTF8X("家人从小就培养你做家务。"));
         }
 
     });
