@@ -698,12 +698,15 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let amount = gold_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
+
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**金石**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
                             else
                                 await sendChannelMessage(`**${fromName}**给了` + `**${toName}**` + amountText + `**金石**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
-                            }
+                        }
                     }
                 }
             //})());
@@ -718,6 +721,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let toName = (await actorNames.actorName(to))._name;
                         let amount = food_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
+
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
@@ -740,6 +746,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let amount = wood_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
+
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**木材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -760,6 +769,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let toName = (await actorNames.actorName(to))._name;
                         let amount = fabric_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
+
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
 
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
@@ -782,6 +794,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let amount = herb_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
 
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
+
                         if (to != ACTOR_GUANGONG.toNumber()) {
                             if (from == ACTOR_GUANGONG.toNumber())
                                 await sendChannelMessage(`**${toName}**获得了` + amountText + `**药材**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);
@@ -802,6 +817,9 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let toName = (await actorNames.actorName(to))._name;
                         let amount = prestige_transfer_event[e].args.amount;
                         let amountText = assetQuantityDescription(amount);
+
+                        fromName = (fromName=="" ? "无名氏" : fromName);
+                        toName = (toName=="" ? "无名氏" : toName);
 
                         if (from == 0)
                             await sendChannelMessage(`**${toName}**获得了` + amountText + `**威望**（${utils.formatEther(amount.div(BigInt(1e17)).mul(BigInt(1e17)))}）。`);

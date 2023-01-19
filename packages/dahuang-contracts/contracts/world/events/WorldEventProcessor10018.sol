@@ -45,7 +45,8 @@ contract WorldEventProcessor10018 is DefaultWorldEventProcessor {
     {
         IWorldFungible gold = IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_GOLD));
         //"gold": 100e18
-        gold.claim(_operator, _actor, 100e18);
+        if(gold.balanceOfActor(_operator) >= 100e18)
+            gold.transferFromActor(_operator, _operator, _actor, 100e18);
     }
 
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external view override returns (bool) {

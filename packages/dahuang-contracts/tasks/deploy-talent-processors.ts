@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:deploy-event-processors --network hard
+//yarn task:deploy-talent-processors --network hard
 import fs from 'fs-extra';
 import { Block } from '@ethersproject/abstract-provider';
 import { task, types } from 'hardhat/config';
@@ -11,13 +11,13 @@ import {
 } from '@taiyi/contracts/dist/typechain';
 import { BigNumber } from 'ethers';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
+import { WorldContract } from '../utils';
 import { 
-    deployActorBehaviorAttributes, deployActorCharmAttributes, deployActorCoreAttributes, deployActorMoodAttributes, 
-    deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
-    deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
-    deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, WorldEventProcessor10018__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory, WorldEventProcessor10021__factory, WorldEventProcessor10022__factory, WorldEventProcessor10023__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10026__factory, WorldEventProcessor10027__factory, WorldEventProcessor10028__factory, WorldEventProcessor10029__factory, WorldEventProcessor10030__factory, WorldEventProcessor10062__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor20028__factory, WorldEventProcessor20029__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
+    ActorTalentProcessor1010__factory,
+    ActorTalentProcessor1049__factory,
+    DahuangConstants__factory, 
+} from '../typechain';
+import { deployActorTalents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
@@ -33,7 +33,7 @@ async function getContractConstructArgs(net: string): Promise<{ [index: string]:
     return JSON.parse(fs.readFileSync(sharedAddressPath, { encoding: "ascii" }));
 }
 
-task('deploy-event-processors', '部署大荒事件合约')
+task('deploy-talent-processors', '部署大荒天赋合约')
     .setAction(async (args, { ethers }) => {
         let addressBook:{[index: string]:any} = await getContractAddress(process_args.network?process_args.network:"hard");
         let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
@@ -59,53 +59,34 @@ task('deploy-event-processors', '部署大荒事件合约')
         let dahuangConstants = DahuangConstants__factory.connect(addressBook.DahuangConstants, taisifu);
         let worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, taisifu);
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
+        let talents = ActorTalents__factory.connect(addressBook.ActorTalents, taisifu);
 
         //Deploy dahuang contracts
-        console.log(`部署事件`);
-        let evt10018 = await (await (new WorldEventProcessor10018__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10018Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10018, evt10018.address)).wait();
+        console.log(`部署天赋`);
+        let processor1010 = await (await (new ActorTalentProcessor1010__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let processor1010Args = [worldContractRoute.address];
+        await (await talents.setTalentProcessor(1010, processor1010.address)).wait();
+        let processor1049 = await (await (new ActorTalentProcessor1049__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let processor1049Args = [worldContractRoute.address];
+        await (await talents.setTalentProcessor(1049, processor1049.address)).wait();
                     
         //save contract address
-        addressBook.WorldEventProcessor10018 = evt10018.address;
+        addressBook.ActorTalentProcessor1010 = processor1010.address;
+        addressBook.ActorTalentProcessor1049 = processor1049.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor10018 = evt10018Args;
+        argsBook.ActorTalentProcessor1010 = processor1010Args;
+        argsBook.ActorTalentProcessor1049 = processor1049Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);
         console.log(JSON.stringify(argsBook, null, 2));
 
-        //配置时间线事件
-        // console.log(`配置时间线2岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(2, 10029, 1)).wait();
-        // console.log(`配置时间线3岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(3, 10030, 1)).wait();
-        // console.log(`配置时间线4岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(4, 10030, 1)).wait();
-        // console.log(`配置时间线5岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(5, 10030, 200)).wait();
-        // console.log(`配置时间线6岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(6, 10030, 200)).wait();
-        // console.log(`配置时间线7岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(7, 10030, 100)).wait();
-        // console.log(`配置时间线8岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(8, 10030, 100)).wait();
-        // console.log(`配置时间线9岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(9, 10030, 100)).wait();
-        // console.log(`配置时间线10岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(10, 10030, 100)).wait();
-        // console.log(`配置时间线11岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(11, 10030, 100)).wait();
-        // console.log(`配置时间线12岁`);
-        // await (await shejiTu.connect(deployer).addAgeEvent(12, 60001, 100)).wait();
-
-        // await (await shejiTu.connect(deployer).setAgeEventProb(6, 10008, 200)).wait();
-        // await (await shejiTu.connect(deployer).setAgeEventProb(6, 60001, 200)).wait();
+        //配置天赋
 
         //入驻角色
         // let newOP = 30;

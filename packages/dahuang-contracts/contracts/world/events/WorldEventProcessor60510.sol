@@ -40,7 +40,7 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
         uint256 mt; uint256 st;
         (mt , st) = rl.actor(_actor);
         if(st != 2) { //non exist actor or dead
-            require(false, "actor not alive");
+            //require(false, "actor not alive");
             return false;
         }
 
@@ -48,30 +48,30 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
         IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
         uint256[] memory lc = locations.actorLocations(_actor);
         if(lc.length == 0 || lc[0]!=lc[1]) {
-            require(false, "actor is not at a zone");
+            //require(false, "actor is not at a zone");
             return false;
         }
         if(!IWorldVillages(worldRoute.modules(DahuangConstants.WORLD_MODULE_VILLAGES)).isZoneVillage(lc[0])) {
-            require(false, "actor is not at a village");
+            //require(false, "actor is not at a village");
             return false;
         }
 
         //行动力要求
         IActorBehaviorAttributes behavior = IActorBehaviorAttributes(worldRoute.modules(DahuangConstants.WORLD_MODULE_BEHAVIOR_ATTRIBUTES));
         if(behavior.attributesScores(DahuangConstants.ATTR_ACT, _actor) < 5) {
-            require(false, "act point is low");
+            //require(false, "act point is low");
             return false;
         }
 
         //资源要求
         IWorldFungible gold = IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_GOLD));
         if(gold.balanceOfActor(_actor) < 1e18) {
-            require(false, "gold is insufficient");
+            //require(false, "gold is insufficient");
             return false;
         }
         IWorldFungible wood = IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_WOOD));
         if(wood.balanceOfActor(_actor) < 10e18) {
-            require(false, "wood is insufficient");
+            //require(false, "wood is insufficient");
             return false;
         }
 

@@ -187,5 +187,14 @@
   ],
   "WorldEventProcessor10062": [
     "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorTalentProcessor1010": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorTalentProcessor1049": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10018": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
   ]
 }

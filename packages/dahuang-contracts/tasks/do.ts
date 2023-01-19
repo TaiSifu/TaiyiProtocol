@@ -11,8 +11,10 @@ import {
     ActorMoodAttributes__factory,
     WorldEventProcessor60505__factory,
     WorldEventProcessor60509__factory,
+    WorldEventProcessor60510__factory,
     WorldEventProcessor60514__factory,
-    WorldEventProcessor60515__factory, 
+    WorldEventProcessor60515__factory,
+    WorldVillages__factory, 
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 
@@ -53,11 +55,15 @@ task('do', '做一些事情')
         let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, operator1);
         let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, operator1);
         let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, operator1);
+        let worldVillages = WorldVillages__factory.connect(addressBook.WorldVillages, operator1);
         
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let evt60515 = WorldEventProcessor60515__factory.connect(addressBook.WorldEventProcessor60515, operator1);        
+        let evt60509 = WorldEventProcessor60509__factory.connect(addressBook.WorldEventProcessor60509, operator1);        
+        let evt60510 = WorldEventProcessor60510__factory.connect(addressBook.WorldEventProcessor60510, operator1);        
 
         if(0) {
+            console.log("兑换资源");
             let actor = 14;
             //恢复体力
             console.log("恢复体力...");
@@ -77,6 +83,50 @@ task('do', '做一些事情')
             }
         }
 
-        await (await items.connect(taisifu).setTypeName(51, "《叕盾术》")).wait();
+        if(0) {
+            console.log("移动到太乙村");
+            let actor = 25;
+            //恢复体力
+            console.log("恢复体力...");
+            await (await behaviorAttributes.recoverAct(actor)).wait();
+
+            if(await evt60509.checkOccurrence(actor, 0)) {
+                console.log("开始行动...");
+                let lcs = await locations.actorLocations(actor);
+                await (await shejiTu.activeTrigger(60509, actor, [lcs[1], 2], [])).wait();
+            }
+            else {
+                console.log("event check occurrence failed!");
+            }
+        }
+
+        if(0) {
+            console.log("结束旅行");
+            let actor = 25;
+            await (await locations.finishActorTravel(actor)).wait();
+        }
+
+        if(1) {
+            console.log("制作简单工具");
+            let actor = 25;
+            //恢复体力
+            console.log("恢复体力...");
+            await (await behaviorAttributes.recoverAct(actor)).wait();
+
+            if(await evt60510.checkOccurrence(actor, 0)) {
+                console.log("开始行动...");
+                await golds.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
+                await woods.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
+                await (await shejiTu.activeTrigger(60510, actor, [8], [])).wait();
+            }
+            else {
+                console.log("event check occurrence failed!");
+            }
+        }
+
+        if(0) {
+            console.log("创建村庄");
+            await (await worldVillages.connect(taisifu).createVillage(1, 3, 2)).wait();
+        }
 
 });
