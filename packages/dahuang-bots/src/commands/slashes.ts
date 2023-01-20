@@ -2,7 +2,7 @@ import { CommandInteraction, GuildMember, MessageEmbed, TextChannel, User } from
 import { Discord, MetadataStorage, SlashOption, Slash } from "discordx";
 import { addChannel } from "../logger";
 import { 
-    onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onInfo, onListActors, onNewActor, onShowActorAssets, 
+    onCollectAssets, onExchangeDaoli, onFinishTravel, onGrowActor, onInfo, onListActors, onMakeTool, onNewActor, onShowActorAssets, 
     onShowActorHistory, onShowActorInfo, onShowActorItems, onShowWorld, onStart, onTravelActor, onWithdrawDaoli
  } from "../handlers";
 
@@ -192,5 +192,19 @@ export abstract class SlashYeMing {
         let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
         let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
         await onWithdrawDaoli(actor, amount, to, user, channel, interaction);
+    }
+
+    @Slash("make-tool", { description: "找村民制作简单工具" })
+    async makeTool(
+        @SlashOption("actor", { description: "角色ID", required: true })
+        actor: number,
+        @SlashOption("type", { description: "工具类型（8-13）", required: true })
+        typeId: number,
+        interaction: CommandInteraction
+    ): Promise<void> {
+
+        let user = interaction.member? interaction.member as GuildMember : interaction.user as User;
+        let channel = interaction.channel? interaction.channel as TextChannel : interaction.user as User;
+        await onMakeTool(actor, typeId, user, channel, interaction);
     }
 }

@@ -15,7 +15,9 @@ import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
     WorldZoneBaseResources__factory, DahuangConstants__factory, WorldDeadActors__factory, ActorsGender__factory, 
     ActorBornFamilies__factory, WorldEventProcessor60505__factory, WorldEventProcessor60509__factory, 
-    WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory,
+    WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory, 
+    WorldEventProcessor60510__factory, WorldEventProcessor60519__factory, WorldEventProcessor60520__factory,
+    WorldEventProcessor60521__factory, WorldEventProcessor60522__factory, WorldEventProcessor60523__factory,
 } from '@taiyi/dahuang-contracts/dist/typechain';
 import { CommandInteraction, GuildMember, TextChannel, User } from "discord.js";
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types';
@@ -62,6 +64,26 @@ function getTrigramUnicodeString(tri : number) {
     return String.fromCharCode(o+tri);
 }
 
+export function getAccountFilePath(id: string) {
+    return `${process.cwd()}/accounts/${id}.json`;
+}
+
+async function loadAccount(id: string) : Promise<{[index: string]:any}> {
+    // @ts-ignore
+    const sPath = getAccountFilePath(id);
+    if(fs.existsSync(sPath))
+        return JSON.parse(fs.readFileSync(sPath, { encoding: "ascii"}));
+    else
+        return {};
+}
+
+async function saveAccount(id: string, data:any) : Promise<void> {
+    // @ts-ignore
+    const sPath = getAccountFilePath(id);
+    await fs.writeFile(sPath, JSON.stringify(data, null, 2));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onShowWorld(user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
@@ -99,7 +121,7 @@ export async function onShowWorld(user: GuildMember|User, channel: TextChannel|U
         `死亡：${await worldDeadActors.deadNum()}人。\r\n` +
         `\`\`\``);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onShowActorInfo(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
@@ -214,7 +236,7 @@ export async function onShowActorInfo(actor: number, user: GuildMember|User, cha
     infoStr += `\`\`\``;
     await channel.send(infoStr);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onShowActorAssets(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
@@ -255,7 +277,7 @@ export async function onShowActorAssets(actor: number, user: GuildMember|User, c
     infoStr += `\`\`\``;
     await channel.send(infoStr);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onShowActorItems(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
@@ -292,7 +314,7 @@ export async function onShowActorItems(actor: number, user: GuildMember|User, ch
         await interaction.editReply(`**${name}**(角色#${actor})没有物品。`);
     }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onShowActorHistory(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let addressBook = getDahuangAddressBook();
     const [wallet] = await getEthersHelper().getSigners();
@@ -327,27 +349,8 @@ export async function onShowActorHistory(actor: number, user: GuildMember|User, 
     historyStr += `\`\`\``;
     await channel.send(historyStr);
 }
-
-export function getAccountFilePath(id: string) {
-    return `${process.cwd()}/accounts/${id}.json`;
-}
-
-async function loadAccount(id: string) : Promise<{[index: string]:any}> {
-    // @ts-ignore
-    const sPath = getAccountFilePath(id);
-    if(fs.existsSync(sPath))
-        return JSON.parse(fs.readFileSync(sPath, { encoding: "ascii"}));
-    else
-        return {};
-}
-
-async function saveAccount(id: string, data:any) : Promise<void> {
-    // @ts-ignore
-    const sPath = getAccountFilePath(id);
-    await fs.writeFile(sPath, JSON.stringify(data, null, 2));
-}
-
 //just for test
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onStart(user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -382,7 +385,7 @@ export async function onStart(user: GuildMember|User, channel: TextChannel|User,
         await interaction.reply(`您已经具备托管Web3账号。`);
     }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onInfo(user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -392,7 +395,7 @@ export async function onInfo(user: GuildMember|User, channel: TextChannel|User, 
     
     await interaction.reply(`您的托管Web3地址是：${accountInfo.address}`);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onNewActor(firstName:string, lastName:string, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -428,7 +431,7 @@ export async function onNewActor(firstName:string, lastName:string, user: GuildM
 
     await interaction.editReply(`**${lastName}${firstName}**已经在大荒出生。`);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onGrowActor(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -482,7 +485,7 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
     else
         await interaction.editReply(`时光如梭，白驹过隙。**${name}**已经长大一岁。`);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onCollectAssets(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -559,7 +562,7 @@ export async function onListActors(user: GuildMember|User, channel: TextChannel|
 
     await interaction.editReply(actorsStr);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onTravelActor(actor: number, zone: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -630,7 +633,7 @@ export async function onTravelActor(actor: number, zone: number, user: GuildMemb
         await interaction.editReply(`**${name}(角色#${actor})**无法移动。`);
     }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onFinishTravel(actor: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -683,7 +686,7 @@ export async function onFinishTravel(actor: number, user: GuildMember|User, chan
 
     await interaction.editReply(`**${name}(角色#${actor})**旅行结束，到达目的地。`);
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onExchangeDaoli(actor: number, assetId: number, amount: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -741,7 +744,7 @@ export async function onExchangeDaoli(actor: number, assetId: number, amount: nu
         await interaction.editReply(`**${name}(角色#${actor})**无法在村长处兑换资源。`);
     }
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function onWithdrawDaoli(actor: number, amount: number, to: string, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
     let accountInfo = await loadAccount(user.id);
     if(accountInfo.discordId != user.id) {
@@ -792,4 +795,149 @@ export async function onWithdrawDaoli(actor: number, amount: number, to: string,
     await (await dahuang.activeTrigger(60517, actor, [amountAsset], [])).wait();
 
     await interaction.editReply(`已经从**${name}(角色#${actor})**身上取款。`);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+export async function onMakeTool(actor: number, typeId: number, user: GuildMember|User, channel: TextChannel|User, interaction: CommandInteraction) : Promise<void> {
+    let accountInfo = await loadAccount(user.id);
+    if(accountInfo.discordId != user.id) {
+        await interaction.reply(`您的Web3托管账号不存在，请执行\/start开始。`);
+        return;
+    }
+    
+    let wallet = new Wallet(`${accountInfo.pk}`, await getEthersHelper().provider);    
+    let addressBook = getDahuangAddressBook();
+    let actors = Actors__factory.connect(addressBook.Actors, wallet);
+    let names = ActorNames__factory.connect(addressBook.ActorNames, wallet);
+    let dahuang = ShejiTu__factory.connect(addressBook.ShejiTuProxy, wallet);
+    let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
+    const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
+    const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    const assetFood = WorldFungible__factory.connect(addressBook.AssetFood, wallet);
+    const assetWood = WorldFungible__factory.connect(addressBook.AssetWood, wallet);
+    const assetFabric = WorldFungible__factory.connect(addressBook.AssetFabric, wallet);
+    const assetHerb = WorldFungible__factory.connect(addressBook.AssetHerb, wallet);
+    let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
+    let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+
+    await interaction.deferReply();
+
+    if((await actors.mintTime(actor)).eq(0)) {
+        await interaction.editReply(`角色#${actor}不存在。`);
+        return;
+    }
+
+    if(await actors.ownerOf(actor) != wallet.address) {
+        await interaction.editReply(`对不起，角色#${actor}不属于你。`);
+        return;
+    }
+    
+    await interaction.editReply(`请稍等，你正在找村民帮忙……`);
+
+    //恢复体力
+    await (await behaviorAttributes.recoverAct(actor)).wait();
+
+    if(typeId == 8) {
+        let evt60510 = WorldEventProcessor60510__factory.connect(addressBook.WorldEventProcessor60510, wallet);
+        if(await evt60510.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetWood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetWood.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60510, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的木工箱。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作木工箱。`);
+        }
+    }
+    else if(typeId == 9) {
+        let evt60519 = WorldEventProcessor60519__factory.connect(addressBook.WorldEventProcessor60510, wallet);
+        if(await evt60519.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60519, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的青铜铸炉。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作青铜铸炉。`);
+        }
+    }
+    else if(typeId == 10) {
+        let evt60520 = WorldEventProcessor60520__factory.connect(addressBook.WorldEventProcessor60520, wallet);
+        if(await evt60520.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetWood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetWood.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetFabric.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetFabric.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60520, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的黑石砂。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作黑石砂。`);
+        }
+    }
+    else if(typeId == 11) {
+        let evt60521 = WorldEventProcessor60521__factory.connect(addressBook.WorldEventProcessor60521, wallet);
+        if(await evt60521.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetWood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetWood.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetFabric.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetFabric.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60521, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的针线包。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作针线包。`);
+        }
+    }
+    else if(typeId == 12) {
+        let evt60522 = WorldEventProcessor60522__factory.connect(addressBook.WorldEventProcessor60522, wallet);
+        if(await evt60522.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetWood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetWood.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetFood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetFood.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60522, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的石锅。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作石锅。`);
+        }
+    }
+    else if(typeId == 13) {
+        let evt60523 = WorldEventProcessor60523__factory.connect(addressBook.WorldEventProcessor60523, wallet);
+        if(await evt60523.checkOccurrence(actor, 0)) {
+            let yeming = await dahuang.operator();
+            if((await assetGold.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetWood.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetWood.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetFabric.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetFabric.approveActor(actor, yeming, BigInt(1e29))).wait();
+            if((await assetHerb.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+                await (await assetHerb.approveActor(actor, yeming, BigInt(1e29))).wait();
+        
+            await (await dahuang.activeTrigger(60523, actor, [], [])).wait();
+            await interaction.editReply(`村民为你制作了简陋的陶土药钵。`);
+        }
+        else {
+            await interaction.editReply(`村民无法为你制作陶土药钵。`);
+        }
+    }
 }

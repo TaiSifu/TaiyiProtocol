@@ -12891,7 +12891,66 @@
         "include": "",
         "exclude": "非盘古角色调用"
     },
-    "70000": {
+    "60519": {
+        "id": 60519,
+        "event": "村民为你制作了简陋的青铜铸炉。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60520": {
+        "id": 60520,
+        "event": "村民为你制作了简陋的黑石砂。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -5e18,
+            "fabric": -2e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60521": {
+        "id": 60521,
+        "event": "村民为你制作了简陋的针线包。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -2e18,
+            "fabric": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60522": {
+        "id": 60522,
+        "event": "村民为你制作了简陋的石锅。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -1e18,
+            "food": -5e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60523": {
+        "id": 60523,
+        "event": "村民为你制作了简陋的陶土药钵。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -2e18,
+            "fabric": -1e18,
+            "herb": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+   "70000": {
         "id": 70000,
         "desc": "盘古新建区域",
         "event": "盘古开天辟地",

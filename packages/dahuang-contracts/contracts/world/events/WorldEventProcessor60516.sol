@@ -26,7 +26,6 @@ contract WorldEventProcessor60516 is DefaultWorldEventProcessor {
         return "\xE4\xBD\xA0\xE6\x8F\x90\xE5\x8F\x96\xE4\xBA\x86\xE4\xB8\x80\xE4\xBA\x9B\xE9\x81\x93\xE7\x90\x86\xE3\x80\x82";
     }
 
-
     //params = [数量]
     function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory _uintParams, string[] memory /*_stringParams*/) external override 
         onlyYeMing(_operator)
