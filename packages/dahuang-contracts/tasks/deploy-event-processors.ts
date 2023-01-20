@@ -16,7 +16,7 @@ import {
     deployAssetFabric, deployAssetFood, deployAssetGold, deployAssetHerb, deployAssetPrestige, deployAssetWood, 
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
-import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, WorldEventProcessor10018__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory, WorldEventProcessor10021__factory, WorldEventProcessor10022__factory, WorldEventProcessor10023__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10026__factory, WorldEventProcessor10027__factory, WorldEventProcessor10028__factory, WorldEventProcessor10029__factory, WorldEventProcessor10030__factory, WorldEventProcessor10031__factory, WorldEventProcessor10062__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor20028__factory, WorldEventProcessor20029__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory, WorldEventProcessor60518__factory } from '../typechain';
+import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, WorldEventProcessor10018__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory, WorldEventProcessor10021__factory, WorldEventProcessor10022__factory, WorldEventProcessor10023__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10026__factory, WorldEventProcessor10027__factory, WorldEventProcessor10028__factory, WorldEventProcessor10029__factory, WorldEventProcessor10030__factory, WorldEventProcessor10031__factory, WorldEventProcessor10062__factory, WorldEventProcessor10110__factory, WorldEventProcessor10111__factory, WorldEventProcessor20028__factory, WorldEventProcessor20029__factory, WorldEventProcessor60510__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory, WorldEventProcessor60516__factory, WorldEventProcessor60517__factory, WorldEventProcessor60518__factory } from '../typechain';
 import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
@@ -62,45 +62,45 @@ task('deploy-event-processors', '部署大荒事件合约')
 
         //Deploy dahuang contracts
         console.log(`部署事件`);
-        let evt10031 = await (await (new WorldEventProcessor10031__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-        let evt10031Args = [worldContractRoute.address];
-        await (await worldEvents.setEventProcessor(10031, evt10031.address)).wait();
+        let evt60510 = await (await (new WorldEventProcessor60510__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+        let evt60510Args = [worldContractRoute.address];
+        await (await worldEvents.setEventProcessor(60510, evt60510.address)).wait();
                     
         //save contract address
-        addressBook.WorldEventProcessor10031 = evt10031.address;
+        addressBook.WorldEventProcessor60510 = evt60510.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.WorldEventProcessor10031 = evt10031Args;
+        argsBook.WorldEventProcessor60510 = evt60510Args;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);
         console.log(JSON.stringify(argsBook, null, 2));
 
         //////增加事件
-        console.log(`配置时间线2岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(2, 10031, 1)).wait();
-        console.log(`配置时间线3岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(3, 10031, 1)).wait();
-        console.log(`配置时间线4岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(4, 10031, 1)).wait();
-        console.log(`配置时间线5岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(5, 10031, 200)).wait();
-        console.log(`配置时间线6岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(6, 10031, 200)).wait();
-        console.log(`配置时间线7岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(7, 10031, 100)).wait();
-        console.log(`配置时间线8岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(8, 10031, 100)).wait();
-        console.log(`配置时间线9岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(9, 10031, 100)).wait();
-        console.log(`配置时间线10岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(10, 10031, 100)).wait();
-        console.log(`配置时间线11岁`);
-        await (await shejiTu.connect(deployer).addAgeEvent(11, 10031, 100)).wait();
+        // console.log(`配置时间线2岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(2, 10031, 1)).wait();
+        // console.log(`配置时间线3岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(3, 10031, 1)).wait();
+        // console.log(`配置时间线4岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(4, 10031, 1)).wait();
+        // console.log(`配置时间线5岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(5, 10031, 200)).wait();
+        // console.log(`配置时间线6岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(6, 10031, 200)).wait();
+        // console.log(`配置时间线7岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(7, 10031, 100)).wait();
+        // console.log(`配置时间线8岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(8, 10031, 100)).wait();
+        // console.log(`配置时间线9岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(9, 10031, 100)).wait();
+        // console.log(`配置时间线10岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(10, 10031, 100)).wait();
+        // console.log(`配置时间线11岁`);
+        // await (await shejiTu.connect(deployer).addAgeEvent(11, 10031, 100)).wait();
         // console.log(`配置时间线12岁`);
         // await (await shejiTu.connect(deployer).addAgeEvent(12, 60001, 100)).wait();
 

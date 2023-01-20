@@ -43,7 +43,7 @@
       },
       {
         "internalType": "uint256[]",
-        "name": "_uintParams",
+        "name": "",
         "type": "uint256[]"
       },
       {

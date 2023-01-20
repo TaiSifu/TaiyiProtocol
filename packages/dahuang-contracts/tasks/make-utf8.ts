@@ -203,7 +203,7 @@ task('make-utf8', 'make utf')
         
         
         if(1) {
-            console.log(String2UTF8X("要求太乙村村长捐出一定的资源作为社会建设基金。"));
+            console.log(String2UTF8X("村民为你制作了简陋的木工箱。"));
         }
 
     });

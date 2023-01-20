@@ -22,8 +22,8 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
-        //村民为你制作了简陋的工具。
-        return "\xE6\x9D\x91\xE6\xB0\x91\xE4\xB8\xBA\xE4\xBD\xA0\xE5\x88\xB6\xE4\xBD\x9C\xE4\xBA\x86\xE7\xAE\x80\xE9\x99\x8B\xE7\x9A\x84\xE5\xB7\xA5\xE5\x85\xB7\xE3\x80\x82";
+        //村民为你制作了简陋的木工箱。
+        return "\xE6\x9D\x91\xE6\xB0\x91\xE4\xB8\xBA\xE4\xBD\xA0\xE5\x88\xB6\xE4\xBD\x9C\xE4\xBA\x86\xE7\xAE\x80\xE9\x99\x8B\xE7\x9A\x84\xE6\x9C\xA8\xE5\xB7\xA5\xE7\xAE\xB1\xE3\x80\x82";
     }
 
     function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
@@ -78,13 +78,10 @@ contract WorldEventProcessor60510 is DefaultWorldEventProcessor {
         return defaultRt;
     }
 
-    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory _uintParams, string[] memory /*_stringParams*/) external override 
+    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory /*_uintParams*/, string[] memory /*_stringParams*/) external override 
         onlyYeMing(_operator)
     {
-        require(_uintParams.length == 1, "params is invalid");
-        uint256 typeId = _uintParams[0];
-        require(typeId>=8 && typeId<=13, "type is invalid"); //初级工具
-
+        uint256 typeId = 8;
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
         items.mint(_operator, typeId, 100, 0, _actor);
 

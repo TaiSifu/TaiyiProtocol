@@ -107,7 +107,7 @@ task('do', '做一些事情')
         }
 
         if(0) {
-            console.log("制作简单工具");
+            console.log("制作木工箱");
             let actor = 25;
             //恢复体力
             console.log("恢复体力...");
@@ -118,7 +118,7 @@ task('do', '做一些事情')
                 console.log("开始行动...");
                 await golds.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
                 await woods.approveActor(actor, await shejiTu.operator(), BigInt(1e29));
-                await (await shejiTu.activeTrigger(60510, actor, [8], [])).wait();
+                await (await shejiTu.activeTrigger(60510, actor, [], [])).wait();
             }
             else {
                 console.log("event check occurrence failed!");

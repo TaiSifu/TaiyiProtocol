@@ -541,7 +541,7 @@ describe('主动事件角色行为测试', () => {
         });
 
         it(`制作工具-未授权资源消耗`, async ()=>{
-            await expect(shejiTu.activeTrigger(60510, testActor, [8], [])).to.be.revertedWith("transfer amount exceeds allowance");
+            await expect(shejiTu.activeTrigger(60510, testActor, [], [])).to.be.revertedWith("transfer amount exceeds allowance");
         });
 
         it(`制作工具`, async ()=>{
@@ -549,7 +549,7 @@ describe('主动事件角色行为测试', () => {
             await woods.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
 
             let newItem = await worldItems.nextItemId();
-            expect((await shejiTu.activeTrigger(60510, testActor, [8], [])).wait()).eventually.fulfilled;
+            expect((await shejiTu.activeTrigger(60510, testActor, [], [])).wait()).eventually.fulfilled;
             expect(await worldItems.itemTypes(newItem)).to.eq(8);
             expect(await worldItems.itemWears(newItem)).to.eq(100);
             expect(await worldItems.itemShapes(newItem)).to.eq(0);
