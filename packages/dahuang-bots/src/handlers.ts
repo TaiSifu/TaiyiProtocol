@@ -940,4 +940,7 @@ export async function onMakeTool(actor: number, typeId: number, user: GuildMembe
             await interaction.editReply(`村民无法为你制作陶土药钵。`);
         }
     }
+    else {
+        await interaction.editReply(`工具类型不对（8到13），村民无法为你制作工具。`);
+    }
 }
