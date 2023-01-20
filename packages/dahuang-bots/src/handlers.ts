@@ -444,6 +444,7 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
     let daoli = WorldFungible__factory.connect(addressBook.AssetDaoli, wallet);
     const worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, wallet);
     const assetGold = WorldFungible__factory.connect(addressBook.AssetGold, wallet);    
+    const assetPrestiges = WorldFungible__factory.connect(addressBook.AssetPrestige, wallet);
 
     await interaction.deferReply();
 
@@ -468,6 +469,8 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
         await (await assetGold.approveActor(actor, yeming, BigInt(1e29))).wait();
     if((await daoli.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
         await (await daoli.approveActor(actor, yeming, BigInt(1e29))).wait();    
+    if((await assetPrestiges.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+        await (await assetPrestiges.approveActor(actor, yeming, BigInt(1e29))).wait();    
     
     let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
 

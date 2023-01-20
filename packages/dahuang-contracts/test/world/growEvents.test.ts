@@ -30,7 +30,7 @@ import {
     WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor60005__factory,
     WorldEventProcessor10000__factory, WorldEventProcessor10016__factory, WorldEventProcessor10009__factory,
     WorldEventProcessor10017__factory, WorldEventProcessor10019__factory, WorldEventProcessor10020__factory,
-    WorldEventProcessor10021__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory,
+    WorldEventProcessor10021__factory, WorldEventProcessor10024__factory, WorldEventProcessor10025__factory, WorldEventProcessor10031__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -434,6 +434,50 @@ describe('角色成长事件测试', () => {
             let lcs = await actorLocations.actorLocations(testActor);
             expect(lcs[0]).eq(2);
             expect(lcs[0]).eq(lcs[1]);
+        });
+    });
+
+    describe('事件10031', () => {
+        let evt10031: any;
+        before(reset);
+
+        it(`部署相关事件`, async ()=>{
+            evt10031 = await (await (new WorldEventProcessor10031__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+            await worldEvents.connect(taiyiDAO).setEventProcessor(10031, evt10031.address);
+            await shejiTu.connect(deployer).addAgeEvent(1, 10031, 1);
+        });
+
+        it(`成长到测试年龄之前`, async ()=>{
+            //授权时间线
+            await actors.approve(shejiTu.address, testActor);
+            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
+        });
+
+        it(`准备测试条件`, async ()=>{
+            await worldItems.connect(taiyiDAO).setTypeName(20, "《木工房》0");
+            await worldItems.connect(taiyiDAO).setTypeName(21, "《木工房》1");
+            await worldItems.connect(taiyiDAO).setTypeName(22, "《木工房》2");
+            await worldItems.connect(taiyiDAO).setTypeName(23, "《木工房》3");
+            await worldItems.connect(taiyiDAO).setTypeName(24, "《木工房》4");
+            await worldItems.connect(taiyiDAO).setTypeName(25, "《木工房》5");
+        });
+
+        it(`成长测试10031（未授权声誉）`, async ()=>{
+            expect(await evt10031.checkOccurrence(testActor, 0)).eq(true);
+            //未授权声誉
+            await expect(shejiTu.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("transfer amount exceeds allowance"); //age 1
+        });
+
+        it(`成长测试10031（授权声誉）`, async ()=>{
+            expect(await evt10031.checkOccurrence(testActor, 0)).eq(true);
+            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
+
+            let newItem = await worldItems.nextItemId();
+            expect((await shejiTu.grow(testActor, { gasLimit: 5000000 })).wait()).eventually.fulfilled; //age 1
+
+            expect(await worldItems.balanceOf(operator1.address)).to.eq(0); //not in operator but account
+            expect(await worldItems.balanceOf((await actors.getActor(testActor)).account)).to.eq(1);
+            expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(testActor)).account);
         });
     });
 });

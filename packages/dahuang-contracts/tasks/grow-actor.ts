@@ -41,6 +41,7 @@ task('grow-actor', '成长角色')
         let events = WorldEvents__factory.connect(addressBook.WorldEvents, operator1);
         let golds = WorldFungible__factory.connect(addressBook.AssetGold, operator1);
         let daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, operator1);
+        let prestiges = WorldFungible__factory.connect(addressBook.AssetPrestige, operator1);
 
         let actor = args.actor;
         
@@ -56,6 +57,8 @@ task('grow-actor', '成长角色')
             await (await golds.approveActor(actor, yeming, BigInt(1e29))).wait();
         if((await daoli.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
             await (await daoli.approveActor(actor, yeming, BigInt(1e29))).wait();    
+        if((await prestiges.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
+            await (await prestiges.approveActor(actor, yeming, BigInt(1e29))).wait();    
             
         let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
 
