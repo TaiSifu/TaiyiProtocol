@@ -29,13 +29,9 @@ import {
     WorldEventProcessor10001__factory, WorldEventProcessor60002__factory, WorldEventProcessor60003__factory, 
     WorldEventProcessor60004__factory, WorldEventProcessor60001__factory, WorldEventProcessor70000__factory, 
     WorldEventProcessor60505__factory, WorldEventProcessor60506__factory, WorldEventProcessor60509__factory, 
-    WorldEventProcessor60507__factory, WorldEventProcessor60511__factory, WorldEventProcessor60512__factory,
-    WorldEventProcessor60510__factory,
-    WorldEventProcessor60005__factory,
-    WorldEventProcessor60514__factory,
-    WorldEventProcessor60515__factory,
-    WorldEventProcessor60516__factory,
-    WorldEventProcessor60517__factory,
+    WorldEventProcessor60507__factory, WorldEventProcessor60512__factory, WorldEventProcessor60510__factory,
+    WorldEventProcessor60005__factory, WorldEventProcessor60514__factory, WorldEventProcessor60515__factory,
+    WorldEventProcessor60516__factory, WorldEventProcessor60517__factory,
 } from '../../typechain';
 import { DahuangContractName, deployDahuangWorld } from '../../utils';
 
@@ -613,63 +609,11 @@ describe('主动事件角色行为测试', () => {
         });
     });
 
-    describe('申领创世建筑天书', () => {
-        let evt60511:any;
-        before(reset);
-
-        it(`部署建筑天书事件`, async ()=>{
-            evt60511 = await (await (new WorldEventProcessor60511__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-            await worldEvents.connect(taiyiDAO).setEventProcessor(60511, evt60511.address);
-        });
-
-        it(`设置建筑天书`, async ()=>{
-            await worldItems.connect(taiyiDAO).setTypeName(20, "《木工房》");
-        });
-
-        it(`成长到有效年龄`, async ()=>{
-            await actors.approve(shejiTu.address, testActor);
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 0
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 1
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 2
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 3
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 4
-            await shejiTu.grow(testActor, { gasLimit: 5000000 }); //age 5
-        });
-
-        it(`恢复体力`, async ()=>{
-            await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
-            await behaviorAttributes.recoverAct(testActor);
-            expect(await behaviorAttributes.attributesScores(await dahuangConstants.ATTR_ACT(), testActor)).to.eq(20);
-        });
-
-        it(`体力和威望检查`, async ()=>{
-            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(5e18));
-            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
-        });
-
-        it(`未授权威望消耗不能申领天书`, async ()=>{
-            await expect(shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).to.be.revertedWith("transfer amount exceeds allowance");
-        });
-
-        it(`申领建筑天书`, async ()=>{
-            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
-
-            let newItem = await worldItems.nextItemId();
-            expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
-
-            expect(await worldItems.balanceOf(operator1.address)).to.eq(0); //not in operator but account
-            expect(await worldItems.balanceOf((await actors.getActor(testActor)).account)).to.eq(1);
-            expect(await worldItems.ownerOf(newItem)).to.eq((await actors.getActor(testActor)).account);
-            //console.log(JSON.stringify(await parseActorURI(testActor), null, 2));
-        });
-    });
-
     describe('修建基础建筑', () => {
         let evt70000:any;
         let evt60505:any;
         let evt60506:any;
         let evt60509:any;
-        let evt60511:any;
         let evt60512:any;
         let newZone: any;
         let newVillage: any;
@@ -686,8 +630,6 @@ describe('主动事件角色行为测试', () => {
             await worldEvents.connect(taiyiDAO).setEventProcessor(60506, evt60506.address);
             evt60509 = await (await (new WorldEventProcessor60509__factory(deployer)).deploy(BaseTravelTime, worldContractRoute.address)).deployed();
             await worldEvents.connect(taiyiDAO).setEventProcessor(60509, evt60509.address);
-            evt60511 = await (await (new WorldEventProcessor60511__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-            await worldEvents.connect(taiyiDAO).setEventProcessor(60511, evt60511.address);
             evt60512 = await (await (new WorldEventProcessor60512__factory(deployer)).deploy(BaseBuildTime, worldContractRoute.address)).deployed();
             await worldEvents.connect(taiyiDAO).setEventProcessor(60512, evt60512.address);
         });
@@ -762,12 +704,8 @@ describe('主动事件角色行为测试', () => {
         })
 
         it(`申领建筑天书`, async ()=>{
-            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(5e18));
-            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
-            await prestiges.approveActor(testActor, await shejiTu.operator(), BigInt(1000e18));
-
             newItem = await worldItems.nextItemId();
-            expect((await shejiTu.activeTrigger(60511, testActor, [20], [], { gasLimit: 5000000 })).wait()).eventually.fulfilled;
+            expect((await worldItems.connect(taiyiDAO).mint(actorPanGu, 20, 100, 0, testActor)).wait()).eventually.fulfilled;
 
             expect(await worldItems.balanceOf(operator1.address)).to.eq(0); //not in operator but account
             expect(await worldItems.balanceOf((await actors.getActor(testActor)).account)).to.eq(1);
@@ -778,11 +716,6 @@ describe('主动事件角色行为测试', () => {
             await ethers.provider.send('evm_increaseTime', [ActRecoverTimeDay]);
             await behaviorAttributes.recoverAct(testActor);
             expect(await behaviorAttributes.attributesScores(await dahuangConstants.ATTR_ACT(), testActor)).to.eq(20);
-        });
-
-        it(`条件检查`, async ()=>{
-            expect(await prestiges.balanceOfActor(testActor)).to.gte(BigInt(150e18));
-            expect(await evt60511.checkOccurrence(testActor, 0)).to.eq(true);
         });
 
         it(`未授权资源消耗不能修建建筑`, async ()=>{
