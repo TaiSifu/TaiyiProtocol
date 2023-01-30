@@ -369,17 +369,17 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
             
             //generate new trigram
             //event_promises.push((async ():Promise<void>=> {
-                let TrigramOut_event = await trigrams.queryFilter(TrigramOut_filter, startBlockNum, endBlockNum);
-                if (TrigramOut_event.length > 0) {
-                    for (var e = 0; e < TrigramOut_event.length; e++) {
-                        let actor = TrigramOut_event[e].args.actor.toNumber();
-                        let tri = TrigramOut_event[e].args.trigram.toNumber();
-                        let name = (await actorNames.actorName(actor))._name;
-                        name = (name==""?"无名氏":name);
+                // let TrigramOut_event = await trigrams.queryFilter(TrigramOut_filter, startBlockNum, endBlockNum);
+                // if (TrigramOut_event.length > 0) {
+                //     for (var e = 0; e < TrigramOut_event.length; e++) {
+                //         let actor = TrigramOut_event[e].args.actor.toNumber();
+                //         let tri = TrigramOut_event[e].args.trigram.toNumber();
+                //         let name = (await actorNames.actorName(actor))._name;
+                //         name = (name==""?"无名氏":name);
 
-                        await sendChannelMessage(`**${name}**卦象增加\"**${getTrigramUnicodeString(tri)}**\"。`);
-                    }
-                }
+                //         await sendChannelMessage(`**${name}**卦象增加\"**${getTrigramUnicodeString(tri)}**\"。`);
+                //     }
+                // }
             //})());
 
             //talents init events
@@ -839,11 +839,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
         }
     }
 
-    // again in 90 second
+    // again in 120 second
     setTimeout(function () {
         console.log(`start-->`+`${startBlockNum}`);
         startSyncMain(startBlockNum, ethersHelper);
-    }, 90000);
+    }, 120000);
 }
 
 export function startLogger(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {
