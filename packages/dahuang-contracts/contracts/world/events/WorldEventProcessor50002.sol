@@ -37,6 +37,7 @@ contract WorldEventProcessor50002 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
+        //紫金米
         items.mint(_operator, 50, 100, 0, _actor);
     }
 

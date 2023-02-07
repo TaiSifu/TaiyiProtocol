@@ -22,6 +22,7 @@ const client = new Client({
         Intents.FLAGS.GUILD_MESSAGES,
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
         Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.GUILD_INTEGRATIONS,
         Intents.FLAGS.MESSAGE_CONTENT,
     ],
     // If you only want to use guild commands, uncomment this line

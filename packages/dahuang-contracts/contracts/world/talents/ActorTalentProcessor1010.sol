@@ -30,6 +30,7 @@ contract ActorTalentProcessor1010 is IActorTalentProcessor, WorldConfigurable {
     {
         IWorldFungible gold = IWorldFungible(worldRoute.modules(DahuangConstants.WORLD_MODULE_GOLD));
         //"gold": 10e18
-        gold.claim(_operator, _actor, 10e18);
+        if(gold.balanceOfActor(_operator) >= 10e18)
+            gold.transferFromActor(_operator, _operator, _actor, 10e18);
     }
 }

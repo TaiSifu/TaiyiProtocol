@@ -126,5 +126,99 @@
   ],
   "WorldEventProcessor10003": [
     "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10008": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10016": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10017": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60516": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60517": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10019": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10020": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10021": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10022": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10023": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10024": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10025": [
+    2,
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10026": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10027": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10028": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor20028": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor20029": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10029": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10030": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10062": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorTalentProcessor1010": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "ActorTalentProcessor1049": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10018": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60518": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor10031": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60510": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60519": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60520": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60521": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60522": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor60523": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
   ]
 }

@@ -60,7 +60,8 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
             return false;
         uint256[] memory lc = lcs.actorLocations(_actor);
         
-        return (lc[1] != taiyiZone); //这里是bug，会导致角色位于太乙村时反而无法执行事件
+        //return (lc[1] != taiyiZone); //这里是bug，会导致角色位于太乙村时反而无法执行事件
+        return (lc[1] == taiyiZone);
     }
 
     //how many Daoli per 1e18 asset
@@ -90,7 +91,7 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         require(eventOperator > 0, "event operator not initialized");
-        require(_uintParams.length>0 && _uintParams.length%2==0, "params is invalid");
+        require(_uintParams.length>1 && _uintParams.length%2==0, "params is invalid");
 
         uint256 daoli = 0;
         uint256 assetModuleId = 0; 

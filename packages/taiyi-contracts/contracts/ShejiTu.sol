@@ -194,12 +194,9 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(_eventId > 0, "event id must not zero");
         require(eventIDs[_age].length == eventProbs[_age].length, "internal ids not match probs");
         for(uint256 i=0; i<eventIDs[_age].length; i++) {
-            if(eventIDs[_age][i] == _eventId) {
+            if(eventIDs[_age][i] == _eventId)
                 eventProbs[_age][i] = _eventProb;
-                return;
-            }
         }
-        require(false, "can not find _eventId");
     }
 
     function getAgeEventProbs(uint256 _age) public view returns (uint256[] memory) {
