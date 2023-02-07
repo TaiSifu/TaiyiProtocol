@@ -53,10 +53,8 @@ contract WorldEventProcessor60508 is DefaultWorldEventProcessor, ERC721Holder {
         if(eventOperator == 0)
             return false;
 
-        IActors rl = worldRoute.actors();
-        uint256 mt; uint256 st;
-        (mt , st) = rl.actor(_actor);
-        if(st == 0) //non exist actor
+        IActors actors = worldRoute.actors();
+        if(actors.mintTime(_actor) == 0) //non exist actor
             return false;
 
         IActorPrelifes prelifes = IActorPrelifes(worldRoute.modules(WorldConstants.WORLD_MODULE_PRELIFES));
@@ -69,7 +67,7 @@ contract WorldEventProcessor60508 is DefaultWorldEventProcessor, ERC721Holder {
         //验证角色所在时间线“道理”够不够
         uint256 YeMing = IWorldTimeline(worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE)).operator();
         IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
-        if(daoli.balanceOfActor(YeMing) < worldRoute.actors().actorPrice())
+        if(daoli.balanceOfActor(YeMing) < actors.actorPrice())
             return false;
 
         return defaultRt;

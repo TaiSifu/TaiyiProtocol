@@ -30,7 +30,7 @@ interface IActors is IERC721, IWorldModule {
     event ActorMinted(address indexed owner, uint256 indexed actorId, uint256 indexed time);
     event ActorPurchased(address indexed payer, uint256 indexed actorId, uint256 price);
 
-    function actor(uint256 _actor) external view returns (uint256 _mintTime, uint256 _status);
+    function mintTime(uint256 _actor) external view returns (uint256);
     function nextActor() external view returns (uint256);
     function mintActor(uint256 maxPrice) external returns(uint256 actorId);
     function changeActorRenderMode(uint256 _actor, uint256 _mode) external;

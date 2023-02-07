@@ -337,7 +337,6 @@ describe('角色URI测试', () => {
         expect(uriObj.name).to.eq("Taiyi Actor #2");
         expect(uriObj.description).to.eq("This is not a game.");
         expect(uriObj.data.base.mintTime).to.eq(timestamp);
-        expect(uriObj.data.base.status).to.eq(2);
 
         // const svgDecode = Buffer.from(uriObj.image.substring(26), 'base64').toString('utf-8');
         // console.log(svgDecode);

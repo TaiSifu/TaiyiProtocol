@@ -36,13 +36,13 @@ contract WorldEventProcessor60522 is DefaultWorldEventProcessor {
     function checkOccurrence(uint256 _actor, uint256 /*_age*/) external virtual view override returns (bool) {
         bool defaultRt = true;
 
-        IActors rl = worldRoute.actors();
-        uint256 mt; uint256 st;
-        (mt , st) = rl.actor(_actor);
-        if(st != 2) { //non exist actor or dead
-            //require(false, "actor not alive");
+        IActors actors = worldRoute.actors();
+        if(actors.mintTime(_actor) == 0) //non exist actor
             return false;
-        }
+        IActorAttributes baseAttrs = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
+        uint256 _hlh = baseAttrs.attributesScores(WorldConstants.ATTR_HLH, _actor);
+        if(_hlh == 0) //dead actor
+            return false;
 
         //区域要求
         IActorLocations locations = IActorLocations(worldRoute.modules(WorldConstants.WORLD_MODULE_ACTOR_LOCATIONS));
