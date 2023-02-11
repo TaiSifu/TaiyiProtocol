@@ -134,9 +134,9 @@ contract WorldEventProcessor10014 is DefaultWorldEventProcessor, ERC721Holder {
     {
         require(actors_to_be_claimed[_actor].length > 0, "no actors need to claim.");
 
-        IActors rl = worldRoute.actors();
+        IActors actors = worldRoute.actors();
         for(uint256 i=0; i<actors_to_be_claimed[_actor].length; i++) {
-            rl.transferFrom(address(this), msg.sender, actors_to_be_claimed[_actor][i]);
+            actors.transferFrom(address(this), msg.sender, actors_to_be_claimed[_actor][i]);
         }
 
         delete actors_to_be_claimed[_actor];

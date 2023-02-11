@@ -43,7 +43,7 @@
       },
       {
         "internalType": "uint256[]",
-        "name": "_uintParams",
+        "name": "",
         "type": "uint256[]"
       },
       {
@@ -85,7 +85,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "",
         "type": "uint256"
       },
       {
@@ -141,7 +141,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],
@@ -157,8 +157,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "eventOperator",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "nextStoryEventId",
     "outputs": [
       {
         "internalType": "uint256",
@@ -167,53 +173,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_eventOperator",
-        "type": "uint256"
-      }
-    ],
-    "name": "initOperator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "name": "onERC721Received",
-    "outputs": [
-      {
-        "internalType": "bytes4",
-        "name": "",
-        "type": "bytes4"
-      }
-    ],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -289,7 +248,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "",
         "type": "uint256"
       }
     ],

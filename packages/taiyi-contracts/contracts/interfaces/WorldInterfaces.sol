@@ -63,6 +63,7 @@ interface IWorldTimeline is IWorldModule {
     function operator() external view returns (uint256);
     function events() external view returns (IWorldEvents);
 
+    function bornActor(uint256 _actor) external;
     function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
 }
@@ -313,4 +314,45 @@ interface ITrigrams is IWorldModule {
 
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
+}
+
+interface IWorldStorylines is IWorldModule {
+    function currentStoryNum() external view returns (uint256);
+    function currentStoryByIndex(uint256 _index) external view returns (uint256);
+    function isStoryExist(uint256 _storyEvtId) external view returns (bool);
+    function storyHistoryNum(uint256 _storyEvtId) external view returns (uint256);
+
+    /** storyEvtId is the start event id of this story **/
+
+    function currentActorStoryNum(uint256 _actor) external view returns (uint256);
+    function currentActorStoryByIndex(uint256 _actor, uint256 _index) external view returns (uint256); //storyEvtId
+    function currentActorEventByStoryId(uint256 _actor, uint256 _storyEvtId) external view returns (uint256); //eventId
+    function isActorInStory(uint256 _actor, uint256 _storyEvtId) external view returns (bool);
+
+    function currentStoryActorNum(uint256 _storyEvtId) external view returns (uint256);
+    function currentStoryActorByIndex(uint256 _storyEvtId, uint256 _index) external view returns (uint256); //actor id
+
+    //set eventId to ZERO means end of this story, should delete info for this story
+    function setActorStory(uint256 _operator, uint256 _actor, uint256 _storyEvtId, uint256 _eventId) external;
+
+    //操作由剧情所有的角色
+    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _eventId) external;
+}
+
+interface IParameterizedStorylines is IWorldStorylines {
+    function storyStringParameters(uint256 _storyEvtId) external view returns (string[] memory);
+    function storyUIntParameters(uint256 _storyEvtId) external view returns (uint256[] memory);
+
+    function setStoryParameters(uint256 _operator, uint256 _storyEvtId, string[] memory _params) external;
+    function setStoryParameters(uint256 _operator, uint256 _storyEvtId, uint256[] memory _params) external;
+}
+
+interface IGlobalStoryRegistry is IWorldModule {
+    function storyNum() external view returns (uint256);
+    function storyByIndex(uint256 _index) external view returns (uint256);
+    function hasStory(uint256 _storyEvtId) external view returns (bool);
+    function canStoryRepeat(uint256 _storyEvtId) external view returns (bool);
+
+    function registerStory(uint256 _operator, uint256 _storyEvtId, uint256 _canRepeat) external;
+    function removeStory(uint256 _operator, uint256 _storyEvtId) external;
 }

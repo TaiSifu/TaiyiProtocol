@@ -2,41 +2,17 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_taiyiDAO",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "taiyiDAO",
-        "type": "address"
-      }
-    ],
-    "name": "TaiyiDAOUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "_storyEvtId",
         "type": "uint256"
       }
     ],
-    "name": "YeMings",
+    "name": "canStoryRepeat",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "bool",
         "name": "",
-        "type": "address"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -46,11 +22,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "_storyEvtId",
         "type": "uint256"
       }
     ],
-    "name": "isYeMing",
+    "name": "hasStory",
     "outputs": [
       {
         "internalType": "bool",
@@ -71,18 +47,28 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_taiyiDAO",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_canRepeat",
+        "type": "uint256"
       }
     ],
-    "name": "setTaiyiDAO",
+    "name": "registerStory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -91,28 +77,47 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "_operator",
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_timelineAddress",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
       }
     ],
-    "name": "setYeMing",
+    "name": "removeStory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "taiyiDAO",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "storyByIndex",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "storyNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -122,7 +127,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],
@@ -141,7 +146,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {
@@ -151,7 +156,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_lineHeight",
         "type": "uint256"
       }
     ],

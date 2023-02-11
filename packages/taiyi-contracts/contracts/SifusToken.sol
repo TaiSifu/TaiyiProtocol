@@ -224,7 +224,8 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
      */
     function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_SIFUS; }
 
-    function tokenSVG(uint256 /*_actor*/, uint /*_startY*/, uint /*_lineHeight*/) external virtual override view returns (string memory, uint _endY) {
+    function tokenSVG(uint256 /*_actor*/, uint256 _startY, uint256 /*_lineHeight*/) external virtual override view returns (string memory, uint _endY) {
+        _endY = _startY;
         return ("", _endY);
     }
 

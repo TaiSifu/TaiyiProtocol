@@ -60,8 +60,7 @@ contract WorldEventProcessor60514 is DefaultWorldEventProcessor {
             return false;
         uint256[] memory lc = lcs.actorLocations(_actor);
         
-        //return (lc[1] != taiyiZone); //这里是bug，会导致角色位于太乙村时反而无法执行事件
-        return (lc[1] == taiyiZone);
+        return (lc[1] != taiyiZone); //这里是bug，会导致角色位于太乙村时反而无法执行事件
     }
 
     //how many Daoli per 1e18 asset

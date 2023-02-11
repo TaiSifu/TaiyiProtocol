@@ -8,157 +8,11 @@
       },
       {
         "internalType": "uint256",
-        "name": "_number",
+        "name": "_storyEvtId",
         "type": "uint256"
       }
     ],
-    "name": "_dn",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "class",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d10",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d100",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d12",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d20",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d4",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d6",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_actor",
-        "type": "uint256"
-      }
-    ],
-    "name": "d8",
+    "name": "currentActorEventByStoryId",
     "outputs": [
       {
         "internalType": "uint256",
@@ -178,11 +32,92 @@
       },
       {
         "internalType": "uint256",
-        "name": "_number",
+        "name": "_index",
         "type": "uint256"
       }
     ],
-    "name": "dn",
+    "name": "currentActorStoryByIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      }
+    ],
+    "name": "currentActorStoryNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "currentStoryActorByIndex",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "currentStoryActorNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "currentStoryByIndex",
     "outputs": [
       {
         "internalType": "uint256",
@@ -195,12 +130,55 @@
   },
   {
     "inputs": [],
-    "name": "index",
+    "name": "currentStoryNum",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "",
-        "type": "string"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "isActorInStory",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "isStoryExist",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -216,14 +194,145 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_eventId",
+        "type": "uint256"
+      }
+    ],
+    "name": "setActorStory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_params",
+        "type": "string[]"
+      }
+    ],
+    "name": "setStoryParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_params",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "setStoryParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "storyHistoryNum",
+    "outputs": [
+      {
+        "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "storyStringParameters",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_storyEvtId",
+        "type": "uint256"
+      }
+    ],
+    "name": "storyUIntParameters",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
         "type": "uint256"
       }
     ],
@@ -242,7 +351,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {
@@ -252,7 +361,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_lineHeight",
         "type": "uint256"
       }
     ],
@@ -270,6 +379,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_eventId",
+        "type": "uint256"
+      }
+    ],
+    "name": "triggerActorEvent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
