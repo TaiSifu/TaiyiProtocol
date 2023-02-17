@@ -83,24 +83,25 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
 
         //激活全局剧情
         if(eventOperator > 0)
-            triggerActorStory(_operator, _actor);
+            _triggerActorStory(_operator, _actor);
     }
 
-    function triggerActorStory(uint256 _operator, uint256 _actor) internal {
+    function _triggerActorStory(uint256 _operator, uint256 _actor) internal {
         IParameterizedStorylines globalStory = IParameterizedStorylines(worldRoute.modules(223));
         IGlobalStoryRegistry globalStoryReg = IGlobalStoryRegistry(worldRoute.modules(224));
         uint256 storyIndex = IWorldRandom(worldRoute.modules(WorldConstants.WORLD_MODULE_RANDOM)).dn(_actor, globalStoryReg.storyNum());
         uint256 storyEvtId = globalStoryReg.storyByIndex(storyIndex);
-        if(!globalStoryReg.canStoryRepeat(storyEvtId) && globalStory.storyHistoryNum(storyEvtId) > 0)
-            return;
             
-        if(!globalStory.isStoryExist(storyEvtId)) {
+        IWorldEvents events = IWorldEvents(worldRoute.modules(DahuangConstants.WORLD_MODULE_EVENTS));
+        if(!globalStory.isStoryExist(storyEvtId)) { //当前进行中的剧情
+            if(!globalStoryReg.canStoryRepeat(storyEvtId) && globalStory.storyHistoryNum(storyEvtId) > 0)
+                return; //不允许重复历史
+
             //创建新角色，开启新剧情
-            uint256 YeMing = IWorldTimeline(worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE)).operator();
-            if(_operator == YeMing) { //must at actor's timeline
+            if(events.canOccurred(_actor, storyEvtId, events.ages(_actor))) {
                 IActors actors = worldRoute.actors();
                 IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
-                if(daoli.balanceOfActor(YeMing) >= actors.actorPrice()) { //enough daoli
+                if(daoli.balanceOfActor(_operator) >= actors.actorPrice()) { //enough daoli
                     uint256 actorPrice = actors.actorPrice();
                     daoli.transferActor(_operator, eventOperator, actorPrice);
                     daoli.withdraw(_operator, eventOperator, actorPrice);
@@ -109,20 +110,25 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
                     IERC20(address(daoli)).approve(address(actors), actorPrice);
                     actors.mintActor(actorPrice);
 
-                    //TODO: 命名
-                    IActorNames(worldRoute.modules(WorldConstants.WORLD_MODULE_NAMES)).claim(string(abi.encodePacked("\xE5\xB0\x8F\xE6\x8B\xBC", Strings.toString(newActor))),
-                        "\xE6\x9D\x8E", newActor);
+                    //TODO: 命名 【剧角N】
+                    IActorNames(worldRoute.modules(WorldConstants.WORLD_MODULE_NAMES)).claim(string(abi.encodePacked("\xE8\xA7\x92", Strings.toString(newActor), "\xE3\x80\x91")),
+                        "\xE3\x80\x90\xE5\x89\xA7", newActor);
 
-                    IWorldTimeline globalStoryTimeline = IWorldTimeline(worldRoute.modules(225)); 
-                    actors.approve(address(globalStoryTimeline), newActor);
-                    globalStoryTimeline.bornActor(newActor);
-                    globalStoryTimeline.grow(newActor);
+                    IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
+                    IWorldTimeline timeline = IWorldTimeline(yemings.YeMings(_operator));
+                    actors.approve(address(timeline), newActor);
+                    timeline.bornActor(newActor);
+                    timeline.grow(newActor);
 
                     //将新角色所有权交给全局剧情合约
                     actors.transferFrom(address(this), address(globalStory), newActor);
 
                     //启动剧情
-                    globalStory.triggerActorEvent(_operator, newActor, storyEvtId);
+                    globalStory.triggerActorEvent(_operator, _actor, storyEvtId);
+                    globalStory.setActorStory(_operator, newActor, storyEvtId, storyEvtId);
+
+                    //剧情角色也有该事件历史
+                    events.addActorEvent(_operator, newActor, 0, storyEvtId);
                 }
             }
         }
@@ -131,8 +137,19 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
             uint256 storyActor = globalStory.currentStoryActorByIndex(storyEvtId, 0);
             require(storyActor>0, "story internal error");
             uint256 currentEvtId = globalStory.currentActorEventByStoryId(storyActor, storyEvtId);
-            StoryEventProcessor evt = StoryEventProcessor(IWorldEvents(worldRoute.modules(DahuangConstants.WORLD_MODULE_EVENTS)).eventProcessors(currentEvtId));
-            globalStory.triggerActorEvent(_operator, storyActor, evt.nextStoryEventId(storyActor));
+            uint256 nextEvtId = StoryEventProcessor(events.eventProcessors(currentEvtId)).nextStoryEventId(_actor);
+            if(nextEvtId == 0) {
+                //end story
+                globalStory.setActorStory(_operator, storyActor, storyEvtId, 0);
+            }
+            else {
+                if(events.canOccurred(_actor, nextEvtId, events.ages(_actor))) {
+                    globalStory.triggerActorEvent(_operator, _actor, nextEvtId);
+                    globalStory.setActorStory(_operator, storyActor, storyEvtId, nextEvtId);
+                    //剧情角色也有该事件历史
+                    events.addActorEvent(_operator, storyActor, events.ages(storyActor), nextEvtId);
+                }
+            }
         }
     }
 }

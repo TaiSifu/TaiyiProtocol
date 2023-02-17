@@ -8,7 +8,7 @@ import {
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
     WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory, ActorsGender, ActorsGender__factory, ActorBornFamilies, ActorBornFamilies__factory
 } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, deployWorldStorylines, deployParameterizedStorylines, deployGlobalStoryRegistry, deployStoryShejiTu } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, deployWorldStorylines, deployParameterizedStorylines, deployGlobalStoryRegistry } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
 import { deployTalentProcessors, initTalents } from './initTalents';
 import { initRelations } from './initRelationship';
@@ -114,35 +114,6 @@ export const deployActorsGender = async (route: WorldContractRoute, deployer: Si
 export const deployActorBornFamilies = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<ActorBornFamilies> => {
     const factory = new ActorBornFamilies__factory(deployer);
     return (await factory.deploy(route.address)).deployed();
-};
-
-export const deployGlobalStoryTimeline = async (routeByPanGu: WorldContractRoute, name: string, desc: string, moduleID: BigNumberish, actors: Actors, locations: ActorLocations,
-    zones: WorldZones, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams, random: WorldRandom, assetDaoli: AssetDaoli, yemings: WorldYemings,
-    attributes: ActorAttributes, actorCharmAttributes: ActorCharmAttributes, actorCoreAttributes: ActorCoreAttributes, actorMoodAttributes: ActorMoodAttributes, actorBehaviorAttributes : ActorBehaviorAttributes,
-    operatorDAO: SignerWithAddress, deployer: SignerWithAddress) => {
-
-    let storyTimelinePkg = await deployStoryShejiTu(name, desc, moduleID,
-        actors, locations, zones, attributes, evts, talents, trigrams, random, deployer);
-    let storyTimeline = ShejiTu__factory.connect((storyTimelinePkg[0] as ShejiTuProxy).address, deployer); //CAST proxy as ShejiTu
-    await (await routeByPanGu.registerModule(moduleID, storyTimeline.address)).wait();
-
-    let price = await actors.actorPrice();
-    await assetDaoli.connect(deployer).approve(actors.address, price);
-    let storyOperator = await actors.nextActor();
-    await (await actors.connect(deployer).mintActor(price)).wait();
-    await (await actors.connect(deployer).approve(storyTimeline.address, storyOperator)).wait();
-    await (await storyTimeline.initOperator(storyOperator)).wait();
-    await (await yemings.connect(operatorDAO).setYeMing(storyOperator, storyTimeline.address)).wait();
-    console.log(`Mint storyTimeline YeMing as actor#${await storyTimeline.operator()}.`);
-
-    //register actor attributes
-    await (await storyTimeline.registerAttributeModule(attributes.address)).wait();
-    await (await storyTimeline.registerAttributeModule(actorCharmAttributes.address)).wait();
-    await (await storyTimeline.registerAttributeModule(actorCoreAttributes.address)).wait();
-    await (await storyTimeline.registerAttributeModule(actorMoodAttributes.address)).wait();
-    await (await storyTimeline.registerAttributeModule(actorBehaviorAttributes.address)).wait();    
-
-    return storyTimelinePkg;
 };
 
 export type DahuangContractName =

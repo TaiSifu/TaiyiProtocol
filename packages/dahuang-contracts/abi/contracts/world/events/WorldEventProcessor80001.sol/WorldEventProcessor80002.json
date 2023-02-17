@@ -38,7 +38,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       },
       {
@@ -248,7 +248,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],

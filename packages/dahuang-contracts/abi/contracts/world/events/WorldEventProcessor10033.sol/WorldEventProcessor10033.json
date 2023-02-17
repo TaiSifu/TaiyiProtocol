@@ -141,7 +141,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_actor",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -151,25 +151,6 @@
         "internalType": "string",
         "name": "",
         "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "nextStoryEventId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -202,7 +183,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_age",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -248,7 +229,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_actor",
         "type": "uint256"
       }
     ],

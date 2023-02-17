@@ -8,7 +8,7 @@ import {
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli, WorldStorylines, WorldStorylines__factory, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, StoryShejiTu__factory,
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli, WorldStorylines, WorldStorylines__factory, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -41,29 +41,6 @@ export const deployShejiTu = async (name: string, desc: string, moduleID: BigNum
     zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
     random: WorldRandom, deployer: SignerWithAddress) => {
     let shejituImpl = await (await (new ShejiTu__factory(deployer)).deploy()).deployed();    
-    let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
-    const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
-    let shejituProxyArgs = [
-        shejituImpl.address,
-        shejituProxyAdmin.address,
-        new Interface(ShejiTuABI).encodeFunctionData('initialize', [
-            name, desc, moduleID,
-            actors.address,
-            locations.address,
-            zones.address,
-            attributes.address,
-            evts.address,
-            talents.address,
-            trigrams.address,
-            random.address])];
-    let shejituProxy = await shejituProxyFactory.deploy(shejituProxyArgs[0], shejituProxyArgs[1], shejituProxyArgs[2]);
-    return [await shejituProxy.deployed(), shejituProxyAdmin, shejituImpl, shejituProxyArgs];
-}
-
-export const deployStoryShejiTu = async (name: string, desc: string, moduleID: BigNumberish, actors: Actors, locations: ActorLocations,
-    zones: WorldZones, attributes: ActorAttributes, evts: WorldEvents, talents: ActorTalents, trigrams: Trigrams,
-    random: WorldRandom, deployer: SignerWithAddress) => {
-    let shejituImpl = await (await (new StoryShejiTu__factory(deployer)).deploy()).deployed();    
     let shejituProxyAdmin = await (await (new ShejiTuProxyAdmin__factory(deployer)).deploy()).deployed();
     const shejituProxyFactory = new ShejiTuProxy__factory(deployer);
     let shejituProxyArgs = [

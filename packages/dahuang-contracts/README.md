@@ -39,7 +39,6 @@
 | 222 | [WorldStorylines](../taiyi-contracts/contracts/world/dataset/WorldStorylines.sol) | 这是大荒世界的角色剧情事件记录数据。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
 | 223 | [ParameterizedStorylines](../taiyi-contracts/contracts/world/dataset/ParameterizedStorylines.sol) | 这是大荒世界的全局剧情事件记录数据。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
 | 224 | [GlobalStoryRegistry](../taiyi-contracts/contracts/world/dataset/GlobalStoryRegistry.sol) | 这是大荒世界的全局剧情注册器。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
-| 225 | [GlobalStoryTimeline](../taiyi-contracts/contracts/StoryShejiTu.sol) | 设施处理大荒全局剧情事件的时间线。剧情`角色（Actor）`可以在该时间线中进行出生、成长等事务。有时候，剧情中也可以进行大荒的部分资源生产。
 
 
 ## 开发

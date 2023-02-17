@@ -104,10 +104,11 @@ contract WorldStorylines is IWorldStorylines, WorldConfigurable {
         require(_actor>0, "invalid actor");
         require(_eventId>0, "invalid event");
 
-        IWorldTimeline globalStoryTimeline = IWorldTimeline(worldRoute.modules(225));  
+        IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
+        IWorldTimeline timeline = IWorldTimeline(yemings.YeMings(_operator));
         uint256[] memory p1;
         string[] memory p2;
-        globalStoryTimeline.activeTrigger(_eventId, _actor, p1, p2);
+        timeline.activeTrigger(_eventId, _actor, p1, p2);
     }
 
     /* **************
