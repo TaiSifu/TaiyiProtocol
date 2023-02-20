@@ -1,0 +1,266 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "number",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "gender",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ct",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "family",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "middle",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "given",
+        "type": "string"
+      }
+    ],
+    "name": "genName",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "moduleID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "registerFamily",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "registerGender",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "gender",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "registerGiven",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "registerMiddle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "removeFamily",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "removeGender",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "gender",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "removeGiven",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_operator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "strs",
+        "type": "string[]"
+      }
+    ],
+    "name": "removeMiddle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenJSON",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_actor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_startY",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_lineHeight",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenSVG",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_endY",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
