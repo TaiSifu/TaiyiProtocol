@@ -174,26 +174,34 @@ describe('姓名发生器测试', () => {
     });
 
     it('性别错误生成', async () => {
-        await expect(nameGen.genName(20, 10, 0, "", "", "")).to.be.rejectedWith("invalid gender");
+        await expect(nameGen.genName(20, 10, 0, "", "", "", 0)).to.be.rejectedWith("invalid gender");
     });
 
     it('随机生成', async () => {
-        let names = await nameGen.genName(20, 0, 0, "", "", "");
-        console.log(names);
+        let names = await nameGen.genName(20, 0, 0, "", "", "", 0);
+        for(var i=0; i<20; i++) {
+            console.log(`${names[3*i]}${names[3*i+1]}${names[3*i+2]}`);
+        }
     });
 
     it('“周”姓随机生成', async () => {
-        let names = await nameGen.genName(20, 0, 0, "周", "", "");
-        console.log(names);
+        let names = await nameGen.genName(20, 0, 0, "周", "", "", 0);
+        for(var i=0; i<20; i++) {
+            console.log(`${names[3*i]}${names[3*i+1]}${names[3*i+2]}`);
+        }
     });
 
     it('“和”字辈两字名随机生成', async () => {
-        let names = await nameGen.genName(20, 0, 2, "", "和", "");
-        console.log(names);
+        let names = await nameGen.genName(20, 0, 2, "", "和", "", 0);
+        for(var i=0; i<20; i++) {
+            console.log(`${names[3*i]}${names[3*i+1]}${names[3*i+2]}`);
+        }
     });
 
     it('“和”字辈随机生成', async () => {
-        let names = await nameGen.genName(20, 0, 0, "", "和", "");
-        console.log(names);
+        let names = await nameGen.genName(20, 0, 0, "", "和", "", 0);
+        for(var i=0; i<20; i++) {
+            console.log(`${names[3*i]}${names[3*i+1]}${names[3*i+2]}`);
+        }
     });
 });

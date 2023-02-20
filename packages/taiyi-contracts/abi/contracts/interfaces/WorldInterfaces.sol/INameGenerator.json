@@ -30,6 +30,11 @@
         "internalType": "string",
         "name": "given",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "seed",
+        "type": "uint256"
       }
     ],
     "name": "genName",

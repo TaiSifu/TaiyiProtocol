@@ -86,6 +86,59 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
             _triggerActorStory(_operator, _actor);
     }
 
+    function _genName(IActorNames _names) internal view returns(string memory _firstName, string memory _lastName) {
+        INameGenerator nameGen = INameGenerator(worldRoute.modules(225));
+        uint256 _nameSeed = 0;
+        do {
+            string[] memory name = nameGen.genName(1, 0, 0, "", "", "", _nameSeed);
+            require(name.length == 3, "name generator error");
+            _firstName = string(abi.encodePacked(name[1], name[2]));
+            _lastName = name[0];
+            _nameSeed++;
+            require(_nameSeed <=5, "name generate failed!");
+        }
+        while(_names.isNameClaimed(_firstName, _lastName));
+    }
+
+    function _newActor(uint256 _operator, IWorldFungible _daoli, IActors _actors) internal returns (uint256 newActor) {
+        uint256 actorPrice = _actors.actorPrice();
+        _daoli.transferActor(_operator, eventOperator, actorPrice);
+        _daoli.withdraw(_operator, eventOperator, actorPrice);
+
+        newActor = _actors.nextActor();
+        IERC20(address(_daoli)).approve(address(_actors), actorPrice);
+        _actors.mintActor(actorPrice);
+
+        //命名
+        IActorNames names = IActorNames(worldRoute.modules(WorldConstants.WORLD_MODULE_NAMES));
+        (string memory _firstName, string memory _lastName) = _genName(names);
+        names.claim(_firstName, _lastName, newActor);
+
+        IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
+        IWorldTimeline timeline = IWorldTimeline(yemings.YeMings(_operator));
+        _actors.approve(address(timeline), newActor);
+        timeline.bornActor(newActor);
+        timeline.grow(newActor);
+    }
+
+    function _newStory(uint256 _operator, uint256 _actor, uint256 _storyEvtId, IParameterizedStorylines _globalStory, IWorldEvents _events) internal {
+        IActors actors = worldRoute.actors();
+        IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
+        if(daoli.balanceOfActor(_operator) >= actors.actorPrice()) { //enough daoli
+            uint256 newActor = _newActor(_operator, daoli, actors);
+
+            //将新角色所有权交给全局剧情合约
+            actors.transferFrom(address(this), address(_globalStory), newActor);
+
+            //启动剧情
+            _globalStory.triggerActorEvent(_operator, _actor, _storyEvtId);
+            _globalStory.setActorStory(_operator, newActor, _storyEvtId, _storyEvtId);
+
+            //剧情角色也有该事件历史
+            _events.addActorEvent(_operator, newActor, 0, _storyEvtId);
+        }
+    }
+
     function _triggerActorStory(uint256 _operator, uint256 _actor) internal {
         IParameterizedStorylines globalStory = IParameterizedStorylines(worldRoute.modules(223));
         IGlobalStoryRegistry globalStoryReg = IGlobalStoryRegistry(worldRoute.modules(224));
@@ -98,39 +151,8 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
                 return; //不允许重复历史
 
             //创建新角色，开启新剧情
-            if(events.canOccurred(_actor, storyEvtId, events.ages(_actor))) {
-                IActors actors = worldRoute.actors();
-                IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
-                if(daoli.balanceOfActor(_operator) >= actors.actorPrice()) { //enough daoli
-                    uint256 actorPrice = actors.actorPrice();
-                    daoli.transferActor(_operator, eventOperator, actorPrice);
-                    daoli.withdraw(_operator, eventOperator, actorPrice);
-
-                    uint256 newActor = actors.nextActor();
-                    IERC20(address(daoli)).approve(address(actors), actorPrice);
-                    actors.mintActor(actorPrice);
-
-                    //TODO: 命名 【剧角N】
-                    IActorNames(worldRoute.modules(WorldConstants.WORLD_MODULE_NAMES)).claim(string(abi.encodePacked("\xE8\xA7\x92", Strings.toString(newActor), "\xE3\x80\x91")),
-                        "\xE3\x80\x90\xE5\x89\xA7", newActor);
-
-                    IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
-                    IWorldTimeline timeline = IWorldTimeline(yemings.YeMings(_operator));
-                    actors.approve(address(timeline), newActor);
-                    timeline.bornActor(newActor);
-                    timeline.grow(newActor);
-
-                    //将新角色所有权交给全局剧情合约
-                    actors.transferFrom(address(this), address(globalStory), newActor);
-
-                    //启动剧情
-                    globalStory.triggerActorEvent(_operator, _actor, storyEvtId);
-                    globalStory.setActorStory(_operator, newActor, storyEvtId, storyEvtId);
-
-                    //剧情角色也有该事件历史
-                    events.addActorEvent(_operator, newActor, 0, storyEvtId);
-                }
-            }
+            if(events.canOccurred(_actor, storyEvtId, events.ages(_actor)))
+                _newStory(_operator, _actor, storyEvtId, globalStory, events);
         }
         else {
             //正在进行的剧情，下一事件

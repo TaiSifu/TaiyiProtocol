@@ -168,18 +168,20 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
      */
 
     //数量，性别（0随机），字数（0随机，1一字，2二字），姓（“”随机），辈分（“”随机），名（“”随机）
+    //返回字符串数组，[名称0的姓,名称0的辈分,名称0的名,...]
     function genName(uint256 number,
         uint256 gender,
         uint256 ct, 
         string memory family, 
         string memory middle, 
-        string memory given) external view override returns(string[] memory) 
+        string memory given, 
+        uint256 seed) external view override returns(string[] memory) 
     {
         require(ct <= 2, "invalid ct");
         require(number > 0, "invalid number");
         require(gender <= _genders.length, "invalid gender");
 
-        string[] memory _names = new string[](number); 
+        string[] memory _names = new string[](number*3); 
 
         uint256 _gender = gender>0?(gender-1):0;
         uint256 _ct = ct;
@@ -189,24 +191,26 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
 
         for(uint256 i=0; i<number; i++) {
             if(gender == 0)
-                _gender = _dn(1733+i, _genders.length);
+                _gender = _dn(1733+i+seed, _genders.length);
             if(bytes(family).length == 0)
-                _family = _families[_dn(2287+i, _families.length)];
+                _family = _families[_dn(2287+i+seed, _families.length)];
             if(ct == 0)
-                _ct = _dn(4253+i, 2) + 1;
+                _ct = _dn(4253+i+seed, 2) + 1;
 
             if(_ct == 1) {
                 _middle = "";
             }
             else {
                 if(bytes(middle).length == 0)
-                    _middle = _mids[_dn(10151+i, _mids.length)];            
+                    _middle = _mids[_dn(10151+i+seed, _mids.length)];            
             }
 
             if(bytes(given).length == 0)
-                _given = _givens[_gender][_dn(13913+i, _givens[_gender].length)];            
+                _given = _givens[_gender][_dn(13913+i+seed, _givens[_gender].length)];            
 
-            _names[i] = string(abi.encodePacked(_family, _middle, _given));
+            _names[3*i + 0] = _family;
+            _names[3*i + 1] = _middle;
+            _names[3*i + 2] = _given;
         }
 
         return _names;

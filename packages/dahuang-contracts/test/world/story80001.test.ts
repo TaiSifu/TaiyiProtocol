@@ -14,7 +14,7 @@ import {
     SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, 
     ActorSocialIdentity__factory, ActorRelationship__factory, WorldRandom, 
     ActorLocations, Trigrams, WorldRandom__factory, ActorLocations__factory, Trigrams__factory, WorldItems, WorldItems__factory, 
-    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, WorldStorylines__factory, WorldStorylines, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, ShejiTuProxy,
+    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, WorldStorylines__factory, WorldStorylines, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, ShejiTuProxy, NameGenerator, NameGenerator__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -80,6 +80,7 @@ describe('剧情80001测试', () => {
     let actorLocations: ActorLocations;
     let trigrams: Trigrams;
     let worldItems: WorldItems;
+    let nameGenerator: NameGenerator;
 
     //dahuang
     let dahuangConstants: DahuangConstants;
@@ -171,6 +172,7 @@ describe('剧情80001测试', () => {
         trigrams = Trigrams__factory.connect(taiyiContracts.Trigrams.instance.address, operator1);
         worldItems = WorldItems__factory.connect(taiyiContracts.WorldItems.instance.address, operator1);
         actorPrelifes = ActorPrelifes__factory.connect(taiyiContracts.ActorPrelifes.instance.address, operator1);
+        nameGenerator = NameGenerator__factory.connect(taiyiContracts.NameGenerator.instance.address, operator1);
 
         //Deploy dahuang world
         let worldDeployed = await deployDahuangWorld(OneAgeVSecond, ActRecoverTimeDay, ZoneResourceGrowTimeDay, ZoneResourceGrowQuantityScale,
@@ -246,6 +248,13 @@ describe('剧情80001测试', () => {
         //配置时间线出生事件
         await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1);
         await shejiTu.connect(deployer).addAgeEvent(1, 60001, 1);
+
+        //名称发生器配置
+        await nameGenerator.connect(taiyiDAO).registerGender(actorPanGu, ["男", "女"]); //性别
+        await nameGenerator.connect(taiyiDAO).registerFamily(actorPanGu, ["李", "王", "张", "刘", "陈", "杨", "赵", "黄", "周"]); //姓
+        await nameGenerator.connect(taiyiDAO).registerMiddle(actorPanGu, ["之", "亦", "其", "如", "而", "何", "乃", "且", "若", "和", "所"]); //辈分
+        await nameGenerator.connect(taiyiDAO).registerGiven(actorPanGu, "男", ["国", "民", "邦", "杰", "宝", "森", "炳", "文", "伯", "华", "龙", "伦", "阳", "博"]); //男名
+        await nameGenerator.connect(taiyiDAO).registerGiven(actorPanGu, "女", ["兮", "芳", "星", "清", "夏", "月", "初", "书", "简", "雪", "益", "纯", "琛", "馨"]); //女名
 
         testActor = await newActor(operator1, true);
         testActorName = (await names.actorName(testActor))._name;
