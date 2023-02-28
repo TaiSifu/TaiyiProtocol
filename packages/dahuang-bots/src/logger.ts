@@ -839,11 +839,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
         }
     }
 
-    // again in 180 second
+    // again in 240 second
     setTimeout(function () {
         console.log(`start-->`+`${startBlockNum}`);
         startSyncMain(startBlockNum, ethersHelper);
-    }, 180000);
+    }, 240000);
 }
 
 export function startLogger(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {
