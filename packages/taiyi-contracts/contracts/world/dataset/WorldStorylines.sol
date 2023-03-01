@@ -98,7 +98,7 @@ contract WorldStorylines is IWorldStorylines, WorldConfigurable {
         }
     }
 
-    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _eventId) public override
+    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _triggerActor, uint256 _eventId) public override
         onlyYeMing(_operator)
     {
         require(_actor>0, "invalid actor");
@@ -106,8 +106,10 @@ contract WorldStorylines is IWorldStorylines, WorldConfigurable {
 
         IWorldYemings yemings = IWorldYemings(worldRoute.modules(WorldConstants.WORLD_MODULE_YEMINGS));
         IWorldTimeline timeline = IWorldTimeline(yemings.YeMings(_operator));
-        uint256[] memory p1;
+        uint256[] memory p1 = new uint256[](1);
+        p1[0] = _triggerActor;
         string[] memory p2;
+        worldRoute.actors().approve(address(timeline), _actor);
         timeline.activeTrigger(_eventId, _actor, p1, p2);
     }
 

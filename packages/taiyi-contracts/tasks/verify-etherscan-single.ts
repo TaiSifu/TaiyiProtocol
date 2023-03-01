@@ -1,3 +1,4 @@
+//yarn task:verify-etherscan-single --network arbitrumGoerli
 import { task } from 'hardhat/config';
 import fs from 'fs-extra';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils';
@@ -31,26 +32,26 @@ task('verify-etherscan-single', 'Verify the Solidity contracts on Etherscan').se
 
     let contracts: Record<string, VerifyArgs> = {
         "WorldStorylines": {
-            address: "0xa1dd31b38992251DDfE6b6758A3E70aA3A4b4B9A",
+            address: "0x01E178c737b1130C4dba14bF0BB4Ee1c696AfFb4",
             constructorArguments:  [
                 "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
                 222
               ]
         },
         "ParameterizedStorylines": {
-            address: "0x9D85E0ca488bC593Cc0DEb1FA9a4CDfe2078e404",
+            address: "0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F",
             constructorArguments:  [
                 "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
                 223
               ]
         },
-        "GlobalStoryRegistry": {
-            address: "0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C",
-            constructorArguments:  [
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
-                224
-              ]
-        },
+        // "GlobalStoryRegistry": {
+        //     address: "0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C",
+        //     constructorArguments:  [
+        //         "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
+        //         224
+        //       ]
+        // },
     };
 
     //no need to verify proxy of shejitu, since proxies will be interpreted by etherscan automatically

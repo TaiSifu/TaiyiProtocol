@@ -286,6 +286,14 @@ describe('剧情70001测试', () => {
             expect(await actors.ownerOf(newOne)).to.eq(evt60505.address);
         });
 
+        it('配置60505影响的属性模块', async () => {
+            await (await evt60505.registerAttributeModule(baseAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(charmAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(coreAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(moodAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(behaviorAttributes.address)).wait();
+        });
+
         it(`注册全局剧情起始事件`, async ()=>{
             expect(await globalStoryRegistry.hasStory(70001)).to.eq(false);
             expect(await globalStoryRegistry.storyNum()).to.eq(0);
@@ -326,17 +334,6 @@ describe('剧情70001测试', () => {
 
         it(`充值噎明道理（剧情费用)`, async ()=>{
             await assetDaoli.connect(taiyiDAO).claim(actorPanGu, await shejiTu.operator(), BigInt(100e18));
-        });
-
-        it(`未授权角色给剧情的情况`, async ()=>{
-            expect(await parameterizedStorylines.isStoryExist(70001)).to.eq(false);
-
-            let lcs = await actorLocations.actorLocations(testActor);
-            await expect(shejiTu.activeTrigger(60505, testActor, [lcs[1]], [])).to.be.revertedWith("not approved or owner of actor");
-        });
-
-        it(`授权角色给剧情`, async ()=>{
-            await actors.approve(parameterizedStorylines.address, testActor);
         });
 
         it(`通过采集资源开始剧情70001`, async ()=>{

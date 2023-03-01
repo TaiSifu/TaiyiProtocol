@@ -28,6 +28,8 @@
     "task:run-log": "npx hardhat run-log",
     "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
     "task:do": "npx hardhat do",
+    "task:show-actor-history": "npx hardhat show-actor-history",
+    "task:list-actors": "npx hardhat list-actors",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
   },

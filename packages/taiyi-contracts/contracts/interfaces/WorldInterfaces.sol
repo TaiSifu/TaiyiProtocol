@@ -337,7 +337,7 @@ interface IWorldStorylines is IWorldModule {
     function setActorStory(uint256 _operator, uint256 _actor, uint256 _storyEvtId, uint256 _eventId) external;
 
     //操作由剧情所有的角色
-    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _eventId) external;
+    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _triggerActor, uint256 _eventId) external;
 }
 
 interface IParameterizedStorylines is IWorldStorylines {

@@ -95,7 +95,7 @@ contract WorldEventProcessor70003 is StoryEventProcessor {
         ));
     }
     
-    function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
+    function eventAttributeModifiersToTrigger(uint256 /*_actor*/) public view virtual override returns (int[] memory) {
         int256[] memory modifiers = new int256[](2);
         modifiers[0] = int256(DahuangConstants.ATTR_WUX);
         modifiers[1] = 10;

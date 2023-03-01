@@ -16,5 +16,10 @@ check order:
 
 abstract contract StoryEventProcessor is DefaultWorldEventProcessor {
 
+    function eventAttributeModifiersToTrigger(uint256 /*_actor*/) public view virtual returns (int[] memory) {
+        int256[] memory modifiers;
+        return modifiers;
+    }
+
     function nextStoryEventId(uint256 /*_actor*/) public view virtual returns (uint256) { return 0; }
 }

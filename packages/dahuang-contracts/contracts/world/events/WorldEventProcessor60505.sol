@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import "@taiyi/contracts/contracts/world/events/DefaultWorldEventProcessor.sol";
 import "@taiyi/contracts/contracts/world/events/StoryEventProcessor.sol";
 import '../../libs/DahuangConstants.sol';
@@ -21,8 +22,10 @@ check order:
 */
 
 contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 public eventOperator;
+    EnumerableSet.AddressSet private _attributeModules;
 
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
@@ -36,6 +39,23 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
         //事件经手人掌握的道理授权给噎明
         uint256 _yeming = IWorldTimeline(worldRoute.modules(DahuangConstants.WORLD_MODULE_TIMELINE)).operator();
         IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN)).approveActor(eventOperator, _yeming, 1e29);
+    }
+
+    function registerAttributeModule(address _attributeModule) external 
+        onlyOwner
+    {
+        require(_attributeModule != address(0), "input can not be ZERO address!");
+        bool rt = _attributeModules.add(_attributeModule);
+        require(rt == true, "module with same address is exist.");
+    }
+
+    function changeAttributeModule(address _oldAddress, address _newAddress) external
+        onlyOwner
+    {
+        require(_oldAddress != address(0), "input can not be ZERO address!");
+        _attributeModules.remove(_oldAddress);
+        if(_newAddress != address(0))
+            _attributeModules.add(_newAddress);
     }
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
@@ -121,6 +141,45 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
         timeline.grow(newActor);
     }
 
+    function eventAttributeModifiersToTrigger(uint256 _evtId, uint256 _actor, IWorldEvents _events) internal view returns (int[] memory) {
+        address _evtProc = _events.eventProcessors(_evtId);
+        if(_evtProc != address(0))
+            return StoryEventProcessor(_evtProc).eventAttributeModifiersToTrigger(_actor);
+        int[] memory modifiers;
+        return modifiers;
+    }
+
+    function _attributeModify(uint256 _attr, int _modifier) internal pure returns (uint256) {
+        if(_modifier > 0)
+            _attr += uint256(_modifier); 
+        else {
+            if(_attr < uint256(-_modifier))
+                _attr = 0;
+            else
+                _attr -= uint256(-_modifier); 
+        }
+        return _attr;
+    }
+
+    function _applyAttributeModifiers(uint256 _operator, uint256 _actor, uint256 _age, int[] memory _attrModifier, IWorldEvents _events) internal {
+        bool attributesModified = false;
+        uint256[] memory attrib;
+        for(uint256 i=0; i<_attributeModules.length(); i++) {
+            IActorAttributes attrs = IActorAttributes(_attributeModules.at(i));
+            (attrib, attributesModified) = attrs.applyModified(_actor, _attrModifier);
+            if(attributesModified)            
+                attrs.setAttributes(_operator, _actor, attrib); //this will trigger attribute uptate event
+        }
+
+        //check if change age
+        for(uint256 m=0; m<_attrModifier.length; m+=2) {
+            if(_attrModifier[m] == int(WorldConstants.ATTR_AGE)) {
+                _events.changeAge(_operator, _actor, uint256(_attributeModify(uint256(_age), _attrModifier[m+1])));
+                break;
+            }
+        }
+    }
+
     function _newStory(uint256 _operator, uint256 _actor, uint256 _storyEvtId, IParameterizedStorylines _globalStory, IWorldEvents _events) internal {
         IActors actors = worldRoute.actors();
         IWorldFungible daoli = IWorldFungible(worldRoute.modules(WorldConstants.WORLD_MODULE_COIN));
@@ -131,11 +190,12 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
             actors.transferFrom(address(this), address(_globalStory), newActor);
 
             //启动剧情
-            _globalStory.triggerActorEvent(_operator, _actor, _storyEvtId);
+            _globalStory.triggerActorEvent(_operator, newActor, _actor, _storyEvtId);
             _globalStory.setActorStory(_operator, newActor, _storyEvtId, _storyEvtId);
 
-            //剧情角色也有该事件历史
-            _events.addActorEvent(_operator, newActor, 0, _storyEvtId);
+            //对角色的影响
+            int[] memory _attrModifier = eventAttributeModifiersToTrigger(_storyEvtId, _actor, _events);
+            _applyAttributeModifiers(_operator, _actor, _events.ages(_actor), _attrModifier, _events);
         }
     }
 
@@ -151,7 +211,7 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
                 return; //不允许重复历史
 
             //创建新角色，开启新剧情
-            if(events.canOccurred(_actor, storyEvtId, events.ages(_actor)))
+            if(events.canOccurred(worldRoute.actors().nextActor(), storyEvtId, 0))
                 _newStory(_operator, _actor, storyEvtId, globalStory, events);
         }
         else {
@@ -165,11 +225,13 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
                 globalStory.setActorStory(_operator, storyActor, storyEvtId, 0);
             }
             else {
-                if(events.canOccurred(_actor, nextEvtId, events.ages(_actor))) {
-                    globalStory.triggerActorEvent(_operator, _actor, nextEvtId);
+                if(events.canOccurred(storyActor, nextEvtId, events.ages(storyActor))) {
+                    globalStory.triggerActorEvent(_operator, storyActor, _actor, nextEvtId);
                     globalStory.setActorStory(_operator, storyActor, storyEvtId, nextEvtId);
-                    //剧情角色也有该事件历史
-                    events.addActorEvent(_operator, storyActor, events.ages(storyActor), nextEvtId);
+
+                    //对角色的影响
+                    int[] memory _attrModifier = eventAttributeModifiersToTrigger(nextEvtId, _actor, events);
+                    _applyAttributeModifiers(_operator, _actor, events.ages(_actor), _attrModifier, events);
                 }
             }
         }

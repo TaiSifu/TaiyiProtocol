@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:collect-assets --network hard --actor 5
+//yarn task:list-actors --network hard
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {
@@ -27,9 +27,7 @@ let logURI = (uri : string) => {
 };
 
 
-task('collect-assets', '采集资源')
-    .addOptionalParam('actor', 'The token ID of actor', 0, types.int)
-    .addOptionalParam('zoneId', '采集地点', 0, types.int) //默认是角色当前所在地点
+task('list-actors', '列出角色')
     .setAction(async (args, { ethers }) => {        
         const [deployer, taisifu, operator1, operator2] = await ethers.getSigners();
 
@@ -50,29 +48,23 @@ task('collect-assets', '采集资源')
         let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, operator1);
         let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, operator1);
         let parameterizedStorylines = ParameterizedStorylines__factory.connect(addressBook.ParameterizedStorylines, operator1);
-
-        let actor = args.actor;
         
+        let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, operator1);        
 
-        //恢复体力
-        console.log("恢复体力...");
-        await (await behaviorAttributes.recoverAct(actor)).wait();
+        let address = operator1.address;
+        let ct = (await actors.balanceOf(address)).toNumber();
+        if(ct == 0) {
+            console.log("没有角色");
+            return;
+        }
 
-        if(await evt60505.checkOccurrence(actor, 0)) {
-            console.log("采集资源...");
-            let zoneId = args.zoneId;
-            if(zoneId == 0) {
-                let lcs = await locations.actorLocations(actor);
-                zoneId = lcs[1];
-            }
-            //授权角色给剧情
-            console.log(`授权角色#${actor}……`);
-            await (await actors.approve(dahuang.address, actor)).wait();
-            console.log(`角色#${actor}正在采集资源……`);
-            await (await dahuang.activeTrigger(60505, actor, [zoneId], [], { gasLimit: 20000000 })).wait();
+        let actorsStr = `拥有的角色号码有：`;
+        for(var i=0; i<ct; i++) {
+            if(i == (ct-1))
+                actorsStr += `#${(await actors.tokenOfOwnerByIndex(address, i)).toString()}。`;
+            else
+                actorsStr += `#${(await actors.tokenOfOwnerByIndex(address, i)).toString()}，`;
         }
-        else {
-            console.log("event check occurrence failed!");
-        }
+        console.log(actorsStr);
 });

@@ -445,6 +445,11 @@
       },
       {
         "internalType": "uint256",
+        "name": "_triggerActor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "_eventId",
         "type": "uint256"
       }

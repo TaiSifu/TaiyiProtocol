@@ -74,15 +74,15 @@ task('deploy-single', '部署单一大荒合约')
             let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
             await (await worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
         
-            console.log("Deploy GlobalStoryRegistry...");
-            let globalStoryRegistry = await deployGlobalStoryRegistry(224, worldContractRoute, deployer);
-            let globalStoryRegistryArgs = [worldContractRoute.address, Number(224)];
-            await (await worldContractRoute.registerModule(224, globalStoryRegistry.address)).wait();
+            // console.log("Deploy GlobalStoryRegistry...");
+            // let globalStoryRegistry = await deployGlobalStoryRegistry(224, worldContractRoute, deployer);
+            // let globalStoryRegistryArgs = [worldContractRoute.address, Number(224)];
+            // await (await worldContractRoute.registerModule(224, globalStoryRegistry.address)).wait();
                                 
             //save contract address
             addressBook.WorldStorylines = worldStorylines.address;
             addressBook.ParameterizedStorylines = parameterizedStorylines.address;
-            addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
+            //addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
             const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
             console.log(`contract deployed book:`);
@@ -91,7 +91,7 @@ task('deploy-single', '部署单一大荒合约')
             //save constructor arguments
             argsBook.WorldStorylines = worldStorylinesArgs;
             argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
-            argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
+            //argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
             const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
             console.log(`contract constructor arguments book:`);

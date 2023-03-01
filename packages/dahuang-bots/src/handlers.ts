@@ -526,11 +526,9 @@ export async function onCollectAssets(actor: number, user: GuildMember|User, cha
     if(await evt60505.checkOccurrence(actor, 0)) {
         let lcs = await locations.actorLocations(actor);
         //授权角色给剧情
-        await interaction.editReply(`请稍等，正在授权角色#${actor}……`);
-        await (await actors.setApprovalForAll(dahuang.address, true)).wait();
-        await (await actors.approve(parameterizedStorylines.address, actor)).wait();
+        await (await actors.approve(dahuang.address, actor)).wait();
         await interaction.editReply(`请稍等，角色#${actor}正在采集资源……`);
-        await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [])).wait();
+        await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [], { gasLimit: 20000000 })).wait();
         await interaction.editReply(`**角色#${actor}**采集了一些资源。`);
     }
     else {

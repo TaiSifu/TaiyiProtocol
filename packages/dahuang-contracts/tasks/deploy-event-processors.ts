@@ -17,6 +17,10 @@ import {
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
 import { 
+    ActorBehaviorAttributes__factory,
+    ActorCharmAttributes__factory,
+    ActorCoreAttributes__factory,
+    ActorMoodAttributes__factory,
     ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10000__factory, 
     WorldEventProcessor10001__factory, WorldEventProcessor10002__factory, WorldEventProcessor10003__factory, 
     WorldEventProcessor10008__factory, WorldEventProcessor10016__factory, WorldEventProcessor10017__factory, 
@@ -74,6 +78,10 @@ task('deploy-event-processors', '部署大荒事件合约')
         let worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, taisifu);
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
         let globalStoryRegistry = GlobalStoryRegistry__factory.connect(addressBook.GlobalStoryRegistry, taisifu);
+        let charmAttributes = ActorCharmAttributes__factory.connect(addressBook.ActorCharmAttributes, taisifu);
+        let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, taisifu);
+        let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, taisifu);
+        let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, taisifu);
 
         let actorPanGu = 1;
 
@@ -196,9 +204,17 @@ task('deploy-event-processors', '部署大荒事件合约')
 
 
         //入驻角色
-        // let newOP = 45;
-        // console.log(`入驻角色${newOP}`);
-        // await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
-        // await (await actors.connect(deployer).approve(evt60505.address, newOP)).wait();
-        // await (await evt60505.initOperator(newOP)).wait();
+        let newOP = 60;
+        console.log(`入驻角色${newOP}`);
+        await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
+        await (await actors.connect(deployer).approve(evt60505.address, newOP)).wait();
+        await (await evt60505.initOperator(newOP)).wait();
+
+        //60505配置属性模块
+        console.log("配置属性模块");
+        await (await evt60505.registerAttributeModule(baseAttributes.address)).wait();
+        await (await evt60505.registerAttributeModule(charmAttributes.address)).wait();
+        await (await evt60505.registerAttributeModule(coreAttributes.address)).wait();
+        await (await evt60505.registerAttributeModule(moodAttributes.address)).wait();
+        await (await evt60505.registerAttributeModule(behaviorAttributes.address)).wait();
     });

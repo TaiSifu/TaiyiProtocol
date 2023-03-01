@@ -61,13 +61,14 @@ contract WorldEventProcessor80002 is StoryEventProcessor {
         ));
     }
     
-    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory /*_uintParams*/, string[] memory /*_stringParams*/) external override 
+    function activeTrigger(uint256 _operator, uint256 /*_actor*/, uint256[] memory _uintParams, string[] memory /*_stringParams*/) external override 
         onlyYeMing(_operator)
     {
+        require(_uintParams.length == 1 && _uintParams[0]>0, "uintParams error");
         //"item": "神·一品《寻龙诀》"
         uint256 typeId = 52;
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        items.mint(_operator, typeId, 100, 8, _actor);
+        items.mint(_operator, typeId, 100, 8, _uintParams[0]);
     }
 
     function nextStoryEventId(uint256 /*_actor*/) public view virtual override returns (uint256) { return 80003; }
@@ -120,31 +121,29 @@ contract WorldEventProcessor80005 is StoryEventProcessor {
         ));
     }
     
-    function checkOccurrence(uint256 /*_actor*/, uint256 /*_age*/) external virtual view override returns (bool) {
+    function checkOccurrence(uint256 _actor, uint256 /*_age*/) external virtual view override returns (bool) {
         bool defaultRt = true;
 
         //"include": "X有item“太乙村水酒”",
         defaultRt = false; //default should be fasle if have "include" conditions
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        uint256 storyActor = IParameterizedStorylines(worldRoute.modules(223)).currentStoryActorByIndex(80001, 0);
-        uint256 ict = items.balanceOfActor(storyActor);
+        uint256 ict = items.balanceOfActor(_actor);
         for(uint256 i=0; i<ict; i++) {
-            if(items.itemTypes(items.tokenOfActorByIndex(storyActor, i)) == 53)
+            if(items.itemTypes(items.tokenOfActorByIndex(_actor, i)) == 53)
                 return true;
         }
 
         return defaultRt;
     }
 
-    function activeTrigger(uint256 _operator, uint256 /*_actor*/, uint256[] memory /*_uintParams*/, string[] memory /*_stringParams*/) external override 
+    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory /*_uintParams*/, string[] memory /*_stringParams*/) external override 
         onlyYeMing(_operator)
     {
         //"proc": "消耗“太乙村水酒”"
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        uint256 storyActor = IParameterizedStorylines(worldRoute.modules(223)).currentStoryActorByIndex(80001, 0);
-        uint256 ict = items.balanceOfActor(storyActor);
+        uint256 ict = items.balanceOfActor(_actor);
         for(uint256 i=0; i<ict; i++) {
-            uint256 _item = items.tokenOfActorByIndex(storyActor, i);
+            uint256 _item = items.tokenOfActorByIndex(_actor, i);
             if(items.itemTypes(_item) == 53) {
                 items.burn(_operator, _item);
             }
@@ -195,13 +194,14 @@ contract WorldEventProcessor80007 is StoryEventProcessor {
         ));
     }
     
-    function activeTrigger(uint256 _operator, uint256 _actor, uint256[] memory /*_uintParams*/, string[] memory /*_stringParams*/) external override 
+    function activeTrigger(uint256 _operator, uint256 /*_actor*/, uint256[] memory _uintParams, string[] memory /*_stringParams*/) external override 
         onlyYeMing(_operator)
     {
+        require(_uintParams.length == 1 && _uintParams[0]>0, "uintParams error");
         //"item" : "神·一品“龙溪水”"
         uint256 typeId = 54;
         IWorldItems items = IWorldItems(worldRoute.modules(WorldConstants.WORLD_MODULE_ITEMS));
-        items.mint(_operator, typeId, 100, 8, _actor);
+        items.mint(_operator, typeId, 100, 8, _uintParams[0]);
     }
 
     function nextStoryEventId(uint256 /*_actor*/) public view virtual override returns (uint256) { return 80008; }
@@ -228,7 +228,7 @@ contract WorldEventProcessor80008 is StoryEventProcessor {
         ));
     }
     
-    function eventAttributeModifiers(uint256 /*_actor*/) external virtual view override returns (int256[] memory) {
+    function eventAttributeModifiersToTrigger(uint256 /*_actor*/) public view virtual override returns (int[] memory) {
         int256[] memory modifiers = new int256[](2);
         modifiers[0] = int256(DahuangConstants.ATTR_WUX);
         modifiers[1] = 10;

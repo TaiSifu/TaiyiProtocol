@@ -313,6 +313,14 @@ describe('剧情80001测试', () => {
             expect(await actors.ownerOf(newOne)).to.eq(evt60505.address);
         });
 
+        it('配置60505影响的属性模块', async () => {
+            await (await evt60505.registerAttributeModule(baseAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(charmAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(coreAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(moodAttributes.address)).wait();
+            await (await evt60505.registerAttributeModule(behaviorAttributes.address)).wait();
+        });
+
         it(`注册全局剧情起始事件`, async ()=>{
             expect(await globalStoryRegistry.hasStory(80001)).to.eq(false);
             expect(await globalStoryRegistry.storyNum()).to.eq(0);
@@ -366,18 +374,6 @@ describe('剧情80001测试', () => {
 
         it(`充值噎明道理（剧情费用)`, async ()=>{
             await assetDaoli.connect(taiyiDAO).claim(actorPanGu, await shejiTu.operator(), BigInt(100e18));
-        });
-
-        it(`未授权角色给剧情的情况`, async ()=>{
-            expect(await parameterizedStorylines.isStoryExist(80001)).to.eq(false);
-
-            let lcs = await actorLocations.actorLocations(testActor);
-            await expect(shejiTu.activeTrigger(60505, testActor, [lcs[1]], [])).to.be.revertedWith("not approved or owner of actor");
-        });
-
-        it(`授权角色给剧情`, async ()=>{
-            await actors.setApprovalForAll(shejiTu.address, true);
-            await actors.approve(parameterizedStorylines.address, testActor);
         });
 
         it(`通过采集资源开始剧情80001`, async ()=>{
@@ -462,7 +458,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80002`, async ()=>{
-            expect(await evt80002.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80002.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -501,7 +497,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80003`, async ()=>{
-            expect(await evt80003.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80003.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -536,7 +532,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80004`, async ()=>{
-            expect(await evt80004.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80004.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -572,7 +568,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80005`, async ()=>{
-            expect(await evt80005.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80005.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -612,7 +608,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80006`, async ()=>{
-            expect(await evt80006.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80006.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -650,7 +646,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80007`, async ()=>{
-            expect(await evt80007.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80007.checkOccurrence(storyActor, 0)).to.eq(true);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         });
@@ -694,7 +690,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`通过采集资源激活剧情80008`, async ()=>{
-            expect(await evt80008.checkOccurrence(testActor, 0)).to.eq(true);
+            expect(await evt80008.checkOccurrence(storyActor, 0)).to.eq(true);
             wux = await coreAttributes.attributesScores(await dahuangConstants.ATTR_WUX(), testActor);
             let lcs = await actorLocations.actorLocations(testActor);
             await shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });

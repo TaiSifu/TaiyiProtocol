@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:collect-assets --network hard --actor 5
+//yarn task:show-actor-history --network hard --actor 5
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {
@@ -27,9 +27,8 @@ let logURI = (uri : string) => {
 };
 
 
-task('collect-assets', '采集资源')
+task('show-actor-history', '显示角色经历')
     .addOptionalParam('actor', 'The token ID of actor', 0, types.int)
-    .addOptionalParam('zoneId', '采集地点', 0, types.int) //默认是角色当前所在地点
     .setAction(async (args, { ethers }) => {        
         const [deployer, taisifu, operator1, operator2] = await ethers.getSigners();
 
@@ -53,26 +52,26 @@ task('collect-assets', '采集资源')
 
         let actor = args.actor;
         
+        let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
         let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, operator1);        
 
-        //恢复体力
-        console.log("恢复体力...");
-        await (await behaviorAttributes.recoverAct(actor)).wait();
-
-        if(await evt60505.checkOccurrence(actor, 0)) {
-            console.log("采集资源...");
-            let zoneId = args.zoneId;
-            if(zoneId == 0) {
-                let lcs = await locations.actorLocations(actor);
-                zoneId = lcs[1];
-            }
-            //授权角色给剧情
-            console.log(`授权角色#${actor}……`);
-            await (await actors.approve(dahuang.address, actor)).wait();
-            console.log(`角色#${actor}正在采集资源……`);
-            await (await dahuang.activeTrigger(60505, actor, [zoneId], [], { gasLimit: 20000000 })).wait();
+        if((await actors.mintTime(actor)).eq(0)) {
+            console.log(`角色#${actor}不存在。`);
+            return;
         }
-        else {
-            console.log("event check occurrence failed!");
+    
+        let currentAge = (await events.ages(actor)).toNumber();
+        let name = (await names.actorName(actor))._name;
+        name = (name==""?"无名氏":name);
+
+        console.log(`${name}(角色#${actor})的成长经历：`);
+        for (var a = 0; a <= currentAge; a++) {
+            console.log(`${a==0?"出生":(a+"岁")}：`);
+            let evts = await events.actorEvent(actor, a);
+            for(var e = 0; e < evts.length; e++) {
+                let eventId = evts[e];
+                let eventInfo = await events.eventInfo(eventId, actor);
+                console.log(`-[${eventId.toString()}]` + eventInfo);
+            }
         }
 });

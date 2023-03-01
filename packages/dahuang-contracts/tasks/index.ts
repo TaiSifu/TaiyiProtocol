@@ -11,3 +11,5 @@ export * from './deploy-talent-processors';
 export * from './run-log';
 export * from './verify-etherscan-single';
 export * from './do';
+export * from './list-actors';
+export * from './show-actor-history';
