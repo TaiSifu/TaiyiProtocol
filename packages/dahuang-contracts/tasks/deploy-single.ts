@@ -18,7 +18,7 @@ import {
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
 import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10012__factory, WorldEventProcessor10014__factory } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployShejiTu, deployWorldEvents } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployGlobalStoryRegistry, deployParameterizedStorylines, deployShejiTu, deployWorldEvents, deployWorldStorylines } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
@@ -61,32 +61,47 @@ task('deploy-single', '部署单一大荒合约')
         let worldEvents = WorldEvents__factory.connect(addressBook.WorldEvents, taisifu);
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
 
-        if(0)
+        if(1)
         {
             //Deploy dahuang contracts
-            console.log("Deploy ActorsGender...");
-            let actorsGender = await deployActorsGender(worldContractRoute, deployer);
-            let actorsGenderArgs = [worldContractRoute.address];
-            await (await worldContractRoute.registerModule(220, actorsGender.address)).wait();
-                        
+            console.log("Deploy WorldStorylines...");
+            let worldStorylines = await deployWorldStorylines(222, worldContractRoute, deployer);
+            let worldStorylinesArgs = [worldContractRoute.address, Number(222)];
+            await (await worldContractRoute.registerModule(222, worldStorylines.address)).wait();
+        
+            console.log("Deploy ParameterizedStorylines...");
+            let parameterizedStorylines = await deployParameterizedStorylines(223, worldContractRoute, deployer);
+            let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
+            await (await worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
+        
+            console.log("Deploy GlobalStoryRegistry...");
+            let globalStoryRegistry = await deployGlobalStoryRegistry(224, worldContractRoute, deployer);
+            let globalStoryRegistryArgs = [worldContractRoute.address, Number(224)];
+            await (await worldContractRoute.registerModule(224, globalStoryRegistry.address)).wait();
+                                
             //save contract address
-            addressBook.ActorsGender = actorsGender.address;
+            addressBook.WorldStorylines = worldStorylines.address;
+            addressBook.ParameterizedStorylines = parameterizedStorylines.address;
+            addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
             const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
             console.log(`contract deployed book:`);
             console.log(JSON.stringify(addressBook, null, 2));
 
             //save constructor arguments
-            argsBook.ActorsGender = actorsGenderArgs;
+            argsBook.WorldStorylines = worldStorylinesArgs;
+            argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
+            argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
             const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
             console.log(`contract constructor arguments book:`);
             console.log(JSON.stringify(argsBook, null, 2));
         }
 
-        let evt10014 = WorldEventProcessor10014__factory.connect(addressBook.WorldEventProcessor10014, taisifu);
-        await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, 18)).wait();
-        await (await actors.connect(deployer).approve(evt10014.address, 18)).wait();
-        await (await evt10014.connect(deployer).initOperator(18)).wait();
-
+        if(0) {
+            let evt10014 = WorldEventProcessor10014__factory.connect(addressBook.WorldEventProcessor10014, taisifu);
+            await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, 18)).wait();
+            await (await actors.connect(deployer).approve(evt10014.address, 18)).wait();
+            await (await evt10014.connect(deployer).initOperator(18)).wait();
+        }
     });

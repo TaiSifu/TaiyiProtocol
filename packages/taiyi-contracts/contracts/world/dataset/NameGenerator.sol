@@ -41,12 +41,12 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
     {
         for(uint256 i=0; i<strs.length; i++) {
             require(validateName(strs[i]), 'invalid gender');
-            require(_genderIndices[strs[i]] == 0, "gender already exist");
-
-            _genderIndices[strs[i]] = _genders.length + 1; //index + 1
-            _genders.push(strs[i]);
-            
-            _givens.push(new string[](0));
+            if(_genderIndices[strs[i]] == 0) {
+                _genderIndices[strs[i]] = _genders.length + 1; //index + 1
+                _genders.push(strs[i]);
+                
+                _givens.push(new string[](0));
+            }
         }
     }
 
@@ -68,10 +68,10 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
     {
         for(uint256 i=0; i<strs.length; i++) {
             require(validateName(strs[i]), 'invalid family');
-            require(_familyIndices[strs[i]] == 0, "family already exist");
-
-            _familyIndices[strs[i]] = _families.length + 1; //index + 1
-            _families.push(strs[i]);
+            if(_familyIndices[strs[i]] == 0) {
+                _familyIndices[strs[i]] = _families.length + 1; //index + 1
+                _families.push(strs[i]);
+            }
         }
     }
 
@@ -93,10 +93,10 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
     {
         for(uint256 i=0; i<strs.length; i++) {
             require(validateName(strs[i]), 'invalid middle');
-            require(_midIndices[strs[i]] == 0, "middle already exist");
-
-            _midIndices[strs[i]] = _mids.length + 1; //index + 1
-            _mids.push(strs[i]);
+            if(_midIndices[strs[i]] == 0) {
+                _midIndices[strs[i]] = _mids.length + 1; //index + 1
+                _mids.push(strs[i]);
+            }
         }
     }
 
@@ -122,10 +122,10 @@ contract NameGenerator is INameGenerator, WorldConfigurable {
 
         for(uint256 i=0; i<strs.length; i++) {
             require(validateName(strs[i]), 'invalid given');
-            require(_givenIndices[gender][strs[i]] == 0, "given already exist");
-
-            _givenIndices[gender][strs[i]] = _givens[genderId].length + 1; //index + 1
-            _givens[genderId].push(strs[i]);        
+            if(_givenIndices[gender][strs[i]] == 0) {
+                _givenIndices[gender][strs[i]] = _givens[genderId].length + 1; //index + 1
+                _givens[genderId].push(strs[i]);        
+            }
         }
     }
 

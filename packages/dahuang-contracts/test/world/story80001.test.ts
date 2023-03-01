@@ -376,6 +376,7 @@ describe('剧情80001测试', () => {
         });
 
         it(`授权角色给剧情`, async ()=>{
+            await actors.setApprovalForAll(shejiTu.address, true);
             await actors.approve(parameterizedStorylines.address, testActor);
         });
 

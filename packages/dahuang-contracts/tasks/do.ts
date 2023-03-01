@@ -125,7 +125,7 @@ task('do', '做一些事情')
             }
         }
 
-        if(1) {
+        if(0) {
             console.log("要求村长捐款");
             let fromActor = 21;
             let assetId = 209; //金石
@@ -142,6 +142,13 @@ task('do', '做一些事情')
         if(0) {
             console.log("创建村庄");
             await (await worldVillages.connect(taisifu).createVillage(1, 3, 2)).wait();
+        }
+
+        if(1) {
+            console.log("注册道具类型");
+            await (await items.connect(taisifu).setTypeName(52, "《寻龙诀》")).wait();
+            await (await items.connect(taisifu).setTypeName(53, "太乙村水酒")).wait();
+            await (await items.connect(taisifu).setTypeName(54, "龙溪水")).wait();
         }
 
 });
