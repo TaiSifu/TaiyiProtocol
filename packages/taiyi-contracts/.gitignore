@@ -13,11 +13,5 @@ logs
 coverage/
 coverage.json
 
-abi/@openzeppelin
-abi/contracts/base
-abi/contracts/external
-abi/contracts/proxies
-abi/contracts/test
-
 addresses/hard.json
 addresses/hard_const_args.json
