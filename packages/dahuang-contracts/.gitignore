@@ -4,7 +4,6 @@ parts.html
 #Hardhat files
 cache
 artifacts
-typechain/
 .openzeppelin
 
 # Script output
