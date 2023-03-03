@@ -187,12 +187,12 @@ task('deploy-event-processors', '部署大荒事件合约')
         // await (await shejiTu.connect(deployer).setAgeEventProb(5, 60001, 0)).wait();
         // console.log(`配置时间线6岁`);
         // await (await shejiTu.connect(deployer).setAgeEventProb(6, 60001, 0)).wait();
-        console.log(`配置时间线7岁`);
-        await (await shejiTu.connect(deployer).setAgeEventProb(7, 10032, 100)).wait();
-        console.log(`配置时间线8岁`);
-        await (await shejiTu.connect(deployer).setAgeEventProb(8, 10032, 100)).wait();
+        // console.log(`配置时间线7岁`);
+        // await (await shejiTu.connect(deployer).setAgeEventProb(7, 10032, 1000)).wait();
+        // console.log(`配置时间线8岁`);
+        // await (await shejiTu.connect(deployer).setAgeEventProb(8, 10032, 1000000)).wait();
         console.log(`配置时间线9岁`);
-        await (await shejiTu.connect(deployer).setAgeEventProb(9, 10032, 100)).wait();
+        await (await shejiTu.connect(deployer).setAgeEventProb(9, 10032, 1000000)).wait();
         // console.log(`配置时间线10岁`);
         // await (await shejiTu.connect(deployer).setAgeEventProb(10, 60001, 0)).wait();
         // console.log(`配置时间线11岁`);

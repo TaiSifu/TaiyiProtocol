@@ -1,6 +1,7 @@
 node_modules
 .vscode
 build/
+dist
 /**/sha.ts
 /**/sha.h
 *.tgz
@@ -10,6 +11,3 @@ build/
 *.log
 package-lock.json
 yarn.lock
-packages/taiyi-contracts/typechain
-packages/dahuang-contracts/typechain
-packages/xumi-contracts/typechain
