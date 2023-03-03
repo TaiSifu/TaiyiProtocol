@@ -1,0 +1,944 @@
+{
+    "1000": {
+        "id": "1000",
+        "name": "生而平凡",
+        "description": "出身是个平凡人",
+        "grade": 0
+    },
+    "1001": {
+        "id": "1001",
+        "name": "随身玉佩",
+        "description": "或许有护佑作用",
+        "grade": 0
+    },
+    "1002": {
+        "id": "1002",
+        "name": "红肚兜",
+        "description": "小时候死亡率降低",
+        "grade": 0
+    },
+    "1003": {
+        "id": "1003",
+        "name": "生而为男",
+        "description": "性别一定为男",
+        "grade": 1,
+        "exclusive": [
+            "1004",
+            "1025",
+            "1024"
+        ]
+    },
+    "1004": {
+        "id": "1004",
+        "name": "生而为女",
+        "description": "性别一定为女",
+        "grade": 1,
+        "exclusive": [
+            "1003",
+            "1024",
+            "1025"
+        ]
+    },
+    "1006": {
+        "id": "1006",
+        "name": "乐观",
+        "description": "快乐+5",
+        "grade": 0,
+        "effect": {
+            "XIQ": 5
+        }
+    },
+    "1007": {
+        "id": "1007",
+        "name": "天赋异禀",
+        "description": "初始可用属性点+20",
+        "grade": 1,
+        "status": 20
+    },
+    "1008": {
+        "id": "1008",
+        "name": "天生抑郁",
+        "description": "快乐-15",
+        "grade": 0,
+        "effect": {
+            "XIQ": -15
+        }
+    },
+    "1010": {
+        "id": "1010",
+        "name": "天龙人",
+        "description": "你出生在京城",
+        "grade": 2,
+        "effect": {
+            "gold": 10e18
+        },
+        "exclusive": [
+            "1012",
+            "1013",
+            "1014"
+        ]
+    },
+    "1011": {
+        "id": "1011",
+        "name": "独生子女",
+        "description": "你没有兄弟姐妹",
+        "grade": 0
+    },
+    "1012": {
+        "id": "1012",
+        "name": "乡间微风",
+        "description": "你出生在农村",
+        "grade": 0,
+        "exclusive": [
+            "1010",
+            "1013",
+            "1014"
+        ]
+    },
+    "1013": {
+        "id": "1013",
+        "name": "城中高楼",
+        "description": "你出生在城市",
+        "grade": 0,
+        "exclusive": [
+            "1010",
+            "1012",
+            "1014"
+        ]
+    },
+    "1014": {
+        "id": "1014",
+        "name": "武林世家",
+        "description": "你和各门派渊源极深",
+        "grade": 2,
+        "effect": {
+            "gold": 10e18
+        },
+        "exclusive": [
+            "1010",
+            "1012",
+            "1013"
+        ]
+    },
+    "1015": {
+        "id": "1015",
+        "name": "家中老大",
+        "description": "你最受父母宠爱",
+        "grade": 1,
+        "exclusive": [
+            "1017"
+        ]
+    },
+    "1016": {
+        "id": "1016",
+        "name": "水性良好",
+        "description": "不会被淹死",
+        "grade": 0
+    },
+    "1017": {
+        "id": "1017",
+        "name": "多子家庭",
+        "description": "有哥哥姐姐",
+        "grade": 0,
+        "exclusive": [
+            "1015"
+        ]
+    },
+    "1020": {
+        "id": "1020",
+        "name": "父母美貌",
+        "description": "颜值+10",
+        "grade": 1,
+        "effect": {
+            "MEL": 10
+        }
+    },
+    "1021": {
+        "id": "1021",
+        "name": "红颜薄命",
+        "description": "颜值+10，体质-10",
+        "grade": 0,
+        "effect": {
+            "MEL": 10,
+            "TIZ": -10
+        }
+    },
+    "1022": {
+        "id": "1022",
+        "name": "属蛇",
+        "description": "不会被蛇咬死",
+        "grade": 0
+    },
+    "1024": {
+        "id": "1024",
+        "name": "人中龙凤",
+        "description": "天生双重性别",
+        "grade": 2,
+        "exclusive": [
+            "1003",
+            "1004",
+            "1025"
+        ]
+    },
+    "1025": {
+        "id": "1025",
+        "name": "阴阳之外",
+        "description": "天生无性别",
+        "grade": 2,
+        "exclusive": [
+            "1003",
+            "1024",
+            "1004",
+            "1113"
+        ]
+    },
+    "1026": {
+        "id": "1026",
+        "name": "彩虹之下",
+        "description": "可能和同性交往",
+        "grade": 0,
+        "exclusive": [
+            "1113"
+        ]
+    },
+    "1027": {
+        "id": "1027",
+        "name": "斩情证道",
+        "description": "终生不恋爱结婚",
+        "grade": 1,
+        "exclusive": [
+            "1113"
+        ]
+    },
+    "1028": {
+        "id": "1028",
+        "name": "桃花连连",
+        "description": "恋爱机会提升",
+        "grade": 0
+    },
+    "1029": {
+        "id": "1029",
+        "name": "平安童年",
+        "description": "12岁前父母都健在",
+        "grade": 1
+    },
+    "1031": {
+        "id": "1031",
+        "name": "天生残疾",
+        "description": "体质-10",
+        "grade": 0,
+        "effect": {
+            "TIZ": -10
+        }
+    },
+    "1032": {
+        "id": "1032",
+        "name": "早产儿",
+        "description": "所有属性-10",
+        "grade": 0,
+        "effect": {
+            "MEL": -10,
+            "XIQ": -10,
+            "LVL": -10,
+            "TIZ": -10,
+            "LIM": -10,
+            "GEG": -10,
+            "WUX": -10,
+            "DIL": -10
+        }
+    },
+    "1033": {
+        "id": "1033",
+        "name": "十死无生",
+        "description": "体质-50",
+        "grade": 0,
+        "effect": {
+            "TIZ": -50
+        }
+    },
+    "1034": {
+        "id": "1034",
+        "name": "家运不顺",
+        "description": "",
+        "grade": 0,
+        "effect": {}
+    },
+    "1035": {
+        "id": "1035",
+        "name": "头着地",
+        "description": "悟性-10",
+        "grade": 0,
+        "effect": {
+            "WUX": -10
+        }
+    },
+    "1036": {
+        "id": "1036",
+        "name": "胎教",
+        "description": "悟性+5",
+        "grade": 0,
+        "effect": {
+            "WUX": 5
+        }
+    },
+    "1040": {
+        "id": "1040",
+        "name": "戒律",
+        "description": "赌毒不沾",
+        "grade": 0
+    },
+    "1041": {
+        "id": "1041",
+        "name": "丁克",
+        "description": "不生孩子",
+        "grade": 1,
+        "exclusive": [
+            "1113"
+        ]
+    },
+    "1046": {
+        "id": "1046",
+        "name": "不孕不育",
+        "description": "你生不出孩子",
+        "grade": 1,
+        "exclusive": [
+            "1113"
+        ]
+    },
+    "1047": {
+        "id": "1047",
+        "name": "白头偕老",
+        "description": "爱人至少能活到70岁",
+        "grade": 1
+    },
+    "1048": {
+        "id": "1048",
+        "name": "神秘的小盒子",
+        "description": "100岁时才能开启",
+        "grade": 3
+    },
+    "1049": {
+        "id": "1049",
+        "name": "三十而立",
+        "description": "30岁时 gold+10e18",
+        "condition": "AGE?[30]",
+        "grade": 0,
+        "effect": {
+            "gold": 10e18
+        }
+    },
+    "1050": {
+        "id": "1050",
+        "name": "四十不惑",
+        "description": "40岁时悟性+10",
+        "condition": "AGE?[40]",
+        "grade": 0,
+        "effect": {
+            "WUX": 10
+        }
+    },
+    "1051": {
+        "id": "1051",
+        "name": "知天命",
+        "description": "50岁时悟性、快乐+10",
+        "condition": "AGE?[50]",
+        "grade": 0,
+        "effect": {
+            "XIQ": 10,
+            "WUX": 10
+        }
+    },
+    "1052": {
+        "id": "1052",
+        "name": "耳顺",
+        "description": "60岁时快乐+10",
+        "condition": "AGE?[60]",
+        "grade": 0,
+        "effect": {
+            "XIQ": 10
+        }
+    },
+    "1053": {
+        "id": "1053",
+        "name": "从心所欲",
+        "description": "70岁时快乐+15",
+        "condition": "AGE?[70]",
+        "grade": 0,
+        "effect": {
+            "XIQ": 15
+        }
+    },
+    "1054": {
+        "id": "1054",
+        "name": "老当益壮",
+        "description": "60岁时体质+10",
+        "condition": "AGE?[60]",
+        "grade": 1,
+        "effect": {
+            "TIZ": 10
+        }
+    },
+    "1055": {
+        "id": "1055",
+        "name": "鹤发童颜",
+        "description": "70岁时颜值+15",
+        "condition": "AGE?[70]",
+        "grade": 0,
+        "effect": {
+            "MEL": 15
+        }
+    },
+    "1056": {
+        "id": "1056",
+        "name": "学前启蒙",
+        "description": "5岁时悟性+10",
+        "condition": "AGE?[5]",
+        "grade": 1,
+        "effect": {
+            "WUX": 10
+        }
+    },
+    "1057": {
+        "id": "1057",
+        "name": "十八变",
+        "description": "18岁时颜值+10",
+        "condition": "AGE?[18]",
+        "grade": 1,
+        "effect": {
+            "MEL": 10
+        }
+    },
+    "1058": {
+        "id": "1058",
+        "name": "迟来之财",
+        "description": "90岁时 gold+20e18",
+        "condition": "AGE?[90]",
+        "grade": 0,
+        "effect": {
+            "gold": 20e18
+        }
+    },
+    "1060": {
+        "id": "1060",
+        "name": "成熟",
+        "description": "18岁时悟性+10",
+        "condition": "AGE?[18]",
+        "grade": 1,
+        "effect": {
+            "WUX": 10
+        }
+    },
+    "1062": {
+        "id": "1062",
+        "name": "成年礼",
+        "description": "18岁时快乐+5",
+        "condition": "AGE?[18]",
+        "grade": 0,
+        "effect": {
+            "XIQ": 5
+        }
+    },
+    "1063": {
+        "id": "1063",
+        "name": "开光之胎",
+        "description": "初始可用属性点+10",
+        "grade": 0,
+        "status": 10
+    },
+    "1064": {
+        "id": "1064",
+        "name": "天命",
+        "description": "初始可用属性点+40",
+        "grade": 3,
+        "status": 40
+    },
+    "1065": {
+        "id": "1065",
+        "name": "祖传药丸",
+        "description": "功能不明",
+        "grade": 1
+    },
+    "1067": {
+        "id": "1067",
+        "name": "乐天派",
+        "description": "快乐为0时快乐+5",
+        "condition": "XIQ==0",
+        "grade": 1,
+        "effect": {
+            "XIQ": 5
+        }
+    },
+    "1068": {
+        "id": "1068",
+        "name": "命悬一线",
+        "description": "体质为0时体质+5",
+        "condition": "(TIZ==0)",
+        "grade": 0,
+        "effect": {
+            "TIX": 5
+        }
+    },
+    "1069": {
+        "id": "1069",
+        "name": "智可生财",
+        "description": "若20岁时悟性大于40，gold+10e18",
+        "condition": "(AGE?[20])&(WUX>40)",
+        "grade": 0,
+        "effect": {
+            "gold": 10e18
+        }
+    },
+    "1070": {
+        "id": "1070",
+        "name": "舔狗甚多",
+        "description": "若20岁时颜值大于40，快乐+10",
+        "condition": "(AGE?[20])&(MEL>40)",
+        "grade": 0,
+        "effect": {
+            "XIQ": 10
+        }
+    },
+    "1071": {
+        "id": "1071",
+        "name": "保胎丸",
+        "description": "你不会胎死腹中",
+        "grade": 0
+    },
+    "1074": {
+        "id": "1074",
+        "name": "悟道",
+        "description": "悟性大于50时快乐+15",
+        "condition": "WUX>50",
+        "grade": 1,
+        "effect": {
+            "XIQ": 15
+        }
+    },
+    "1075": {
+        "id": "1075",
+        "name": "驻颜",
+        "description": "体质大于50时颜值+15",
+        "condition": "TIX>50",
+        "grade": 0,
+        "effect": {
+            "MEL": 3
+        }
+    },
+    "1077": {
+        "id": "1077",
+        "name": "倾城",
+        "description": "颜值大于50时快乐+15",
+        "condition": "MEL>50",
+        "grade": 1,
+        "effect": {
+            "XIQ": 15
+        }
+    },
+    "1078": {
+        "id": "1078",
+        "name": "训练有方",
+        "description": "悟性大于50时体质+15",
+        "condition": "WUX>50",
+        "grade": 0,
+        "effect": {
+            "TIZ": 15
+        }
+    },
+    "1079": {
+        "id": "1079",
+        "name": "相由心生",
+        "description": "悟性大于50时颜值+15",
+        "condition": "WUX>50",
+        "grade": 0,
+        "effect": {
+            "MEL": 15
+        }
+    },
+    "1080": {
+        "id": "1080",
+        "name": "智多鑫",
+        "description": "悟性大于50时 gold+15e18",
+        "condition": "WUX>50",
+        "grade": 0,
+        "effect": {
+            "gold": 15e18
+        }
+    },
+    "1081": {
+        "id": "1081",
+        "name": "灵光",
+        "description": "快乐大于50时其他属性+5",
+        "condition": "XIQ>50",
+        "grade": 0,
+        "effect": {
+            "MEL": 5,
+            "LVL": 5,
+            "TIZ": 5,
+            "LIM": 5,
+            "GEG": 5,
+            "WUX": 5,
+            "DIL": 5
+        }
+    },
+    "1082": {
+        "id": "1082",
+        "name": "天启",
+        "description": "快乐大于50时其他属性+10",
+        "condition": "XIQ>50",
+        "grade": 1,
+        "effect": {
+            "MEL": 10,
+            "LVL": 10,
+            "TIZ": 10,
+            "LIM": 10,
+            "GEG": 10,
+            "WUX": 10,
+            "DIL": 10
+        }
+    },
+    "1083": {
+        "id": "1083",
+        "name": "神谕",
+        "description": "快乐大于50时其他属性+15",
+        "condition": "XIQ>50",
+        "grade": 2,
+        "effect": {
+            "MEL": 15,
+            "LVL": 15,
+            "TIZ": 15,
+            "LIM": 15,
+            "GEG": 15,
+            "WUX": 15,
+            "DIL": 15
+        }
+    },
+    "1084": {
+        "id": "1084",
+        "name": "献祭",
+        "description": "初始可用属性点-10，快乐+10",
+        "grade": 0,
+        "status": -10,
+        "effect": {
+            "XIQ": 10
+        },
+        "exclusive": [
+            "1122"
+        ]
+    },
+    "1085": {
+        "id": "1085",
+        "name": "幸运儿",
+        "description": "初始可用属性点-15，快乐+25",
+        "grade": 1,
+        "status": -15,
+        "effect": {
+            "XIQ": 25
+        },
+        "exclusive": [
+            "1122"
+        ]
+    },
+    "1086": {
+        "id": "1086",
+        "name": "挑战者",
+        "description": "初始可用点-50",
+        "grade": 0,
+        "status": -50,
+        "exclusive": [
+            "1122"
+        ]
+    },
+    "1087": {
+        "id": "1087",
+        "name": "你不懂",
+        "description": "gold大于50e18时快乐+15",
+        "condition": "gold>50e18",
+        "grade": 1,
+        "effect": {
+            "XIQ": 15
+        }
+    },
+    "1088": {
+        "id": "1088",
+        "name": "整容",
+        "description": "gold大于50e18时颜值+15",
+        "condition": "gold>50e18",
+        "grade": 0,
+        "effect": {
+            "MEL": 15
+        }
+    },
+    "1090": {
+        "id": "1090",
+        "name": "身残志坚",
+        "description": "体质小于2时其他属性+5",
+        "condition": "TIZ<2",
+        "grade": 0,
+        "effect": {
+            "XIQ": 5,
+            "MEL": 5,
+            "LVL": 5,
+            "LIM": 5,
+            "GEG": 5,
+            "WUX": 5,
+            "DIL": 5
+        }
+    },
+    "1091": {
+        "id": "1091",
+        "name": "活死人",
+        "description": "体质小于2时其他属性+10",
+        "condition": "TIZ<2",
+        "grade": 1,
+        "effect": {
+            "XIQ": 10,
+            "MEL": 10,
+            "LVL": 10,
+            "LIM": 10,
+            "GEG": 10,
+            "WUX": 10,
+            "DIL": 10
+        }
+    },
+    "1092": {
+        "id": "1092",
+        "name": "开一扇窗",
+        "description": "颜值小于2时其他属性+5",
+        "condition": "MEL<2",
+        "grade": 0,
+        "effect": {
+            "XIQ": 5,
+            "TIZ": 5,
+            "LVL": 5,
+            "LIM": 5,
+            "GEG": 5,
+            "WUX": 5,
+            "DIL": 5
+        }
+    },
+    "1093": {
+        "id": "1093",
+        "name": "大额头",
+        "description": "颜值-10，悟性+10",
+        "grade": 0,
+        "effect": {
+            "MEL": -10,
+            "WUX": 10
+        }
+    },
+    "1094": {
+        "id": "1094",
+        "name": "痘痘脸",
+        "description": "颜值-5",
+        "grade": 0,
+        "effect": {
+            "MEL": -5
+        }
+    },
+    "1096": {
+        "id": "1096",
+        "name": "哀兵",
+        "description": "快乐小于2时其他属性+5",
+        "condition": "XIQ<2",
+        "grade": 0,
+        "effect": {
+            "MEL": 5,
+            "TIZ": 5,
+            "LVL": 5,
+            "LIM": 5,
+            "GEG": 5,
+            "WUX": 5,
+            "DIL": 5
+        }
+    },
+    "1097": {
+        "id": "1097",
+        "name": "苦痛侍僧",
+        "description": "快乐小于1时其他属性+10",
+        "condition": "XIQ<-1",
+        "grade": 1,
+        "effect": {
+            "XIQ": 10,
+            "TIZ": 10,
+            "LVL": 10,
+            "LIM": 10,
+            "GEG": 10,
+            "WUX": 10,
+            "DIL": 10
+        }
+    },
+    "1100": {
+        "id": "1100",
+        "name": "海的女儿",
+        "description": "颜值-10，初始可用属性点+10",
+        "grade": 0,
+        "status": 10,
+        "effect": {
+            "MEL": -10
+        }
+    },
+    "1101": {
+        "id": "1101",
+        "name": "进阶",
+        "description": "所有属性大于25时，所有属性+5",
+        "condition": "(SPR>5)&(MNY>5)&(CHR>5)&(STR>5)&(INT>5)",
+        "grade": 0,
+        "effect": {
+            "XIQ": 5,
+            "MEL": 5,
+            "TIZ": 5,
+            "LVL": 5,
+            "LIM": 5,
+            "GEG": 5,
+            "WUX": 5,
+            "DIL": 5
+        }
+    },
+    "1108": {
+        "id": "1108",
+        "name": "挑衅",
+        "description": "你喜欢没事找事",
+        "grade": 0
+    },
+    "1109": {
+        "id": "1109",
+        "name": "旅行者",
+        "description": "你喜欢旅游",
+        "grade": 0
+    },
+    "1110": {
+        "id": "1110",
+        "name": "水仙",
+        "description": "你比较自恋",
+        "grade": 0
+    },
+    "1111": {
+        "id": "1111",
+        "name": "缺一门",
+        "description": "无效果",
+        "grade": 0
+    },
+    "1112": {
+        "id": "1112",
+        "name": "异界来客",
+        "description": "你可能听到一些绝密消息",
+        "grade": 2
+    },
+    "1118": {
+        "id": "1118",
+        "name": "小吉",
+        "description": "运气稍微提升",
+        "grade": 0
+    },
+    "1120": {
+        "id": "1120",
+        "name": "万里挑一",
+        "description": "你很攻",
+        "grade": 0
+    },
+    "1121": {
+        "id": "1121",
+        "name": "把握不住",
+        "description": "你有强迫症",
+        "grade": 0
+    },
+    "1122": {
+        "id": "1122",
+        "name": "急了急了",
+        "description": "赶着投胎，不要初始属性了",
+        "grade": 1,
+        "status": -100,
+        "exclusive": [
+            "1084",
+            "1085",
+            "1086"
+        ]
+    },
+    "1123": {
+        "id": "1123",
+        "name": "不离不弃",
+        "description": "你不会离婚",
+        "grade": 0
+    },
+    "1124": {
+        "id": "1124",
+        "name": "足量",
+        "description": "身高不矮",
+        "grade": 0
+    },
+    "1125": {
+        "id": "1125",
+        "name": "易胖体质",
+        "description": "颜值更容易降低",
+        "grade": 0
+    },
+    "1127": {
+        "id": "1127",
+        "name": "左撇子",
+        "description": "习惯使用左手",
+        "grade": 0
+    },
+    "1128": {
+        "id": "1128",
+        "name": "克苏鲁",
+        "description": "&▓▓▓◆▓▓▓￥#▓@■.◆",
+        "grade": 2
+    },
+    "1129": {
+        "id": "1129",
+        "name": "不连续存在",
+        "description": "你还拥有其他人格",
+        "grade": 1
+    },
+    "1132": {
+        "id": 1132,
+        "name": "返老还童",
+        "description": "可能会回到年轻的时候",
+        "grade": 1
+    },
+    "1133": {
+        "id": 1133,
+        "name": "时光倒流",
+        "description": "或许时间会倒流",
+        "grade": 0
+    },
+    "1134": {
+        "id": 1134,
+        "name": "转世重修",
+        "description": "渡劫失败重生",
+        "grade": 2
+    },
+    "1135": {
+        "id": 1135,
+        "name": "轮回之外",
+        "description": "死后可能灵魂离体",
+        "grade": 3
+    },
+    "1138": {
+        "id": 1138,
+        "name": "意外之喜",
+        "description": "随机属性+5",
+        "grade": 0,
+        "effect": {
+            "RDM": 5
+        }
+    },
+    "1140": {
+        "id": 1140,
+        "name": "觉醒",
+        "description": "随机属性+20",
+        "grade": 2,
+        "effect": {
+            "RDM": 20
+        }
+    },
+    "1141": {
+        "id": 1141,
+        "name": "阴间大会员",
+        "description": "随机属性+40",
+        "grade": 3,
+        "effect": {
+            "RDM": 40
+        }
+    }
+}
