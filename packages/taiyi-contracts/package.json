@@ -63,7 +63,7 @@
     "shx": "^0.3.3",
     "solmate": "^6.6.1",
     "ts-node": "^10.9.1",
-    "zksync-web3": "^0.12.2"
+    "zksync-web3": "^0.13.4"
   },
   "dependencies": {
     "ethers": "^5.4.7"
