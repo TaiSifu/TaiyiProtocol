@@ -10,6 +10,10 @@ build/
 *.log
 package-lock.json
 yarn.lock
+
+packages/taiyi-contracts/abi
 packages/taiyi-contracts/typechain
+packages/dahuang-contracts/abi
 packages/dahuang-contracts/typechain
+packages/xumi-contracts/abi
 packages/xumi-contracts/typechain
