@@ -475,7 +475,7 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
     if((await assetPrestiges.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
         await (await assetPrestiges.approveActor(actor, yeming, BigInt(1e29))).wait();    
     
-    let res = await (await dahuang.grow(actor, { gasLimit: 8000000 })).wait();
+    let res = await (await dahuang.grow(actor)).wait();
 
     let name = (await names.actorName(actor))._name;
     name = (name==""?"无名氏":name);
@@ -528,7 +528,7 @@ export async function onCollectAssets(actor: number, user: GuildMember|User, cha
         //授权角色给剧情
         await (await actors.approve(dahuang.address, actor)).wait();
         await interaction.editReply(`请稍等，角色#${actor}正在采集资源……`);
-        await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [], { gasLimit: 20000000 })).wait();
+        await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [])).wait();
         await interaction.editReply(`**角色#${actor}**采集了一些资源。`);
     }
     else {

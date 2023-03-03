@@ -9,6 +9,8 @@ import {
 import { 
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory,
     ActorMoodAttributes__factory,
+    WorldEventProcessor10000,
+    WorldEventProcessor10032__factory,
     WorldEventProcessor60505__factory,
     WorldEventProcessor60509__factory,
     WorldEventProcessor60510__factory,
@@ -144,11 +146,20 @@ task('do', '做一些事情')
             await (await worldVillages.connect(taisifu).createVillage(1, 3, 2)).wait();
         }
 
-        if(1) {
+        if(0) {
             console.log("注册道具类型");
             await (await items.connect(taisifu).setTypeName(52, "《寻龙诀》")).wait();
             await (await items.connect(taisifu).setTypeName(53, "太乙村水酒")).wait();
             await (await items.connect(taisifu).setTypeName(54, "龙溪水")).wait();
+        }
+
+        if(1) {
+            console.log("检查事件能否发生");
+            let evt10032 = WorldEventProcessor10032__factory.connect(addressBook.WorldEventProcessor10032, operator1);
+            if(await evt10032.checkOccurrence(37, 9))
+                console.log("事件可以发生");
+            else
+                console.log("事件不能发生");
         }
 
 });
