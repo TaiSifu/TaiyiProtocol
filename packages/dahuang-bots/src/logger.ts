@@ -273,8 +273,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let eventInfo = await worldEvents.eventInfo(eventId, actor);
                         let name = (await actorNames.actorName(actor))._name;
 
-                        await sendChannelMessage(`\`\`\`fix\r\n${name}，${age}岁，` +
-                            `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`fix\r\n[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
                     }
                 }
             //})());

@@ -128,10 +128,18 @@ let logURI = (uri) => {
         console.log("创建村庄");
         yield (yield worldVillages.connect(taisifu).createVillage(1, 3, 2)).wait();
     }
-    if (1) {
+    if (0) {
         console.log("注册道具类型");
         yield (yield items.connect(taisifu).setTypeName(52, "《寻龙诀》")).wait();
         yield (yield items.connect(taisifu).setTypeName(53, "太乙村水酒")).wait();
         yield (yield items.connect(taisifu).setTypeName(54, "龙溪水")).wait();
+    }
+    if (1) {
+        console.log("检查事件能否发生");
+        let evt10032 = typechain_2.WorldEventProcessor10032__factory.connect(addressBook.WorldEventProcessor10032, operator1);
+        if (yield evt10032.checkOccurrence(37, 9))
+            console.log("事件可以发生");
+        else
+            console.log("事件不能发生");
     }
 }));
