@@ -189,7 +189,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
         while (true) {
             console.log(startBlockNum);
             //let block = await provider.getBlock(startBlockNum);
-            let endBlockNum = Math.min(blockNum, startBlockNum + 100);
+            let endBlockNum = Math.min(blockNum, startBlockNum + 200);
             //let endBlock = await provider.getBlock(endBlockNum);
 
             //let event_promises:Promise<void>[] = [];
