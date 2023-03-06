@@ -36,9 +36,9 @@
 | 219 | [WorldDeadActors](./contracts/world/dataset/WorldDeadActors.sol) | 这是大荒世界的死亡角色记录数据。| [0x2fD2671e8CA03448A40205dDf36262d27e886B27](https://goerli.arbiscan.io/address/address/0x2fD2671e8CA03448A40205dDf36262d27e886B27) |
 | 220 | [ActorsGender](./contracts/world/dataset/ActorsGender.sol) | 这是大荒世界的角色性别记录数据。| [0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5](https://goerli.arbiscan.io/address/address/0x498b5b9D8e0A0f6540FeE1ACed417559014D5ce5) |
 | 221 | [ActorBornFamilies](./contracts/world/dataset/ActorBornFamilies.sol) | 这是大荒世界的角色出身记录数据。| [0x5e3E2F4c48BE806E6b1d8a1c255Cd1c98C987D6f](https://goerli.arbiscan.io/address/address/0x5e3E2F4c48BE806E6b1d8a1c255Cd1c98C987D6f) |
-| 222 | [WorldStorylines](../taiyi-contracts/contracts/world/dataset/WorldStorylines.sol) | 这是大荒世界的角色剧情事件记录数据。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
-| 223 | [ParameterizedStorylines](../taiyi-contracts/contracts/world/dataset/ParameterizedStorylines.sol) | 这是大荒世界的全局剧情事件记录数据。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
-| 224 | [GlobalStoryRegistry](../taiyi-contracts/contracts/world/dataset/GlobalStoryRegistry.sol) | 这是大荒世界的全局剧情注册器。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
+| 222 | [WorldStorylines](../taiyi-contracts/contracts/world/dataset/WorldStorylines.sol) | 这是大荒世界的角色剧情事件记录数据。| [0x01E178c737b1130C4dba14bF0BB4Ee1c696AfFb4](https://goerli.arbiscan.io/address/address/0x01E178c737b1130C4dba14bF0BB4Ee1c696AfFb4) |
+| 223 | [ParameterizedStorylines](../taiyi-contracts/contracts/world/dataset/ParameterizedStorylines.sol) | 这是大荒世界的全局剧情事件记录数据。| [0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F](https://goerli.arbiscan.io/address/address/0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F) |
+| 224 | [GlobalStoryRegistry](../taiyi-contracts/contracts/world/dataset/GlobalStoryRegistry.sol) | 这是大荒世界的全局剧情注册器。| [0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C](https://goerli.arbiscan.io/address/address/0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C) |
 
 
 ## 开发

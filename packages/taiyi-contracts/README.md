@@ -50,7 +50,7 @@
 | [ActorTalents](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色的天赋数据，用于记录角色拥有的天赋点。| 各世界独立部署 |
 | [Trigrams](./contracts/world/dataset/Trigrams.sol) | 这是太乙世界角色个人拥有的特殊符文记录，这个符文和角色在太乙世界中的事件历史有关，可以在角色的URI中被表现出来。| [0xF588a828cD420dF0e3EbaFc5e16c25B2FFE6321D](https://goerli.arbiscan.io/address/0xF588a828cD420dF0e3EbaFc5e16c25B2FFE6321D) |
 | [WorldYemings](./contracts/world/dataset/WorldYemings.sol) | 这是记录充当噎明的角色。| [0xA0146938AA98765d7471dCe3d52FcF9a984637eE](https://goerli.arbiscan.io/address/0xA0146938AA98765d7471dCe3d52FcF9a984637eE) |
-| 225 | [NameGenerator](../taiyi-contracts/contracts/world/dataset/NameGenerator.sol) | 人物姓名生成器。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
+| 225 | [NameGenerator](../taiyi-contracts/contracts/world/dataset/NameGenerator.sol) | 人物姓名生成器。| [0xE772C331A55b07CA95470827719d00AF9f53A121](https://goerli.arbiscan.io/address/address/0xE772C331A55b07CA95470827719d00AF9f53A121) |
 
 
 ## 开发
