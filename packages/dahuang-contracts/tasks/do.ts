@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldFungible__factory, 
-    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory, ActorLocations__factory, AssetDaoli, AssetDaoli__factory, WorldItems, WorldItems__factory,
+    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory, ActorLocations__factory, AssetDaoli, AssetDaoli__factory, WorldItems, WorldItems__factory, WorldStoryActors__factory,
 } from '@taiyi/contracts/dist/typechain';
 import { 
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory,
@@ -59,6 +59,7 @@ task('do', '做一些事情')
         let coreAttributes = ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, operator1);
         let moodAttributes = ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, operator1);
         let worldVillages = WorldVillages__factory.connect(addressBook.WorldVillages, operator1);
+        let worldStoryActors = WorldStoryActors__factory.connect(addressBook.WorldStoryActors, operator1);
         
         let shejiTu = ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
 
@@ -153,7 +154,7 @@ task('do', '做一些事情')
             await (await items.connect(taisifu).setTypeName(54, "龙溪水")).wait();
         }
 
-        if(1) {
+        if(0) {
             console.log("检查事件能否发生");
             let evt10032 = WorldEventProcessor10032__factory.connect(addressBook.WorldEventProcessor10032, operator1);
             if(await evt10032.checkOccurrence(37, 9))
@@ -162,4 +163,8 @@ task('do', '做一些事情')
                 console.log("事件不能发生");
         }
 
+        if(1) {
+            console.log("弥补剧情角色记录");
+            await (await worldStoryActors.connect(taisifu).addStoryActor(1, 80001, 61)).wait();
+        }
 });

@@ -8,7 +8,7 @@ import {
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
     WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory, ActorsGender, ActorsGender__factory, ActorBornFamilies, ActorBornFamilies__factory
 } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, deployWorldStorylines, deployParameterizedStorylines, deployGlobalStoryRegistry } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, deployWorldStorylines, deployParameterizedStorylines, deployGlobalStoryRegistry, deployWorldStoryActors } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
 import { deployTalentProcessors, initTalents } from './initTalents';
 import { initRelations } from './initRelationship';
@@ -144,7 +144,8 @@ export type DahuangContractName =
     | 'ActorBornFamilies'
     | 'WorldStorylines'
     | 'ParameterizedStorylines'
-    | 'GlobalStoryRegistry';
+    | 'GlobalStoryRegistry'
+    | 'WorldStoryActors';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -326,6 +327,11 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let globalStoryRegistryArgs = [route.address, Number(224)];
     await (await routeByPanGu.registerModule(224, globalStoryRegistry.address)).wait();
 
+    if(verbose) console.log("Deploy WorldStoryActors...");
+    let worldStoryActors = await deployWorldStoryActors(226, routeByPanGu, deployer);
+    let worldStoryActorsArgs = [route.address, Number(226)];
+    await (await routeByPanGu.registerModule(226, worldStoryActors.address)).wait();
+
     //init SocialIdentity Names
     if(flags?.noSIDNames)
         null;
@@ -443,6 +449,7 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         WorldStorylines: {instance: worldStorylines, constructorArguments: worldStorylinesArgs},
         ParameterizedStorylines: {instance: parameterizedStorylines, constructorArguments: parameterizedStorylinesArgs},
         GlobalStoryRegistry: {instance: globalStoryRegistry, constructorArguments: globalStoryRegistryArgs},
+        WorldStoryActors: {instance: worldStoryActors, constructorArguments: worldStoryActorsArgs},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

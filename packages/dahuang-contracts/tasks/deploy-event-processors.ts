@@ -209,7 +209,7 @@ task('deploy-event-processors', '部署大荒事件合约')
 
 
         //入驻角色
-        // let newOP = 60;
+        // let newOP = 62;
         // console.log(`入驻角色${newOP}`);
         // await (await actors.connect(operator1).transferFrom(operator1.address, deployer.address, newOP)).wait();
         // await (await actors.connect(deployer).approve(evt60505.address, newOP)).wait();

@@ -18,7 +18,7 @@ import {
     deployDahuangConstants, deployDahuangWorld, deployTalentProcessors, deployWorldBuildings, deployWorldDeadActors, deployWorldSeasons, 
     deployWorldVillages, deployWorldZoneBaseResources, initBuildingTypes, initEvents, initItemTypes, initRelations, initSIDNames, initTalents, initTimeline, initZones, WorldContract } from '../utils';
 import { ActorRelationship__factory, DahuangConstants__factory, WorldBuildings__factory, WorldEventProcessor10012__factory, WorldEventProcessor10014__factory } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployGlobalStoryRegistry, deployParameterizedStorylines, deployShejiTu, deployWorldEvents, deployWorldStorylines } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployGlobalStoryRegistry, deployParameterizedStorylines, deployShejiTu, deployWorldEvents, deployWorldStoryActors, deployWorldStorylines } from '@taiyi/contracts/dist/utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
@@ -64,15 +64,15 @@ task('deploy-single', '部署单一大荒合约')
         if(1)
         {
             //Deploy dahuang contracts
-            console.log("Deploy WorldStorylines...");
-            let worldStorylines = await deployWorldStorylines(222, worldContractRoute, deployer);
-            let worldStorylinesArgs = [worldContractRoute.address, Number(222)];
-            await (await worldContractRoute.registerModule(222, worldStorylines.address)).wait();
+            console.log("Deploy WorldStoryActors...");
+            let worldStoryActors = await deployWorldStoryActors(226, worldContractRoute, deployer);
+            let worldStoryActorsArgs = [worldContractRoute.address, Number(226)];
+            await (await worldContractRoute.registerModule(226, worldStoryActors.address)).wait();
         
-            console.log("Deploy ParameterizedStorylines...");
-            let parameterizedStorylines = await deployParameterizedStorylines(223, worldContractRoute, deployer);
-            let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
-            await (await worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
+            // console.log("Deploy ParameterizedStorylines...");
+            // let parameterizedStorylines = await deployParameterizedStorylines(223, worldContractRoute, deployer);
+            // let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
+            // await (await worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
         
             // console.log("Deploy GlobalStoryRegistry...");
             // let globalStoryRegistry = await deployGlobalStoryRegistry(224, worldContractRoute, deployer);
@@ -80,18 +80,18 @@ task('deploy-single', '部署单一大荒合约')
             // await (await worldContractRoute.registerModule(224, globalStoryRegistry.address)).wait();
                                 
             //save contract address
-            addressBook.WorldStorylines = worldStorylines.address;
-            addressBook.ParameterizedStorylines = parameterizedStorylines.address;
-            //addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
+            addressBook.WorldStoryActors = worldStoryActors.address;
+            // addressBook.ParameterizedStorylines = parameterizedStorylines.address;
+            // addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
             const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
             console.log(`contract deployed book:`);
             console.log(JSON.stringify(addressBook, null, 2));
 
             //save constructor arguments
-            argsBook.WorldStorylines = worldStorylinesArgs;
-            argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
-            //argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
+            argsBook.WorldStoryActors = worldStoryActorsArgs;
+            // argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
+            // argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
             const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
             await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
             console.log(`contract constructor arguments book:`);

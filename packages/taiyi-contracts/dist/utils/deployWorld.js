@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deployTaiyiWorld = exports.deployNameGenerator = exports.deployGlobalStoryRegistry = exports.deployParameterizedStorylines = exports.deployWorldStorylines = exports.populateDescriptor = exports.deploySifusSeeder = exports.deploySifusDescriptor = exports.deploySifusToken = exports.deployTrigramsRender = exports.deployTrigrams = exports.deployActorRelationship = exports.deployActorLocations = exports.deployActorBornPlaces = exports.deployActorPrelifes = exports.deployWorldEvents = exports.deployActorTalents = exports.deployWorldZones = exports.deployWorldItems = exports.deployActorSocialIdentity = exports.deployActorNames = exports.deployAssetDaoli = exports.deployActorAttributes = exports.deployWorldRandom = exports.deployShejiTu = exports.deployActors = exports.deployWorldYemings = exports.deployWorldConstants = exports.deployWorldContractRoute = void 0;
+exports.deployTaiyiWorld = exports.deployWorldStoryActors = exports.deployNameGenerator = exports.deployGlobalStoryRegistry = exports.deployParameterizedStorylines = exports.deployWorldStorylines = exports.populateDescriptor = exports.deploySifusSeeder = exports.deploySifusDescriptor = exports.deploySifusToken = exports.deployTrigramsRender = exports.deployTrigrams = exports.deployActorRelationship = exports.deployActorLocations = exports.deployActorBornPlaces = exports.deployActorPrelifes = exports.deployWorldEvents = exports.deployActorTalents = exports.deployWorldZones = exports.deployWorldItems = exports.deployActorSocialIdentity = exports.deployActorNames = exports.deployAssetDaoli = exports.deployActorAttributes = exports.deployWorldRandom = exports.deployShejiTu = exports.deployActors = exports.deployWorldYemings = exports.deployWorldConstants = exports.deployWorldContractRoute = void 0;
 const typechain_1 = require("../typechain");
 const ShejiTu_json_1 = __importDefault(require("../abi/contracts/ShejiTu.sol/ShejiTu.json"));
 const utils_1 = require("ethers/lib/utils");
@@ -186,6 +186,11 @@ const deployNameGenerator = (route, deployer) => __awaiter(void 0, void 0, void 
     return (yield factory.deploy(route.address)).deployed();
 });
 exports.deployNameGenerator = deployNameGenerator;
+const deployWorldStoryActors = (moduleId, route, deployer) => __awaiter(void 0, void 0, void 0, function* () {
+    const factory = new typechain_1.WorldStoryActors__factory(deployer);
+    return (yield factory.deploy(route.address, moduleId)).deployed();
+});
+exports.deployWorldStoryActors = deployWorldStoryActors;
 ;
 const deployTaiyiWorld = (actorMintStart, deployer, operatorDAO, verbose) => __awaiter(void 0, void 0, void 0, function* () {
     if (verbose)

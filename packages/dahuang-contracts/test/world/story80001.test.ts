@@ -14,7 +14,7 @@ import {
     SifusToken__factory, WorldEvents__factory, ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, 
     ActorSocialIdentity__factory, ActorRelationship__factory, WorldRandom, 
     ActorLocations, Trigrams, WorldRandom__factory, ActorLocations__factory, Trigrams__factory, WorldItems, WorldItems__factory, 
-    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, WorldStorylines__factory, WorldStorylines, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, ShejiTuProxy, NameGenerator, NameGenerator__factory,
+    ActorPrelifes, ActorPrelifes__factory, WorldYemings, WorldYemings__factory, WorldStorylines__factory, WorldStorylines, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, ShejiTuProxy, NameGenerator, NameGenerator__factory, WorldStoryActors__factory, WorldStoryActors,
 } from '@taiyi/contracts/dist/typechain';
 import {
     blockNumber,
@@ -100,6 +100,7 @@ describe('剧情80001测试', () => {
     let worldStorylines: WorldStorylines;
     let parameterizedStorylines: ParameterizedStorylines;
     let globalStoryRegistry : GlobalStoryRegistry;
+    let worldStoryActors: WorldStoryActors;
 
     let actorPanGu: BigNumber;
     let testActor: BigNumber;
@@ -211,6 +212,7 @@ describe('剧情80001测试', () => {
         worldStorylines = WorldStorylines__factory.connect(contracts.WorldStorylines.instance.address, operator1);
         parameterizedStorylines = ParameterizedStorylines__factory.connect(contracts.ParameterizedStorylines.instance.address, operator1);
         globalStoryRegistry = GlobalStoryRegistry__factory.connect(contracts.GlobalStoryRegistry.instance.address, operator1);
+        worldStoryActors = WorldStoryActors__factory.connect(contracts.WorldStoryActors.instance.address, operator1);
 
         actorPanGu = await worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
@@ -745,6 +747,16 @@ describe('剧情80001测试', () => {
             expect(await parameterizedStorylines.currentActorEventByStoryId(storyActor, 80001)).to.eq(0);
             expect(await parameterizedStorylines.currentStoryActorNum(80001)).to.eq(0);
             expect(await parameterizedStorylines.currentActorStoryNum(storyActor)).to.eq(0);
+        });
+
+        it(`剧情历史检查`, async ()=>{
+            expect(await worldStoryActors.storyActorNum(80001)).eq(1);
+            expect(await worldStoryActors.storyActorByIndex(80001, 0)).eq(storyActor);
+        });
+
+        it(`剧情结束后，角色相关成长经历检查`, async ()=>{
+            console.log(await evt10032.eventInfo(testActor));
+            console.log(await evt10033.eventInfo(testActor));
         });
 
         it(`通过采集资源不能重复剧情80001`, async ()=>{

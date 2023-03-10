@@ -374,3 +374,11 @@ interface INameGenerator is IWorldModule {
     function registerGiven(uint256 _operator, string memory gender, string[] memory strs) external;
     function removeGiven(uint256 _operator, string memory gender, string[] memory strs) external;
 }
+
+interface IWorldStoryActors is IWorldModule {
+    function storyActorNum(uint256 _storyEvtId) external view returns (uint256);
+    function storyActorByIndex(uint256 _storyEvtId, uint256 _index) external view returns (uint256); //actor id
+    function hasActor(uint256 _storyEvtId, uint256 _actor) external view returns (bool);
+
+    function addStoryActor(uint256 _operator, uint256 _storyEvtId, uint256 _actor) external;
+}

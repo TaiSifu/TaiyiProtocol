@@ -39,6 +39,7 @@
 | 222 | [WorldStorylines](../taiyi-contracts/contracts/world/dataset/WorldStorylines.sol) | 这是大荒世界的角色剧情事件记录数据。| [0x01E178c737b1130C4dba14bF0BB4Ee1c696AfFb4](https://goerli.arbiscan.io/address/address/0x01E178c737b1130C4dba14bF0BB4Ee1c696AfFb4) |
 | 223 | [ParameterizedStorylines](../taiyi-contracts/contracts/world/dataset/ParameterizedStorylines.sol) | 这是大荒世界的全局剧情事件记录数据。| [0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F](https://goerli.arbiscan.io/address/address/0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F) |
 | 224 | [GlobalStoryRegistry](../taiyi-contracts/contracts/world/dataset/GlobalStoryRegistry.sol) | 这是大荒世界的全局剧情注册器。| [0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C](https://goerli.arbiscan.io/address/address/0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C) |
+| 226 | [WorldStoryActors](../taiyi-contracts/contracts/world/dataset/WorldStoryActors.sol) | 这是大荒世界的剧情事件角色记录数据。| [0x？？？？](https://goerli.arbiscan.io/address/address/0x？？？？) |
 
 
 ## 开发

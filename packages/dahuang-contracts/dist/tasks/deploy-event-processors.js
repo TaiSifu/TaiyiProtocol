@@ -64,13 +64,16 @@ function getContractConstructArgs(net) {
     let moodAttributes = typechain_2.ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, taisifu);
     let actorPanGu = 1;
     //Deploy dahuang contracts
-    // console.log(`部署事件`);
+    console.log(`部署事件`);
     // let evt60505 = await (await (new WorldEventProcessor60505__factory(deployer)).deploy(worldContractRoute.address)).deployed();
     // let evt60505Args = [worldContractRoute.address];
     // await (await worldEvents.setEventProcessor(60505, evt60505.address)).wait();
-    // let evt10033 = await (await (new WorldEventProcessor10033__factory(deployer)).deploy(worldContractRoute.address)).deployed();
-    // let evt10033Args = [worldContractRoute.address];
-    // await (await worldEvents.setEventProcessor(10033, evt10033.address)).wait();
+    let evt10032 = yield (yield (new typechain_2.WorldEventProcessor10032__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+    let evt10032Args = [worldContractRoute.address];
+    yield (yield worldEvents.setEventProcessor(10032, evt10032.address)).wait();
+    let evt10033 = yield (yield (new typechain_2.WorldEventProcessor10033__factory(deployer)).deploy(worldContractRoute.address)).deployed();
+    let evt10033Args = [worldContractRoute.address];
+    yield (yield worldEvents.setEventProcessor(10033, evt10033.address)).wait();
     // let evt80001 = await (await (new WorldEventProcessor80001__factory(deployer)).deploy(worldContractRoute.address)).deployed();
     // let evt80001Args = [worldContractRoute.address];
     // await (await worldEvents.setEventProcessor(80001, evt80001.address)).wait();
@@ -97,7 +100,8 @@ function getContractConstructArgs(net) {
     // await (await worldEvents.setEventProcessor(80008, evt80008.address)).wait();
     //save contract address
     // addressBook.WorldEventProcessor60505 = evt60505.address;
-    // addressBook.WorldEventProcessor10033 = evt10033.address;
+    addressBook.WorldEventProcessor10032 = evt10032.address;
+    addressBook.WorldEventProcessor10033 = evt10033.address;
     // addressBook.WorldEventProcessor80001 = evt80001.address;
     // addressBook.WorldEventProcessor80002 = evt80002.address;
     // addressBook.WorldEventProcessor80003 = evt80003.address;
@@ -106,13 +110,14 @@ function getContractConstructArgs(net) {
     // addressBook.WorldEventProcessor80006 = evt80006.address;
     // addressBook.WorldEventProcessor80007 = evt80007.address;
     // addressBook.WorldEventProcessor80008 = evt80008.address;
-    // const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
-    // await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
-    // console.log(`contract deployed book:`);
-    // console.log(JSON.stringify(addressBook, null, 2));
+    const sharedAddressPath = (0, addressConfig_1.getAddressBookShareFilePath)(process_args.network ? process_args.network : "hard");
+    yield fs_extra_1.default.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
+    console.log(`contract deployed book:`);
+    console.log(JSON.stringify(addressBook, null, 2));
     //save constructor arguments
     // argsBook.WorldEventProcessor60505 = evt60505Args;
-    // argsBook.WorldEventProcessor10033 = evt10033Args;
+    argsBook.WorldEventProcessor10032 = evt10032Args;
+    argsBook.WorldEventProcessor10033 = evt10033Args;
     // argsBook.WorldEventProcessor80001 = evt80001Args;
     // argsBook.WorldEventProcessor80002 = evt80002Args;
     // argsBook.WorldEventProcessor80003 = evt80003Args;
@@ -121,10 +126,10 @@ function getContractConstructArgs(net) {
     // argsBook.WorldEventProcessor80006 = evt80006Args;
     // argsBook.WorldEventProcessor80007 = evt80007Args;
     // argsBook.WorldEventProcessor80008 = evt80008Args;
-    // const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
-    // await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
-    // console.log(`contract constructor arguments book:`);
-    // console.log(JSON.stringify(argsBook, null, 2));
+    const sharedArgsPath = (0, addressConfig_1.getConstructorArgumentsBookShareFilePath)(process_args.network ? process_args.network : "hard");
+    yield fs_extra_1.default.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
+    console.log(`contract constructor arguments book:`);
+    console.log(JSON.stringify(argsBook, null, 2));
     //////增加事件
     // console.log(`配置时间线2岁`);
     // await (await shejiTu.connect(deployer).addAgeEvent(2, 10031, 1)).wait();
@@ -159,12 +164,12 @@ function getContractConstructArgs(net) {
     // await (await shejiTu.connect(deployer).setAgeEventProb(5, 60001, 0)).wait();
     // console.log(`配置时间线6岁`);
     // await (await shejiTu.connect(deployer).setAgeEventProb(6, 60001, 0)).wait();
-    console.log(`配置时间线7岁`);
-    yield (yield shejiTu.connect(deployer).setAgeEventProb(7, 10032, 100)).wait();
-    console.log(`配置时间线8岁`);
-    yield (yield shejiTu.connect(deployer).setAgeEventProb(8, 10032, 100)).wait();
-    console.log(`配置时间线9岁`);
-    yield (yield shejiTu.connect(deployer).setAgeEventProb(9, 10032, 100)).wait();
+    // console.log(`配置时间线7岁`);
+    // await (await shejiTu.connect(deployer).setAgeEventProb(7, 10032, 100)).wait();
+    // console.log(`配置时间线8岁`);
+    // await (await shejiTu.connect(deployer).setAgeEventProb(8, 10032, 100)).wait();
+    // console.log(`配置时间线9岁`);
+    // await (await shejiTu.connect(deployer).setAgeEventProb(9, 10032, 100)).wait();
     // console.log(`配置时间线10岁`);
     // await (await shejiTu.connect(deployer).setAgeEventProb(10, 60001, 0)).wait();
     // console.log(`配置时间线11岁`);

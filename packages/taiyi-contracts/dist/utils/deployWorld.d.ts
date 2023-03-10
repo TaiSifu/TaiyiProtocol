@@ -1,5 +1,5 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { ActorAttributes, SifusToken, ActorNames, Actors, ActorSocialIdentity, WorldConstants, WorldContractRoute, WorldRandom, WorldItems, WorldZones, WorldEvents, ActorTalents, ActorBornPlaces, ActorPrelifes, ActorLocations, ActorRelationship, Trigrams, TrigramsRender, SifusDescriptor, SifusSeeder, WorldYemings, AssetDaoli, WorldStorylines, ParameterizedStorylines, GlobalStoryRegistry, NameGenerator } from '../typechain';
+import { ActorAttributes, SifusToken, ActorNames, Actors, ActorSocialIdentity, WorldConstants, WorldContractRoute, WorldRandom, WorldItems, WorldZones, WorldEvents, ActorTalents, ActorBornPlaces, ActorPrelifes, ActorLocations, ActorRelationship, Trigrams, TrigramsRender, SifusDescriptor, SifusSeeder, WorldYemings, AssetDaoli, WorldStorylines, ParameterizedStorylines, GlobalStoryRegistry, NameGenerator, WorldStoryActors } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 export declare const deployWorldContractRoute: (deployer: SignerWithAddress) => Promise<WorldContractRoute>;
 export declare const deployWorldConstants: (deployer: SignerWithAddress) => Promise<WorldConstants>;
@@ -29,6 +29,7 @@ export declare const deployWorldStorylines: (moduleId: BigNumberish, route: Worl
 export declare const deployParameterizedStorylines: (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress) => Promise<ParameterizedStorylines>;
 export declare const deployGlobalStoryRegistry: (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress) => Promise<GlobalStoryRegistry>;
 export declare const deployNameGenerator: (route: WorldContractRoute, deployer: SignerWithAddress) => Promise<NameGenerator>;
+export declare const deployWorldStoryActors: (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress) => Promise<WorldStoryActors>;
 export type TaiyiContractName = 'SifusDescriptor' | 'SifusSeeder' | 'SifusToken' | 'WorldConstants' | 'WorldContractRoute' | 'Actors' | 'WorldRandom' | 'ActorNames' | 'WorldYemings' | 'WorldItems' | 'ActorSocialIdentity' | 'WorldZones' | 'AssetDaoli' | 'ActorAttributes' | 'ActorPrelifes' | 'ActorLocations' | 'Trigrams' | 'TrigramsRender' | 'NameGenerator';
 export interface WorldContract {
     instance: EthersContract;

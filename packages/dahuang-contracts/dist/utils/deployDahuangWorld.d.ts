@@ -20,7 +20,7 @@ export declare const deployWorldZoneBaseResources: (zoneResourceGrowTimeDay: num
 export declare const deployWorldDeadActors: (route: WorldContractRoute, deployer: SignerWithAddress) => Promise<WorldDeadActors>;
 export declare const deployActorsGender: (route: WorldContractRoute, deployer: SignerWithAddress) => Promise<ActorsGender>;
 export declare const deployActorBornFamilies: (route: WorldContractRoute, deployer: SignerWithAddress) => Promise<ActorBornFamilies>;
-export type DahuangContractName = 'DahuangConstants' | 'ShejiTu' | 'ShejiTuProxy' | 'ShejiTuProxyAdmin' | 'WorldEvents' | 'AssetFood' | 'AssetWood' | 'AssetGold' | 'AssetFabric' | 'AssetHerb' | 'AssetPrestige' | 'ActorTalents' | 'ActorCharmAttributes' | 'ActorCoreAttributes' | 'ActorMoodAttributes' | 'ActorBehaviorAttributes' | 'WorldSeasons' | 'ActorBornPlaces' | 'WorldVillages' | 'WorldZoneBaseResources' | 'WorldBuildings' | 'ActorRelationship' | 'WorldDeadActors' | 'ActorsGender' | 'ActorBornFamilies' | 'WorldStorylines' | 'ParameterizedStorylines' | 'GlobalStoryRegistry';
+export type DahuangContractName = 'DahuangConstants' | 'ShejiTu' | 'ShejiTuProxy' | 'ShejiTuProxyAdmin' | 'WorldEvents' | 'AssetFood' | 'AssetWood' | 'AssetGold' | 'AssetFabric' | 'AssetHerb' | 'AssetPrestige' | 'ActorTalents' | 'ActorCharmAttributes' | 'ActorCoreAttributes' | 'ActorMoodAttributes' | 'ActorBehaviorAttributes' | 'WorldSeasons' | 'ActorBornPlaces' | 'WorldVillages' | 'WorldZoneBaseResources' | 'WorldBuildings' | 'ActorRelationship' | 'WorldDeadActors' | 'ActorsGender' | 'ActorBornFamilies' | 'WorldStorylines' | 'ParameterizedStorylines' | 'GlobalStoryRegistry' | 'WorldStoryActors';
 export interface WorldContract {
     instance: EthersContract;
     constructorArguments?: (string | number)[];

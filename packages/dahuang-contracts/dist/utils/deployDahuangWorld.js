@@ -284,6 +284,11 @@ const deployDahuangWorld = (oneAgeVSecond, actRecoverTimeDay, zoneResourceGrowTi
     let globalStoryRegistry = yield (0, utils_1.deployGlobalStoryRegistry)(224, routeByPanGu, deployer);
     let globalStoryRegistryArgs = [route.address, Number(224)];
     yield (yield routeByPanGu.registerModule(224, globalStoryRegistry.address)).wait();
+    if (verbose)
+        console.log("Deploy WorldStoryActors...");
+    let worldStoryActors = yield (0, utils_1.deployWorldStoryActors)(226, routeByPanGu, deployer);
+    let worldStoryActorsArgs = [route.address, Number(226)];
+    yield (yield routeByPanGu.registerModule(226, worldStoryActors.address)).wait();
     //init SocialIdentity Names
     if (flags === null || flags === void 0 ? void 0 : flags.noSIDNames)
         null;
@@ -399,6 +404,7 @@ const deployDahuangWorld = (oneAgeVSecond, actRecoverTimeDay, zoneResourceGrowTi
         WorldStorylines: { instance: worldStorylines, constructorArguments: worldStorylinesArgs },
         ParameterizedStorylines: { instance: parameterizedStorylines, constructorArguments: parameterizedStorylinesArgs },
         GlobalStoryRegistry: { instance: globalStoryRegistry, constructorArguments: globalStoryRegistryArgs },
+        WorldStoryActors: { instance: worldStoryActors, constructorArguments: worldStoryActorsArgs },
     };
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook };
 });

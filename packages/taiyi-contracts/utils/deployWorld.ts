@@ -8,7 +8,9 @@ import {
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli, WorldStorylines, WorldStorylines__factory, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, GlobalStoryRegistry__factory, NameGenerator, NameGenerator__factory,
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli, WorldStorylines, 
+    WorldStorylines__factory, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, 
+    GlobalStoryRegistry__factory, NameGenerator, NameGenerator__factory, WorldStoryActors__factory, WorldStoryActors,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -186,6 +188,11 @@ export const deployGlobalStoryRegistry = async (moduleId: BigNumberish, route: W
 export const deployNameGenerator = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<NameGenerator> => {
     const factory = new NameGenerator__factory(deployer);
     return (await factory.deploy(route.address)).deployed();
+};
+
+export const deployWorldStoryActors = async (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldStoryActors> => {
+    const factory = new WorldStoryActors__factory(deployer);
+    return (await factory.deploy(route.address, moduleId)).deployed();
 };
 
 export type TaiyiContractName =

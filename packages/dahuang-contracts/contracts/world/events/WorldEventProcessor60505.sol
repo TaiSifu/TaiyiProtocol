@@ -193,6 +193,9 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
             _globalStory.triggerActorEvent(_operator, newActor, _actor, _storyEvtId);
             _globalStory.setActorStory(_operator, newActor, _storyEvtId, _storyEvtId);
 
+            //记录剧情角色
+            IWorldStoryActors(worldRoute.modules(226)).addStoryActor(_operator, _storyEvtId, newActor);
+
             //对角色的影响
             int[] memory _attrModifier = eventAttributeModifiersToTrigger(_storyEvtId, _actor, _events);
             _applyAttributeModifiers(_operator, _actor, _events.ages(_actor), _attrModifier, _events);

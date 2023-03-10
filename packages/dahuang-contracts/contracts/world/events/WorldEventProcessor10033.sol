@@ -20,8 +20,23 @@ contract WorldEventProcessor10033 is DefaultWorldEventProcessor {
     constructor(WorldContractRoute _route) DefaultWorldEventProcessor(_route, 0) {}
 
     function eventInfo(uint256 /*_actor*/) external virtual view override returns (string memory) {
-        //作为赔偿，小孩送了你一样礼物。
-        return string(abi.encodePacked("\xE4\xBD\x9C\xE4\xB8\xBA\xE8\xB5\x94\xE5\x81\xBF\xEF\xBC\x8C\xE5\xB0\x8F\xE5\xAD\xA9\xE9\x80\x81\xE4\xBA\x86\xE4\xBD\xA0\xE4\xB8\x80\xE6\xA0\xB7\xE7\xA4\xBC\xE7\x89\xA9\xE3\x80\x82"));
+        IWorldStoryActors storyActors = IWorldStoryActors(worldRoute.modules(226));
+        if(storyActors.storyActorNum(80001) == 0)
+            return "";
+        uint256 storyActor = storyActors.storyActorByIndex(80001, 0);
+        if(storyActor == 0)
+            return "";
+
+        IActorNames names = IActorNames(worldRoute.modules(WorldConstants.WORLD_MODULE_NAMES));
+        (string memory storyActorName, ,) = names.actorName(storyActor);
+        return string(abi.encodePacked(
+            //作为赔偿，
+            "\xE4\xBD\x9C\xE4\xB8\xBA\xE8\xB5\x94\xE5\x81\xBF\xEF\xBC\x8C",
+            //X
+            storyActorName,
+            //送了你一样礼物。
+            "\xE9\x80\x81\xE4\xBA\x86\xE4\xBD\xA0\xE4\xB8\x80\xE6\xA0\xB7\xE7\xA4\xBC\xE7\x89\xA9\xE3\x80\x82"
+        ));
     }
 
     function process(uint256 _operator, uint256 _actor, uint256 /*_age*/) external override
