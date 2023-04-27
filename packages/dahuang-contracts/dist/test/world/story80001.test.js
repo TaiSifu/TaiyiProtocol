@@ -78,6 +78,7 @@ describe('剧情80001测试', () => {
     let worldStorylines;
     let parameterizedStorylines;
     let globalStoryRegistry;
+    let worldStoryActors;
     let actorPanGu;
     let testActor;
     let testActorName;
@@ -173,6 +174,7 @@ describe('剧情80001测试', () => {
         worldStorylines = typechain_1.WorldStorylines__factory.connect(contracts.WorldStorylines.instance.address, operator1);
         parameterizedStorylines = typechain_1.ParameterizedStorylines__factory.connect(contracts.ParameterizedStorylines.instance.address, operator1);
         globalStoryRegistry = typechain_1.GlobalStoryRegistry__factory.connect(contracts.GlobalStoryRegistry.instance.address, operator1);
+        worldStoryActors = typechain_1.WorldStoryActors__factory.connect(contracts.WorldStoryActors.instance.address, operator1);
         actorPanGu = yield worldConstants.ACTOR_PANGU();
         //set PanGu as YeMing for test
         yield worldYemings.connect(taiyiDAO).setYeMing(actorPanGu, taiyiDAO.address); //fake address for test
@@ -612,11 +614,20 @@ describe('剧情80001测试', () => {
             yield shejiTu.activeTrigger(60505, testActor, [lcs[1]], [], { gasLimit: 8000000 });
         }));
         it(`剧情80001结束检查`, () => __awaiter(void 0, void 0, void 0, function* () {
+            expect(yield parameterizedStorylines.storyHistoryNum(80001)).to.eq(1);
             expect(yield parameterizedStorylines.currentStoryNum()).to.eq(0);
             expect(yield parameterizedStorylines.isStoryExist(80001)).to.eq(false);
             expect(yield parameterizedStorylines.currentActorEventByStoryId(storyActor, 80001)).to.eq(0);
             expect(yield parameterizedStorylines.currentStoryActorNum(80001)).to.eq(0);
             expect(yield parameterizedStorylines.currentActorStoryNum(storyActor)).to.eq(0);
+        }));
+        it(`剧情历史检查`, () => __awaiter(void 0, void 0, void 0, function* () {
+            expect(yield worldStoryActors.storyActorNum(80001)).eq(1);
+            expect(yield worldStoryActors.storyActorByIndex(80001, 0)).eq(storyActor);
+        }));
+        it(`剧情结束后，角色相关成长经历检查`, () => __awaiter(void 0, void 0, void 0, function* () {
+            console.log(yield evt10032.eventInfo(testActor));
+            console.log(yield evt10033.eventInfo(testActor));
         }));
         it(`通过采集资源不能重复剧情80001`, () => __awaiter(void 0, void 0, void 0, function* () {
             storyActor = yield actors.nextActor();

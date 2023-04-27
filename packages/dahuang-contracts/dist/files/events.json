@@ -13087,5 +13087,103 @@
         },
         "branch": [],
         "storyNext": [0]
+    },
+    "80010": {
+        "id": 80010,
+        "event": "X十五六岁时参加大荒技能考试，晚上，一个披头散发的女鬼走进X的考房。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc": "设置全局剧情并初始化参数"
+        },
+        "include": "全局历史EVT?[80001]",
+        "exclude": "全局历史EVT?[80010]",
+        "branch": [],
+        "storyNext": [80011]
+    },
+    "80011": {
+        "id": 80011,
+        "description": "全局剧情事件",
+        "event": "女鬼凶神恶煞，指甲像刀一样锋利，扯过X的考卷撕了个粉碎。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80012]
+    },
+    "80012": {
+        "id": 80012,
+        "description": "全局剧情事件",
+        "event": "X性格刚正，放下笔坐直身子问：“你为什么撕我的卷子？”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80013]
+    },
+    "80013": {
+        "id": 80013,
+        "description": "全局剧情事件",
+        "event": "女鬼和X对视了一会，说：“这里不是三十三室吗？”X说：“这里是三十五室。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80014]
+    },
+    "80014": {
+        "id": 80014,
+        "description": "全局剧情事件",
+        "event": "女鬼大惊，脸色惭愧，对X行礼道歉。X说：“我不原谅你。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80015]
+    },
+    "80015": {
+        "id": 80015,
+        "description": "全局剧情事件",
+        "event": "女鬼取来空卷子，再度向X行礼，说：“我不小心进错了房间，还请先生宽恕我。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80016]
+    },
+    "80016": {
+        "id": 80016,
+        "description": "全局剧情事件",
+        "event": "X还是回答：“我不原谅你。”女鬼叹息一声，化成一缕烟飞走了。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80017]
+    },
+    "80017": {
+        "id": 80017,
+        "description": "全局剧情事件",
+        "event": "X考砸，回太乙村收拾行李，听到墙里有声音。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80018]
+    },
+    "80018": {
+        "id": 80018,
+        "description": "全局剧情事件",
+        "event": "那声音说：“先生不要消沉，今晚请留下，让小女子陪你一晚。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80019]
+    },
+    "80019": {
+        "id": 80019,
+        "description": "全局剧情事件",
+        "event": "X回答：“我不原谅你。”那声音呜咽了一阵，随后消失了。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "XIQ": -10
+        },
+        "branch": [],
+        "storyNext": [0]
     }
 }

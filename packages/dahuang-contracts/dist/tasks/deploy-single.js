@@ -60,30 +60,30 @@ function getContractConstructArgs(net) {
     let shejiTu = typechain_1.ShejiTu__factory.connect(addressBook.ShejiTuProxy, taisifu);
     if (1) {
         //Deploy dahuang contracts
-        console.log("Deploy WorldStorylines...");
-        let worldStorylines = yield (0, utils_1.deployWorldStorylines)(222, worldContractRoute, deployer);
-        let worldStorylinesArgs = [worldContractRoute.address, Number(222)];
-        yield (yield worldContractRoute.registerModule(222, worldStorylines.address)).wait();
-        console.log("Deploy ParameterizedStorylines...");
-        let parameterizedStorylines = yield (0, utils_1.deployParameterizedStorylines)(223, worldContractRoute, deployer);
-        let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
-        yield (yield worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
+        console.log("Deploy WorldStoryActors...");
+        let worldStoryActors = yield (0, utils_1.deployWorldStoryActors)(226, worldContractRoute, deployer);
+        let worldStoryActorsArgs = [worldContractRoute.address, Number(226)];
+        yield (yield worldContractRoute.registerModule(226, worldStoryActors.address)).wait();
+        // console.log("Deploy ParameterizedStorylines...");
+        // let parameterizedStorylines = await deployParameterizedStorylines(223, worldContractRoute, deployer);
+        // let parameterizedStorylinesArgs = [worldContractRoute.address, Number(223)];
+        // await (await worldContractRoute.registerModule(223, parameterizedStorylines.address)).wait();
         // console.log("Deploy GlobalStoryRegistry...");
         // let globalStoryRegistry = await deployGlobalStoryRegistry(224, worldContractRoute, deployer);
         // let globalStoryRegistryArgs = [worldContractRoute.address, Number(224)];
         // await (await worldContractRoute.registerModule(224, globalStoryRegistry.address)).wait();
         //save contract address
-        addressBook.WorldStorylines = worldStorylines.address;
-        addressBook.ParameterizedStorylines = parameterizedStorylines.address;
-        //addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
+        addressBook.WorldStoryActors = worldStoryActors.address;
+        // addressBook.ParameterizedStorylines = parameterizedStorylines.address;
+        // addressBook.GlobalStoryRegistry = globalStoryRegistry.address;
         const sharedAddressPath = (0, addressConfig_1.getAddressBookShareFilePath)(process_args.network ? process_args.network : "hard");
         yield fs_extra_1.default.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
         //save constructor arguments
-        argsBook.WorldStorylines = worldStorylinesArgs;
-        argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
-        //argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
+        argsBook.WorldStoryActors = worldStoryActorsArgs;
+        // argsBook.ParameterizedStorylines = parameterizedStorylinesArgs;
+        // argsBook.GlobalStoryRegistry = globalStoryRegistryArgs;
         const sharedArgsPath = (0, addressConfig_1.getConstructorArgumentsBookShareFilePath)(process_args.network ? process_args.network : "hard");
         yield fs_extra_1.default.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);

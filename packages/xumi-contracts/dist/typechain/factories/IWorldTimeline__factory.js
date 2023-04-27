@@ -116,6 +116,19 @@ const _abi = [
         type: "function",
     },
     {
+        inputs: [
+            {
+                internalType: "uint256",
+                name: "_actor",
+                type: "uint256",
+            },
+        ],
+        name: "bornActor",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
         inputs: [],
         name: "description",
         outputs: [

@@ -52,6 +52,7 @@ let logURI = (uri) => {
     let coreAttributes = typechain_2.ActorCoreAttributes__factory.connect(addressBook.ActorCoreAttributes, operator1);
     let moodAttributes = typechain_2.ActorMoodAttributes__factory.connect(addressBook.ActorMoodAttributes, operator1);
     let worldVillages = typechain_2.WorldVillages__factory.connect(addressBook.WorldVillages, operator1);
+    let worldStoryActors = typechain_1.WorldStoryActors__factory.connect(addressBook.WorldStoryActors, operator1);
     let shejiTu = typechain_1.ShejiTu__factory.connect(addressBook.ShejiTuProxy, operator1);
     if (0) {
         console.log("兑换资源");
@@ -134,12 +135,16 @@ let logURI = (uri) => {
         yield (yield items.connect(taisifu).setTypeName(53, "太乙村水酒")).wait();
         yield (yield items.connect(taisifu).setTypeName(54, "龙溪水")).wait();
     }
-    if (1) {
+    if (0) {
         console.log("检查事件能否发生");
         let evt10032 = typechain_2.WorldEventProcessor10032__factory.connect(addressBook.WorldEventProcessor10032, operator1);
         if (yield evt10032.checkOccurrence(37, 9))
             console.log("事件可以发生");
         else
             console.log("事件不能发生");
+    }
+    if (1) {
+        console.log("弥补剧情角色记录");
+        yield (yield worldStoryActors.connect(taisifu).addStoryActor(1, 80001, 61)).wait();
     }
 }));

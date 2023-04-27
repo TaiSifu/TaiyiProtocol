@@ -192,6 +192,6 @@ const process_args = require('minimist')(process.argv.slice(2));
         }
     }
     if (1) {
-        console.log((0, genUTF8_1.String2UTF8X)("村民为你制作了简陋的陶土药钵。"));
+        console.log((0, genUTF8_1.String2UTF8X)("回答：“我不原谅你。”那声音呜咽了一阵，随后消失了。"));
     }
 }));

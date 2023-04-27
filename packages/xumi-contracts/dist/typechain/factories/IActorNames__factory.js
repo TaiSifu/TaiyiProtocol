@@ -497,6 +497,30 @@ const _abi = [
         type: "function",
     },
     {
+        inputs: [
+            {
+                internalType: "string",
+                name: "_firstName",
+                type: "string",
+            },
+            {
+                internalType: "string",
+                name: "_lastName",
+                type: "string",
+            },
+        ],
+        name: "isNameClaimed",
+        outputs: [
+            {
+                internalType: "bool",
+                name: "_isClaimed",
+                type: "bool",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
         inputs: [],
         name: "moduleID",
         outputs: [

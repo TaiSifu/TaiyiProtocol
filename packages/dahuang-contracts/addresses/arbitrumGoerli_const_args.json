@@ -272,5 +272,35 @@
   "WorldStoryActors": [
     "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
     226
+  ],
+  "WorldEventProcessor80010": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80011": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80012": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80013": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80014": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80015": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80016": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80017": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80018": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+  ],
+  "WorldEventProcessor80019": [
+    "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
   ]
 }

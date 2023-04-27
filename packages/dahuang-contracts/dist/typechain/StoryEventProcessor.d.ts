@@ -28,6 +28,7 @@ interface StoryEventProcessorInterface extends ethers.utils.Interface {
     "eventAttributeModifiers(uint256)": FunctionFragment;
     "eventAttributeModifiersToTrigger(uint256)": FunctionFragment;
     "eventInfo(uint256)": FunctionFragment;
+    "needActor()": FunctionFragment;
     "nextStoryEventId(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "process(uint256,uint256,uint256)": FunctionFragment;
@@ -65,6 +66,7 @@ interface StoryEventProcessorInterface extends ethers.utils.Interface {
     functionFragment: "eventInfo",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "needActor", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nextStoryEventId",
     values: [BigNumberish]
@@ -116,6 +118,7 @@ interface StoryEventProcessorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "eventInfo", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "needActor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nextStoryEventId",
     data: BytesLike
@@ -258,6 +261,10 @@ export class StoryEventProcessor extends Contract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    needActor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "needActor()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     nextStoryEventId(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -396,6 +403,10 @@ export class StoryEventProcessor extends Contract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  needActor(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "needActor()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   nextStoryEventId(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -533,6 +544,10 @@ export class StoryEventProcessor extends Contract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    needActor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "needActor()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nextStoryEventId(
       arg0: BigNumberish,
@@ -682,6 +697,10 @@ export class StoryEventProcessor extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    needActor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "needActor()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     nextStoryEventId(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -827,6 +846,10 @@ export class StoryEventProcessor extends Contract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    needActor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "needActor()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nextStoryEventId(
       arg0: BigNumberish,

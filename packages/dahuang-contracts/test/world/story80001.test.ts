@@ -741,6 +741,8 @@ describe('剧情80001测试', () => {
         });
 
         it(`剧情80001结束检查`, async ()=>{
+            expect(await parameterizedStorylines.storyHistoryNum(80001)).to.eq(1);
+
             expect(await parameterizedStorylines.currentStoryNum()).to.eq(0);
             expect(await parameterizedStorylines.isStoryExist(80001)).to.eq(false);
 

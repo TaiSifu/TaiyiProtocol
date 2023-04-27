@@ -32,6 +32,7 @@ interface IActorNamesInterface extends ethers.utils.Interface {
     "getApprovedActor(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isApprovedForAllActor(uint256,uint256)": FunctionFragment;
+    "isNameClaimed(string,string)": FunctionFragment;
     "moduleID()": FunctionFragment;
     "nextName()": FunctionFragment;
     "ownerActorOf(uint256)": FunctionFragment;
@@ -94,6 +95,10 @@ interface IActorNamesInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "isApprovedForAllActor",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isNameClaimed",
+    values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "moduleID", values?: undefined): string;
   encodeFunctionData(functionFragment: "nextName", values?: undefined): string;
@@ -197,6 +202,10 @@ interface IActorNamesInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAllActor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isNameClaimed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "moduleID", data: BytesLike): Result;
@@ -466,6 +475,18 @@ export class IActorNames extends Contract {
       _operator: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    isNameClaimed(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean] & { _isClaimed: boolean }>;
+
+    "isNameClaimed(string,string)"(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean] & { _isClaimed: boolean }>;
 
     moduleID(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -832,6 +853,18 @@ export class IActorNames extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isNameClaimed(
+    _firstName: string,
+    _lastName: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isNameClaimed(string,string)"(
+    _firstName: string,
+    _lastName: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   moduleID(overrides?: CallOverrides): Promise<BigNumber>;
 
   "moduleID()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1188,6 +1221,18 @@ export class IActorNames extends Contract {
     "isApprovedForAllActor(uint256,uint256)"(
       _owner: BigNumberish,
       _operator: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isNameClaimed(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isNameClaimed(string,string)"(
+      _firstName: string,
+      _lastName: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1632,6 +1677,18 @@ export class IActorNames extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isNameClaimed(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isNameClaimed(string,string)"(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     moduleID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "moduleID()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1986,6 +2043,18 @@ export class IActorNames extends Contract {
     "isApprovedForAllActor(uint256,uint256)"(
       _owner: BigNumberish,
       _operator: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isNameClaimed(
+      _firstName: string,
+      _lastName: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isNameClaimed(string,string)"(
+      _firstName: string,
+      _lastName: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

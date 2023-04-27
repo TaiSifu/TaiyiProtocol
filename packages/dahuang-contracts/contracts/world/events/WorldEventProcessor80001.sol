@@ -30,6 +30,9 @@ contract WorldEventProcessor80001 is StoryEventProcessor {
         ));
     }
     
+    //需要在事件前创建新主角
+    function needActor() public view virtual override returns (int256) { return -1; }
+
     function checkOccurrence(uint256 /*_actor*/, uint256 /*_age*/) external virtual view override returns (bool) {
         bool defaultRt = true;
 

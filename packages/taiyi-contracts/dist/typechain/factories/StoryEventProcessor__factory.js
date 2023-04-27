@@ -178,6 +178,19 @@ const _abi = [
         type: "function",
     },
     {
+        inputs: [],
+        name: "needActor",
+        outputs: [
+            {
+                internalType: "int256",
+                name: "",
+                type: "int256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
         inputs: [
             {
                 internalType: "uint256",

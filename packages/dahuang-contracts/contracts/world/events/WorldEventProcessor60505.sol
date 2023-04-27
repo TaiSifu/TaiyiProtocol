@@ -189,17 +189,21 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
             //将新角色所有权交给全局剧情合约
             actors.transferFrom(address(this), address(_globalStory), newActor);
 
-            //启动剧情
-            _globalStory.triggerActorEvent(_operator, newActor, _actor, _storyEvtId);
-            _globalStory.setActorStory(_operator, newActor, _storyEvtId, _storyEvtId);
-
-            //记录剧情角色
-            IWorldStoryActors(worldRoute.modules(226)).addStoryActor(_operator, _storyEvtId, newActor);
-
-            //对角色的影响
-            int[] memory _attrModifier = eventAttributeModifiersToTrigger(_storyEvtId, _actor, _events);
-            _applyAttributeModifiers(_operator, _actor, _events.ages(_actor), _attrModifier, _events);
+            _newStoryWithActor(_operator, _actor, _storyEvtId, newActor, _globalStory, _events);
         }
+    }
+
+    function _newStoryWithActor(uint256 _operator, uint256 _actor, uint256 _storyEvtId, uint256 _storyActor, IParameterizedStorylines _globalStory, IWorldEvents _events) internal {
+        //启动剧情
+        _globalStory.triggerActorEvent(_operator, _storyActor, _actor, _storyEvtId);
+        _globalStory.setActorStory(_operator, _storyActor, _storyEvtId, _storyEvtId);
+
+        //记录剧情角色
+        IWorldStoryActors(worldRoute.modules(226)).addStoryActor(_operator, _storyEvtId, _storyActor);
+
+        //对角色的影响
+        int[] memory _attrModifier = eventAttributeModifiersToTrigger(_storyEvtId, _actor, _events);
+        _applyAttributeModifiers(_operator, _actor, _events.ages(_actor), _attrModifier, _events);
     }
 
     function _triggerActorStory(uint256 _operator, uint256 _actor) internal {
@@ -209,13 +213,25 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
         uint256 storyEvtId = globalStoryReg.storyByIndex(storyIndex);
             
         IWorldEvents events = IWorldEvents(worldRoute.modules(DahuangConstants.WORLD_MODULE_EVENTS));
-        if(!globalStory.isStoryExist(storyEvtId)) { //当前进行中的剧情
+        if(!globalStory.isStoryExist(storyEvtId)) { 
+            //当前不在进行中的剧情
             if(!globalStoryReg.canStoryRepeat(storyEvtId) && globalStory.storyHistoryNum(storyEvtId) > 0)
                 return; //不允许重复历史
 
-            //创建新角色，开启新剧情
-            if(events.canOccurred(worldRoute.actors().nextActor(), storyEvtId, 0))
-                _newStory(_operator, _actor, storyEvtId, globalStory, events);
+            address _evtProc = events.eventProcessors(storyEvtId);
+            if(_evtProc != address(0)) {
+                int256 _needActor = StoryEventProcessor(_evtProc).needActor();
+                if(_needActor < 0) {
+                    //创建新角色，开启新剧情
+                    if(events.canOccurred(worldRoute.actors().nextActor(), storyEvtId, 0))
+                        _newStory(_operator, _actor, storyEvtId, globalStory, events);
+                }
+                else if(_needActor > 0) {
+                    //以指定角色，开启新剧情
+                    if(events.canOccurred(uint256(_needActor), storyEvtId, events.ages(uint256(_needActor))))
+                        _newStoryWithActor(_operator, _actor, storyEvtId, uint256(_needActor), globalStory, events);
+                }
+            }
         }
         else {
             //正在进行的剧情，下一事件

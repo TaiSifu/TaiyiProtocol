@@ -34,6 +34,9 @@ contract WorldEventProcessor70001 is StoryEventProcessor {
         ));
     }
     
+    //需要在事件前创建新主角
+    function needActor() public view virtual override returns (int256) { return -1; }
+
     //风天小畜（小畜卦）蓄养待进
     function trigrams(uint256 /*_actor*/) virtual external override view returns (uint256[] memory) {
         uint256[] memory _t = new uint256[](6);

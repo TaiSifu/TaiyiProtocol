@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IWorldTimelineInterface extends ethers.utils.Interface {
   functions: {
     "activeTrigger(uint256,uint256,uint256[],string[])": FunctionFragment;
+    "bornActor(uint256)": FunctionFragment;
     "description()": FunctionFragment;
     "events()": FunctionFragment;
     "grow(uint256)": FunctionFragment;
@@ -35,6 +36,10 @@ interface IWorldTimelineInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "activeTrigger",
     values: [BigNumberish, BigNumberish, BigNumberish[], string[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "bornActor",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "description",
@@ -58,6 +63,7 @@ interface IWorldTimelineInterface extends ethers.utils.Interface {
     functionFragment: "activeTrigger",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "bornActor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "description",
     data: BytesLike
@@ -141,6 +147,16 @@ export class IWorldTimeline extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    bornActor(
+      _actor: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "bornActor(uint256)"(
+      _actor: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     description(overrides?: CallOverrides): Promise<[string]>;
 
     "description()"(overrides?: CallOverrides): Promise<[string]>;
@@ -212,6 +228,16 @@ export class IWorldTimeline extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  bornActor(
+    _actor: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "bornActor(uint256)"(
+    _actor: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   description(overrides?: CallOverrides): Promise<string>;
 
   "description()"(overrides?: CallOverrides): Promise<string>;
@@ -277,6 +303,13 @@ export class IWorldTimeline extends Contract {
       _actor: BigNumberish,
       _uintParams: BigNumberish[],
       _stringParams: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    bornActor(_actor: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    "bornActor(uint256)"(
+      _actor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -375,6 +408,16 @@ export class IWorldTimeline extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    bornActor(
+      _actor: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "bornActor(uint256)"(
+      _actor: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     description(overrides?: CallOverrides): Promise<BigNumber>;
 
     "description()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -444,6 +487,16 @@ export class IWorldTimeline extends Contract {
       _actor: BigNumberish,
       _uintParams: BigNumberish[],
       _stringParams: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    bornActor(
+      _actor: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "bornActor(uint256)"(
+      _actor: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

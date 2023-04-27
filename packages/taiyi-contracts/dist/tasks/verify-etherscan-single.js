@@ -38,20 +38,20 @@ function getContractConstructArgs(net) {
     let addressBook = yield getContractAddress(process_args.network ? process_args.network : "hard");
     let argsBook = yield getContractConstructArgs(process_args.network ? process_args.network : "hard");
     let contracts = {
-        "WorldStorylines": {
-            address: "0xCaA988c5b876D52CbC1BDf34Ee30F20b13653c0F",
+        "WorldStoryActors": {
+            address: "0x47E8aEe368253EdF16B811F9834fF74b7a542746",
             constructorArguments: [
                 "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
-                222
+                226
             ]
         },
-        "ParameterizedStorylines": {
-            address: "0x3B1A00f64cbb04BeA3398477FC0B4685f60b220d",
-            constructorArguments: [
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
-                223
-            ]
-        },
+        // "ParameterizedStorylines": {
+        //     address: "0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F",
+        //     constructorArguments:  [
+        //         "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
+        //         223
+        //       ]
+        // },
         // "GlobalStoryRegistry": {
         //     address: "0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C",
         //     constructorArguments:  [
