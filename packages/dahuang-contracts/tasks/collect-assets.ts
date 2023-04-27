@@ -54,6 +54,7 @@ task('collect-assets', '采集资源')
         let actor = args.actor;
         
         let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, operator1);        
+        console.log(`事件经手人：#${(await evt60505.eventOperator()).toNumber()}`);
 
         //恢复体力
         console.log("恢复体力...");
