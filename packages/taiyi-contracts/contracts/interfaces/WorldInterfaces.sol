@@ -63,6 +63,7 @@ interface IWorldTimeline is IWorldModule {
     function operator() external view returns (uint256);
     function events() external view returns (IWorldEvents);
 
+    function bornActor(uint256 _actor) external;
     function grow(uint256 _actor) external;
     function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external;
 }
@@ -195,6 +196,7 @@ interface IActorNames is IWorldNonfungible, IERC721Enumerable, IWorldModule {
 
     function nextName() external view returns (uint256);
     function actorName(uint256 _actor) external view returns (string memory _name, string memory _firstName, string memory _lastName);
+    function isNameClaimed(string memory _firstName, string memory _lastName) external view returns(bool _isClaimed);
 
     function claim(string memory _firstName, string memory _lastName, uint256 _actor) external returns (uint256 _nameId);
     function assignName(uint256 _nameId, uint256 _actor) external;
@@ -313,4 +315,70 @@ interface ITrigrams is IWorldModule {
 
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;
     function actorTrigrams(uint256 _actor) external view returns (int256[] memory);
+}
+
+interface IWorldStorylines is IWorldModule {
+    function currentStoryNum() external view returns (uint256);
+    function currentStoryByIndex(uint256 _index) external view returns (uint256);
+    function isStoryExist(uint256 _storyEvtId) external view returns (bool);
+    function storyHistoryNum(uint256 _storyEvtId) external view returns (uint256);
+
+    /** storyEvtId is the start event id of this story **/
+
+    function currentActorStoryNum(uint256 _actor) external view returns (uint256);
+    function currentActorStoryByIndex(uint256 _actor, uint256 _index) external view returns (uint256); //storyEvtId
+    function currentActorEventByStoryId(uint256 _actor, uint256 _storyEvtId) external view returns (uint256); //eventId
+    function isActorInStory(uint256 _actor, uint256 _storyEvtId) external view returns (bool);
+
+    function currentStoryActorNum(uint256 _storyEvtId) external view returns (uint256);
+    function currentStoryActorByIndex(uint256 _storyEvtId, uint256 _index) external view returns (uint256); //actor id
+
+    //set eventId to ZERO means end of this story, should delete info for this story
+    function setActorStory(uint256 _operator, uint256 _actor, uint256 _storyEvtId, uint256 _eventId) external;
+
+    //操作由剧情所有的角色
+    function triggerActorEvent(uint256 _operator, uint256 _actor, uint256 _triggerActor, uint256 _eventId) external;
+}
+
+interface IParameterizedStorylines is IWorldStorylines {
+    function storyStringParameters(uint256 _storyEvtId) external view returns (string[] memory);
+    function storyUIntParameters(uint256 _storyEvtId) external view returns (uint256[] memory);
+
+    function setStoryParameters(uint256 _operator, uint256 _storyEvtId, string[] memory _params) external;
+    function setStoryParameters(uint256 _operator, uint256 _storyEvtId, uint256[] memory _params) external;
+}
+
+interface IGlobalStoryRegistry is IWorldModule {
+    function storyNum() external view returns (uint256);
+    function storyByIndex(uint256 _index) external view returns (uint256);
+    function hasStory(uint256 _storyEvtId) external view returns (bool);
+    function canStoryRepeat(uint256 _storyEvtId) external view returns (bool);
+
+    function registerStory(uint256 _operator, uint256 _storyEvtId, uint256 _canRepeat) external;
+    function removeStory(uint256 _operator, uint256 _storyEvtId) external;
+}
+
+interface INameGenerator is IWorldModule {
+    //数量，性别（0随机），字数（0随机，1一字，2二字），姓（“”随机），辈分（“”随机），名（“”随机）
+    function genName(uint256 number, uint256 gender, uint256 ct, string memory family, string memory middle, string memory given, uint256 seed) external view returns(string[] memory);
+
+    function registerGender(uint256 _operator, string[] memory strs) external;
+    function removeGender(uint256 _operator, string[] memory strs) external;
+
+    function registerFamily(uint256 _operator, string[] memory strs) external;
+    function removeFamily(uint256 _operator, string[] memory strs) external;
+
+    function registerMiddle(uint256 _operator, string[] memory strs) external;
+    function removeMiddle(uint256 _operator, string[] memory strs) external;
+
+    function registerGiven(uint256 _operator, string memory gender, string[] memory strs) external;
+    function removeGiven(uint256 _operator, string memory gender, string[] memory strs) external;
+}
+
+interface IWorldStoryActors is IWorldModule {
+    function storyActorNum(uint256 _storyEvtId) external view returns (uint256);
+    function storyActorByIndex(uint256 _storyEvtId, uint256 _index) external view returns (uint256); //actor id
+    function hasActor(uint256 _storyEvtId, uint256 _actor) external view returns (bool);
+
+    function addStoryActor(uint256 _operator, uint256 _storyEvtId, uint256 _actor) external;
 }

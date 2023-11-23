@@ -189,7 +189,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
         while (true) {
             console.log(startBlockNum);
             //let block = await provider.getBlock(startBlockNum);
-            let endBlockNum = Math.min(blockNum, startBlockNum + 100);
+            let endBlockNum = Math.min(blockNum, startBlockNum + 200);
             //let endBlock = await provider.getBlock(endBlockNum);
 
             //let event_promises:Promise<void>[] = [];
@@ -273,8 +273,7 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
                         let eventInfo = await worldEvents.eventInfo(eventId, actor);
                         let name = (await actorNames.actorName(actor))._name;
 
-                        await sendChannelMessage(`\`\`\`fix\r\n${name}，${age}岁，` +
-                            `[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
+                        await sendChannelMessage(`\`\`\`fix\r\n[${eventId.toString()}]` + eventInfo + `\r\n\`\`\``);
                     }
                 }
             //})());
@@ -839,11 +838,11 @@ async function startSyncMain(startBlockNum: number, ethersHelper: HardhatEthersH
         }
     }
 
-    // again in 180 second
+    // again in 240 second
     setTimeout(function () {
         console.log(`start-->`+`${startBlockNum}`);
         startSyncMain(startBlockNum, ethersHelper);
-    }, 180000);
+    }, 240000);
 }
 
 export function startLogger(startBlockNum: number, ethersHelper: HardhatEthersHelpers) {

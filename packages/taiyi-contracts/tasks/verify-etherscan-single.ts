@@ -1,3 +1,4 @@
+//yarn task:verify-etherscan-single --network arbitrumGoerli
 import { task } from 'hardhat/config';
 import fs from 'fs-extra';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils';
@@ -30,31 +31,27 @@ task('verify-etherscan-single', 'Verify the Solidity contracts on Etherscan').se
     let argsBook: { [index: string]: any } = await getContractConstructArgs(process_args.network ? process_args.network : "hard");
 
     let contracts: Record<string, VerifyArgs> = {
-        "ActorCharmAttributes": {
-            address: "0x629d4Da3115D57eD512F29F968F88B4aA148093f",
+        "WorldStoryActors": {
+            address: "0x47E8aEe368253EdF16B811F9834fF74b7a542746",
             constructorArguments:  [
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
+                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
+                226
               ]
         },
-        "ActorCoreAttributes": {
-            address: "0x6B0c4FDb82c56F8349741f5A617b15E078052f0A",
-            constructorArguments:  [
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
-              ]
-        },
-        "ActorMoodAttributes": {
-            address: "0x81C320117d4624E382A4977Ca3a2Aa6F356aEF9D",
-            constructorArguments:  [
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
-              ]
-        },
-        "ActorBehaviorAttributes": {
-            address: "0x685BE58af790dA413Ad75D5Bd724d3396Ca9AF9B",
-            constructorArguments:  [
-                3600,
-                "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03"
-              ]
-        },
+        // "ParameterizedStorylines": {
+        //     address: "0x9A447D3EeDa9Cc6cEdBC17D9a4482738FD08490F",
+        //     constructorArguments:  [
+        //         "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
+        //         223
+        //       ]
+        // },
+        // "GlobalStoryRegistry": {
+        //     address: "0x5e600Cc528BC682824d277403bAcaE12e7AdBD4C",
+        //     constructorArguments:  [
+        //         "0x816a1b3066e70DbF842f8ebC42cfdB1D737f3D03",
+        //         224
+        //       ]
+        // },
     };
 
     //no need to verify proxy of shejitu, since proxies will be interpreted by etherscan automatically

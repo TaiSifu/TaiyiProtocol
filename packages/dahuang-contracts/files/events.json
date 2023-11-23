@@ -307,30 +307,41 @@
     },
     "10032": {
         "id": 10032,
-        "event": "叔叔向你父母勒索了很多现金。",
-        "postEvent": "你被放了回家。",
+        "description": "80001剧情相关",
+        "event": "家里来了客人，其中有一位叫X的小孩。小孩调皮，偷了你家里的酒。",
+        "postEvent": "",
         "effect": {
-            "MNY": -2
+            "proc" : "铸造“太乙村水酒”给X",
+            "daoli" : "-1e17"
         },
-        "NoRandom": 1
+        "include": "剧情当前EVT?[80001|80002|80003|80004]",
+        "exclude": "daoli<1e17",
+        "branch": [10033]
     },
     "10033": {
         "id": 10033,
-        "event": "叔叔侵犯了你。",
-        "postEvent": "你被放了回家。",
+        "description": "",
+        "event": "作为赔偿，X送了你一样礼物。",
+        "postEvent": "随机铸造item给你",
         "effect": {
-            "SPR": -2
+            "item" : "随机铸造"
         },
-        "NoRandom": 1,
-        "branch": [
-            "STR<3:10000"
-        ]
+        "branch": [],
+        "NoRandom": 1
     },
     "10034": {
         "id": 10034,
-        "event": "你和邻家小孩被定了娃娃亲。",
-        "include": "(CHR>3)&(EVT?[10009])",
-        "exclude": "EVT?[10034,10024]"
+        "description": "剧情事件",
+        "event": "你掀开帘子去看，屋里并没有人，只有一柄铁锤躺在铁砧上面。",
+        "postEvent": "个人事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0],
+        "NoRandom": 1
     },
     "10035": {
         "id": 10035,
@@ -12735,9 +12746,11 @@
         "event": "你进行了原始的野外采集活动。",
         "postEvent": "几率获取资源",
         "effect": {
+            "proc" : "创建新剧情角色，命名。随机启动全局剧情"
         },
         "include": "",
-        "exclude": ""
+        "exclude": "",
+        "branch":  []
     },
     "60506": {
         "id": 60506,
@@ -12950,7 +12963,7 @@
         "include": "",
         "exclude": "ACT<5"
     },
-   "70000": {
+    "70000": {
         "id": 70000,
         "desc": "盘古新建区域",
         "event": "盘古开天辟地",
@@ -12964,5 +12977,232 @@
         },
         "include": "",
         "exclude": "非盘古角色调用"
+    },
+    "70001": {
+        "id": 70001,
+        "event": "X的佩剑在路上丢了，X准备去铁匠铺买剑。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "exclude": "全局处于70001线",
+        "branch": [],
+        "storyNext": [70002]
+    },
+    "70002": {
+        "id": 70002,
+        "description": "全局剧情事件",
+        "event": "和铁匠商量价钱时，X听到里屋有人说话。其中一人呻吟喊疼，说：“兄长何必下手这么重呢？”另一人说：“贤弟以为我不痛吗？可宝剑锋从磨砺出，不下重手怎么能打出好兵器呢？”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [70003]
+    },
+    "70003": {
+        "id": 70003,
+        "description": "全局剧情事件",
+        "event": "X掀开帘子去看，屋里并没有人，只有一柄铁锤躺在铁砧上面。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0]
+    },
+    "80001": {
+        "id": 80001,
+        "event": "X年少时，随着家人各处开荒。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "exclude": "全局历史EVT?[80001]",
+        "branch": [],
+        "storyNext": [80002]
+    },
+    "80002": {
+        "id": 80002,
+        "description": "全局剧情事件",
+        "event": "有一天，车马在野外树林歇息，X去小解，在一条小溪边见到一条龙。",
+        "postEvent": "全局事件线",
+        "effect": {
+            "item": "神·一品《寻龙诀》"
+        },
+        "branch": [],
+        "storyNext": [80003]
+    },
+    "80003": {
+        "id": 80003,
+        "description": "全局剧情事件",
+        "event": "龙卧在溪边，一副倦怠沮丧的样子。X胆大，于是去问道：“为什么这么不开心呢？”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80004]
+    },
+    "80004": {
+        "id": 80004,
+        "description": "全局剧情事件",
+        "event": "龙说：“实不相瞒，我听闻附近村内的佳酿十分淳美，一路赶来，却得知酒已经被商户全买走了。”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80005]
+    },
+    "80005": {
+        "id": 80005,
+        "description": "全局剧情事件",
+        "event": "X便去车上抱了一坛酒送给龙，龙大喜过望，化作一女子抱坛牛饮。",
+        "postEvent": "全局事件线",
+        "include": "X有item“太乙村水酒”",
+        "exclude": "",
+        "effect": {
+            "proc": "消耗“太乙村水酒”"
+        },
+        "branch": [],
+        "storyNext": [80006]
+    },
+    "80006": {
+        "id": 80006,
+        "description": "全局剧情事件",
+        "event": "女子说：“你将美酒送我，我该给你什么作为答谢呢？”X回答：“一坛酒不过十五六钱，答谢就不必了。”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80007]
+    },
+    "80007": {
+        "id": 80007,
+        "description": "全局剧情事件",
+        "event": "于是女子掬起一捧溪水给X喝，X觉得溪水十分清冽，与往常所喝的水截然不同。",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "item" : "神·一品“龙溪水”"
+        },
+        "branch": [],
+        "storyNext": [80008]
+    },
+    "80008": {
+        "id": 80008,
+        "description": "全局剧情事件",
+        "event": "女子喝光美酒后对汤直行礼道别，从此以后，X就能看见妖鬼了。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0]
+    },
+    "80010": {
+        "id": 80010,
+        "event": "X十五六岁时参加大荒技能考试，晚上，一个披头散发的女鬼走进X的考房。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "include": "全局历史EVT?[80001]",
+        "exclude": "全局历史EVT?[80010]",
+        "branch": [],
+        "storyNext": [80011]
+    },
+    "80011": {
+        "id": 80011,
+        "description": "全局剧情事件",
+        "event": "女鬼凶神恶煞，指甲像刀一样锋利，扯过X的考卷撕了个粉碎。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80012]
+    },
+    "80012": {
+        "id": 80012,
+        "description": "全局剧情事件",
+        "event": "X性格刚正，放下笔坐直身子问：“你为什么撕我的卷子？”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80013]
+    },
+    "80013": {
+        "id": 80013,
+        "description": "全局剧情事件",
+        "event": "女鬼和X对视了一会，说：“这里不是三十三室吗？”X说：“这里是三十五室。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80014]
+    },
+    "80014": {
+        "id": 80014,
+        "description": "全局剧情事件",
+        "event": "女鬼大惊，脸色惭愧，对X行礼道歉。X说：“我不原谅你。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80015]
+    },
+    "80015": {
+        "id": 80015,
+        "description": "全局剧情事件",
+        "event": "女鬼取来空卷子，再度向X行礼，说：“我不小心进错了房间，还请先生宽恕我。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80016]
+    },
+    "80016": {
+        "id": 80016,
+        "description": "全局剧情事件",
+        "event": "X还是回答：“我不原谅你。”女鬼叹息一声，化成一缕烟飞走了。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80017]
+    },
+    "80017": {
+        "id": 80017,
+        "description": "全局剧情事件",
+        "event": "X考砸，回太乙村收拾行李，听到墙里有声音。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80018]
+    },
+    "80018": {
+        "id": 80018,
+        "description": "全局剧情事件",
+        "event": "那声音说：“先生不要消沉，今晚请留下，让小女子陪你一晚。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80019]
+    },
+    "80019": {
+        "id": 80019,
+        "description": "全局剧情事件",
+        "event": "X回答：“我不原谅你。”那声音呜咽了一阵，随后消失了。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "XIQ":-10
+        },
+        "branch": [],
+        "storyNext": [0]
     }
 }

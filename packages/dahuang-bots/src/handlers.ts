@@ -9,7 +9,7 @@ import {
     Actors__factory, WorldConstants__factory, WorldZones__factory, ActorAttributes__factory, ActorSocialIdentity__factory,
     ActorLocations__factory, Trigrams__factory, WorldItems__factory, ActorPrelifes__factory, WorldFungible__factory,
     WorldNontransferableFungible__factory, WorldEvents__factory, ActorTalents__factory, ShejiTu__factory, ActorNames__factory,
-    ActorRelationship__factory, AssetDaoli__factory, WorldContractRoute__factory,
+    ActorRelationship__factory, AssetDaoli__factory, WorldContractRoute__factory, ParameterizedStorylines__factory,
 } from '@taiyi/contracts/dist/typechain';
 import {
     ActorBehaviorAttributes__factory, ActorCharmAttributes__factory, ActorCoreAttributes__factory, ActorMoodAttributes__factory,
@@ -475,7 +475,7 @@ export async function onGrowActor(actor: number, user: GuildMember|User, channel
     if((await assetPrestiges.allowanceActor(actor, yeming)).lt(BigInt(1e29)))
         await (await assetPrestiges.approveActor(actor, yeming, BigInt(1e29))).wait();    
     
-    let res = await (await dahuang.grow(actor, { gasLimit: 5000000 })).wait();
+    let res = await (await dahuang.grow(actor)).wait();
 
     let name = (await names.actorName(actor))._name;
     name = (name==""?"无名氏":name);
@@ -504,6 +504,7 @@ export async function onCollectAssets(actor: number, user: GuildMember|User, cha
     let behaviorAttributes = ActorBehaviorAttributes__factory.connect(addressBook.ActorBehaviorAttributes, wallet);
     let evt60505 = WorldEventProcessor60505__factory.connect(addressBook.WorldEventProcessor60505, wallet);        
     let locations = ActorLocations__factory.connect(addressBook.ActorLocations, wallet);
+    let parameterizedStorylines = ParameterizedStorylines__factory.connect(addressBook.ParameterizedStorylines, wallet);
 
     await interaction.deferReply();
 
@@ -524,6 +525,9 @@ export async function onCollectAssets(actor: number, user: GuildMember|User, cha
 
     if(await evt60505.checkOccurrence(actor, 0)) {
         let lcs = await locations.actorLocations(actor);
+        //授权角色给剧情
+        await (await actors.approve(dahuang.address, actor)).wait();
+        await interaction.editReply(`请稍等，角色#${actor}正在采集资源……`);
         await (await dahuang.activeTrigger(60505, actor, [lcs[1]], [])).wait();
         await interaction.editReply(`**角色#${actor}**采集了一些资源。`);
     }

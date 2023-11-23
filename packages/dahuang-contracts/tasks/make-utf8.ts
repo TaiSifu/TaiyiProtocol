@@ -203,7 +203,7 @@ task('make-utf8', 'make utf')
         
         
         if(1) {
-            console.log(String2UTF8X("村民为你制作了简陋的陶土药钵。"));
+            console.log(String2UTF8X("回答：“我不原谅你。”那声音呜咽了一阵，随后消失了。"));
         }
 
     });
