@@ -8,3 +8,6 @@ export * from './advance-timestamp';
 export * from './make-utf8';
 export * from './verify-etherscan';
 export * from './verify-etherscan-single';
+export * from './deploy-single';
+export * from './do';
+export * from './test-hash';

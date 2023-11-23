@@ -8,7 +8,7 @@ import {
     WorldSeasons__factory, DahuangConstants, DahuangConstants__factory, WorldVillages, WorldVillages__factory, WorldBuildings, 
     WorldBuildings__factory, WorldZoneBaseResources, WorldZoneBaseResources__factory, WorldZoneBaseResourcesTest__factory, WorldZoneBaseResourcesRandom__factory, WorldDeadActors, WorldDeadActors__factory, ActorsGender, ActorsGender__factory, ActorBornFamilies, ActorBornFamilies__factory
 } from '../typechain';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents } from '@taiyi/contracts/dist/utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployWorldEvents, deployWorldStorylines, deployParameterizedStorylines, deployGlobalStoryRegistry, deployWorldStoryActors } from '@taiyi/contracts/dist/utils';
 import { initSIDNames } from './initSocialIdentity';
 import { deployTalentProcessors, initTalents } from './initTalents';
 import { initRelations } from './initRelationship';
@@ -20,7 +20,7 @@ import { initZones } from './initZones';
 import {
     WorldConstants, WorldContractRoute, WorldFungible, WorldFungible__factory, Actors, ActorLocations, Trigrams, WorldRandom,
     WorldZones, ActorAttributes, WorldItems, ShejiTu__factory, WorldNontransferableFungible__factory, 
-    WorldNontransferableFungible, WorldYemings, ActorSocialIdentity, ShejiTuProxy, ShejiTuProxyAdmin, ShejiTu
+    WorldNontransferableFungible, WorldYemings, ActorSocialIdentity, ShejiTuProxy, ShejiTuProxyAdmin, ShejiTu, WorldEvents, ActorTalents, AssetDaoli
 } from '@taiyi/contracts/dist/typechain';
 import { deployShejiTu } from '@taiyi/contracts/dist/utils';
 
@@ -141,7 +141,11 @@ export type DahuangContractName =
     | 'ActorRelationship'
     | 'WorldDeadActors'
     | 'ActorsGender'
-    | 'ActorBornFamilies';
+    | 'ActorBornFamilies'
+    | 'WorldStorylines'
+    | 'ParameterizedStorylines'
+    | 'GlobalStoryRegistry'
+    | 'WorldStoryActors';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -308,6 +312,26 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
     let actorBornFamiliesArgs = [route.address];
     await (await routeByPanGu.registerModule(221, actorBornFamilies.address)).wait();
 
+    if(verbose) console.log("Deploy WorldStorylines...");
+    let worldStorylines = await deployWorldStorylines(222, routeByPanGu, deployer);
+    let worldStorylinesArgs = [route.address, Number(222)];
+    await (await routeByPanGu.registerModule(222, worldStorylines.address)).wait();
+
+    if(verbose) console.log("Deploy ParameterizedStorylines...");
+    let parameterizedStorylines = await deployParameterizedStorylines(223, routeByPanGu, deployer);
+    let parameterizedStorylinesArgs = [route.address, Number(223)];
+    await (await routeByPanGu.registerModule(223, parameterizedStorylines.address)).wait();
+
+    if(verbose) console.log("Deploy GlobalStoryRegistry...");
+    let globalStoryRegistry = await deployGlobalStoryRegistry(224, routeByPanGu, deployer);
+    let globalStoryRegistryArgs = [route.address, Number(224)];
+    await (await routeByPanGu.registerModule(224, globalStoryRegistry.address)).wait();
+
+    if(verbose) console.log("Deploy WorldStoryActors...");
+    let worldStoryActors = await deployWorldStoryActors(226, routeByPanGu, deployer);
+    let worldStoryActorsArgs = [route.address, Number(226)];
+    await (await routeByPanGu.registerModule(226, worldStoryActors.address)).wait();
+
     //init SocialIdentity Names
     if(flags?.noSIDNames)
         null;
@@ -422,6 +446,10 @@ export const deployDahuangWorld = async (oneAgeVSecond : number, actRecoverTimeD
         WorldDeadActors: {instance: worldDeadActors, constructorArguments: worldDeadActorsArgs},
         ActorsGender: {instance: actorsGender, constructorArguments: actorsGenderArgs},
         ActorBornFamilies: {instance: actorBornFamilies, constructorArguments: actorBornFamiliesArgs},
+        WorldStorylines: {instance: worldStorylines, constructorArguments: worldStorylinesArgs},
+        ParameterizedStorylines: {instance: parameterizedStorylines, constructorArguments: parameterizedStorylinesArgs},
+        GlobalStoryRegistry: {instance: globalStoryRegistry, constructorArguments: globalStoryRegistryArgs},
+        WorldStoryActors: {instance: worldStoryActors, constructorArguments: worldStoryActorsArgs},
     };
 
     return { worldContracts: contracts, eventProcessorAddressBook: _eventProcessorAddressBook};

@@ -51,14 +51,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
 
     uint256 public override nextActor = 1; //0 is invalid
 
-    mapping(uint256 => uint256) public mintTime;
-    mapping(uint256 => uint256) public status;    //0=nonexist，1=dead（but exist），2=live active
-
-    string[] private _statusLabels = [
-        "\xE4\xB8\x8D\xE5\xAD\x98\xE5\x9C\xA8", //不存在 "Not Exist",
-        "\xE6\xAD\xBB\xE4\xBA\xA1", //死亡 "Dead",
-        "\xE6\xB4\xBB\xE7\x9D\x80" //活着 "Active"
-    ];
+    mapping(uint256 => uint256) public override mintTime;
 
     EnumerableSet.AddressSet internal _uriPartModules;
 
@@ -73,13 +66,8 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      * *********
      */
 
-    modifier onlyDeath(uint256 _actor) {
-        require(status[_actor] == 1, "not death actor");
-        _;
-    }
-
     modifier onlyExist(uint256 _actor) {
-        require(status[_actor] != 0, "not exist actor");
+        require(mintTime[_actor] != 0, "not exist actor");
         _;
     }
 
@@ -137,22 +125,15 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         return (getApproved(_actor) == msg.sender || ownerOf(_actor) == msg.sender) || isApprovedForAll(ownerOf(_actor), msg.sender);
     }
 
-    function _tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) internal view returns (string memory, uint256 _endY) {
+    function _tokenSVG(uint256 _actor, uint256 _startY, uint256 /*_lineHeight*/) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
-        string[7] memory parts;
         //Mint time: 
-        parts[0] = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">','\xE9\x93\xB8\xE9\x80\xA0\xE6\x97\xB6\xE9\x97\xB4\xEF\xBC\x9A', Strings.toString(mintTime[_actor]), '</text>'));
-        _endY += _lineHeight;
-        //Status:
-        parts[1] = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">', '\xE7\x8A\xB6\xE6\x80\x81\xEF\xBC\x9A', _statusLabels[status[_actor]], '</text>'));
-        return (string(abi.encodePacked(parts[0], parts[1])), _endY);
+        string memory sSVG = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">','\xE9\x93\xB8\xE9\x80\xA0\xE6\x97\xB6\xE9\x97\xB4\xEF\xBC\x9A', Strings.toString(mintTime[_actor]), '</text>'));
+        return (sSVG, _endY);
     }
 
     function _tokenJSON(uint256 _actor) internal view returns (string memory) {
-        string[7] memory parts;
-        parts[0] = string(abi.encodePacked('{', '"mintTime": ', Strings.toString(mintTime[_actor])));
-        parts[1] = string(abi.encodePacked(', "status": ', Strings.toString(status[_actor]), '}'));
-        return string(abi.encodePacked(parts[0], parts[1]));
+        return string(abi.encodePacked('{', '"mintTime": ', Strings.toString(mintTime[_actor]), '}'));
     }
 
     /* ****************
@@ -194,7 +175,6 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
 
         _safeMint(address(0), msg.sender, nextActor);
         mintTime[nextActor] = block.timestamp;
-        status[nextActor] = 2;
         actorRenderModes[nextActor] = 0;
 
         // Create identifiable actor holder contract
@@ -259,12 +239,6 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
     //https://docs.opensea.io/docs/contract-level-metadata
     function contractURI() public view returns (string memory) {
         return _contractURI;
-    }
-
-    function actor(uint256 _actor) external override view returns (uint256 _mintTime, uint256 _status) 
-    {
-        _mintTime = mintTime[_actor];
-        _status = status[_actor];
     }
 
     function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external override view returns (string memory, uint256 _endY) {

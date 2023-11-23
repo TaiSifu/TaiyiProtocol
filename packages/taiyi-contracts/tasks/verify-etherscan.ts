@@ -99,6 +99,10 @@ task('verify-etherscan', 'Verify the Solidity contracts on Etherscan').setAction
         TrigramsRender: {
             address: addressBook.TrigramsRender,
             constructorArguments: argsBook.TrigramsRender,
+        },
+        NameGenerator: {
+            address: addressBook.NameGenerator,
+            constructorArguments: argsBook.NameGenerator,
         }
     };
 

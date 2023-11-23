@@ -95,7 +95,7 @@ contract WorldEventProcessor60515 is DefaultWorldEventProcessor {
         onlyYeMing(_operator)
     {
         require(eventOperator > 0, "event operator not initialized");
-        require(_uintParams.length>0 && _uintParams.length%2==0, "params is invalid");
+        require(_uintParams.length>1 && _uintParams.length%2==0, "params is invalid");
 
         //首次执行事件时从60514事件的经手人转移资金到新的经手人
         if(isFundInPosition == 0) {

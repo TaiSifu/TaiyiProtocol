@@ -138,16 +138,20 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         operator = _operator;
     }
 
-    function bornActor(uint256 _actor) external
+    function bornActor(uint256 _actor) external override
         onlyApprovedOrOwner(_actor)
     {
         return _bornActor(_actor);
     }
 
-    function grow(uint256 _actor) external override
+    function grow(uint256 _actor) external override virtual
         onlyApprovedOrOwner(_actor)
         onlyCurrentTimeline(_actor)
     {
+        _grow(_actor);
+    }
+
+    function _grow(uint256 _actor) internal {
         require(operator > 0, "operator not initialized");
         if(attributes.characterPointsInitiated(_actor))
             require(attributes.attributesScores(WorldConstants.ATTR_HLH, _actor) > 0, "actor dead!");
@@ -194,22 +198,23 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         require(_eventId > 0, "event id must not zero");
         require(eventIDs[_age].length == eventProbs[_age].length, "internal ids not match probs");
         for(uint256 i=0; i<eventIDs[_age].length; i++) {
-            if(eventIDs[_age][i] == _eventId) {
+            if(eventIDs[_age][i] == _eventId)
                 eventProbs[_age][i] = _eventProb;
-                return;
-            }
         }
-        require(false, "can not find _eventId");
     }
 
     function getAgeEventProbs(uint256 _age) public view returns (uint256[] memory) {
         return eventProbs[_age];
     }
 
-    function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override
+    function activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) external override virtual
         onlyApprovedOrOwner(_actor)
         onlyCurrentTimeline(_actor)
     {
+        _activeTrigger(_eventId, _actor, _uintParams, _stringParams);
+    }
+
+    function _activeTrigger(uint256 _eventId, uint256 _actor, uint256[] memory _uintParams, string[] memory _stringParams) internal {
         require(operator > 0, "operator not initialized");
         require(events.eventProcessors(_eventId) != address(0), "can not find event processor.");
 

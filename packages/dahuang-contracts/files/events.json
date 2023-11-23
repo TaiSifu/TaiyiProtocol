@@ -66,15 +66,13 @@
     },
     "10008": {
         "id": 10008,
-        "event": "你开始看动漫。",
+        "event": "在外玩耍，遇到一人送了你一本书。",
         "effect": {
-            "SPR": 1
+            "XIQ": 5,
+            "mint item": "《叕盾术》"
         },
-        "exclude": "(MNY<3)|(EVT?[10007,10008])",
-        "branch": [
-            "INT>5:20008",
-            "CHR>5:20007"
-        ]
+        "exclude": "(LIM<30)|(EVT?[10008])",
+        "branch": []
     },
     "10009": {
         "id": 10009,
@@ -137,10 +135,10 @@
         "event": "你的母亲因病去世。",
         "postEvent": "家庭更加困难了。",
         "effect": {
-            "MNY": -1,
-            "SPR": -1
+            "daoli": -1e17,
+            "XIQ": -10
         },
-        "include": "(EVT?[10009])&(STR<3)&(SPR<3)&(MNY<3)",
+        "include": "(EVT?[10009])&(LVL<30)&(XIQ<30)&(daoli<3e17)",
         "exclude": "(EVT?[10016,10125,10126])|(TLT?[1029])",
         "branch": [
             "EVT?[10017]:10000"
@@ -151,10 +149,10 @@
         "event": "你的父亲因病去世。",
         "postEvent": "家庭更加困难了。",
         "effect": {
-            "MNY": -2,
-            "SPR": -1
+            "daoli": -1e17,
+            "XIQ": -10
         },
-        "include": "(EVT?[10009])&(STR<3)&(SPR<3)&(MNY<3)",
+        "include": "(EVT?[10009])&(LVL<30)&(XIQ<30)&(daoli<3e17)",
         "exclude": "(EVT?[10017,10125,10126])|(TLT?[1029])",
         "branch": [
             "EVT?[10016]:10000"
@@ -175,8 +173,8 @@
         "id": 10019,
         "event": "你的父母对你视若珍宝，呵护备至。",
         "effect": {
-            "STR": 1,
-            "SPR": 1
+            "LVL": 10,
+            "XIQ": 10
         },
         "exclude": "EVT?[10015,10016,10017,10019]"
     },
@@ -184,18 +182,18 @@
         "id": 10020,
         "event": "你天资聪颖，但家人并不懂如何培养。",
         "effect": {
-            "INT": -1
+            "WUX": -10
         },
-        "include": "(EVT?[10009])&(INT>7)",
+        "include": "(EVT?[10009])&(WUX>=70)",
         "exclude": "EVT?[10021,10020]"
     },
     "10021": {
         "id": 10021,
         "event": "你天资聪颖，家人很关注你的学习。",
         "effect": {
-            "INT": 1
+            "WUX": 10
         },
-        "include": "(EVT?[10009])&(INT>7)&(MNY>3)",
+        "include": "(EVT?[10009])&(WUX>=70)&(daoli>3e17)",
         "exclude": "EVT?[10020,10021]"
     },
     "10022": {
@@ -203,7 +201,7 @@
         "event": "你什么事都要让着妹妹。",
         "postEvent": "不开心。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10012]",
         "exclude": "(EVT?[10022,10014])|(TLT?[1015])"
@@ -213,17 +211,17 @@
         "event": "你什么事都要让着弟弟。",
         "postEvent": "不开心。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10014]",
         "exclude": "(EVT?[10023])|(TLT?[1015])"
     },
     "10024": {
         "id": 10024,
-        "event": "家人到城里务工。",
-        "postEvent": "你在农村留守。",
+        "event": "家人到村里务工。",
+        "postEvent": "你在山里留守。",
         "effect": {
-            "SPR": -1
+            "XIQ": -5
         },
         "include": "EVT?[10009]",
         "exclude": "EVT?[10016,10017,10024]",
@@ -233,16 +231,18 @@
     },
     "10025": {
         "id": 10025,
-        "event": "你和父母一同进了城。",
+        "event": "你和父母一同进了村。",
         "effect": {
-            "SPR": 1
+            "XIQ": 5,
+            "Location": "直接到达太乙村"
         },
+        "exclude": "(Location Locked)",
         "NoRandom": 1
     },
     "10026": {
         "id": 10026,
         "event": "你比其他小朋友长得更可爱。",
-        "include": "CHR>7",
+        "include": "MEL>70",
         "exclude": "EVT?[10026,10030]"
     },
     "10027": {
@@ -250,31 +250,31 @@
         "event": "你的母亲救了个人，得到了很多感谢金。",
         "postEvent": "家境有所好转。",
         "effect": {
-            "MNY": 2,
-            "SPR": 1
+            "daoli": 5e17,
+            "XIQ": 10
         },
         "include": "EVT?[10009]",
-        "exclude": "EVT?[10027,10016]"
+        "exclude": "(EVT?[10027,10016])|(Yeming资金不足)"
     },
     "10028": {
         "id": 10028,
         "event": "你很调皮，喜欢在家到处乱跑。",
         "effect": {
-            "STR": 1,
-            "SPR": 1
+            "LVL": 10,
+            "XIQ": 5
         },
-        "include": "(STR>3)&(EVT?[10009])",
+        "include": "(LVL>30)&(EVT?[10009])",
         "exclude": "EVT?[10028,10052]",
         "branch": [
-            "CHR>7:20029",
-            "STR<5:20028"
+            "MEL>70:20029",
+            "LVL<50:20028"
         ]
     },
     "10029": {
         "id": 10029,
         "event": "家人从小就培养你做家务。",
         "effect": {
-            "STR": 1
+            "LVL": 10
         },
         "include": "EVT?[10009]",
         "exclude": "(EVT?[10029])|(TLT?[1015])"
@@ -284,55 +284,64 @@
         "event": "你的脸意外被开水烫伤。",
         "postEvent": "毁容了。",
         "effect": {
-            "CHR": -3,
-            "SPR": -2
+            "MEL": -30,
+            "XIQ": -20
         },
-        "include": "(CHR>3)&(EVT?[10015])",
+        "include": "(MEL>30)&(EVT?[10015])",
         "exclude": "EVT?[10030]",
         "branch": [
-            "SPR<2:10062"
+            "XIQ<20:10062"
         ]
     },
     "10031": {
         "id": 10031,
-        "event": "你被邻居叔叔绑架了。",
-        "postEvent": "没勒索到钱，你被放了。",
+        "event": "有一图纸在你手中逐渐显现。此图看似平平无奇，但你若将之传与世人并好生利用，便会在世间成就无穷造化。",
+        "postEvent": "随机获得不同品相的建筑图纸",
         "effect": {
-            "SPR": -1
+            "Prestige": -100e18,
+            "items": "铸造随机品相建筑图纸" 
         },
-        "include": "(CHR>4)&(MNY>4)&(EVT?[10009])",
-        "exclude": "EVT?[10031]",
-        "branch": [
-            "EVT?[10018,10027,10078]:10032",
-            "(CHR>7)&(EVT?[10002,10111]):10033"
-        ]
+        "include": "",
+        "exclude": "prestige<100e18",
+        "branch": []
     },
     "10032": {
         "id": 10032,
-        "event": "叔叔向你父母勒索了很多现金。",
-        "postEvent": "你被放了回家。",
+        "description": "80001剧情相关",
+        "event": "家里来了客人，其中有一位叫X的小孩。小孩调皮，偷了你家里的酒。",
+        "postEvent": "",
         "effect": {
-            "MNY": -2
+            "proc" : "铸造“太乙村水酒”给X",
+            "daoli" : "-1e17"
         },
-        "NoRandom": 1
+        "include": "剧情当前EVT?[80001|80002|80003|80004]",
+        "exclude": "daoli<1e17",
+        "branch": [10033]
     },
     "10033": {
         "id": 10033,
-        "event": "叔叔侵犯了你。",
-        "postEvent": "你被放了回家。",
+        "description": "",
+        "event": "作为赔偿，X送了你一样礼物。",
+        "postEvent": "随机铸造item给你",
         "effect": {
-            "SPR": -2
+            "item" : "随机铸造"
         },
-        "NoRandom": 1,
-        "branch": [
-            "STR<3:10000"
-        ]
+        "branch": [],
+        "NoRandom": 1
     },
     "10034": {
         "id": 10034,
-        "event": "你和邻家小孩被定了娃娃亲。",
-        "include": "(CHR>3)&(EVT?[10009])",
-        "exclude": "EVT?[10034,10024]"
+        "description": "剧情事件",
+        "event": "你掀开帘子去看，屋里并没有人，只有一柄铁锤躺在铁砧上面。",
+        "postEvent": "个人事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0],
+        "NoRandom": 1
     },
     "10035": {
         "id": 10035,
@@ -595,7 +604,7 @@
         "postEvent": "没有成功。",
         "NoRandom": 1,
         "branch": [
-            "SPR<1:10000"
+            "XIQ<2:10000"
         ]
     },
     "10063": {
@@ -1262,7 +1271,7 @@
         "id": 10143,
         "event": "隔壁的村花和邻居叔叔结婚了。",
         "include": "EVT?[10009]",
-        "exclude": "EVT?[10143,10031,10025]"
+        "exclude": "EVT?[10143,10025]"
     },
     "10144": {
         "id": 10144,
@@ -10984,7 +10993,7 @@
         "id": 20028,
         "event": "有次你不小心摔倒撞到了脑袋，智力略微受损。",
         "effect": {
-            "INT": -1
+            "WUX": -2
         },
         "NoRandom": 1
     },
@@ -12737,9 +12746,11 @@
         "event": "你进行了原始的野外采集活动。",
         "postEvent": "几率获取资源",
         "effect": {
+            "proc" : "创建新剧情角色，命名。随机启动全局剧情"
         },
         "include": "",
-        "exclude": ""
+        "exclude": "",
+        "branch":  []
     },
     "60506": {
         "id": 60506,
@@ -12780,7 +12791,7 @@
     },
     "60510": {
         "id": 60510,
-        "event": "村民为你制作了简陋的工具。",
+        "event": "村民为你制作了简陋的木工箱。",
         "postEvent": "产生新工具",
         "effect": {
             "gold": -1e18,
@@ -12789,7 +12800,7 @@
         "include": "",
         "exclude": "ACT<5"
     },
-    "60511": {
+    "60511（已废除）": {
         "id": 60511,
         "event": "创世下九品建筑图纸。",
         "postEvent": "获得建筑设计图纸",
@@ -12850,5 +12861,348 @@
         },
         "include": "",
         "exclude": "位置不在太乙村"
+    },
+    "60516": {
+        "id": 60516,
+        "desc": "提取一定量的道理（乾元版本有权限问题，0.1代码已经修复）",
+        "event": "你提取了一些道理。",
+        "postEvent": "道理从托管账号转出到角色Owner地址",
+        "params":[
+            "道理数量"
+        ],
+        "effect": {
+        },
+        "include": "",
+        "exclude": ""
+    },
+    "60517": {
+        "id": 60517,
+        "desc": "提取一定量的道理，通过事件经手人（绕开乾元版本的权限问题）",
+        "event": "你提取了一些道理。",
+        "postEvent": "道理从托管账号转出到角色Owner地址",
+        "params":[
+            "道理数量"
+        ],
+        "effect": {
+        },
+        "include": "",
+        "exclude": ""
+    },
+    "60518": {
+        "id": 60518,
+        "desc": "盘古要求太乙村村长捐出一定的资源",
+        "event": "要求太乙村村长捐出一定的资源作为社会建设基金。",
+        "postEvent": "",
+        "params":[
+            "村长角色ID",
+            "资源 ID",
+            "资源数量"
+        ],
+        "effect": {
+            "assets":"资源直接从村长转给大荒噎明"
+        },
+        "include": "",
+        "exclude": "非盘古角色调用"
+    },
+    "60519": {
+        "id": 60519,
+        "event": "村民为你制作了简陋的青铜铸炉。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60520": {
+        "id": 60520,
+        "event": "村民为你制作了简陋的黑石砂。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -5e18,
+            "fabric": -2e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60521": {
+        "id": 60521,
+        "event": "村民为你制作了简陋的针线包。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -2e18,
+            "fabric": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60522": {
+        "id": 60522,
+        "event": "村民为你制作了简陋的石锅。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -1e18,
+            "food": -5e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "60523": {
+        "id": 60523,
+        "event": "村民为你制作了简陋的陶土药钵。",
+        "postEvent": "产生新工具",
+        "effect": {
+            "gold": -1e18,
+            "wood": -2e18,
+            "fabric": -1e18,
+            "herb": -10e18
+        },
+        "include": "",
+        "exclude": "ACT<5"
+    },
+    "70000": {
+        "id": 70000,
+        "desc": "盘古新建区域",
+        "event": "盘古开天辟地",
+        "postEvent": "",
+        "params":[
+            "名称1",
+            "名称2"
+        ],
+        "effect": {
+            "zones":"铸造新区域给噎明"
+        },
+        "include": "",
+        "exclude": "非盘古角色调用"
+    },
+    "70001": {
+        "id": 70001,
+        "event": "X的佩剑在路上丢了，X准备去铁匠铺买剑。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "exclude": "全局处于70001线",
+        "branch": [],
+        "storyNext": [70002]
+    },
+    "70002": {
+        "id": 70002,
+        "description": "全局剧情事件",
+        "event": "和铁匠商量价钱时，X听到里屋有人说话。其中一人呻吟喊疼，说：“兄长何必下手这么重呢？”另一人说：“贤弟以为我不痛吗？可宝剑锋从磨砺出，不下重手怎么能打出好兵器呢？”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [70003]
+    },
+    "70003": {
+        "id": 70003,
+        "description": "全局剧情事件",
+        "event": "X掀开帘子去看，屋里并没有人，只有一柄铁锤躺在铁砧上面。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0]
+    },
+    "80001": {
+        "id": 80001,
+        "event": "X年少时，随着家人各处开荒。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "exclude": "全局历史EVT?[80001]",
+        "branch": [],
+        "storyNext": [80002]
+    },
+    "80002": {
+        "id": 80002,
+        "description": "全局剧情事件",
+        "event": "有一天，车马在野外树林歇息，X去小解，在一条小溪边见到一条龙。",
+        "postEvent": "全局事件线",
+        "effect": {
+            "item": "神·一品《寻龙诀》"
+        },
+        "branch": [],
+        "storyNext": [80003]
+    },
+    "80003": {
+        "id": 80003,
+        "description": "全局剧情事件",
+        "event": "龙卧在溪边，一副倦怠沮丧的样子。X胆大，于是去问道：“为什么这么不开心呢？”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80004]
+    },
+    "80004": {
+        "id": 80004,
+        "description": "全局剧情事件",
+        "event": "龙说：“实不相瞒，我听闻附近村内的佳酿十分淳美，一路赶来，却得知酒已经被商户全买走了。”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80005]
+    },
+    "80005": {
+        "id": 80005,
+        "description": "全局剧情事件",
+        "event": "X便去车上抱了一坛酒送给龙，龙大喜过望，化作一女子抱坛牛饮。",
+        "postEvent": "全局事件线",
+        "include": "X有item“太乙村水酒”",
+        "exclude": "",
+        "effect": {
+            "proc": "消耗“太乙村水酒”"
+        },
+        "branch": [],
+        "storyNext": [80006]
+    },
+    "80006": {
+        "id": 80006,
+        "description": "全局剧情事件",
+        "event": "女子说：“你将美酒送我，我该给你什么作为答谢呢？”X回答：“一坛酒不过十五六钱，答谢就不必了。”",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80007]
+    },
+    "80007": {
+        "id": 80007,
+        "description": "全局剧情事件",
+        "event": "于是女子掬起一捧溪水给X喝，X觉得溪水十分清冽，与往常所喝的水截然不同。",
+        "postEvent": "全局事件线",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "item" : "神·一品“龙溪水”"
+        },
+        "branch": [],
+        "storyNext": [80008]
+    },
+    "80008": {
+        "id": 80008,
+        "description": "全局剧情事件",
+        "event": "女子喝光美酒后对汤直行礼道别，从此以后，X就能看见妖鬼了。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "WUX":10
+        },
+        "branch": [],
+        "storyNext": [0]
+    },
+    "80010": {
+        "id": 80010,
+        "event": "X十五六岁时参加大荒技能考试，晚上，一个披头散发的女鬼走进X的考房。",
+        "postEvent": "全局事件线开启",
+        "effect": {
+            "proc" : "设置全局剧情并初始化参数"
+        },
+        "include": "全局历史EVT?[80001]",
+        "exclude": "全局历史EVT?[80010]",
+        "branch": [],
+        "storyNext": [80011]
+    },
+    "80011": {
+        "id": 80011,
+        "description": "全局剧情事件",
+        "event": "女鬼凶神恶煞，指甲像刀一样锋利，扯过X的考卷撕了个粉碎。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80012]
+    },
+    "80012": {
+        "id": 80012,
+        "description": "全局剧情事件",
+        "event": "X性格刚正，放下笔坐直身子问：“你为什么撕我的卷子？”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80013]
+    },
+    "80013": {
+        "id": 80013,
+        "description": "全局剧情事件",
+        "event": "女鬼和X对视了一会，说：“这里不是三十三室吗？”X说：“这里是三十五室。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80014]
+    },
+    "80014": {
+        "id": 80014,
+        "description": "全局剧情事件",
+        "event": "女鬼大惊，脸色惭愧，对X行礼道歉。X说：“我不原谅你。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80015]
+    },
+    "80015": {
+        "id": 80015,
+        "description": "全局剧情事件",
+        "event": "女鬼取来空卷子，再度向X行礼，说：“我不小心进错了房间，还请先生宽恕我。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80016]
+    },
+    "80016": {
+        "id": 80016,
+        "description": "全局剧情事件",
+        "event": "X还是回答：“我不原谅你。”女鬼叹息一声，化成一缕烟飞走了。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80017]
+    },
+    "80017": {
+        "id": 80017,
+        "description": "全局剧情事件",
+        "event": "X考砸，回太乙村收拾行李，听到墙里有声音。",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80018]
+    },
+    "80018": {
+        "id": 80018,
+        "description": "全局剧情事件",
+        "event": "那声音说：“先生不要消沉，今晚请留下，让小女子陪你一晚。”",
+        "postEvent": "全局事件线",
+        "effect": {},
+        "branch": [],
+        "storyNext": [80019]
+    },
+    "80019": {
+        "id": 80019,
+        "description": "全局剧情事件",
+        "event": "X回答：“我不原谅你。”那声音呜咽了一阵，随后消失了。",
+        "postEvent": "全局事件线结束",
+        "include": "",
+        "exclude": "",
+        "effect": {
+            "proc": "结束剧情",
+            "XIQ":-10
+        },
+        "branch": [],
+        "storyNext": [0]
     }
 }

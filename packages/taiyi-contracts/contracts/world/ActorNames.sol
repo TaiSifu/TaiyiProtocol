@@ -203,7 +203,7 @@ contract ActorNames is IActorNames, WorldNonFungible
         _lastName = lastNames[id];
     }
 
-    function isNameClaimed(string memory _firstName, string memory _lastName) external view returns(bool _isClaimed) {
+    function isNameClaimed(string memory _firstName, string memory _lastName) public view override returns(bool _isClaimed) {
         _isClaimed = _isNameClaimed[toLower(string(abi.encodePacked(_lastName, _firstName)))];
     }
 

@@ -63,12 +63,8 @@ contract ActorPrelifes is IActorPrelifes, WorldConfigurable {
         onlyYeMing(_operator)
     {
         IActors actors = worldRoute.actors();
-        uint256 mt; uint256 st;
-        (mt , st) = actors.actor(_actor);
-        require(st != 0, "non exist actor");
-
-        (mt , st) = actors.actor(_prelife);
-        require(st != 0, "non exist prelife");
+        require(actors.mintTime(_actor) != 0, "non exist actor");
+        require(actors.mintTime(_prelife) != 0, "non exist prelife");
         require(postLifes[_prelife] == 0, "prelife is reincarnation.");
         IActorAttributes attributes = IActorAttributes(worldRoute.modules(WorldConstants.WORLD_MODULE_ATTRIBUTES));
         require(attributes.attributesScores(WorldConstants.ATTR_HLH, _prelife) == 0, "prelife actor is alive.");

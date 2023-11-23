@@ -219,7 +219,7 @@ describe('角色出生序列事件测试', () => {
             await eventsByPanGu.setEventProcessor(60004, evt60004.address);
             const evt60005 = await (await (new WorldEventProcessor60005__factory(deployer)).deploy(worldContractRoute.address)).deployed();
             await eventsByPanGu.setEventProcessor(60005, evt60005.address);
-            });
+        });
 
         it('配置时间线', async () => {
             expect((await shejiTu.connect(deployer).addAgeEvent(0, 10001, 1)).wait()).eventually.fulfilled;

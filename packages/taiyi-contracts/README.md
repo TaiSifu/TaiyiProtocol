@@ -40,8 +40,8 @@
 | [Daoli](./contracts/world/AssetDaoli.sol)                | 这是太乙世界的ERC20通证合约，用于通货，名曰“道理”，简称“道”。该合约不能被升级或替换。在铸造角色时需要支付一定的道理作为铸造费用，这笔费用由合约自动打入太乙岛金库。道理在太乙世界中只能由盘古角色操作发行，在盘古角色转交给太乙岛后，就由太乙岛提案发行了。| [0x1c28fe3A46e3E2dd5a924107FECd0A2f605c7E54](https://goerli.arbiscan.io/address/0x1c28fe3A46e3E2dd5a924107FECd0A2f605c7E54) |
 
 ### 基本数据集
-| 合约| 描述| 地址|
-| ------------------------------------- | -------------------------------------- |-------------------------------------- |
+| 模块序号 | 合约| 描述| 地址|
+| ------------------------------------- | ------------------------------------- | -------------------------------------- |-------------------------------------- |
 | [WorldEvents](./contracts/world/dataset/WorldEvents.sol) | 这是太乙世界的事件集合，除了用于事件处理器的定义，也用于记录角色身上发生的事件历史。| 各世界独立部署 |
 | [ActorBornPlaces](./contracts/world/dataset/ActorBornPlaces.sol) | 这是太乙世界角色的出身地点集合，用于记录角色出身在那个`区域`(Zone)。| 各世界独立部署 |
 | [ActorLocations](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色当前的位置数据，用于记录角色当前在那个`区域`(Zone)。| [0x0A8714e4cE32F1b433e35AFF25123Bf286a56e6E](https://goerli.arbiscan.io/address/0x0A8714e4cE32F1b433e35AFF25123Bf286a56e6E) |
@@ -50,6 +50,7 @@
 | [ActorTalents](./contracts/world/dataset/ActorLocations.sol) | 这是太乙世界角色的天赋数据，用于记录角色拥有的天赋点。| 各世界独立部署 |
 | [Trigrams](./contracts/world/dataset/Trigrams.sol) | 这是太乙世界角色个人拥有的特殊符文记录，这个符文和角色在太乙世界中的事件历史有关，可以在角色的URI中被表现出来。| [0xF588a828cD420dF0e3EbaFc5e16c25B2FFE6321D](https://goerli.arbiscan.io/address/0xF588a828cD420dF0e3EbaFc5e16c25B2FFE6321D) |
 | [WorldYemings](./contracts/world/dataset/WorldYemings.sol) | 这是记录充当噎明的角色。| [0xA0146938AA98765d7471dCe3d52FcF9a984637eE](https://goerli.arbiscan.io/address/0xA0146938AA98765d7471dCe3d52FcF9a984637eE) |
+| 225 | [NameGenerator](../taiyi-contracts/contracts/world/dataset/NameGenerator.sol) | 人物姓名生成器。| [0xE772C331A55b07CA95470827719d00AF9f53A121](https://goerli.arbiscan.io/address/address/0xE772C331A55b07CA95470827719d00AF9f53A121) |
 
 
 ## 开发

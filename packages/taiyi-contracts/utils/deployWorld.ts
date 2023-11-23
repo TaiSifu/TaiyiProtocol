@@ -8,7 +8,9 @@ import {
     ActorPrelifes, ActorPrelifes__factory, ActorLocations, ActorLocations__factory, ActorRelationship, 
     ActorRelationship__factory, Trigrams, Trigrams__factory, TrigramsRender, TrigramsRender__factory, 
     ShejiTuProxyAdmin__factory, ShejiTuProxy__factory, SifusToken__factory, SifusDescriptor, SifusSeeder, 
-    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli,
+    SifusSeeder__factory, WorldYemings, WorldYemings__factory, AssetDaoli__factory, AssetDaoli, WorldStorylines, 
+    WorldStorylines__factory, ParameterizedStorylines, ParameterizedStorylines__factory, GlobalStoryRegistry, 
+    GlobalStoryRegistry__factory, NameGenerator, NameGenerator__factory, WorldStoryActors__factory, WorldStoryActors,
 } from '../typechain';
 import { BigNumberish, Contract as EthersContract } from 'ethers';
 import { default as ShejiTuABI } from '../abi/contracts/ShejiTu.sol/ShejiTu.json';
@@ -168,6 +170,31 @@ export const populateDescriptor = async (sifusDescriptor: SifusDescriptor): Prom
     ]);
 };
 
+export const deployWorldStorylines = async (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldStorylines> => {
+    const factory = new WorldStorylines__factory(deployer);
+    return (await factory.deploy(route.address, moduleId)).deployed();
+};
+
+export const deployParameterizedStorylines = async (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress): Promise<ParameterizedStorylines> => {
+    const factory = new ParameterizedStorylines__factory(deployer);
+    return (await factory.deploy(route.address, moduleId)).deployed();
+};
+
+export const deployGlobalStoryRegistry = async (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress): Promise<GlobalStoryRegistry> => {
+    const factory = new GlobalStoryRegistry__factory(deployer);
+    return (await factory.deploy(route.address, moduleId)).deployed();
+};
+
+export const deployNameGenerator = async (route: WorldContractRoute, deployer: SignerWithAddress): Promise<NameGenerator> => {
+    const factory = new NameGenerator__factory(deployer);
+    return (await factory.deploy(route.address)).deployed();
+};
+
+export const deployWorldStoryActors = async (moduleId: BigNumberish, route: WorldContractRoute, deployer: SignerWithAddress): Promise<WorldStoryActors> => {
+    const factory = new WorldStoryActors__factory(deployer);
+    return (await factory.deploy(route.address, moduleId)).deployed();
+};
+
 export type TaiyiContractName =
     | 'SifusDescriptor'
     | 'SifusSeeder'
@@ -186,7 +213,8 @@ export type TaiyiContractName =
     | 'ActorPrelifes' 
     | 'ActorLocations' 
     | 'Trigrams'
-    | 'TrigramsRender';
+    | 'TrigramsRender'
+    | 'NameGenerator';
 
 export interface WorldContract {
     instance: EthersContract;
@@ -283,6 +311,11 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
     let trigramsRenderArg = [routeByPanGu.address];
     await (await routeByPanGu.registerModule(await worldConstants.WORLD_MODULE_TRIGRAMS_RENDER(), trigramsRender.address)).wait();
 
+    if(verbose) console.log("Deploy NameGenerator...");
+    let nameGenerator = await deployNameGenerator(routeByPanGu, deployer);
+    let nameGeneratorArg = [routeByPanGu.address];
+    await (await routeByPanGu.registerModule(225, nameGenerator.address)).wait();
+
     //render modules
     await (await actors.connect(operatorDAO).setRenderModule(1, trigramsRender.address)).wait();
     if(verbose) console.log("Taiyi Base Contracts Deployment Done.");
@@ -306,6 +339,7 @@ export const deployTaiyiWorld = async (actorMintStart : BigNumberish, deployer: 
         SifusSeeder: {instance: sifusSeeder},
         SifusToken: {instance: sifusToken, constructorArguments: sifusTokenArg},
         TrigramsRender: {instance: trigramsRender, constructorArguments: trigramsRenderArg},
+        NameGenerator: {instance: nameGenerator, constructorArguments: nameGeneratorArg},
     };
 
     return contracts;

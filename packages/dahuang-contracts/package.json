@@ -20,6 +20,7 @@
     "task:deploy-demo": "npx hardhat deploy-demo",
     "task:deploy-single": "npx hardhat deploy-single",
     "task:deploy-event-processors": "npx hardhat deploy-event-processors",
+    "task:deploy-talent-processors": "npx hardhat deploy-talent-processors",
     "task:new-name": "npx hardhat new-name",
     "task:new-actor": "npx hardhat new-actor",
     "task:grow-actor": "npx hardhat grow-actor",
@@ -27,6 +28,9 @@
     "task:run-log": "npx hardhat run-log",
     "task:verify-etherscan-single": "npx hardhat verify-etherscan-single",
     "task:do": "npx hardhat do",
+    "task:show-actor-history": "npx hardhat show-actor-history",
+    "task:show-actor-info": "npx hardhat show-actor-info",
+    "task:list-actors": "npx hardhat list-actors",
     "coverage": "npx hardhat coverage",
     "prepare": "yarn build"
   },
