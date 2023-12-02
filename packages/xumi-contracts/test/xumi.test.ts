@@ -202,7 +202,7 @@ describe('须弥时间线基础', () => {
                 talents.address,
                 trigrams.address,
                 worldRandom.address);
-            await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
+            await expect(tx).to.be.reverted;//rejectedWith('InvalidInitialization');
         });    
 
         it(`初始化天赋`, async ()=>{

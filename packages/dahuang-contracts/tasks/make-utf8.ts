@@ -1,4 +1,4 @@
-//yarn task:make-utf8
+//pnpm task:make-utf8
 import { task } from 'hardhat/config';
 import { String2UTF8X } from '../utils/genUTF8';
 

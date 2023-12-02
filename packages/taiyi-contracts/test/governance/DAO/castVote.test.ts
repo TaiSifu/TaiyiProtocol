@@ -22,8 +22,8 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     SifusToken,
     SifusDescriptor__factory,
-    TaiyiDaoLogicV1Harness,
-    TaiyiDaoLogicV1Harness__factory,
+    TaiyiDAOLogicV1Harness,
+    TaiyiDAOLogicV1Harness__factory,
     WorldConstants,
     WorldContractRoute,
     Actors,
@@ -37,9 +37,9 @@ const { expect } = chai;
 async function deployGovernor(
     deployer: SignerWithAddress,
     tokenAddress: string,
-): Promise<TaiyiDaoLogicV1Harness> {
-    const { address: govDelegateAddress } = await new TaiyiDaoLogicV1Harness__factory(deployer).deploy();
-    const params = [
+): Promise<TaiyiDAOLogicV1Harness> {
+    const { address: govDelegateAddress } = await new TaiyiDAOLogicV1Harness__factory(deployer).deploy();
+    const { address: _govDelegatorAddress } = await (await ethers.getContractFactory('TaiyiDAOProxy', deployer)).deploy(
         address(0),
         tokenAddress,
         deployer.address,
@@ -49,11 +49,9 @@ async function deployGovernor(
         1,
         1,
         1,
-    ];
+    );
 
-    const { address: _govDelegatorAddress } = await (await ethers.getContractFactory('TaiyiDAOProxy', deployer)).deploy(...params);
-
-    return TaiyiDaoLogicV1Harness__factory.connect(_govDelegatorAddress, deployer);
+    return TaiyiDAOLogicV1Harness__factory.connect(_govDelegatorAddress, deployer);
 }
 
 let snapshotId: number;
@@ -72,7 +70,7 @@ let assetDaoli: WorldFungible;
 
 let actorPanGu: BigNumber;
 
-let gov: TaiyiDaoLogicV1Harness;
+let gov: TaiyiDAOLogicV1Harness;
 let targets: string[];
 let values: string[];
 let signatures: string[];

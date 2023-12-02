@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+pragma solidity >=0.8.21;
 
 /// @title A library used to convert multi-part RLE compressed images to SVG
 
@@ -14,8 +15,6 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
  *********************************/
-
-pragma solidity ^0.8.6;
 
 library MultiPartRLEToSVG {
     struct SVGParams {

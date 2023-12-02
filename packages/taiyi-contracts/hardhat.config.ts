@@ -4,26 +4,30 @@ import dotenv from 'dotenv';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@float-capital/solidity-coverage';
-import 'hardhat-typechain';
+import "@typechain/hardhat";
 import 'hardhat-abi-exporter';
 import "hardhat-change-network";
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-gas-reporter';
 // import '@matterlabs/hardhat-zksync-deploy';
 // import '@matterlabs/hardhat-zksync-solc';
-import './tasks';
+//import './tasks';
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.6',
+    version: '0.8.21',
     settings: {
       optimizer: {
         enabled: true,
         runs: 200,
       },
     },
+  },
+  typechain: {
+    outDir: "typechain",
+    target: "ethers-v5",
   },
   // zksolc: {
   //   version: "1.2.1",

@@ -1,4 +1,4 @@
-//yarn task:test-hash
+//pnpm task:test-hash
 import { task } from 'hardhat/config';
 import { toUtf8Bytes } from 'ethers/lib/utils';
 import sha3 from "js-sha3";

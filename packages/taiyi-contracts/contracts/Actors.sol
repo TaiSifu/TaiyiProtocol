@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity >=0.8.21;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {toWadUnsafe, toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
-import "./interfaces/WorldInterfaces.sol";
-import "./base/ERC721Enumerable.sol";
-import "./libs/Base64.sol";
-import "./libs/WorldConstants.sol";
-import {LogisticVRGDA} from "./external/VRGDAs/LogisticVRGDA.sol";
+import { toWadUnsafe, toDaysWadUnsafe } from './utils/SignedWadMath.sol';
+import './interfaces/WorldInterfaces.sol';
+import './base/ERC721Enumerable.sol';
+import './libs/Base64.sol';
+import './libs/WorldConstants.sol';
+import { LogisticVRGDA } from './external/VRGDAs/LogisticVRGDA.sol';
+
 //import "hardhat/console.sol";
 
 contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
@@ -18,7 +19,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      * Globals
      * *******
      */
-    
+
     uint256 public constant ACTOR_PANGU = 1;
 
     /// @notice The address of the Daoli ERC20 token contract.
@@ -45,9 +46,9 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
     /*
      * Each actor has its own contract address deployed
      * This enables the NFT to actually own the resources and tokens
-    */
-    mapping (uint256 => address) internal _actorHolders;
-    mapping (address => uint256) internal _holderActors;
+     */
+    mapping(uint256 => address) internal _actorHolders;
+    mapping(address => uint256) internal _holderActors;
 
     uint256 public override nextActor = 1; //0 is invalid
 
@@ -55,9 +56,9 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
 
     EnumerableSet.AddressSet internal _uriPartModules;
 
-    mapping(uint256 => address) public renderModules;  //mode => module address
+    mapping(uint256 => address) public renderModules; //mode => module address
     mapping(uint256 => uint256) public actorRenderModes; //0 means default
-    
+
     //compatible with opensea
     string private _contractURI;
 
@@ -67,17 +68,17 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      */
 
     modifier onlyExist(uint256 _actor) {
-        require(mintTime[_actor] != 0, "not exist actor");
+        require(mintTime[_actor] != 0, 'not exist actor');
         _;
     }
 
     modifier onlyValidAddress(address _address) {
-        require(_address != address(0), "cannot set zero address");
+        require(_address != address(0), 'cannot set zero address');
         _;
     }
 
     modifier onlyPanGu() {
-        require(_isActorApprovedOrOwner(ACTOR_PANGU), "only PanGu");
+        require(_isActorApprovedOrOwner(ACTOR_PANGU), 'only PanGu');
         _;
     }
 
@@ -100,8 +101,8 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         address _taiyiDAO,
         uint256 _mintStart,
         address _coin
-    ) 
-        ERC721("Taiyi Actor Manifested", "TYACTOR") 
+    )
+        ERC721('Taiyi Actor Manifested', 'TYACTOR')
         LogisticVRGDA(
             10.0e18, // Target price.
             0.31e18, // Price decay percent.
@@ -110,7 +111,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
             0.0005867e18 // Time scale.
         )
     {
-        require(_taiyiDAO != address(0), "taiyiDao address can not be set zero.");
+        require(_taiyiDAO != address(0), 'taiyiDao address can not be set zero.');
         taiyiDAO = _taiyiDAO;
         mintStart = _mintStart;
         coin = _coin;
@@ -122,13 +123,28 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      */
 
     function _isActorApprovedOrOwner(uint _actor) internal view returns (bool) {
-        return (getApproved(_actor) == msg.sender || ownerOf(_actor) == msg.sender) || isApprovedForAll(ownerOf(_actor), msg.sender);
+        return (getApproved(_actor) == msg.sender ||
+            ownerOf(_actor) == msg.sender ||
+            isApprovedForAll(ownerOf(_actor), msg.sender));
     }
 
-    function _tokenSVG(uint256 _actor, uint256 _startY, uint256 /*_lineHeight*/) internal view returns (string memory, uint256 _endY) {
+    function _tokenSVG(
+        uint256 _actor,
+        uint256 _startY,
+        uint256 /*_lineHeight*/
+    ) internal view returns (string memory, uint256 _endY) {
         _endY = _startY;
-        //Mint time: 
-        string memory sSVG = string(abi.encodePacked('<text x="10" y="', Strings.toString(_endY), '" class="base">','\xE9\x93\xB8\xE9\x80\xA0\xE6\x97\xB6\xE9\x97\xB4\xEF\xBC\x9A', Strings.toString(mintTime[_actor]), '</text>'));
+        //Mint time:
+        string memory sSVG = string(
+            abi.encodePacked(
+                '<text x="10" y="',
+                Strings.toString(_endY),
+                '" class="base">',
+                '\xE9\x93\xB8\xE9\x80\xA0\xE6\x97\xB6\xE9\x97\xB4\xEF\xBC\x9A',
+                Strings.toString(mintTime[_actor]),
+                '</text>'
+            )
+        );
         return (sSVG, _endY);
     }
 
@@ -141,28 +157,28 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      * ****************
      */
 
-    function moduleID() external override pure returns (uint256) { return WorldConstants.WORLD_MODULE_ACTORS; }
+    function moduleID() external pure override returns (uint256) {
+        return WorldConstants.WORLD_MODULE_ACTORS;
+    }
 
-    function changeContractURI(string memory _uri) external
-        onlyOwner
-    {
+    function changeContractURI(string memory _uri) external onlyOwner {
         _contractURI = _uri;
     }
 
     /// @notice Mint a actor, paying with Taiyi Coin.
     /// @param maxPrice Maximum price to pay to mint the actor.
     /// @return actorId The id of the actor that was minted.
-    function mintActor(uint256 maxPrice) external override returns(uint256 actorId)
-    {
+    function mintActor(uint256 maxPrice) external override returns (uint256 actorId) {
         //console.log("mint log");
-        if(nextActor > 3) { //PanGu, YeMing and GuanGong are free
+        if (nextActor > 3) {
+            //PanGu, YeMing and GuanGong are free
             // No need to check if we're at MAX_MINTABLE,
             // actorPrice() will revert once we reach it due to its
             // logistic nature. It will also revert prior to the mint start.
             uint256 currentPrice = actorPrice();
 
             // If the current price is above the user's specified max, revert.
-            require(currentPrice <= maxPrice, "current actor price exceeded max");
+            require(currentPrice <= maxPrice, 'current actor price exceeded max');
 
             // Decrement the sender's coin ERC20 balance by the current price.
             // transfer them to fund receiver
@@ -187,37 +203,28 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         nextActor++;
     }
 
-    function registerURIPartModule(address _moduleAddress) external
-        onlyPanGu()
-        onlyValidAddress(_moduleAddress)
-    {
+    function registerURIPartModule(address _moduleAddress) external onlyPanGu onlyValidAddress(_moduleAddress) {
         bool rt = _uriPartModules.add(_moduleAddress);
-        require(rt == true, "module with same address is exist.");
+        require(rt == true, 'module with same address is exist.');
     }
 
-    function changeURIPartModule(address _oldAddress, address _newAddress) external
-        onlyPanGu()
-        onlyValidAddress(_oldAddress)
-    {
+    function changeURIPartModule(
+        address _oldAddress,
+        address _newAddress
+    ) external onlyPanGu onlyValidAddress(_oldAddress) {
         _uriPartModules.remove(_oldAddress);
-        if(_newAddress != address(0))
-            _uriPartModules.add(_newAddress);
+        if (_newAddress != address(0)) _uriPartModules.add(_newAddress);
     }
 
-    function setRenderModule(uint256 _mode, address _address) external
-        onlyPanGu()
-        onlyValidAddress(_address)
-    {
-        require(_mode > 0, "render mode id invalid");
-        require(IWorldModule(_address).moduleID() > 0, "address is not a render module");
+    function setRenderModule(uint256 _mode, address _address) external onlyPanGu onlyValidAddress(_address) {
+        require(_mode > 0, 'render mode id invalid');
+        require(IWorldModule(_address).moduleID() > 0, 'address is not a render module');
         renderModules[_mode] = _address;
     }
 
-    function changeActorRenderMode(uint256 _actor, uint256 _mode) external override
-        onlyExist(_actor)
-    {
-        require(_isApprovedOrOwner(msg.sender, _actor), "not approved or owner");
-        require(_mode==0 || renderModules[_mode] != address(0), "render mode invalid");
+    function changeActorRenderMode(uint256 _actor, uint256 _mode) external override onlyExist(_actor) {
+        require(_isApprovedOrOwner(msg.sender, _actor), 'not approved or owner');
+        require(_mode == 0 || renderModules[_mode] != address(0), 'render mode invalid');
         actorRenderModes[_actor] = _mode;
     }
 
@@ -227,7 +234,7 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      */
     function setTaiyiDAO(address _taiyiDAO) external override onlyTaiyiDAO {
         taiyiDAO = _taiyiDAO;
- 
+
         emit TaiyiDAOUpdated(_taiyiDAO);
     }
 
@@ -241,15 +248,19 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         return _contractURI;
     }
 
-    function tokenSVG(uint256 _actor, uint256 _startY, uint256 _lineHeight) external override view returns (string memory, uint256 _endY) {
+    function tokenSVG(
+        uint256 _actor,
+        uint256 _startY,
+        uint256 _lineHeight
+    ) external view override returns (string memory, uint256 _endY) {
         return _tokenSVG(_actor, _startY, _lineHeight);
     }
 
-    function tokenJSON(uint256 _actor) external override view returns (string memory) {
+    function tokenJSON(uint256 _actor) external view override returns (string memory) {
         return _tokenJSON(_actor);
     }
 
-    function tokenURI(uint256 _actor) public override view returns (string memory) {
+    function tokenURI(uint256 _actor) public view override returns (string memory) {
         uint256 _renderMode = actorRenderModes[_actor];
         return tokenURIByMode(_actor, _renderMode);
     }
@@ -259,13 +270,14 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         string[7] memory parts;
         //start svg
         string memory svg;
-        if(_renderMode == 0) {
-            parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 480"><style>.base { fill: white; font-family: serif; font-size: 10px; }</style><style>.base_nocolor { font-family: serif; font-size: 10px; }</style><rect width="100%" height="100%" fill="black" />';
+        if (_renderMode == 0) {
+            parts[
+                0
+            ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 480 480"><style>.base { fill: white; font-family: serif; font-size: 10px; }</style><style>.base_nocolor { font-family: serif; font-size: 10px; }</style><rect width="100%" height="100%" fill="black" />';
             parts[1] = _tokenURISVGPart(_actor, 0, 12);
             //end svg
             svg = string(abi.encodePacked(parts[0], parts[1], '</svg>'));
-        }
-        else {
+        } else {
             uint256 endY = 0;
             (svg, endY) = IWorldModule(renderModules[_renderMode]).tokenSVG(_actor, endY, 12);
         }
@@ -277,7 +289,13 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         json = string(abi.encodePacked(json, _tokenURIJSONPart(_actor)));
         json = string(abi.encodePacked(json, '}'));
         //end json with svg
-        string memory uri = Base64.encode(bytes(string(abi.encodePacked(json, ', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'))));
+        string memory uri = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(json, ', "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}')
+                )
+            )
+        );
 
         //final output
         return string(abi.encodePacked('data:application/json;base64,', uri));
@@ -286,50 +304,38 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
     /**
      * Load an actor, the owner and its identifiable address (account) on the blockchain
      */
-    function getActor(uint256 _actor) public override view returns (Actor memory) {
-        require(_actor > 0, "invalid actor");
+    function getActor(uint256 _actor) public view override returns (Actor memory) {
+        require(_actor > 0, 'invalid actor');
         address owner = ownerOf(_actor);
         address account = _actorHolders[_actor];
-        require(account != address(0), "need init actor account");
+        require(account != address(0), 'need init actor account');
 
-        return Actor({
-            account: account,
-            owner: owner,
-            actorId: _actor
-        });
+        return Actor({ account: account, owner: owner, actorId: _actor });
     }
 
-    function isHolderExist(address _holder) public override view returns (bool) {
+    function isHolderExist(address _holder) public view override returns (bool) {
         return (_holderActors[_holder] > 0);
     }
 
-    function getActorByHolder(address _holder) public override view returns (Actor memory) {        
-        require(_holder != address(0), "actor query holder is invalid");
+    function getActorByHolder(address _holder) public view override returns (Actor memory) {
+        require(_holder != address(0), 'actor query holder is invalid');
         uint256 actorId = _holderActors[_holder];
-        require(actorId > 0, "actor holder is not exist");
+        require(actorId > 0, 'actor holder is not exist');
         address owner = ownerOf(actorId);
 
-        return Actor({
-            account: _holder,
-            owner: owner,
-            actorId: actorId
-        });
+        return Actor({ account: _holder, owner: owner, actorId: actorId });
     }
 
     /**
      * Get multiple actors for a single owner
      */
-    function getActorsByOwner(address _owner) public override view returns (Actor[] memory) {
+    function getActorsByOwner(address _owner) public view override returns (Actor[] memory) {
         uint256 balance = balanceOf(_owner);
 
         Actor[] memory accountActors = new Actor[](balance);
         for (uint256 i = 0; i < balance; i++) {
             uint256 actorId = tokenOfOwnerByIndex(_owner, i);
-            accountActors[i] = Actor({
-                actorId: actorId,
-                account: _actorHolders[actorId],
-                owner: _owner
-            });
+            accountActors[i] = Actor({ actorId: actorId, account: _actorHolders[actorId], owner: _owner });
         }
 
         return accountActors;
@@ -339,12 +345,12 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
     /// @dev Will revert if called before minting starts
     /// or after all actors have been minted via VRGDA.
     /// @return Current price of a actor in terms of coin.
-    function actorPrice() public override view returns (uint256) {
+    function actorPrice() public view override returns (uint256) {
         // We need checked math here to cause underflow
         // before minting has begun, preventing mints.
         uint256 timeSinceStart = block.timestamp - mintStart;
 
-        return getVRGDAPrice(toDaysWadUnsafe(timeSinceStart), nextActor-1);
+        return getVRGDAPrice(toDaysWadUnsafe(timeSinceStart), nextActor - 1);
     }
 
     /* ****************
@@ -352,14 +358,18 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
      * ****************
      */
 
-    function _tokenURISVGPart(uint256 _actor, uint256 _startY, uint256 _lineHeight) private view returns (string memory) {
+    function _tokenURISVGPart(
+        uint256 _actor,
+        uint256 _startY,
+        uint256 _lineHeight
+    ) private view returns (string memory) {
         string memory parts;
         uint256 endY = _startY;
         (parts, endY) = _tokenSVG(_actor, endY + _lineHeight, _lineHeight);
 
         //modules
         string memory moduleSVG;
-        for(uint256 i=0; i<_uriPartModules.length(); i++) {
+        for (uint256 i = 0; i < _uriPartModules.length(); i++) {
             (moduleSVG, endY) = IWorldModule(_uriPartModules.at(i)).tokenSVG(_actor, endY + _lineHeight, _lineHeight);
             parts = string(abi.encodePacked(parts, moduleSVG));
         }
@@ -370,13 +380,16 @@ contract Actors is IActors, ERC721Enumerable, LogisticVRGDA {
         string memory json;
         json = string(abi.encodePacked(json, '"base": ', _tokenJSON(_actor)));
         //modules
-        for(uint256 i=0; i<_uriPartModules.length(); i++) {
+        for (uint256 i = 0; i < _uriPartModules.length(); i++) {
             IWorldModule mod = IWorldModule(_uriPartModules.at(i));
-            json = string(abi.encodePacked(json, ', "m_', Strings.toString(mod.moduleID()),'": ', mod.tokenJSON(_actor)));
+            json = string(
+                abi.encodePacked(json, ', "m_', Strings.toString(mod.moduleID()), '": ', mod.tokenJSON(_actor))
+            );
         }
         return json;
     }
 }
+
 ///////////////////////////////////////////////////////////////////////////
 contract ActorHolder is ERC165, IERC721Receiver {
     IActors public actors;
@@ -387,12 +400,7 @@ contract ActorHolder is ERC165, IERC721Receiver {
         actor = _actor;
     }
 
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
@@ -402,8 +410,7 @@ contract ActorHolder is ERC165, IERC721Receiver {
 
     // Fallback function to help someone accidentally sending eth to this contract
     function withdraw() public {
-        require(actors.ownerOf(actor) == msg.sender, "You are not the owner");
+        require(actors.ownerOf(actor) == msg.sender, 'You are not the owner');
         payable(msg.sender).transfer(address(this).balance);
     }
 }
-

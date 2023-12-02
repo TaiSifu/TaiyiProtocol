@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.21;
 
 /// @title Vote checkpointing for an ERC-721 token
 
@@ -32,9 +33,7 @@
 //   This avoids the delegator needing to "delegate to self" with an additional transaction
 // - `_transferTokens()` is renamed `_beforeTokenTransfer()` and adapted to hook into OpenZeppelin's ERC721 hooks.
 
-pragma solidity ^0.8.6;
-
-import './ERC721Enumerable.sol';
+import "./ERC721Enumerable.sol";
 
 abstract contract ERC721Checkpointable is ERC721Enumerable {
     /// @notice Defines decimals as per ERC-20 convention to make integrations with 3rd party governance platforms easier
@@ -57,11 +56,10 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
 
     /// @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH =
-        keccak256('EIP712Domain(string name,uint256 chainId,address verifyingContract)');
+        keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
 
     /// @notice The EIP-712 typehash for the delegation struct used by the contract
-    bytes32 public constant DELEGATION_TYPEHASH =
-        keccak256('Delegation(address delegatee,uint256 nonce,uint256 expiry)');
+    bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     /// @notice A record of states for signing / validating signatures
     mapping(address => uint256) public nonces;
@@ -77,7 +75,7 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
      * @dev Used when calling `_delegate()`
      */
     function votesToDelegate(address delegator) public view returns (uint96) {
-        return safe96(balanceOf(delegator), 'ERC721Checkpointable::votesToDelegate: amount exceeds 96 bits');
+        return safe96(balanceOf(delegator), "ERC721Checkpointable::votesToDelegate: amount exceeds 96 bits");
     }
 
     /**
@@ -92,17 +90,20 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
 
     /**
      * @notice Adapted from `_transferTokens()` in `Comp.sol` to update delegate votes.
-     * @dev hooks into OpenZeppelin's `ERC721._transfer`
+     * @dev hooks into OpenZeppelin's `ERC721._update`
      */
-    function _beforeTokenTransfer(
-        address from,
+    function _update(
+        address creator,
         address to,
-        uint256 tokenId
-    ) internal override {
-        super._beforeTokenTransfer(from, to, tokenId);
+        uint256 tokenId,
+        address auth
+    ) internal virtual override returns (address) {
+        address previousOwner = super._update(creator, to, tokenId, auth);
 
         /// @notice Differs from `_transferTokens()` to use `delegates` override method to simulate auto-delegation
-        _moveDelegates(delegates(from), delegates(to), 1);
+        _moveDelegates(delegates(previousOwner), delegates(to), 1);
+
+        return previousOwner;
     }
 
     /**
@@ -123,23 +124,16 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
      * @param r Half of the ECDSA signature pair
      * @param s Half of the ECDSA signature pair
      */
-    function delegateBySig(
-        address delegatee,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public {
+    function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) public {
         bytes32 domainSeparator = keccak256(
             abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name())), getChainId(), address(this))
         );
         bytes32 structHash = keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry));
-        bytes32 digest = keccak256(abi.encodePacked('\x19\x01', domainSeparator, structHash));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), 'ERC721Checkpointable::delegateBySig: invalid signature');
-        require(nonce == nonces[signatory]++, 'ERC721Checkpointable::delegateBySig: invalid nonce');
-        require(block.timestamp <= expiry, 'ERC721Checkpointable::delegateBySig: signature expired');
+        require(signatory != address(0), "ERC721Checkpointable::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "ERC721Checkpointable::delegateBySig: invalid nonce");
+        require(block.timestamp <= expiry, "ERC721Checkpointable::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -161,7 +155,7 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
      * @return The number of votes the account had as of the given block
      */
     function getPriorVotes(address account, uint256 blockNumber) public view returns (uint96) {
-        require(blockNumber < block.number, 'ERC721Checkpointable::getPriorVotes: not yet determined');
+        require(blockNumber < block.number, "ERC721Checkpointable::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -207,38 +201,26 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
         _moveDelegates(currentDelegate, delegatee, amount);
     }
 
-    function _moveDelegates(
-        address srcRep,
-        address dstRep,
-        uint96 amount
-    ) internal {
+    function _moveDelegates(address srcRep, address dstRep, uint96 amount) internal {
         if (srcRep != dstRep && amount > 0) {
             if (srcRep != address(0)) {
                 uint32 srcRepNum = numCheckpoints[srcRep];
                 uint96 srcRepOld = srcRepNum > 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;
-                uint96 srcRepNew = sub96(srcRepOld, amount, 'ERC721Checkpointable::_moveDelegates: amount underflows');
+                uint96 srcRepNew = sub96(srcRepOld, amount, "ERC721Checkpointable::_moveDelegates: amount underflows");
                 _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
             }
 
             if (dstRep != address(0)) {
                 uint32 dstRepNum = numCheckpoints[dstRep];
                 uint96 dstRepOld = dstRepNum > 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;
-                uint96 dstRepNew = add96(dstRepOld, amount, 'ERC721Checkpointable::_moveDelegates: amount overflows');
+                uint96 dstRepNew = add96(dstRepOld, amount, "ERC721Checkpointable::_moveDelegates: amount overflows");
                 _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
             }
         }
     }
 
-    function _writeCheckpoint(
-        address delegatee,
-        uint32 nCheckpoints,
-        uint96 oldVotes,
-        uint96 newVotes
-    ) internal {
-        uint32 blockNumber = safe32(
-            block.number,
-            'ERC721Checkpointable::_writeCheckpoint: block number exceeds 32 bits'
-        );
+    function _writeCheckpoint(address delegatee, uint32 nCheckpoints, uint96 oldVotes, uint96 newVotes) internal {
+        uint32 blockNumber = safe32(block.number, "ERC721Checkpointable::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
@@ -251,30 +233,22 @@ abstract contract ERC721Checkpointable is ERC721Enumerable {
     }
 
     function safe32(uint256 n, string memory errorMessage) internal pure returns (uint32) {
-        require(n < 2**32, errorMessage);
+        require(n < 2 ** 32, errorMessage);
         return uint32(n);
     }
 
     function safe96(uint256 n, string memory errorMessage) internal pure returns (uint96) {
-        require(n < 2**96, errorMessage);
+        require(n < 2 ** 96, errorMessage);
         return uint96(n);
     }
 
-    function add96(
-        uint96 a,
-        uint96 b,
-        string memory errorMessage
-    ) internal pure returns (uint96) {
+    function add96(uint96 a, uint96 b, string memory errorMessage) internal pure returns (uint96) {
         uint96 c = a + b;
         require(c >= a, errorMessage);
         return c;
     }
 
-    function sub96(
-        uint96 a,
-        uint96 b,
-        string memory errorMessage
-    ) internal pure returns (uint96) {
+    function sub96(uint96 a, uint96 b, string memory errorMessage) internal pure returns (uint96) {
         require(b <= a, errorMessage);
         return a - b;
     }

@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:list-actors --network hard
+//pnpm task:list-actors --network hard
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {

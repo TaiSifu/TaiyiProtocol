@@ -30,10 +30,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     SifusToken,
     SifusDescriptor__factory,
-    TaiyiDaoExecutorHarness,
-    TaiyiDaoExecutorHarness__factory,
-    TaiyiDaoImmutable,
-    TaiyiDaoImmutable__factory,
+    TaiyiDAOExecutorHarness,
+    TaiyiDAOExecutorHarness__factory,
+    TaiyiDAOImmutable,
+    TaiyiDAOImmutable__factory,
 } from '../../../typechain';
 import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../../utils';
 
@@ -57,8 +57,8 @@ let account0: SignerWithAddress;
 let account1: SignerWithAddress;
 let signers: TestSigners;
 
-let gov: TaiyiDaoImmutable;
-let timelock: TaiyiDaoExecutorHarness;
+let gov: TaiyiDAOImmutable;
+let timelock: TaiyiDAOExecutorHarness;
 let delay: number;
 
 let targets: string[];
@@ -86,9 +86,9 @@ async function makeProposal(
 
     delay = 4 * 24 * 60 * 60;
 
-    timelock = await new TaiyiDaoExecutorHarness__factory(deployer).deploy(deployer.address, delay);
+    timelock = await new TaiyiDAOExecutorHarness__factory(deployer).deploy(deployer.address, delay);
 
-    gov = await new TaiyiDaoImmutable__factory(deployer).deploy(
+    gov = await new TaiyiDAOImmutable__factory(deployer).deploy(
         timelock.address,
         token.address,
         address(0),

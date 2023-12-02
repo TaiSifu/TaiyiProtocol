@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity >=0.8.21;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@taiyi/contracts/contracts/interfaces/WorldInterfaces.sol";
 import '@taiyi/contracts/contracts/libs/Base64.sol';
 import '@taiyi/contracts/contracts/world/WorldConfigurable.sol';
 import "@taiyi/contracts/contracts/base/DateTimeLibrary.sol";
-import "@taiyi/contracts/contracts/base/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import '../../libs/DahuangConstants.sol';
 import '../../interfaces/DahuangWorldInterfaces.sol';
 //import "hardhat/console.sol";
@@ -40,7 +40,7 @@ contract WorldZoneBaseResources is IWorldZoneBaseResources, WorldConfigurable, O
      * ****************
      */
 
-    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, WorldContractRoute _route) WorldConfigurable(_route) {
+    constructor(uint256 _growTimeDay, uint256 _growQuantityScale, WorldContractRoute _route) WorldConfigurable(_route) Ownable(_msgSender()) {
         GROW_TIME_DAY = _growTimeDay;
         GROW_QUANTITY_SCALE = _growQuantityScale;
     }

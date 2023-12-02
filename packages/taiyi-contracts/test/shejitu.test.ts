@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn test ./test/shejitu.test.ts --network hard
+//pnpm test ./test/shejitu.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import '@openzeppelin/hardhat-upgrades';
@@ -133,7 +133,7 @@ describe('社稷图全局时间线测试', () => {
         let shejiTuByDAO = ShejiTu__factory.connect(shejiTu.address, taiyiDAO);
         const tx = shejiTuByDAO.initialize("测试", "所在时间线：测试", FAKE_MODULE_TIMELINE, actors.address, actorLocations.address, worldZones.address,
             actorAttributes.address, worldEvents.address, actorTalents.address, trigrams.address, worldRandom.address);
-        await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
+        await expect(tx).to.be.rejectedWith('InvalidInitialization');
     });
 
     it('时间线管理者-噎明', async () => {

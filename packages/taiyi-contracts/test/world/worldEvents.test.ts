@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn test ./test/worldEvents.test.ts --network hard
+//pnpm test ./test/worldEvents.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import '@openzeppelin/hardhat-upgrades';
@@ -164,7 +164,7 @@ describe('世界事件集测试', () => {
     });
 
     it('非Owner无权配置时间线', async () => {
-        await expect(shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).to.be.revertedWith("Ownable: caller is not the owner");
+        await expect(shejiTu.connect(taiyiDAO).addAgeEvent(0, 10001, 1)).to.be.rejectedWith("OwnableUnauthorizedAccount");
     });
 
     it('Owner配置时间线', async () => {

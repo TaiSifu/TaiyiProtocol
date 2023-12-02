@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:run-log --network hard --start 400
+//pnpm task:run-log --network hard --start 400
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import { BigNumber, utils } from 'ethers'; //https://docs.ethers.io/v5/

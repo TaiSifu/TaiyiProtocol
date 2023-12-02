@@ -1,4 +1,4 @@
-//yarn task:verify-etherscan-single --network arbitrumGoerli
+//pnpm task:verify-etherscan-single --network arbitrumGoerli
 import { task } from 'hardhat/config';
 import fs from 'fs-extra';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils';

@@ -189,7 +189,7 @@ describe('世界道具测试', () => {
             await worldItems.connect(operator1).transferFrom(operator1.address, (await actors.getActor(actor)).account, newItem);
             
             expect((await worldItems.connect(taiyiDAO).burn(await worldConstants.ACTOR_PANGU(), newItem)).wait()).eventually.fulfilled;
-            await expect(worldItems.ownerOf(newItem)).to.be.revertedWith("ERC721: owner query for nonexistent token");            
+            await expect(worldItems.ownerOf(newItem)).to.be.rejectedWith("ERC721NonexistentToken");            
         });
     });
 });

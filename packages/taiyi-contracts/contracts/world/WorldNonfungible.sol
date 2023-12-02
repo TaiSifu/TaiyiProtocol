@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity >=0.8.21;
 
 import "../interfaces/WorldInterfaces.sol";
 import "../base/ERC721Enumerable.sol";
@@ -24,7 +24,7 @@ contract WorldNonFungible is IWorldNonfungible, WorldConfigurable, ERC721Enumera
         require(owner == _fromAccount, 'approve caller is not owner');
         require(_toAccount != owner, 'approval to current owner');
 
-        _approve(_toAccount, _tokenId);
+        _approve(_toAccount, _tokenId, address(0));
         emit NonfungibleApproval(_from, _to, _tokenId);
     }
 
@@ -35,8 +35,7 @@ contract WorldNonFungible is IWorldNonfungible, WorldConfigurable, ERC721Enumera
         address _operatorAccount = worldRoute.actors().getActor(_operator).account;
         require(_operatorAccount != _fromAccount, 'approve to from actor');
 
-        _operatorApprovals[_fromAccount][_operatorAccount] = _approved;
-        emit ApprovalForAll(_fromAccount, _operatorAccount, _approved);
+        _setApprovalForAll(_fromAccount, _operatorAccount, _approved);
         emit NonfungibleApprovalForAll(_from, _operator, _approved);
     }
 

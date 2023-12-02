@@ -99,7 +99,7 @@ describe('角色姓名测试', () => {
         let lastName = `盘`;
         const receipt = await (await actorNames.connect(taiyiDAO).claim(firstName, lastName, actorPanGu)).wait();
         //console.log(JSON.stringify(receipt.events, null, 2));
-        const [, nameClaimed, , , nameAssigned] = receipt.events || [];
+        const [, nameClaimed, , nameAssigned] = receipt.events || [];
 
         expect(nameClaimed?.event).to.eq('NameClaimed');
         expect(nameClaimed?.args?.owner).to.eq(taiyiDAO.address);
@@ -150,7 +150,7 @@ describe('角色姓名测试', () => {
         await namesByDAO.claim(firstName, lastName, 0);
         const receipt = await (await namesByDAO.assignName(nameId, actorPanGu)).wait();
         //console.log(JSON.stringify(receipt.events, null, 2));
-        const [, , nameAssigned] = receipt.events || [];
+        const [, nameAssigned] = receipt.events || [];
 
         expect(nameAssigned?.args?.nameId).to.eq(nameId);
         expect(nameAssigned?.args?.previousActor).to.eq(0);

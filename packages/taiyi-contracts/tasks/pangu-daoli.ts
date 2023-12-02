@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:pangu-daoli --network hard
+//pnpm task:pangu-daoli --network hard
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import { 

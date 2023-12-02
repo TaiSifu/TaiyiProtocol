@@ -3,7 +3,7 @@ import '@nomiclabs/hardhat-ethers'
 import '@typechain/hardhat';
 import "hardhat-change-network";
 import {HardhatUserConfig, NetworkUserConfig} from 'hardhat/types';
-import './tasks';
+//import './tasks';
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.6',
+    	version: '0.8.21',
         settings: {
           // You should disable the optimizer when debugging
           // https://hardhat.org/hardhat-network/#solidity-optimizer-support

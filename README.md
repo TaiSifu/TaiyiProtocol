@@ -82,24 +82,24 @@
 ### 安装相关组件
 
 ```sh
-lerna bootstrap
-yarn
+pnpm install --ignore-scripts
 ```
+如果使用“--ignore-scripts”选项，则不会自动运行prepare，仅安装依赖的组件
 
 ### 构建所有项目
 
 ```sh
-yarn build
+pnpm build
 ```
 
 ### 运行 Linter
 
 ```sh
-yarn lint
+pnpm lint
 ```
 
 ### 运行 Prettier
 
 ```sh
-yarn format
+pnpm format
 ```

@@ -141,7 +141,7 @@ describe('角色社会身份测试', () => {
             //approve PanGu to op1
             await actors.connect(taiyiDAO).approve(operator1.address, await worldConstants.ACTOR_PANGU());
             expect((await actorSIDs.connect(operator1).burn(2, newSID)).wait()).eventually.fulfilled;
-            await expect(actorSIDs.ownerOf(newSID)).to.be.revertedWith("ERC721: owner query for nonexistent token");            
+            await expect(actorSIDs.ownerOf(newSID)).to.be.rejectedWith("ERC721NonexistentToken");            
         });
     });        
 });

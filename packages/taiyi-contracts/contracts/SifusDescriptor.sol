@@ -23,7 +23,7 @@ import { ISifusDescriptor } from './interfaces/ISifusDescriptor.sol';
 import { ISifusSeeder } from './interfaces/ISifusSeeder.sol';
 import { MultiPartRLEToSVG } from './libs/MultiPartRLEToSVG.sol';
 
-contract SifusDescriptor is ISifusDescriptor, Ownable {
+contract SifusDescriptor is ISifusDescriptor, Ownable(msg.sender) {
     using Strings for uint256;
 
     // prettier-ignore

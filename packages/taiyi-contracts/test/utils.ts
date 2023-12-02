@@ -3,7 +3,7 @@ import { ethers, network } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     SifusToken, SifusToken__factory, SifusDescriptor, SifusDescriptor__factory, SifusSeeder, SifusSeeder__factory,
-    Weth, Weth__factory,
+    WETH, WETH__factory,
 } from '../typechain';
 import ImageData from '../files/image-data.json';
 import { Block } from '@ethersproject/abstract-provider';
@@ -64,8 +64,8 @@ export const deploySifusToken = async (
     );
 };
 
-export const deployWeth = async (deployer?: SignerWithAddress): Promise<Weth> => {
-    const factory = new Weth__factory(deployer || (await await getSigners()).deployer);
+export const deployWeth = async (deployer?: SignerWithAddress): Promise<WETH> => {
+    const factory = new WETH__factory(deployer || (await await getSigners()).deployer);
 
     return factory.deploy();
 };
