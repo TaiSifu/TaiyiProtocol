@@ -465,7 +465,7 @@ describe('角色成长事件测试', () => {
         it(`成长测试10031（未授权声誉）`, async ()=>{
             expect(await evt10031.checkOccurrence(testActor, 0)).eq(true);
             //未授权声誉
-            await expect(shejiTu.grow(testActor, { gasLimit: 5000000 })).to.be.revertedWith("transfer amount exceeds allowance"); //age 1
+            await expect(shejiTu.grow(testActor, { gasLimit: 5000000 })).to.be.rejectedWith("ERC20InsufficientAllowance"); //age 1
         });
 
         it(`成长测试10031（授权声誉）`, async ()=>{

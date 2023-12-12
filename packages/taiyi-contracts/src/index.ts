@@ -4,5 +4,5 @@ export { default as SifusDescriptorABI } from '../abi/contracts/SifusDescriptor.
 export { default as SifusSeederABI } from '../abi/contracts/SifusSeeder.sol/SifusSeeder.json';
 export { default as TaiyiDAOABI } from '../abi/contracts/governance/TaiyiDAOLogicV1.sol/TaiyiDAOLogicV1.json';
 export { 
-    SifusToken__factory, ShejiTu__factory, SifusDescriptor__factory, SifusSeeder__factory, TaiyiDaoLogicV1__factory
+    SifusToken__factory, ShejiTu__factory, SifusDescriptor__factory, SifusSeeder__factory, TaiyiDAOLogicV1__factory
 } from '../typechain';

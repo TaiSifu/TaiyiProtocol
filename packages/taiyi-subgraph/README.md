@@ -5,7 +5,7 @@ A subgraph that indexes actors or sifus events.
 ## Quickstart
 
 ```sh
-yarn
+pnpm install
 ```
 
 ## Taiyi subgraph
@@ -17,7 +17,7 @@ This repo contains the templates for compiling and deploying a graphql schema to
 To authenticate for thegraph deployment use the `Access Token` from thegraph dashboard:
 
 ```sh
-yarn run graph auth https://api.thegraph.com/deploy/ $ACCESS_TOKEN
+pnpm run graph auth https://api.thegraph.com/deploy/ $ACCESS_TOKEN
 ```
 
 ### Local subgraph server
@@ -49,17 +49,17 @@ graph create --node http://localhost:8020 taiyi
 ### Create subgraph.yaml from config template
 
 ```sh
-yarn prepare:[network] # Supports rinkeby and mainnet and local
+pnpm prepare:[network] # Supports rinkeby and mainnet and local
 ```
 
 ### Generate types to use with Typescript
 
 ```sh
-yarn codegen
+pnpm codegen
 ```
 
 ### Compile and deploy to thegraph (must be authenticated)
 
 ```sh
-yarn deploy:[network] # Supports rinkeby and mainnet(in local mode, set mainnet in graph-node docker)
+pnpm deploy:[network] # Supports rinkeby and mainnet(in local mode, set mainnet in graph-node docker)
 ```

@@ -1,14 +1,14 @@
 //npx hardhat node
-//yarn test ./test/end2end_design.test.ts --network hard
+//pnpm test ./test/end2end_design.test.ts --network hard
 import chai from 'chai';
 import { ethers, upgrades } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 
 import {
-    Weth,
+    WETH,
     SifusToken, SifusDescriptor, SifusDescriptor__factory, ShejiTu, ShejiTu__factory, Actors,
-    TaiyiDaoProxy__factory, TaiyiDaoLogicV1, TaiyiDaoLogicV1__factory, TaiyiDaoExecutor, TaiyiDaoExecutor__factory,    
+    TaiyiDAOProxy__factory, TaiyiDAOLogicV1, TaiyiDAOLogicV1__factory, TaiyiDAOExecutor, TaiyiDAOExecutor__factory,    
     WorldConstants, WorldContractRoute, ActorAttributes, WorldFungible, WorldRandom, WorldYemings, WorldEvents, WorldZones,
     ActorLocations, ActorTalents, Trigrams, WorldFungible__factory, AssetDaoli,
 } from '../typechain';
@@ -31,8 +31,8 @@ let sifusToken: SifusToken;
 let shejiTu: ShejiTu;
 let descriptor: SifusDescriptor;
 //let weth: Weth;
-let gov: TaiyiDaoLogicV1;
-let timelock: TaiyiDaoExecutor;
+let gov: TaiyiDAOLogicV1;
+let timelock: TaiyiDAOExecutor;
 
 let deployer: SignerWithAddress;
 let wethDeployer: SignerWithAddress;
@@ -157,16 +157,16 @@ async function deploy() {
         nonce: (await deployer.getTransactionCount()) + 2,
     });
     // 5b. DEPLOY TaiyiDAOExecutor with pre-computed Delegator address
-    timelock = await new TaiyiDaoExecutor__factory(deployer).deploy(
+    timelock = await new TaiyiDAOExecutor__factory(deployer).deploy(
         calculatedGovDelegatorAddress,
         TIME_LOCK_DELAY,
     );
 
     // 6. DEPLOY Delegate
-    const govDelegate = await new TaiyiDaoLogicV1__factory(deployer).deploy();
+    const govDelegate = await new TaiyiDAOLogicV1__factory(deployer).deploy();
 
     // 7a. DEPLOY Delegator
-    const taiyiDAOProxy = await new TaiyiDaoProxy__factory(deployer).deploy(
+    const taiyiDAOProxy = await new TaiyiDAOProxy__factory(deployer).deploy(
         timelock.address,
         sifusToken.address,
         taiyiDAO.address, // taiyiDAO is vetoer
@@ -179,7 +179,7 @@ async function deploy() {
     );
     expect(calculatedGovDelegatorAddress).to.equal(taiyiDAOProxy.address);
     // 7b. CAST Delegator as Delegate
-    gov = TaiyiDaoLogicV1__factory.connect(taiyiDAOProxy.address, deployer);
+    gov = TaiyiDAOLogicV1__factory.connect(taiyiDAOProxy.address, deployer);
 
     // 8. SET Sifus owner to TaiyiDAOExecutor
     await sifusToken.transferOwnership(timelock.address);

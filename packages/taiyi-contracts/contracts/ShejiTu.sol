@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+pragma solidity >=0.8.21;
+
 /// @title The Taiyi ShejiTu
 
 /*********************************
@@ -14,12 +16,10 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
  *********************************/
 
-pragma solidity ^0.8.6;
-
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
-import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol';
 import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './interfaces/WorldInterfaces.sol';
 import './libs/Base64.sol';
@@ -107,7 +107,7 @@ contract ShejiTu is IWorldTimeline, ERC165, IERC721Receiver, ReentrancyGuardUpgr
         IWorldRandom _random
     ) external initializer {
         __ReentrancyGuard_init();
-        __Ownable_init();
+        __Ownable_init(_msgSender());
 
         name = _name;
         description = _desc;

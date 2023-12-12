@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn test ./test/world/story.test.ts --network hard
+//pnpm test ./test/world/story.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import '@openzeppelin/hardhat-upgrades';

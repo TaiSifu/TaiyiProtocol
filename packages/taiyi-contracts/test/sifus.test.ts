@@ -1,6 +1,7 @@
 //npx hardhat node
-//yarn test ./test/sifus.test.ts --network hard
+//pnpm test ./test/sifus.test.ts --network hard
 import chai from 'chai';
+import asPromised from 'chai-as-promised';
 import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
 import { BigNumber, BigNumber as EthersBN, constants } from 'ethers';
@@ -10,6 +11,7 @@ import { deploySifusToken, populateDescriptor, blockTimestamp, blockNumber } fro
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../utils';
 
+chai.use(asPromised);
 chai.use(solidity);
 const { expect } = chai;
 
@@ -198,9 +200,7 @@ describe('太乙师傅令牌测试', () => {
     });
     it('非合约所有人无权设置contractURI', async () => {
         const [, nonOwner] = await ethers.getSigners();
-        await expect(sifusToken.connect(nonOwner).setContractURIHash('BAD')).to.be.revertedWith(
-            'Ownable: caller is not the owner',
-        );
+        await expect(sifusToken.connect(nonOwner).setContractURIHash('BAD')).to.be.rejectedWith('OwnableUnauthorizedAccount');
     });
 
 });

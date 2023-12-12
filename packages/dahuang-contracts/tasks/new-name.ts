@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:new-name --network hard --first 蓉 --last 黄
+//pnpm task:new-name --network hard --first 蓉 --last 黄
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {

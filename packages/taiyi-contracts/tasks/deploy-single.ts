@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:deploy-single --network hard
+//pnpm task:deploy-single --network hard
 import fs from 'fs-extra';
 import { Block } from '@ethersproject/abstract-provider';
 import { task, types } from 'hardhat/config';

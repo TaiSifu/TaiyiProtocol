@@ -65,30 +65,30 @@ describe('师傅令牌图形描述器', () => {
   // Unskip this test to validate the encoding of all parts. It ensures that no parts revert when building the token URI.
   // This test also outputs a parts.html file, which can be visually inspected.
   // Note that this test takes a long time to run. You must increase the mocha timeout to a large number.
-  it.skip('生成所有可能的部件组合SVG', async () => {
-    console.log('Running... this may take a little while...');
+  // it.skip('生成所有可能的部件组合SVG', async () => {
+  //   console.log('Running... this may take a little while...');
 
-    const { bgcolors, images } = ImageData;
-    const { bodies, accessories, heads, glasses } = images;
-    const max = Math.max(bodies.length, accessories.length, heads.length, glasses.length);
-    for (let i = 0; i < max; i++) {
-      const svg = await sifusDescriptor.tokenURI(i, {
-        background: Math.min(i, bgcolors.length - 1),
-        part1: Math.min(i, bodies.length - 1),
-        part2: Math.min(i, accessories.length - 1),
-        part3: Math.min(i, heads.length - 1),
-        part4: Math.min(i, glasses.length - 1),
-      });
-      expect(svg).to.not.be.undefined;
+  //   const { bgcolors, images } = ImageData;
+  //   const { bodies, accessories, heads, glasses } = images;
+  //   const max = Math.max(bodies.length, accessories.length, heads.length, glasses.length);
+  //   for (let i = 0; i < max; i++) {
+  //     const svg = await sifusDescriptor.tokenURI(i, {
+  //       background: Math.min(i, bgcolors.length - 1),
+  //       part1: Math.min(i, bodies.length - 1),
+  //       part2: Math.min(i, accessories.length - 1),
+  //       part3: Math.min(i, heads.length - 1),
+  //       part4: Math.min(i, glasses.length - 1),
+  //     });
+  //     expect(svg).to.not.be.undefined;
 
-      appendFileSync(
-        'parts.html',
-        svg,
-      );
+  //     appendFileSync(
+  //       'parts.html',
+  //       svg,
+  //     );
 
-      if (i && i % Math.round(max / 10) === 0) {
-        console.log(`${Math.round((i / max) * 100)}% complete`);
-      }
-    }
-  });
+  //     if (i && i % Math.round(max / 10) === 0) {
+  //       console.log(`${Math.round((i / max) * 100)}% complete`);
+  //     }
+  //   }
+  // });
 });

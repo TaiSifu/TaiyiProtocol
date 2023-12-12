@@ -10,3 +10,5 @@ typechain/
 logs
 
 addresses/hard.json
+
+dist

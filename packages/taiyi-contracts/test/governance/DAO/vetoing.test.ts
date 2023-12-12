@@ -28,11 +28,11 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     SifusToken,
     SifusDescriptor__factory,
-    TaiyiDaoProxy__factory,
-    TaiyiDaoLogicV1,
-    TaiyiDaoLogicV1__factory,
-    TaiyiDaoExecutor,
-    TaiyiDaoExecutor__factory,
+    TaiyiDAOProxy__factory,
+    TaiyiDAOLogicV1,
+    TaiyiDAOLogicV1__factory,
+    TaiyiDAOExecutor,
+    TaiyiDAOExecutor__factory,
 } from '../../../typechain';
 import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../../utils';
 
@@ -84,11 +84,11 @@ async function reset(): Promise<void> {
     });
 
     // Deploy TaiyiDAOExecutor with pre-computed Delegator address
-    timelock = await new TaiyiDaoExecutor__factory(deployer).deploy(govDelegatorAddress, timelockDelay);
+    timelock = await new TaiyiDAOExecutor__factory(deployer).deploy(govDelegatorAddress, timelockDelay);
     const timelockAddress = timelock.address;
 
     // Deploy Delegate
-    const { address: govDelegateAddress } = await new TaiyiDaoLogicV1__factory(deployer).deploy();
+    const { address: govDelegateAddress } = await new TaiyiDAOLogicV1__factory(deployer).deploy();
 
     // Deploy World Constants
     let worldConstants = await deployWorldConstants(deployer);
@@ -115,7 +115,7 @@ async function reset(): Promise<void> {
     token = await deploySifusToken(worldContractRoute.address, deployer);
 
     // Deploy Delegator
-    await new TaiyiDaoProxy__factory(deployer).deploy(
+    await new TaiyiDAOProxy__factory(deployer).deploy(
         timelockAddress,
         token.address,
         vetoer.address,
@@ -128,7 +128,7 @@ async function reset(): Promise<void> {
     );
 
     // Cast Delegator as Delegate
-    gov = TaiyiDaoLogicV1__factory.connect(govDelegatorAddress, deployer);
+    gov = TaiyiDAOLogicV1__factory.connect(govDelegatorAddress, deployer);
 
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), deployer));
 
@@ -167,8 +167,8 @@ let account1: SignerWithAddress;
 let account2: SignerWithAddress;
 let signers: TestSigners;
 
-let gov: TaiyiDaoLogicV1;
-let timelock: TaiyiDaoExecutor;
+let gov: TaiyiDAOLogicV1;
+let timelock: TaiyiDAOExecutor;
 const timelockDelay = 172800; // 2 days
 
 const proposalThresholdBPS = 500; // 5%

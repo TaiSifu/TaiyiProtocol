@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn test ./test/actors.test.ts --network hard
+//pnpm test ./test/actors.test.ts --network hard
 import chai from 'chai';
 import asPromised from 'chai-as-promised';
 import { ethers } from 'hardhat';
@@ -73,14 +73,14 @@ describe('太乙角色基础测试', () => {
 
     it('访问不存在的角色', async () => {
         await expect(actors.getActor(0)).to.be.revertedWith('invalid actor');
-        await expect(actors.getActor(1)).to.be.revertedWith('ERC721: owner query for nonexistent token');
+        await expect(actors.getActor(1)).to.be.rejectedWith('ERC721NonexistentToken');
     });
 
     it('注册世界模块-盘古不存在的情况', async () => {
         //deploy module with out any actor exist
         let worldRandom = await deployWorldRandom(deployer);
         await expect(worldContractRoute.registerModule(await worldConstants.WORLD_MODULE_RANDOM(), worldRandom.address))
-        .to.be.revertedWith('ERC721: approved query for nonexistent token');
+        .to.be.rejectedWith('ERC721NonexistentToken(1)');
     });
 
     it('第一个角色作为「盘古」', async () => {
@@ -122,7 +122,7 @@ describe('太乙角色基础测试', () => {
         //newone should not be mint for free
         expect(await actors.nextActor()).to.eq(4);
         await expect(actors.mintActor(0)).to.be.revertedWith("current actor price exceeded max");
-        await expect(actors.mintActor(BigInt(100.0e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(actors.mintActor(BigInt(100.0e18))).to.be.rejectedWith("ERC20InsufficientAllowance");
     });
 
     it('非盘古操作员无权注册世界模块', async () => {
@@ -152,7 +152,7 @@ describe('太乙角色基础测试', () => {
 
         //not approve coin to spend by Actors
         expect(await actors.nextActor()).to.eq(4);
-        await expect(actors.connect(operator1).mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        await expect(actors.connect(operator1).mintActor(BigInt(100e18))).to.be.rejectedWith("ERC20InsufficientAllowance");
 
         //newone should be mint
         await assetDaoli.connect(operator1).approve(actors.address, BigInt(1000e18));
@@ -173,7 +173,7 @@ describe('太乙角色基础测试', () => {
 
         expect(await actors.nextActor()).to.eq(5);
         expect(await actors.actorPrice()).to.gt(BigInt(1e17));
-        await expect(actors.mintActor(BigInt(100e18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(actors.mintActor(BigInt(100e18))).to.be.rejectedWith("ERC20InsufficientBalance");
     });
 
     it('铸造新角色-最小花费上限情况', async () => {
@@ -256,31 +256,31 @@ describe('角色铸造费用VRGDA测试', () => {
     });
 
     it('价格稳定性', async () => {
-        console.log(`角色指导价为:${web3.utils.fromWei((await actors.targetPrice()).toString())}个道理`);
+        console.log(`角色指导价为:${web3.utils.fromWei((await actors.targetPrice()).toString(), "ether")}个道理`);
         let dt = 10; //seconds
         let timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         await increaseTime((await actors.mintStart()).add(dt).sub(timestamp).toNumber());
-        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString(), "ether")}`);
 
         dt = 60; //seconds
         timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         await increaseTime((await actors.mintStart()).add(dt).sub(timestamp).toNumber());
-        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+        console.log(`- 若${dt}秒还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString(), "ether")}`);
 
         dt = 1; //hours
         timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         await increaseTime((await actors.mintStart()).add(dt*3600).sub(timestamp).toNumber());
-        console.log(`- 若${dt}小时还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+        console.log(`- 若${dt}小时还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString(), "ether")}`);
 
         dt = 1; //days
         timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         await increaseTime((await actors.mintStart()).add(dt*24*3600).sub(timestamp).toNumber());
-        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString(), "ether")}`);
 
         dt = 30; //days
         timestamp = await blockTimestamp(BigNumber.from(await blockNumber()).toHexString().replace("0x0", "0x"));
         await increaseTime((await actors.mintStart()).add(dt*24*3600).sub(timestamp).toNumber());
-        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString())}`);
+        console.log(`- 若${dt}天还没有人买，则价格降为${web3.utils.fromWei((await actors.actorPrice()).toString(), "ether")}`);
     });
 
     it('发行超量容错', async () => {

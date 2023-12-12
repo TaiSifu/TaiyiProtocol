@@ -10,7 +10,7 @@ contract DefaultWorldEventProcessor is IWorldEventProcessor, WorldConfigurable, 
 {
     uint256 public defaultBranchEvent;
 
-    constructor(WorldContractRoute _route, uint256 _defaultBranchEvent) WorldConfigurable(_route) {
+    constructor(WorldContractRoute _route, uint256 _defaultBranchEvent) WorldConfigurable(_route) Ownable(_msgSender()) {
         defaultBranchEvent = _defaultBranchEvent;
     }
 

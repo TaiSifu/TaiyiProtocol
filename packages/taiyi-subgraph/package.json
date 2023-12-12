@@ -17,13 +17,13 @@
     "prepare:hard": "mustache config/hard.json subgraph.yaml.mustache > subgraph.yaml",
     "prepare:rinkeby": "mustache config/rinkeby.json subgraph.yaml.mustache > subgraph.yaml",
     "prepare:mainnet": "mustache config/mainnet.json subgraph.yaml.mustache > subgraph.yaml",
-    "deploy:rinkeby": "yarn clean && yarn prepare:rinkeby && yarn codegen && yarn deploy taiyi/sifus-subgraph-rinkeby",
-    "deploy:mainnet": "yarn clean && yarn prepare:mainnet && yarn codegen && yarn deploy taiyi/sifus-subgraph",
-    "deploy:hard": "yarn clean && yarn prepare:hard && yarn codegen && yarn deploy_local taiyi"
+    "deploy:rinkeby": "pnpm clean && pnpm prepare:rinkeby && pnpm codegen && pnpm deploy taiyi/sifus-subgraph-rinkeby",
+    "deploy:mainnet": "pnpm clean && pnpm prepare:mainnet && pnpm codegen && pnpm deploy taiyi/sifus-subgraph",
+    "deploy:hard": "pnpm clean && pnpm prepare:hard && pnpm codegen && pnpm deploy_local taiyi"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.48.0",
-    "@graphprotocol/graph-ts": "^0.29.3",
+    "@graphprotocol/graph-cli": "^0.61.0",
+    "@graphprotocol/graph-ts": "^0.31.0",
     "mustache": "^4.2.0"
   }
 }

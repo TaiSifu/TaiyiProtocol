@@ -22,10 +22,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     SifusToken,
     SifusDescriptor__factory,
-    TaiyiDaoProxy__factory,
-    TaiyiDaoLogicV1,
-    TaiyiDaoLogicV1__factory,
-    TaiyiDaoExecutor__factory,
+    TaiyiDAOProxy__factory,
+    TaiyiDAOLogicV1,
+    TaiyiDAOLogicV1__factory,
+    TaiyiDAOExecutor__factory,
 } from '../../../typechain';
 import { deployActors, deployAssetDaoli, deployWorldConstants, deployWorldContractRoute, deployWorldYemings } from '../../../utils';
 
@@ -53,13 +53,13 @@ async function reset(): Promise<void> {
     });
 
     // Deploy TaiyiDAOExecutor with pre-computed Delegator address
-    const { address: timelockAddress } = await new TaiyiDaoExecutor__factory(deployer).deploy(
+    const { address: timelockAddress } = await new TaiyiDAOExecutor__factory(deployer).deploy(
         govDelegatorAddress,
         timelockDelay,
     );
 
     // Deploy Delegate
-    const { address: govDelegateAddress } = await new TaiyiDaoLogicV1__factory(deployer).deploy();
+    const { address: govDelegateAddress } = await new TaiyiDAOLogicV1__factory(deployer).deploy();
 
     // Deploy World Constants
     let worldConstants = await deployWorldConstants(deployer);
@@ -86,7 +86,7 @@ async function reset(): Promise<void> {
     token = await deploySifusToken(worldContractRoute.address, deployer);
 
     // Deploy Delegator
-    await new TaiyiDaoProxy__factory(deployer).deploy(
+    await new TaiyiDAOProxy__factory(deployer).deploy(
         timelockAddress,
         token.address,
         address(0),
@@ -99,7 +99,7 @@ async function reset(): Promise<void> {
     );
 
     // Cast Delegator as Delegate
-    gov = TaiyiDaoLogicV1__factory.connect(govDelegatorAddress, deployer);
+    gov = TaiyiDAOLogicV1__factory.connect(govDelegatorAddress, deployer);
 
     await populateDescriptor(SifusDescriptor__factory.connect(await token.descriptor(), deployer));
 
@@ -126,7 +126,7 @@ let account1: SignerWithAddress;
 let account2: SignerWithAddress;
 let signers: TestSigners;
 
-let gov: TaiyiDaoLogicV1;
+let gov: TaiyiDAOLogicV1;
 const timelockDelay = 172800; // 2 days
 
 const proposalThresholdBPS = 678; // 6.78%，提案人最小持票要求，占比

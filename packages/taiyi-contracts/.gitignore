@@ -15,3 +15,7 @@ coverage.json
 
 addresses/hard.json
 addresses/hard_const_args.json
+
+abi
+dist
+typechain

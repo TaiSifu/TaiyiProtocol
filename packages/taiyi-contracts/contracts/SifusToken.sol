@@ -238,7 +238,7 @@ contract SifusToken is ISifusToken, ERC721Checkpointable, WorldConfigurable {
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 _sifu) public override view returns (string memory) {
-        require(_exists(_sifu), 'URI query for nonexistent token');
+        require(_ownerOf(_sifu) != address(0), 'URI query for nonexistent token');
         //console.log("view log: _sifu=%s, ", _sifu);
         //svg
         string memory svg = descriptor.generateSVGImage(seeds[_sifu]);

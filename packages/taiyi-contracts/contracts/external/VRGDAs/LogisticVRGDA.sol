@@ -2,7 +2,7 @@
 //copy from https://github.com/transmissions11/VRGDAs
 pragma solidity >=0.8.0;
 
-import {wadLn, unsafeDiv, unsafeWadDiv} from "solmate/src/utils/SignedWadMath.sol";
+import {wadLn, unsafeDiv, unsafeWadDiv} from "../../utils/SignedWadMath.sol";
 
 import {VRGDA} from "./VRGDA.sol";
 

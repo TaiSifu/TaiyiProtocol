@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity >=0.8.21;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -18,7 +18,6 @@ interface IWorldRandom is IWorldModule {
 }
 
 interface IActors is IERC721, IWorldModule {
-
     struct Actor 
     {
         address owner;
@@ -53,7 +52,6 @@ interface IWorldYemings is IWorldModule {
 }
 
 interface IWorldTimeline is IWorldModule {
-
     event AgeEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event BranchEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
     event ActiveEvent(uint256 indexed actor, uint256 indexed age, uint256 indexed eventId);
@@ -69,7 +67,6 @@ interface IWorldTimeline is IWorldModule {
 }
 
 interface IActorAttributes is IWorldModule {
-
     event Created(address indexed creator, uint256 indexed actor, uint256[] attributes);
     event Updated(address indexed executor, uint256 indexed actor, uint256[] attributes);
 
@@ -83,7 +80,6 @@ interface IActorAttributes is IWorldModule {
 }
 
 interface IActorBehaviorAttributes is IActorAttributes {
-
     event ActRecovered(uint256 indexed actor, uint256 indexed act);
 
     function canRecoverAct(uint256 _actor) external view returns (bool);
@@ -91,7 +87,6 @@ interface IActorBehaviorAttributes is IActorAttributes {
 }
 
 interface IActorTalents is IWorldModule {
-
     event Created(address indexed creator, uint256 indexed actor, uint256[] ids);
 
     function talents(uint256 _id) external view returns (string memory _name, string memory _description);
@@ -118,7 +113,6 @@ interface IActorTalentProcessor {
 }
 
 interface IWorldEvents is IWorldModule {
-
     event Born(uint256 indexed actor);
 
     function ages(uint256 _actor) external view returns (uint256); //current age
@@ -189,7 +183,6 @@ interface IWorldNonfungible {
 }
 
 interface IActorNames is IWorldNonfungible, IERC721Enumerable, IWorldModule {
-
     event NameClaimed(address indexed owner, uint256 indexed actor, uint256 indexed nameId, string name, string firstName, string lastName);
     event NameUpdated(uint256 indexed nameId, string oldName, string newName);
     event NameAssigned(uint256 indexed nameId, uint256 indexed previousActor, uint256 indexed newActor);
@@ -204,7 +197,6 @@ interface IActorNames is IWorldNonfungible, IERC721Enumerable, IWorldModule {
 }
 
 interface IWorldZones is IWorldNonfungible, IERC721Enumerable, IWorldModule {
-
     event ZoneClaimed(uint256 indexed actor, uint256 indexed zoneId, string name);
     event ZoneUpdated(uint256 indexed zoneId, string oldName, string newName);
     event ZoneAssigned(uint256 indexed zoneId, uint256 indexed previousActor, uint256 indexed newActor);
@@ -281,7 +273,6 @@ interface IWorldItems is IWorldNonfungible, IERC721Enumerable, IWorldModule {
 }
 
 interface IActorPrelifes is IWorldModule {
-
     event Reincarnation(uint256 indexed actor, uint256 indexed postLife);
 
     function preLifes(uint256 _actor) external view returns (uint256);
@@ -291,7 +282,6 @@ interface IActorPrelifes is IWorldModule {
 }
 
 interface IActorLocations is IWorldModule {
-
     event ActorLocationChanged(uint256 indexed actor, uint256 indexed oldA, uint256 indexed oldB, uint256 newA, uint256 newB);
 
     function locationActors(uint256 _A, uint256 _B) external view returns (uint256[] memory);
@@ -310,7 +300,6 @@ interface ITrigramsRender is IWorldModule {
 }
 
 interface ITrigrams is IWorldModule {
-    
     event TrigramsOut(uint256 indexed actor, uint256 indexed trigram);
 
     function addActorTrigrams(uint256 _operator, uint256 _actor, uint256[] memory _trigramsData) external;

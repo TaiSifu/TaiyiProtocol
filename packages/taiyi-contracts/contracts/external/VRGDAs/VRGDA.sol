@@ -2,7 +2,7 @@
 //copy from https://github.com/transmissions11/VRGDAs
 pragma solidity >=0.8.0;
 
-import {wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
+import {wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe} from "../../utils/SignedWadMath.sol";
 
 /// @title Variable Rate Gradual Dutch Auction
 /// @author transmissions11 <t11s@paradigm.xyz>

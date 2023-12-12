@@ -14,3 +14,7 @@ coverage/
 coverage.json
 
 addresses/hard.json
+
+abi
+dist
+typechain

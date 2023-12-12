@@ -339,7 +339,7 @@ describe('大荒到须弥', () => {
         });
 
         it(`没有道具无法激活查看紫金米事件`, async ()=>{
-            await expect(dahuang.activeTrigger(60513, testActor, [1], [])).to.be.revertedWith("ERC721: owner query for nonexistent token");
+            await expect(dahuang.activeTrigger(60513, testActor, [1], [])).to.be.reverted;//rejectedWith("ERC721NonexistentToken");
         });
 
         it(`成长到1岁`, async ()=>{

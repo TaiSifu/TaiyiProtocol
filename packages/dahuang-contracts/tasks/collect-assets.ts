@@ -1,5 +1,5 @@
 //npx hardhat node
-//yarn task:collect-assets --network hard --actor 5
+//pnpm task:collect-assets --network hard --actor 5
 import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {

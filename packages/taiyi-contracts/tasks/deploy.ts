@@ -1,10 +1,10 @@
 //npx hardhat node
-//yarn task:deploy --network hard
+//pnpm task:deploy --network hard
 import fs from 'fs-extra';
 import { Block } from '@ethersproject/abstract-provider';
 import { task, types } from 'hardhat/config';
 import { deployTaiyiWorld, WorldContract } from '../utils/deployWorld';
-import { Actors__factory, TaiyiDaoExecutor__factory, TaiyiDaoLogicV1__factory, TaiyiDaoProxy__factory } from '../typechain';
+import { Actors__factory, TaiyiDAOExecutor__factory, TaiyiDAOLogicV1__factory, TaiyiDAOProxy__factory } from '../typechain';
 import { BigNumber } from 'ethers';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
 
@@ -70,7 +70,7 @@ task('deploy', '部署太乙基础合约')
 
         //DEPLOY TaiyiDAOExecutor with pre-computed Delegator address
         console.log("Deploy TaiyiDaoExecutor...");
-        const timelock = await (await new TaiyiDaoExecutor__factory(deployer).deploy(
+        const timelock = await (await new TaiyiDAOExecutor__factory(deployer).deploy(
             expectedTaiyiDAOProxyAddress,
             args.timelockDelay,
         )).deployed();
@@ -78,11 +78,11 @@ task('deploy', '部署太乙基础合约')
 
         //DEPLOY Delegate
         console.log("Deploy TaiyiDaoLogicV1...");
-        const govDelegate = await (await new TaiyiDaoLogicV1__factory(deployer).deploy()).deployed();
+        const govDelegate = await (await new TaiyiDAOLogicV1__factory(deployer).deploy()).deployed();
 
         //DEPLOY Delegator
         console.log("Deploy TaiyiDaoProxy...");
-        const taiyiDAOProxy = await (await new TaiyiDaoProxy__factory(deployer).deploy(
+        const taiyiDAOProxy = await (await new TaiyiDAOProxy__factory(deployer).deploy(
             timelock.address,
             worldContracts.SifusToken.instance.address,
             taisifu.address,
