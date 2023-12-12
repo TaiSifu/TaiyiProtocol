@@ -5,7 +5,7 @@
 ## 安装依赖
 
 ```sh
-yarn
+pnpm install
 ```
 
 ## 启动Redis
@@ -17,5 +17,5 @@ docker-compose up -d
 ## 启动机器人服务
 
 ```sh
-yarn start
+pnpm start
 ```

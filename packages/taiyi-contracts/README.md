@@ -58,19 +58,19 @@
 ### 安装开发组件
 
 ```sh
-yarn
+pnpm install
 ```
 
 ### 编译typescript脚本、合约代码，并产生typechain封装类
 
 ```sh
-yarn build
+pnpm build
 ```
 
 ### 运行测试
 
 ```sh
-yarn test
+pnpm test
 ```
 
 ### 环境设置
