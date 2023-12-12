@@ -347,21 +347,34 @@ interface IGlobalStoryRegistry is IWorldModule {
     function removeStory(uint256 _operator, uint256 _storyEvtId) external;
 }
 
-interface INameGenerator is IWorldModule {
-    //数量，性别（0随机），字数（0随机，1一字，2二字），姓（“”随机），辈分（“”随机），名（“”随机）
-    function genName(uint256 number, uint256 gender, uint256 ct, string memory family, string memory middle, string memory given, uint256 seed) external view returns(string[] memory);
+interface IActorNameRegistry is IWorldModule {
 
+    function genderCount() external view returns (uint256);
+    function gender(uint256 _index) external view returns (string memory); 
     function registerGender(uint256 _operator, string[] memory strs) external;
     function removeGender(uint256 _operator, string[] memory strs) external;
 
+    function familyCount() external view returns (uint256);
+    function family(uint256 _index) external view returns (string memory); 
     function registerFamily(uint256 _operator, string[] memory strs) external;
     function removeFamily(uint256 _operator, string[] memory strs) external;
 
+    function middleCount() external view returns (uint256);
+    function middle(uint256 _index) external view returns (string memory); 
     function registerMiddle(uint256 _operator, string[] memory strs) external;
     function removeMiddle(uint256 _operator, string[] memory strs) external;
 
-    function registerGiven(uint256 _operator, string memory gender, string[] memory strs) external;
-    function removeGiven(uint256 _operator, string memory gender, string[] memory strs) external;
+    function givenCount(uint256 _genderId) external view returns (uint256);
+    function givenCount(string memory _gender) external view returns (uint256);
+    function given(uint256 _genderId, uint256 _index) external view returns (string memory); 
+    function given(string memory _gender, uint256 _index) external view returns (string memory); 
+    function registerGiven(uint256 _operator, string memory _gender, string[] memory strs) external;
+    function removeGiven(uint256 _operator, string memory _gender, string[] memory strs) external;
+}
+
+interface IActorNameGenerator is IWorldModule {
+    //数量，性别（0随机），字数（0随机，1一字，2二字），姓（“”随机），辈分（“”随机），名（“”随机）
+    function genName(uint256 number, uint256 gender, uint256 ct, string memory family, string memory middle, string memory given, uint256 seed) external view returns(string[] memory);
 }
 
 interface IWorldStoryActors is IWorldModule {

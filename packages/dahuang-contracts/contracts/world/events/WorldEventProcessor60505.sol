@@ -107,7 +107,7 @@ contract WorldEventProcessor60505 is DefaultWorldEventProcessor, ERC721Holder {
     }
 
     function _genName(IActorNames _names) internal view returns(string memory _firstName, string memory _lastName) {
-        INameGenerator nameGen = INameGenerator(worldRoute.modules(225));
+        IActorNameGenerator nameGen = IActorNameGenerator(worldRoute.modules(225));
         uint256 _nameSeed = 0;
         do {
             string[] memory name = nameGen.genName(1, 0, 0, "", "", "", _nameSeed);

@@ -11,7 +11,9 @@ import {
 } from '../typechain';
 import { BigNumber } from 'ethers';
 import { getAddressBookShareFilePath, getConstructorArgumentsBookShareFilePath } from '../utils/addressConfig';
-import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployNameGenerator, deployShejiTu, deployWorldEvents, WorldContract } from '../utils';
+import { deployActorBornPlaces, deployActorRelationship, deployActorTalents, deployActorNameGenerator, 
+    deployShejiTu, deployWorldEvents, WorldContract, deployActorNameRegistry 
+} from '../utils';
 
 const process_args = require('minimist')(process.argv.slice(2));
 
@@ -41,21 +43,39 @@ task('deploy-single', '部署单一合约')
         let worldContractRoute = WorldContractRoute__factory.connect(addressBook.WorldContractRoute, taisifu);
         let actors = Actors__factory.connect(addressBook.Actors, taisifu);
 
-
-        console.log("Deploy NameGenerator...");
-        let nameGenerator = await deployNameGenerator(worldContractRoute, deployer);
-        let nameGeneratorArg = [worldContractRoute.address];
-        await (await worldContractRoute.registerModule(225, nameGenerator.address)).wait();
+        // console.log("Deploy ActorNameGenerator...");
+        // let actorNameGenerator = await deployActorNameGenerator(worldContractRoute, deployer);
+        // let actorNameGeneratorArg = [worldContractRoute.address];
+        // await (await worldContractRoute.registerModule(225, actorNameGenerator.address)).wait();
                     
+        // //save contract address
+        // addressBook.ActorNameGenerator = actorNameGenerator.address;
+        // const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
+        // await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
+        // console.log(`contract deployed book:`);
+        // console.log(JSON.stringify(addressBook, null, 2));
+
+        // //save constructor arguments
+        // argsBook.ActorNameGenerator = actorNameGeneratorArg;
+        // const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
+        // await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
+        // console.log(`contract constructor arguments book:`);
+        // console.log(JSON.stringify(argsBook, null, 2));
+
+        console.log("Deploy ActorNameRegistry...");
+        let actorNameRegistry = await deployActorNameRegistry(worldContractRoute, deployer);
+        let actorNameRegistryArg = [worldContractRoute.address];
+        await (await worldContractRoute.registerModule(227, actorNameRegistry.address)).wait();
+
         //save contract address
-        addressBook.NameGenerator = nameGenerator.address;
+        addressBook.ActorNameRegistry = actorNameRegistry.address;
         const sharedAddressPath = getAddressBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedAddressPath, JSON.stringify(addressBook, null, 2));
         console.log(`contract deployed book:`);
         console.log(JSON.stringify(addressBook, null, 2));
 
         //save constructor arguments
-        argsBook.NameGenerator = nameGeneratorArg;
+        argsBook.ActorNameRegistry = actorNameRegistryArg;
         const sharedArgsPath = getConstructorArgumentsBookShareFilePath(process_args.network?process_args.network:"hard");
         await fs.writeFile(sharedArgsPath, JSON.stringify(argsBook, null, 2));
         console.log(`contract constructor arguments book:`);

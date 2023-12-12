@@ -4,7 +4,9 @@ import fs from 'fs-extra';
 import { task, types } from 'hardhat/config';
 import {
     Actors__factory, ActorNames__factory, ActorTalents__factory, WorldFungible__factory, 
-    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory, ActorLocations__factory, AssetDaoli, AssetDaoli__factory, WorldItems, WorldItems__factory, NameGenerator__factory,
+    ShejiTu__factory, WorldZones__factory, ActorAttributes__factory, WorldEvents__factory, 
+    ActorLocations__factory, AssetDaoli, AssetDaoli__factory, WorldItems, WorldItems__factory,
+    ActorNameGenerator__factory, ActorNameRegistry__factory,
 } from '../typechain';
 import { getAddressBookShareFilePath } from '../utils';
 
@@ -32,13 +34,14 @@ task('do', '做一些事情')
         let names = ActorNames__factory.connect(addressBook.ActorNames, operator1);
         let daoli = AssetDaoli__factory.connect(addressBook.AssetDaoli, operator1);
         let items = WorldItems__factory.connect(addressBook.WorldItems, operator1);
-        let nameGen = NameGenerator__factory.connect(addressBook.NameGenerator, operator1);
+        let nameReg = ActorNameRegistry__factory.connect(addressBook.ActorNameRegistry, operator1);
+        let nameGen = ActorNameGenerator__factory.connect(addressBook.ActorNameGenerator, operator1);
 
         let actorPanGu = 1;
                 
         if(0) {
             console.log("注册性别");
-            await (await nameGen.connect(taisifu).registerGender(actorPanGu, ["男", "女"])).wait();
+            await (await nameReg.connect(taisifu).registerGender(actorPanGu, ["男", "女"])).wait();
         }
 
         if(0) {
@@ -50,7 +53,7 @@ task('do', '做一些事情')
                 let end = Math.min(family.length, start + 10);
                 if(start == end)
                     break;
-                await (await nameGen.connect(taisifu).registerFamily(actorPanGu, family.slice(start, end))).wait();
+                await (await nameReg.connect(taisifu).registerFamily(actorPanGu, family.slice(start, end))).wait();
                 i = end;
             }
         }
@@ -64,7 +67,7 @@ task('do', '做一些事情')
                 let end = Math.min(middle.length, start + 20);
                 if(start == end)
                     break;
-                await (await nameGen.connect(taisifu).registerMiddle(actorPanGu, middle.slice(start, end))).wait();
+                await (await nameReg.connect(taisifu).registerMiddle(actorPanGu, middle.slice(start, end))).wait();
                 i = end;
             }
         }
@@ -78,7 +81,7 @@ task('do', '做一些事情')
                 let end = Math.min(male.length, start + 20);
                 if(start == end)
                     break;
-                await (await nameGen.connect(taisifu).registerGiven(actorPanGu, "男", male.slice(start, end))).wait();
+                await (await nameReg.connect(taisifu).registerGiven(actorPanGu, "男", male.slice(start, end))).wait();
                 i = end;
             }
         }
@@ -92,7 +95,7 @@ task('do', '做一些事情')
                 let end = Math.min(famale.length, start + 20);
                 if(start == end)
                     break;
-                await (await nameGen.connect(taisifu).registerGiven(actorPanGu, "女", famale.slice(start, end))).wait();
+                await (await nameReg.connect(taisifu).registerGiven(actorPanGu, "女", famale.slice(start, end))).wait();
                 i = end;
             }
         }
